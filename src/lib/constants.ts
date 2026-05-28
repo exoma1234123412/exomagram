@@ -125,3 +125,20 @@ export const MIN_TITLE_LENGTH = 10;
 
 // Horas mínimas esperadas por día laboral
 export const EXPECTED_DAILY_HOURS = 8;
+
+// Achievement definitions
+export const ACHIEVEMENTS: Record<
+  string,
+  { label: string; emoji: string; description: string }
+> = {
+  streak_7: { label: "7 dias seguidos", emoji: "🔥", description: "Racha de 7 dias registrando horas" },
+  streak_30: { label: "30 dias seguidos", emoji: "💎", description: "Racha de 30 dias registrando horas" },
+  proof_100: { label: "100% evidencia", emoji: "🛡️", description: "Semana completa con 100% de entradas con evidencia" },
+  zero_late: { label: "Siempre a tiempo", emoji: "⏱️", description: "Semana sin entradas tardias" },
+  first_logger: { label: "Madrugador", emoji: "🌅", description: "Primero en registrar 5 veces" },
+  helpful: { label: "Servicial", emoji: "🤝", description: "Recibir 10 reacciones de 'me ayudo'" },
+  impressive_10: { label: "Estrella", emoji: "⭐", description: "Recibir 10 reacciones de 'impresionante'" },
+  closeout_streak: { label: "Disciplina", emoji: "📋", description: "5 cierres de dia consecutivos" },
+  high_trust: { label: "Confiable", emoji: "🏆", description: "Trust score >90 por 7 dias" },
+  team_player: { label: "Team Player", emoji: "💪", description: "Verificar 20 entradas de companeros" },
+};

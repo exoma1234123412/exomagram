@@ -121,6 +121,87 @@ export async function POST(request: Request) {
         }
       }
 
+      // 7. Ghost hours: entries logged during idle/offline heartbeat periods
+      const { data: liveStatus } = await supabase
+        .from("live_status")
+        .select("status, last_heartbeat")
+        .eq("user_id", member.user_id)
+        .eq("org_id", org.id)
+        .limit(1)
+        .single();
+
+      if (liveStatus) {
+        const heartbeat = new Date(liveStatus.last_heartbeat);
+        const dateObj = new Date(date + "T18:00:00");
+        const heartbeatAge = (dateObj.getTime() - heartbeat.getTime()) / 1000 / 60 / 60;
+        // If last heartbeat was >8 hours before end of workday but they logged entries
+        if (heartbeatAge > 8 && userEntries.length >= 4) {
+          flags.push({
+            flag_type: "idle_long",
+            details: `Ultimo heartbeat hace ${Math.round(heartbeatAge)}h pero registro ${userEntries.length} horas`,
+          });
+        }
+      }
+
+      // 8. Bulk entry forensics: multiple entries with identical logged_at (within 30s)
+      if (userEntries.length >= 3) {
+        const loggedAtTimes = userEntries
+          .map((e) => new Date(e.logged_at).getTime())
+          .sort((a, b) => a - b);
+        let bulkCount = 0;
+        for (let i = 1; i < loggedAtTimes.length; i++) {
+          if (loggedAtTimes[i] - loggedAtTimes[i - 1] < 30000) {
+            bulkCount++;
+          }
+        }
+        if (bulkCount >= 4) {
+          flags.push({
+            flag_type: "suspicious_pattern",
+            details: `${bulkCount + 1} entradas registradas en <30s \u2014 posible backfill masivo`,
+          });
+        }
+      }
+
+      // 9. Copy-paste detection: near-identical titles across entries
+      if (userEntries.length >= 4) {
+        const titles = userEntries.map((e) => e.title?.toLowerCase().trim());
+        const uniqueTitles = new Set(titles);
+        if (uniqueTitles.size === 1 && userEntries.length >= 4) {
+          flags.push({
+            flag_type: "low_detail",
+            details: `Todas las entradas tienen el mismo titulo: "${userEntries[0].title}"`,
+          });
+        }
+      }
+
+      // 10. Burnout detection: check last 7 days for overwork + declining mood
+      const weekAgo = new Date(date);
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      const weekAgoStr = weekAgo.toISOString().split("T")[0];
+      const { data: weekEntries } = await supabase
+        .from("time_entries")
+        .select("mood, energy, date")
+        .eq("user_id", member.user_id)
+        .eq("org_id", org.id)
+        .gte("date", weekAgoStr)
+        .lte("date", date);
+
+      if (weekEntries && weekEntries.length > 0) {
+        const totalWeekHours = weekEntries.length;
+        const moodValues = weekEntries.filter((e) => e.mood).map((e) => e.mood as number);
+        const energyValues = weekEntries.filter((e) => e.energy).map((e) => e.energy as number);
+        const avgMood = moodValues.length > 0 ? moodValues.reduce((a, b) => a + b, 0) / moodValues.length : 3;
+        const avgEnergy = energyValues.length > 0 ? energyValues.reduce((a, b) => a + b, 0) / energyValues.length : 3;
+
+        // Burnout: >50h/week + avg mood < 2.5 + avg energy < 2.5
+        if (totalWeekHours > 50 && avgMood < 2.5 && avgEnergy < 2.5) {
+          flags.push({
+            flag_type: "suspicious_pattern",
+            details: `Posible burnout: ${totalWeekHours}h/semana, animo ${avgMood.toFixed(1)}, energia ${avgEnergy.toFixed(1)}`,
+          });
+        }
+      }
+
       // Insert flags (skip duplicates)
       for (const flag of flags) {
         const { data: existing } = await supabase
@@ -256,6 +337,93 @@ export async function POST(request: Request) {
             .eq("user_id", member.user_id)
             .eq("org_id", org.id);
         }
+      }
+      // Check and grant achievements
+      const achievementsToGrant: string[] = [];
+
+      // streak_7 / streak_30
+      const currentStreak = streak?.current_streak ?? 0;
+      if (currentStreak >= 7) achievementsToGrant.push("streak_7");
+      if (currentStreak >= 30) achievementsToGrant.push("streak_30");
+
+      // proof_100: all entries today have proof
+      if (userEntries.length >= EXPECTED_DAILY_HOURS) {
+        const allHaveProof = userEntries.every(
+          (e) => e.proof_urls && e.proof_urls.length > 0
+        );
+        if (allHaveProof) achievementsToGrant.push("proof_100");
+      }
+
+      // zero_late: no late entries today (with at least 6 entries)
+      if (userEntries.length >= 6 && lateCount === 0) {
+        achievementsToGrant.push("zero_late");
+      }
+
+      // closeout_streak: check last 5 closeouts
+      const { data: recentCloseouts } = await supabase
+        .from("daily_closeouts")
+        .select("date")
+        .eq("user_id", member.user_id)
+        .eq("org_id", org.id)
+        .order("date", { ascending: false })
+        .limit(5);
+      if (recentCloseouts && recentCloseouts.length >= 5) {
+        achievementsToGrant.push("closeout_streak");
+      }
+
+      // high_trust: trust score >90
+      if (trustScore > 90) {
+        const { data: highScores } = await supabase
+          .from("trust_score_history")
+          .select("score")
+          .eq("user_id", member.user_id)
+          .eq("org_id", org.id)
+          .order("date", { ascending: false })
+          .limit(7);
+        if (
+          highScores &&
+          highScores.length >= 7 &&
+          highScores.every((s) => s.score > 90)
+        ) {
+          achievementsToGrant.push("high_trust");
+        }
+      }
+
+      // helpful: 10+ helped_me reactions received
+      if (userEntryIds.length > 0) {
+        const { count: helpedCount } = await supabase
+          .from("entry_reactions")
+          .select("*", { count: "exact", head: true })
+          .in("entry_id", userEntryIds)
+          .eq("reaction", "helped_me");
+        if ((helpedCount ?? 0) >= 10) achievementsToGrant.push("helpful");
+
+        const { count: impressiveCount } = await supabase
+          .from("entry_reactions")
+          .select("*", { count: "exact", head: true })
+          .in("entry_id", userEntryIds)
+          .eq("reaction", "impressive");
+        if ((impressiveCount ?? 0) >= 10) achievementsToGrant.push("impressive_10");
+      }
+
+      // team_player: 20+ verified reactions given
+      const { count: verifiedGiven } = await supabase
+        .from("entry_reactions")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", member.user_id)
+        .eq("reaction", "verified");
+      if ((verifiedGiven ?? 0) >= 20) achievementsToGrant.push("team_player");
+
+      // Upsert achievements (ignore duplicates)
+      for (const achType of achievementsToGrant) {
+        await supabase.from("achievements").upsert(
+          {
+            user_id: member.user_id,
+            org_id: org.id,
+            achievement_type: achType,
+          },
+          { onConflict: "user_id,org_id,achievement_type" }
+        );
       }
     }
   }

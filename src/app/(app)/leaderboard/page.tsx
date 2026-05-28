@@ -161,10 +161,10 @@ export default function LeaderboardPage() {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
             <Trophy className="w-6 h-6 text-yellow-500" />
             Leaderboard
           </h1>
@@ -178,6 +178,7 @@ export default function LeaderboardPage() {
               key={p}
               variant={period === p ? "default" : "outline"}
               size="sm"
+              className={period === p ? "rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white border-0" : "rounded-xl"}
               onClick={() => setPeriod(p)}
             >
               {p}d
@@ -187,13 +188,16 @@ export default function LeaderboardPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-20 text-muted-foreground">Cargando...</div>
+        <div className="flex flex-col items-center justify-center py-24 gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" />
+          <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
+        </div>
       ) : (
         <div className="space-y-3">
           {rankings.map((r, index) => (
             <Card key={r.profile.id} className={cn(
-              "transition-all",
-              index === 0 && "border-yellow-300 dark:border-yellow-700 shadow-md",
+              "transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5",
+              index === 0 && "border-yellow-300/60 dark:border-yellow-700/40 shadow-xl shadow-yellow-500/10 ring-1 ring-yellow-300/30",
               r.trustScore < 40 && "border-red-200 dark:border-red-900"
             )}>
               <CardContent className="p-4">
@@ -210,7 +214,7 @@ export default function LeaderboardPage() {
                   </div>
 
                   {/* Avatar */}
-                  <Avatar className="w-10 h-10">
+                  <Avatar className="w-10 h-10 ring-2 ring-background shadow-sm">
                     <AvatarImage src={r.profile.avatar_url ?? undefined} />
                     <AvatarFallback>{getInitials(r.profile.full_name)}</AvatarFallback>
                   </Avatar>
@@ -250,7 +254,7 @@ export default function LeaderboardPage() {
                   {/* Score */}
                   <div className="text-center min-w-[70px]">
                     <p className={cn(
-                      "text-2xl font-bold",
+                      "text-2xl font-bold tabular-nums tracking-tight",
                       r.trustScore >= 80 ? "text-green-600" :
                       r.trustScore >= 60 ? "text-blue-600" :
                       r.trustScore >= 40 ? "text-yellow-600" : "text-red-600"
@@ -265,8 +269,11 @@ export default function LeaderboardPage() {
           ))}
 
           {rankings.length === 0 && (
-            <div className="text-center py-20 text-muted-foreground">
-              No hay datos para este período.
+            <div className="flex flex-col items-center justify-center py-24 gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                <Trophy className="w-7 h-7 text-primary/40" />
+              </div>
+              <p className="text-sm text-muted-foreground">No hay datos para este período.</p>
             </div>
           )}
         </div>

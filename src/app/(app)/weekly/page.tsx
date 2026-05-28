@@ -187,18 +187,19 @@ export default function WeeklyPage() {
   const weekLabel = `${format(weekStart, "d MMM", { locale: es })} - ${format(weekEnd, "d MMM yyyy", { locale: es })}`;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
       <div className="flex items-center gap-3 mb-2">
-        <BarChart3 className="w-6 h-6 text-violet-600" />
-        <h1 className="text-2xl font-bold">Resumen Semanal</h1>
+        <BarChart3 className="w-6 h-6 text-primary" />
+        <h1 className="text-2xl font-bold tracking-tight">Resumen Semanal</h1>
       </div>
       <p className="text-muted-foreground text-sm mb-6 capitalize">{weekLabel}</p>
 
       {/* Week nav */}
-      <div className="flex items-center gap-2 mb-6">
+      <div className="flex items-center gap-2 mb-8 bg-card/80 border border-border/50 rounded-2xl p-2 w-fit">
         <Button
           variant="outline"
           size="icon"
+          className="rounded-xl"
           onClick={() => setWeekStart(subDays(weekStart, 7))}
         >
           <ChevronLeft className="w-4 h-4" />
@@ -206,6 +207,7 @@ export default function WeeklyPage() {
         <Button
           variant="outline"
           size="sm"
+          className="rounded-xl"
           onClick={() => setWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}
         >
           Esta semana
@@ -213,6 +215,7 @@ export default function WeeklyPage() {
         <Button
           variant="outline"
           size="icon"
+          className="rounded-xl"
           onClick={() => {
             const next = new Date(weekStart);
             next.setDate(next.getDate() + 7);
@@ -224,7 +227,10 @@ export default function WeeklyPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-20 text-muted-foreground">Cargando...</div>
+        <div className="flex flex-col items-center justify-center py-24 gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" />
+          <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
+        </div>
       ) : (
         <div className="space-y-3">
           {stats.map((s) => {
@@ -238,10 +244,10 @@ export default function WeeklyPage() {
             );
 
             return (
-              <Card key={s.profile.id}>
+              <Card key={s.profile.id} className="transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
-                    <Avatar className="w-12 h-12">
+                    <Avatar className="w-12 h-12 ring-2 ring-background shadow-sm">
                       <AvatarImage src={s.profile.avatar_url ?? undefined} />
                       <AvatarFallback>{getInitials(s.profile.full_name)}</AvatarFallback>
                     </Avatar>
@@ -263,7 +269,7 @@ export default function WeeklyPage() {
 
                   {/* Weekly stats */}
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-4">
-                    <div className="text-center p-2 bg-muted/50 rounded-lg">
+                    <div className="text-center p-2 bg-accent/40 rounded-xl">
                       <p
                         className={cn(
                           "text-lg font-bold",
@@ -281,7 +287,7 @@ export default function WeeklyPage() {
                       </p>
                     </div>
 
-                    <div className="text-center p-2 bg-muted/50 rounded-lg">
+                    <div className="text-center p-2 bg-accent/40 rounded-xl">
                       <p
                         className={cn(
                           "text-lg font-bold",
@@ -299,12 +305,12 @@ export default function WeeklyPage() {
                       </p>
                     </div>
 
-                    <div className="text-center p-2 bg-muted/50 rounded-lg">
+                    <div className="text-center p-2 bg-accent/40 rounded-xl">
                       <p className="text-lg font-bold">{s.avgHoursPerDay}</p>
                       <p className="text-[10px] text-muted-foreground">h/dia promedio</p>
                     </div>
 
-                    <div className="text-center p-2 bg-muted/50 rounded-lg">
+                    <div className="text-center p-2 bg-accent/40 rounded-xl">
                       <p
                         className={cn(
                           "text-lg font-bold",
@@ -318,7 +324,7 @@ export default function WeeklyPage() {
                       </p>
                     </div>
 
-                    <div className="text-center p-2 bg-muted/50 rounded-lg">
+                    <div className="text-center p-2 bg-accent/40 rounded-xl">
                       <p className="text-lg font-bold">
                         {s.closeoutDays}/{weekDatesStr.length}
                       </p>
@@ -340,13 +346,13 @@ export default function WeeklyPage() {
                           <div key={d} className="flex-1 flex flex-col items-center gap-1">
                             <div
                               className={cn(
-                                "w-full rounded-t transition-all",
+                                "w-full rounded-t-lg transition-all duration-500",
                                 h >= EXPECTED_DAILY_HOURS
-                                  ? "bg-green-500"
+                                  ? "bg-gradient-to-t from-green-500 to-emerald-400"
                                   : h >= 4
-                                    ? "bg-yellow-500"
+                                    ? "bg-gradient-to-t from-yellow-500 to-amber-400"
                                     : h > 0
-                                      ? "bg-red-400"
+                                      ? "bg-gradient-to-t from-red-500 to-red-400"
                                       : "bg-muted"
                               )}
                               style={{ height: `${Math.max(pct, 4)}%` }}

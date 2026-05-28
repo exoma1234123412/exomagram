@@ -212,23 +212,23 @@ export default function AccountabilityPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
-          <Eye className="w-6 h-6 text-violet-600" />
-          <h1 className="text-2xl font-bold">Accountability</h1>
+          <Eye className="w-6 h-6 text-primary" />
+          <h1 className="text-2xl font-bold tracking-tight">Accountability</h1>
         </div>
       </div>
       <p className="text-muted-foreground text-sm mb-6 capitalize">{displayDate}</p>
 
       {/* Date nav */}
-      <div className="flex items-center gap-2 mb-6">
-        <Button variant="outline" size="icon"
+      <div className="flex items-center gap-2 mb-8 bg-card/80 border border-border/50 rounded-2xl p-2 w-fit">
+        <Button variant="ghost" size="icon" className="rounded-xl"
           onClick={() => setDate(subDays(new Date(date + "T12:00:00"), 1).toISOString().split("T")[0])}>
           <ChevronLeft className="w-4 h-4" />
         </Button>
-        <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-auto" />
-        <Button variant="outline" size="icon"
+        <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-auto border-0 bg-transparent shadow-none focus-visible:ring-0 px-0 h-auto" />
+        <Button variant="ghost" size="icon" className="rounded-xl"
           onClick={() => {
             const next = new Date(date + "T12:00:00");
             next.setDate(next.getDate() + 1);
@@ -237,14 +237,17 @@ export default function AccountabilityPage() {
           <ChevronRight className="w-4 h-4" />
         </Button>
         {!isToday && (
-          <Button variant="ghost" size="sm" onClick={() => setDate(new Date().toISOString().split("T")[0])}>
+          <Button variant="secondary" size="sm" className="rounded-xl text-xs font-semibold" onClick={() => setDate(new Date().toISOString().split("T")[0])}>
             Hoy
           </Button>
         )}
       </div>
 
       {loading ? (
-        <div className="text-center py-20 text-muted-foreground">Cargando...</div>
+        <div className="flex flex-col items-center justify-center py-24 gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" />
+          <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
+        </div>
       ) : (
         <div className="space-y-3">
           {memberStats.map((s) => {
@@ -254,14 +257,14 @@ export default function AccountabilityPage() {
 
             return (
               <Card key={s.profile.id} className={cn(
-                "transition-all",
+                "transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
                 s.hoursLogged === 0 && "border-red-200 dark:border-red-900 bg-red-50/50 dark:bg-red-950/10",
                 s.suspiciousReactions > 0 && "border-orange-200 dark:border-orange-900"
               )}>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
                     {/* Avatar */}
-                    <Avatar className="w-12 h-12">
+                    <Avatar className="w-12 h-12 ring-2 ring-background shadow-sm">
                       <AvatarImage src={s.profile.avatar_url ?? undefined} />
                       <AvatarFallback>{getInitials(s.profile.full_name)}</AvatarFallback>
                     </Avatar>
@@ -292,7 +295,7 @@ export default function AccountabilityPage() {
                     {/* Trust score with trend */}
                     <div className="text-center min-w-[80px]">
                       <div className="flex items-center justify-center gap-1">
-                        <p className={cn("text-2xl font-bold", trust.color)}>{trust.score}</p>
+                        <p className={cn("text-2xl font-bold tabular-nums tracking-tight", trust.color)}>{trust.score}</p>
                         {trend === "up" && <TrendingUp className="w-4 h-4 text-green-500" />}
                         {trend === "down" && <TrendingDown className="w-4 h-4 text-red-500" />}
                       </div>
@@ -319,7 +322,7 @@ export default function AccountabilityPage() {
 
                   {/* Stats row */}
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-4">
-                    <div className="text-center p-2 bg-muted/50 rounded-lg">
+                    <div className="text-center p-2 bg-accent/40 rounded-xl">
                       <p className={cn(
                         "text-lg font-bold",
                         s.hoursLogged >= EXPECTED_DAILY_HOURS ? "text-green-600" :
@@ -330,7 +333,7 @@ export default function AccountabilityPage() {
                       <p className="text-[10px] text-muted-foreground">Horas</p>
                     </div>
 
-                    <div className="text-center p-2 bg-muted/50 rounded-lg">
+                    <div className="text-center p-2 bg-accent/40 rounded-xl">
                       <p className={cn(
                         "text-lg font-bold",
                         proofPercent >= 80 ? "text-green-600" :
@@ -341,7 +344,7 @@ export default function AccountabilityPage() {
                       <p className="text-[10px] text-muted-foreground">Con evidencia</p>
                     </div>
 
-                    <div className="text-center p-2 bg-muted/50 rounded-lg">
+                    <div className="text-center p-2 bg-accent/40 rounded-xl">
                       <p className={cn(
                         "text-lg font-bold",
                         s.lateEntries === 0 ? "text-green-600" : "text-orange-600"
@@ -351,7 +354,7 @@ export default function AccountabilityPage() {
                       <p className="text-[10px] text-muted-foreground">Tardias</p>
                     </div>
 
-                    <div className="text-center p-2 bg-muted/50 rounded-lg">
+                    <div className="text-center p-2 bg-accent/40 rounded-xl">
                       {s.hasCloseout ? (
                         <CheckCircle2 className="w-5 h-5 text-green-600 mx-auto" />
                       ) : (
@@ -360,7 +363,7 @@ export default function AccountabilityPage() {
                       <p className="text-[10px] text-muted-foreground mt-0.5">Cierre</p>
                     </div>
 
-                    <div className="text-center p-2 bg-muted/50 rounded-lg">
+                    <div className="text-center p-2 bg-accent/40 rounded-xl">
                       {s.topCategory ? (
                         <>
                           <p className="text-lg">{CATEGORIES[s.topCategory].emoji}</p>

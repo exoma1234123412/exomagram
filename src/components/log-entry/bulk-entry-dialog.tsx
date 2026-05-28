@@ -54,6 +54,7 @@ export function BulkEntryDialog({ open, onOpenChange }: BulkEntryDialogProps) {
     Math.min(18, now.getHours()).toString()
   );
   const [date, setDate] = useState(now.toISOString().split("T")[0]);
+  const [project, setProject] = useState("");
   const [proofUrls, setProofUrls] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -125,6 +126,7 @@ export function BulkEntryDialog({ open, onOpenChange }: BulkEntryDialogProps) {
         mood: null,
         energy: null,
         links: null,
+        project: project.trim() || null,
         proof_urls: proofArray.length > 0 ? proofArray : null,
         is_late: isLate,
         minutes_late: minutesLate,
@@ -145,6 +147,7 @@ export function BulkEntryDialog({ open, onOpenChange }: BulkEntryDialogProps) {
       setCategory("");
       setTitle("");
       setDescription("");
+      setProject("");
       setProofUrls("");
     }
     setLoading(false);
@@ -152,10 +155,10 @@ export function BulkEntryDialog({ open, onOpenChange }: BulkEntryDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl">
         <DialogHeader>
-          <DialogTitle className="text-xl flex items-center gap-2">
-            <Layers className="w-5 h-5 text-violet-600" />
+          <DialogTitle className="text-xl font-bold flex items-center gap-2.5 tracking-tight">
+            <Layers className="w-5 h-5 text-primary" />
             Registrar bloque de horas
           </DialogTitle>
         </DialogHeader>
@@ -224,10 +227,10 @@ export function BulkEntryDialog({ open, onOpenChange }: BulkEntryDialogProps) {
                     type="button"
                     onClick={() => setCategory(key)}
                     className={cn(
-                      "flex flex-col items-center gap-1 p-2.5 rounded-lg border-2 text-xs font-medium transition-all",
+                      "flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 text-xs font-semibold transition-all duration-200",
                       category === key
-                        ? "border-violet-500 bg-violet-50 dark:bg-violet-900/30"
-                        : "border-transparent bg-muted/50 hover:bg-muted"
+                        ? "border-primary bg-primary/5 shadow-sm shadow-primary/10 scale-[1.02]"
+                        : "border-transparent bg-accent/50 hover:bg-accent hover:scale-[1.01]"
                     )}
                   >
                     <span className="text-lg">{cat.emoji}</span>
@@ -274,10 +277,23 @@ export function BulkEntryDialog({ open, onOpenChange }: BulkEntryDialogProps) {
             />
           </div>
 
+          {/* Project */}
+          <div className="space-y-2">
+            <Label htmlFor="bulk-project">
+              Proyecto <span className="text-muted-foreground text-xs">(opcional)</span>
+            </Label>
+            <Input
+              id="bulk-project"
+              placeholder="ej: landing-page, api-v2"
+              value={project}
+              onChange={(e) => setProject(e.target.value)}
+            />
+          </div>
+
           {/* Proof */}
           <div className="space-y-2">
             <Label htmlFor="bulk-proof" className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-violet-600" />
+              <Shield className="w-4 h-4 text-primary" />
               Evidencia
               {!hasProof && (
                 <Badge variant="outline" className="text-[10px] text-yellow-600 border-yellow-300">
@@ -302,7 +318,7 @@ export function BulkEntryDialog({ open, onOpenChange }: BulkEntryDialogProps) {
 
           <Button
             type="submit"
-            className="w-full"
+            className="w-full h-10 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300 font-semibold"
             disabled={loading || !category || hoursCount <= 0}
           >
             {loading

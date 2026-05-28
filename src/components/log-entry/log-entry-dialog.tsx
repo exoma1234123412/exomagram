@@ -30,8 +30,9 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { AlertTriangle, Link as LinkIcon, Shield, Clock } from "lucide-react";
+import { AlertTriangle, Shield, Clock, BookTemplate } from "lucide-react";
 import { updateStreakOnEntry } from "@/lib/streak-utils";
+import { EntryTemplates, ManageTemplatesDialog, type EntryTemplate } from "./entry-templates";
 
 interface LogEntryDialogProps {
   open: boolean;
@@ -58,9 +59,18 @@ export function LogEntryDialog({
   );
   const [mood, setMood] = useState<number | null>(null);
   const [energy, setEnergy] = useState<number | null>(null);
+  const [project, setProject] = useState("");
   const [proofUrls, setProofUrls] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
+
+  function applyTemplate(template: EntryTemplate) {
+    setCategory(template.category);
+    setTitle(template.title);
+    setDescription(template.description);
+    setProject(template.project);
+  }
 
   // Anti-gaming: calculate if entry is late
   function calculateLateness(): { isLate: boolean; minutesLate: number } {
@@ -132,6 +142,7 @@ export function LogEntryDialog({
         mood: mood as 1 | 2 | 3 | 4 | 5 | null,
         energy: energy as 1 | 2 | 3 | 4 | 5 | null,
         links: null,
+        project: project.trim() || null,
         proof_urls: proofArray.length > 0 ? proofArray : null,
         is_late: lateness.isLate,
         minutes_late: lateness.minutesLate,
@@ -152,6 +163,7 @@ export function LogEntryDialog({
       setDescription("");
       setMood(null);
       setEnergy(null);
+      setProject("");
       setProofUrls("");
       onOpenChange(false);
     }
@@ -166,12 +178,12 @@ export function LogEntryDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl">
         <DialogHeader>
-          <DialogTitle className="text-xl flex items-center gap-2">
+          <DialogTitle className="text-xl font-bold flex items-center gap-2.5 tracking-tight">
             Registrar hora
             {lateness.isLate && (
-              <Badge variant="destructive" className="text-[10px]">
+              <Badge variant="destructive" className="text-[10px] rounded-lg font-semibold">
                 <Clock className="w-3 h-3 mr-1" />
                 {lateness.minutesLate}min tarde
               </Badge>
@@ -179,12 +191,15 @@ export function LogEntryDialog({
           </DialogTitle>
         </DialogHeader>
 
+        {/* Quick templates */}
+        <EntryTemplates onApply={applyTemplate} />
+
         {/* Anti-gaming warnings */}
         {tooOld && (
-          <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-3 flex items-start gap-2">
+          <div className="bg-red-50 dark:bg-red-950/20 border border-red-200/60 dark:border-red-800/40 rounded-xl p-3.5 flex items-start gap-2.5">
             <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
             <div className="text-sm">
-              <p className="font-medium text-red-700 dark:text-red-400">
+              <p className="font-semibold text-red-700 dark:text-red-400">
                 No puedes registrar más de {MAX_BACKFILL_HOURS}h hacia atrás
               </p>
               <p className="text-red-600/70 dark:text-red-400/70 text-xs mt-0.5">
@@ -198,18 +213,19 @@ export function LogEntryDialog({
           {/* Date & Hour */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>Fecha</Label>
+              <Label className="text-sm font-medium">Fecha</Label>
               <Input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 max={now.toISOString().split("T")[0]}
+                className="rounded-xl"
               />
             </div>
             <div className="space-y-2">
-              <Label>Hora</Label>
+              <Label className="text-sm font-medium">Hora</Label>
               <Select value={hour} onValueChange={(v) => v && setHour(v)}>
-                <SelectTrigger>
+                <SelectTrigger className="rounded-xl">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -224,8 +240,8 @@ export function LogEntryDialog({
           </div>
 
           {/* Category */}
-          <div className="space-y-2">
-            <Label>Categoría</Label>
+          <div className="space-y-2.5">
+            <Label className="text-sm font-medium">Categoría</Label>
             <div className="grid grid-cols-4 gap-2">
               {(Object.keys(CATEGORIES) as WorkCategory[]).map((key) => {
                 const cat = CATEGORIES[key];
@@ -235,14 +251,14 @@ export function LogEntryDialog({
                     type="button"
                     onClick={() => setCategory(key)}
                     className={cn(
-                      "flex flex-col items-center gap-1 p-2.5 rounded-lg border-2 text-xs font-medium transition-all",
+                      "flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 text-xs font-semibold transition-all duration-200",
                       category === key
-                        ? "border-violet-500 bg-violet-50 dark:bg-violet-900/30"
-                        : "border-transparent bg-muted/50 hover:bg-muted"
+                        ? "border-primary bg-primary/5 shadow-sm shadow-primary/10 scale-[1.02]"
+                        : "border-transparent bg-accent/50 hover:bg-accent hover:scale-[1.01]"
                     )}
                   >
-                    <span className="text-lg">{cat.emoji}</span>
-                    <span className="truncate w-full text-center">
+                    <span className="text-xl">{cat.emoji}</span>
+                    <span className="truncate w-full text-center text-[11px]">
                       {cat.label}
                     </span>
                   </button>
@@ -251,11 +267,11 @@ export function LogEntryDialog({
             </div>
           </div>
 
-          {/* Title - with minimum length enforcement */}
+          {/* Title */}
           <div className="space-y-2">
-            <Label htmlFor="title">
+            <Label htmlFor="title" className="text-sm font-medium">
               ¿Qué hiciste?{" "}
-              <span className="text-muted-foreground text-xs">
+              <span className="text-muted-foreground/60 text-xs font-normal">
                 (mín. {MIN_TITLE_LENGTH} caracteres)
               </span>
             </Label>
@@ -266,10 +282,10 @@ export function LogEntryDialog({
               onChange={(e) => setTitle(e.target.value)}
               required
               minLength={MIN_TITLE_LENGTH}
-              className={cn(titleTooShort && "border-yellow-500")}
+              className={cn("rounded-xl", titleTooShort && "border-yellow-500 focus-visible:ring-yellow-500/30")}
             />
             {titleTooShort && (
-              <p className="text-xs text-yellow-600">
+              <p className="text-xs text-yellow-600 font-medium">
                 {MIN_TITLE_LENGTH - title.length} caracteres más. Sé específico sobre lo que hiciste.
               </p>
             )}
@@ -277,31 +293,48 @@ export function LogEntryDialog({
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="desc">Detalles</Label>
+            <Label htmlFor="desc" className="text-sm font-medium">Detalles</Label>
             <Textarea
               id="desc"
               placeholder="Explica qué hiciste, qué decisiones tomaste, qué problemas encontraste..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
+              className="rounded-xl"
             />
           </div>
 
-          {/* PROOF OF WORK - The key anti-gaming feature */}
+          {/* Project tag */}
           <div className="space-y-2">
-            <Label htmlFor="proof" className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-violet-600" />
+            <Label htmlFor="project" className="text-sm font-medium">
+              Proyecto{" "}
+              <span className="text-muted-foreground/60 text-xs font-normal">(opcional)</span>
+            </Label>
+            <Input
+              id="project"
+              placeholder="ej: landing-page, api-v2, onboarding"
+              value={project}
+              onChange={(e) => setProject(e.target.value)}
+              className="rounded-xl"
+            />
+          </div>
+
+          {/* PROOF OF WORK */}
+          <div className="space-y-2">
+            <Label htmlFor="proof" className="flex items-center gap-2 text-sm font-medium">
+              <Shield className="w-4 h-4 text-primary" />
               Evidencia de trabajo
-              {!hasProof && (
-                <Badge variant="outline" className="text-[10px] text-yellow-600 border-yellow-300">
-                  Sin evidencia
-                </Badge>
-              )}
-              {hasProof && (
-                <Badge variant="outline" className="text-[10px] text-green-600 border-green-300">
-                  Con evidencia
-                </Badge>
-              )}
+              <Badge
+                variant="outline"
+                className={cn(
+                  "text-[10px] rounded-md font-semibold ml-auto",
+                  hasProof
+                    ? "text-green-600 border-green-300/50 bg-green-50/50 dark:bg-green-950/20"
+                    : "text-yellow-600 border-yellow-300/50 bg-yellow-50/50 dark:bg-yellow-950/20"
+                )}
+              >
+                {hasProof ? "Con evidencia" : "Sin evidencia"}
+              </Badge>
             </Label>
             <Textarea
               id="proof"
@@ -309,10 +342,13 @@ export function LogEntryDialog({
               value={proofUrls}
               onChange={(e) => setProofUrls(e.target.value)}
               rows={2}
-              className={cn(!hasProof && "border-yellow-300 dark:border-yellow-700")}
+              className={cn(
+                "rounded-xl",
+                !hasProof && "border-yellow-300/60 dark:border-yellow-700/40"
+              )}
             />
-            <p className="text-xs text-muted-foreground">
-              Las entradas sin evidencia se marcan como <span className="text-yellow-600 font-medium">sin verificar</span>.
+            <p className="text-[11px] text-muted-foreground/70">
+              Las entradas sin evidencia se marcan como <span className="text-yellow-600 font-semibold">sin verificar</span>.
               Tu equipo puede ver cuáles tienen prueba y cuáles no.
             </p>
           </div>
@@ -320,7 +356,7 @@ export function LogEntryDialog({
           {/* Mood & Energy */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Ánimo</Label>
+              <Label className="text-sm font-medium">Ánimo</Label>
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((level) => (
                   <button
@@ -328,10 +364,10 @@ export function LogEntryDialog({
                     type="button"
                     onClick={() => setMood(mood === level ? null : level)}
                     className={cn(
-                      "flex-1 py-1.5 rounded text-xs font-medium transition-all",
+                      "flex-1 py-2 rounded-lg text-xs font-semibold transition-all duration-200",
                       mood === level
-                        ? "bg-violet-600 text-white"
-                        : "bg-muted hover:bg-muted/80"
+                        ? "bg-gradient-to-b from-violet-500 to-violet-600 text-white shadow-sm shadow-violet-500/25 scale-105"
+                        : "bg-accent/60 hover:bg-accent text-foreground/70"
                     )}
                     title={MOOD_LABELS[level]}
                   >
@@ -341,7 +377,7 @@ export function LogEntryDialog({
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Energía</Label>
+              <Label className="text-sm font-medium">Energía</Label>
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((level) => (
                   <button
@@ -349,10 +385,10 @@ export function LogEntryDialog({
                     type="button"
                     onClick={() => setEnergy(energy === level ? null : level)}
                     className={cn(
-                      "flex-1 py-1.5 rounded text-xs font-medium transition-all",
+                      "flex-1 py-2 rounded-lg text-xs font-semibold transition-all duration-200",
                       energy === level
-                        ? "bg-emerald-600 text-white"
-                        : "bg-muted hover:bg-muted/80"
+                        ? "bg-gradient-to-b from-emerald-500 to-emerald-600 text-white shadow-sm shadow-emerald-500/25 scale-105"
+                        : "bg-accent/60 hover:bg-accent text-foreground/70"
                     )}
                     title={ENERGY_LABELS[level]}
                   >
@@ -364,23 +400,37 @@ export function LogEntryDialog({
           </div>
 
           {error && (
-            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            <div className="bg-destructive/5 border border-destructive/20 rounded-xl px-3 py-2">
+              <p className="text-sm text-destructive font-medium">{error}</p>
+            </div>
           )}
 
           <Button
             type="submit"
-            className="w-full"
+            className="w-full h-10 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300 font-semibold"
             disabled={loading || !category || tooOld}
           >
             {loading ? "Guardando..." : "Guardar entrada"}
           </Button>
 
           {/* Transparency notice */}
-          <p className="text-[11px] text-center text-muted-foreground/60">
-            Todo tu equipo verá esta entrada, incluyendo si fue registrada tarde
+          <p className="text-[11px] text-center text-muted-foreground/50">
+            Todo tu equipo vera esta entrada, incluyendo si fue registrada tarde
             y si tiene evidencia.
           </p>
+
+          {/* Manage templates link */}
+          <button
+            type="button"
+            onClick={() => setTemplatesOpen(true)}
+            className="text-[11px] text-center text-primary/60 hover:text-primary w-full flex items-center justify-center gap-1 transition-colors"
+          >
+            <BookTemplate className="w-3 h-3" />
+            Gestionar plantillas
+          </button>
         </form>
+
+        <ManageTemplatesDialog open={templatesOpen} onOpenChange={setTemplatesOpen} />
       </DialogContent>
     </Dialog>
   );

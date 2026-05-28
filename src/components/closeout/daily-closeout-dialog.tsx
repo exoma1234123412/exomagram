@@ -99,9 +99,11 @@ export function DailyCloseoutDialog({ open, onOpenChange }: DailyCloseoutDialogP
   if (submitted) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-md text-center py-10">
-          <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h3 className="text-xl font-bold">Cierre del día enviado</h3>
+        <DialogContent className="sm:max-w-md text-center py-12 rounded-2xl">
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-green-500/10">
+            <CheckCircle2 className="w-10 h-10 text-green-500" />
+          </div>
+          <h3 className="text-xl font-bold tracking-tight">Cierre del día enviado</h3>
           <p className="text-muted-foreground mt-2">
             Tu equipo puede ver tu resumen. Descansa bien.
           </p>
@@ -112,20 +114,20 @@ export function DailyCloseoutDialog({ open, onOpenChange }: DailyCloseoutDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl">
         <DialogHeader>
-          <DialogTitle className="text-xl">Cierre del día</DialogTitle>
+          <DialogTitle className="text-xl font-bold tracking-tight">Cierre del día</DialogTitle>
         </DialogHeader>
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-muted/50 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold">{hoursLogged}</p>
-            <p className="text-xs text-muted-foreground">Horas registradas</p>
+          <div className="bg-accent/40 rounded-xl p-4 text-center">
+            <p className="text-2xl font-bold tabular-nums tracking-tight">{hoursLogged}</p>
+            <p className="text-[11px] text-muted-foreground font-medium">Horas registradas</p>
           </div>
-          <div className="bg-muted/50 rounded-lg p-3 text-center">
+          <div className="bg-accent/40 rounded-xl p-4 text-center">
             <p className={cn(
-              "text-2xl font-bold",
+              "text-2xl font-bold tabular-nums tracking-tight",
               hoursWithProof === hoursLogged ? "text-green-600" : "text-yellow-600"
             )}>
               {hoursLogged > 0 ? Math.round((hoursWithProof / hoursLogged) * 100) : 0}%
@@ -135,7 +137,7 @@ export function DailyCloseoutDialog({ open, onOpenChange }: DailyCloseoutDialogP
         </div>
 
         {hoursLogged < 8 && (
-          <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 text-sm text-yellow-700 dark:text-yellow-400">
+          <div className="bg-yellow-50/80 dark:bg-yellow-950/15 border border-yellow-200/60 dark:border-yellow-800/40 rounded-xl p-3.5 text-sm text-yellow-700 dark:text-yellow-400">
             Solo registraste {hoursLogged} horas hoy. Se esperan al menos 8.
           </div>
         )}
@@ -182,10 +184,10 @@ export function DailyCloseoutDialog({ open, onOpenChange }: DailyCloseoutDialogP
                   type="button"
                   onClick={() => setMood(mood === level ? null : level)}
                   className={cn(
-                    "flex-1 py-2 rounded-lg text-sm font-medium transition-all",
+                    "flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200",
                     mood === level
-                      ? "bg-violet-600 text-white"
-                      : "bg-muted hover:bg-muted/80"
+                      ? "bg-gradient-to-b from-violet-500 to-violet-600 text-white shadow-sm shadow-violet-500/25 scale-105"
+                      : "bg-accent/60 hover:bg-accent text-foreground/70"
                   )}
                 >
                   {MOOD_LABELS[level]}
@@ -194,7 +196,7 @@ export function DailyCloseoutDialog({ open, onOpenChange }: DailyCloseoutDialogP
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full h-10 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300 font-semibold" disabled={loading}>
             {loading ? "Enviando..." : "Enviar cierre del día"}
           </Button>
 

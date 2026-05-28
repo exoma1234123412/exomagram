@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Clock } from "lucide-react";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -41,19 +42,29 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 via-white to-blue-50 dark:from-gray-950 dark:via-gray-900 dark:to-violet-950 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center space-y-2">
-          <div className="mx-auto w-12 h-12 bg-violet-600 rounded-xl flex items-center justify-center mb-2">
-            <span className="text-white font-bold text-xl">E</span>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-violet-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-violet-950" />
+      <div className="absolute inset-0 bg-grid-pattern opacity-40" />
+
+      {/* Decorative blobs */}
+      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-violet-200/30 dark:bg-violet-900/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-200/30 dark:bg-indigo-900/10 rounded-full blur-3xl" />
+
+      <Card className="w-full max-w-md relative shadow-2xl shadow-violet-500/10 border-border/50">
+        <CardHeader className="text-center space-y-3 pb-2">
+          <div className="mx-auto w-14 h-14 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-1 shadow-xl shadow-violet-500/25">
+            <Clock className="w-7 h-7 text-white" />
           </div>
-          <CardTitle className="text-2xl font-bold">Crear cuenta</CardTitle>
-          <CardDescription>Únete a Exomagram y haz visible el trabajo de tu equipo</CardDescription>
+          <div className="space-y-1">
+            <CardTitle className="text-2xl font-bold tracking-tight">Crear cuenta</CardTitle>
+            <CardDescription className="text-muted-foreground/80">Únete a Exomagram y haz visible el trabajo de tu equipo</CardDescription>
+          </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-2">
           <form onSubmit={handleSignup} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Nombre completo</Label>
+              <Label htmlFor="name" className="text-sm font-medium">Nombre completo</Label>
               <Input
                 id="name"
                 type="text"
@@ -61,10 +72,11 @@ export default function SignupPage() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
+                className="h-10 rounded-xl"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-sm font-medium">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -72,10 +84,11 @@ export default function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="h-10 rounded-xl"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
+              <Label htmlFor="password" className="text-sm font-medium">Contraseña</Label>
               <Input
                 id="password"
                 type="password"
@@ -84,18 +97,25 @@ export default function SignupPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
+                className="h-10 rounded-xl"
               />
             </div>
             {error && (
-              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+              <div className="bg-destructive/5 border border-destructive/20 rounded-xl px-3 py-2">
+                <p className="text-sm text-destructive font-medium">{error}</p>
+              </div>
             )}
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full h-10 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300 font-semibold"
+              disabled={loading}
+            >
               {loading ? "Creando cuenta..." : "Crear cuenta"}
             </Button>
           </form>
-          <p className="text-center text-sm text-muted-foreground mt-4">
+          <p className="text-center text-sm text-muted-foreground mt-6">
             ¿Ya tienes cuenta?{" "}
-            <Link href="/login" className="text-violet-600 hover:underline font-medium">
+            <Link href="/login" className="text-primary hover:text-primary/80 hover:underline font-semibold transition-colors">
               Iniciar sesión
             </Link>
           </p>

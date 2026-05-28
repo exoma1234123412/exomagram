@@ -19,7 +19,6 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
   Check,
-  Loader2,
   Copy,
   Download,
   UserPlus,
@@ -181,15 +180,13 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-      </div>
+      <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-      <h1 className="text-2xl font-bold">Ajustes</h1>
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+      <h1 className="text-2xl font-bold tracking-tight">Ajustes</h1>
 
       {/* Profile settings */}
       <Card>

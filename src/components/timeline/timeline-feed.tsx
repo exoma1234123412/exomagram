@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { TimeEntry, Profile } from "@/lib/types/database";
 import { TimeEntryCard } from "./time-entry-card";
 import { WORK_HOURS } from "@/lib/constants";
-import { Loader2 } from "lucide-react";
+import { Loader2, Clock, Search } from "lucide-react";
 import type { TimelineFilters } from "./timeline-filters";
 
 type EntryWithProfile = TimeEntry & { profiles: Profile };
@@ -88,29 +88,38 @@ export function TimelineFeed({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      <div className="flex flex-col items-center justify-center py-24 gap-3">
+        <Loader2 className="w-5 h-5 animate-spin text-primary/60" />
+        <p className="text-sm text-muted-foreground/60">Cargando entradas...</p>
       </div>
     );
   }
 
   if (entries.length === 0) {
     return (
-      <div className="text-center py-20">
-        <p className="text-muted-foreground">
-          No hay entradas para este d&iacute;a todav&iacute;a.
-        </p>
-        <p className="text-sm text-muted-foreground/60 mt-1">
-          S&eacute; el primero en registrar tu hora.
-        </p>
+      <div className="flex flex-col items-center justify-center py-24 gap-4">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+          <Clock className="w-7 h-7 text-primary/40" />
+        </div>
+        <div className="text-center space-y-1">
+          <p className="text-sm font-medium text-muted-foreground">
+            No hay entradas para este día todavía.
+          </p>
+          <p className="text-xs text-muted-foreground/50">
+            Sé el primero en registrar tu hora.
+          </p>
+        </div>
       </div>
     );
   }
 
   if (filteredEntries.length === 0) {
     return (
-      <div className="text-center py-20">
-        <p className="text-muted-foreground">
+      <div className="flex flex-col items-center justify-center py-24 gap-4">
+        <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center">
+          <Search className="w-7 h-7 text-muted-foreground/30" />
+        </div>
+        <p className="text-sm text-muted-foreground">
           No hay entradas que coincidan con los filtros.
         </p>
       </div>
@@ -126,14 +135,14 @@ export function TimelineFeed({
   }
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-3">
       {WORK_HOURS.slice()
         .reverse()
         .map((hour) => {
           const hourEntries = byHour.get(hour);
           if (!hourEntries) return null;
           return (
-            <div key={hour} className="space-y-2">
+            <div key={hour} className="space-y-3">
               {hourEntries.map((entry) => (
                 <TimeEntryCard key={entry.id} entry={entry} />
               ))}

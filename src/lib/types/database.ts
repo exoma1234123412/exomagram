@@ -70,6 +70,7 @@ export interface TimeEntry {
   logged_at: string;
   verification_note: string | null;
   verified_by: string | null;
+  project: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -127,6 +128,14 @@ export interface AccountabilityFlag {
   resolved_by: string | null;
   resolved_note: string | null;
   created_at: string;
+}
+
+export interface Achievement {
+  id: string;
+  user_id: string;
+  org_id: string;
+  achievement_type: string;
+  unlocked_at: string;
 }
 
 export interface TrustScoreHistory {

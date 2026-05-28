@@ -6,13 +6,30 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { ExternalLink, Clock, Shield, AlertTriangle } from "lucide-react";
+import { ExternalLink, Clock, Shield, AlertTriangle, Pencil, ShieldCheck, FolderKanban } from "lucide-react";
 import { EntryReactions } from "@/components/reactions/entry-reactions";
+import { EditEntryDialog } from "./edit-entry-dialog";
+import { VerifyEntryDialog } from "./verify-entry-dialog";
+import { EntryComments } from "./entry-comments";
+import { useState } from "react";
 
 interface TimeEntryCardProps {
   entry: TimeEntry & { profiles?: Profile };
   showUser?: boolean;
+  currentUserId?: string;
+  isAdmin?: boolean;
 }
+
+const CATEGORY_COLORS: Record<string, string> = {
+  deep_work: "from-violet-500 to-violet-600",
+  meeting: "from-blue-500 to-blue-600",
+  review: "from-amber-500 to-amber-600",
+  admin: "from-slate-400 to-slate-500",
+  planning: "from-emerald-500 to-emerald-600",
+  learning: "from-pink-500 to-pink-600",
+  break: "from-green-500 to-green-600",
+  blocked: "from-red-500 to-red-600",
+};
 
 function formatHour(h: number) {
   const suffix = h >= 12 ? "PM" : "AM";
@@ -25,59 +42,52 @@ function getInitials(name: string | null) {
   return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 }
 
-export function TimeEntryCard({ entry, showUser = true }: TimeEntryCardProps) {
+export function TimeEntryCard({ entry, showUser = true, currentUserId, isAdmin }: TimeEntryCardProps) {
+  const [editOpen, setEditOpen] = useState(false);
+  const [verifyOpen, setVerifyOpen] = useState(false);
   const cat = CATEGORIES[entry.category];
   const verification = VERIFICATION_STATUS[entry.verification_status ?? "unverified"];
   const hasProof = entry.proof_urls && entry.proof_urls.length > 0;
   const isLate = entry.is_late;
+  const isOwner = currentUserId === entry.user_id;
+  const gradientClass = CATEGORY_COLORS[entry.category] ?? "from-gray-400 to-gray-500";
 
   return (
     <Card className={cn(
-      "group hover:shadow-md transition-shadow",
-      entry.verification_status === "flagged" && "border-red-300 dark:border-red-800",
-      isLate && !hasProof && "border-yellow-300 dark:border-yellow-800"
+      "group relative overflow-hidden hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 hover:-translate-y-0.5",
+      entry.verification_status === "flagged" && "ring-2 ring-red-300/50 dark:ring-red-800/50",
+      isLate && !hasProof && "ring-2 ring-yellow-300/50 dark:ring-yellow-800/50"
     )}>
-      <CardContent className="p-4">
+      {/* Left accent bar */}
+      <div className={cn("absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b", gradientClass)} />
+
+      <CardContent className="p-4 pl-5">
         <div className="flex gap-3">
           {/* Hour indicator */}
-          <div className="flex flex-col items-center min-w-[52px]">
-            <span className="text-xs font-medium text-muted-foreground">
+          <div className="flex flex-col items-center min-w-[48px] pt-0.5">
+            <span className="text-[11px] font-semibold text-muted-foreground tabular-nums">
               {formatHour(entry.hour)}
             </span>
-            <div
-              className="w-3 h-3 rounded-full mt-1"
-              style={{
-                backgroundColor:
-                  entry.category === "deep_work" ? "#7c3aed"
-                    : entry.category === "meeting" ? "#2563eb"
-                    : entry.category === "review" ? "#d97706"
-                    : entry.category === "admin" ? "#64748b"
-                    : entry.category === "planning" ? "#059669"
-                    : entry.category === "learning" ? "#db2777"
-                    : entry.category === "break" ? "#16a34a"
-                    : "#dc2626",
-              }}
-            />
           </div>
 
           {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
-              <div className="flex items-center gap-2 min-w-0">
+              <div className="flex items-center gap-2.5 min-w-0">
                 {showUser && entry.profiles && (
-                  <Avatar className="w-6 h-6">
+                  <Avatar className="w-7 h-7 ring-2 ring-background shadow-sm">
                     <AvatarImage src={entry.profiles.avatar_url ?? undefined} />
-                    <AvatarFallback className="text-[10px]">
+                    <AvatarFallback className="text-[10px] bg-gradient-to-br from-violet-100 to-indigo-100 dark:from-violet-900/50 dark:to-indigo-900/50 font-semibold">
                       {getInitials(entry.profiles.full_name)}
                     </AvatarFallback>
                   </Avatar>
                 )}
-                <h4 className="font-medium text-sm truncate">{entry.title}</h4>
+                <h4 className="font-semibold text-sm truncate leading-snug">{entry.title}</h4>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
                 <Badge
                   variant="secondary"
-                  className={cn("text-[10px]", cat.color, cat.bgColor)}
+                  className={cn("text-[10px] rounded-lg font-semibold px-2", cat.color, cat.bgColor)}
                 >
                   {cat.emoji} {cat.label}
                 </Badge>
@@ -85,24 +95,28 @@ export function TimeEntryCard({ entry, showUser = true }: TimeEntryCardProps) {
             </div>
 
             {showUser && entry.profiles?.full_name && (
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-xs text-muted-foreground mt-1">
                 {entry.profiles.full_name}
                 {entry.profiles.role && (
-                  <span className="opacity-60"> · {entry.profiles.role}</span>
+                  <span className="text-muted-foreground/50"> · {entry.profiles.role}</span>
                 )}
               </p>
             )}
 
             {entry.description && (
-              <p className="text-sm text-muted-foreground mt-1.5 line-clamp-2">
+              <p className="text-[13px] text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
                 {entry.description}
               </p>
             )}
 
             {/* Trust indicators */}
-            <div className="flex flex-wrap items-center gap-2 mt-2">
-              {/* Verification status */}
-              <span className={cn("inline-flex items-center gap-1 text-[10px] font-medium", verification.color)}>
+            <div className="flex flex-wrap items-center gap-2.5 mt-3">
+              <span className={cn(
+                "inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md",
+                hasProof
+                  ? "text-green-700 bg-green-50 dark:text-green-400 dark:bg-green-950/30"
+                  : "text-yellow-700 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-950/30"
+              )}>
                 {hasProof ? (
                   <Shield className="w-3 h-3" />
                 ) : (
@@ -111,22 +125,20 @@ export function TimeEntryCard({ entry, showUser = true }: TimeEntryCardProps) {
                 {hasProof ? "Con evidencia" : "Sin evidencia"}
               </span>
 
-              {/* Late flag */}
               {isLate && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-orange-600">
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-orange-700 bg-orange-50 dark:text-orange-400 dark:bg-orange-950/30 px-2 py-0.5 rounded-md">
                   <Clock className="w-3 h-3" />
                   Tardía ({entry.minutes_late}min)
                 </span>
               )}
 
-              {/* Mood & Energy */}
               {entry.mood && (
-                <span className="text-[10px] text-muted-foreground">
+                <span className="text-[10px] text-muted-foreground/80">
                   Ánimo: {"★".repeat(entry.mood)}{"☆".repeat(5 - entry.mood)}
                 </span>
               )}
               {entry.energy && (
-                <span className="text-[10px] text-muted-foreground">
+                <span className="text-[10px]">
                   {"⚡".repeat(entry.energy)}
                 </span>
               )}
@@ -134,7 +146,7 @@ export function TimeEntryCard({ entry, showUser = true }: TimeEntryCardProps) {
 
             {/* Proof links */}
             {entry.proof_urls && entry.proof_urls.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-2">
+              <div className="flex flex-wrap gap-1.5 mt-3">
                 {entry.proof_urls.map((link, i) => {
                   let hostname = "link";
                   try { hostname = new URL(link).hostname; } catch { /* noop */ }
@@ -144,7 +156,7 @@ export function TimeEntryCard({ entry, showUser = true }: TimeEntryCardProps) {
                       href={link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-violet-600 dark:text-violet-400 hover:underline bg-violet-50 dark:bg-violet-950/30 px-2 py-0.5 rounded"
+                      className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 bg-primary/5 hover:bg-primary/10 px-2.5 py-1 rounded-lg transition-colors font-medium"
                     >
                       <ExternalLink className="w-3 h-3" />
                       {hostname}
@@ -154,11 +166,53 @@ export function TimeEntryCard({ entry, showUser = true }: TimeEntryCardProps) {
               </div>
             )}
 
+            {/* Project tag */}
+            {entry.project && (
+              <div className="mt-3">
+                <Badge variant="outline" className="text-[10px] gap-1 rounded-lg font-medium">
+                  <FolderKanban className="w-3 h-3" />
+                  {entry.project}
+                </Badge>
+              </div>
+            )}
+
             {/* Peer reactions */}
             <EntryReactions entryId={entry.id} />
+
+            {/* Comments */}
+            <EntryComments entryId={entry.id} />
+
+            {/* Action buttons (visible on hover) */}
+            <div className="flex gap-1 mt-2.5 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0">
+              {isOwner && (
+                <button
+                  onClick={() => setEditOpen(true)}
+                  className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground hover:text-foreground px-2.5 py-1.5 rounded-lg hover:bg-accent transition-all"
+                >
+                  <Pencil className="w-3 h-3" />
+                  Editar
+                </button>
+              )}
+              {(isAdmin || isOwner) && (
+                <button
+                  onClick={() => setVerifyOpen(true)}
+                  className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground hover:text-primary px-2.5 py-1.5 rounded-lg hover:bg-primary/5 transition-all"
+                >
+                  <ShieldCheck className="w-3 h-3" />
+                  Verificar
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </CardContent>
+
+      {editOpen && (
+        <EditEntryDialog entry={entry} open={editOpen} onOpenChange={setEditOpen} />
+      )}
+      {verifyOpen && (
+        <VerifyEntryDialog entry={entry} open={verifyOpen} onOpenChange={setVerifyOpen} />
+      )}
     </Card>
   );
 }

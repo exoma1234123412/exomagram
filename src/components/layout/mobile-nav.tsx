@@ -17,8 +17,8 @@ export function MobileNav({ onLogEntry }: { onLogEntry: () => void }) {
   const pathname = usePathname();
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50">
-      <div className="flex items-center justify-around py-2">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background/80 glass border-t border-border/50 z-50 safe-area-pb">
+      <div className="flex items-center justify-around py-2 px-1">
         {navItems.slice(0, 2).map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (
@@ -26,24 +26,29 @@ export function MobileNav({ onLogEntry }: { onLogEntry: () => void }) {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center gap-1 px-3 py-1.5 text-xs transition-colors",
-                isActive ? "text-violet-600 dark:text-violet-400" : "text-muted-foreground"
+                "flex flex-col items-center gap-0.5 px-3 py-1.5 text-[10px] font-medium transition-all duration-200 rounded-xl",
+                isActive
+                  ? "text-primary"
+                  : "text-muted-foreground active:scale-95"
               )}
             >
-              <item.icon className="w-5 h-5" />
+              <item.icon className={cn("w-5 h-5 transition-transform", isActive && "scale-110")} />
               {item.label}
+              {isActive && (
+                <span className="w-1 h-1 rounded-full bg-primary mt-0.5" />
+              )}
             </Link>
           );
         })}
 
         <button
           onClick={onLogEntry}
-          className="flex flex-col items-center gap-1 px-3 py-1.5 text-xs text-white"
+          className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-[10px] font-medium text-white active:scale-95 transition-transform"
         >
-          <div className="w-10 h-10 bg-violet-600 rounded-full flex items-center justify-center -mt-4 shadow-lg">
+          <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-2xl flex items-center justify-center -mt-6 shadow-xl shadow-violet-500/30 ring-4 ring-background">
             <Plus className="w-5 h-5" />
           </div>
-          Registrar
+          <span className="text-foreground mt-0.5">Registrar</span>
         </button>
 
         {navItems.slice(2).map((item) => {
@@ -53,12 +58,17 @@ export function MobileNav({ onLogEntry }: { onLogEntry: () => void }) {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center gap-1 px-3 py-1.5 text-xs transition-colors",
-                isActive ? "text-violet-600 dark:text-violet-400" : "text-muted-foreground"
+                "flex flex-col items-center gap-0.5 px-3 py-1.5 text-[10px] font-medium transition-all duration-200 rounded-xl",
+                isActive
+                  ? "text-primary"
+                  : "text-muted-foreground active:scale-95"
               )}
             >
-              <item.icon className="w-5 h-5" />
+              <item.icon className={cn("w-5 h-5 transition-transform", isActive && "scale-110")} />
               {item.label}
+              {isActive && (
+                <span className="w-1 h-1 rounded-full bg-primary mt-0.5" />
+              )}
             </Link>
           );
         })}

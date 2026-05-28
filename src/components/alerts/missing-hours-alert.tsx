@@ -45,9 +45,11 @@ export function MissingHoursAlert({ date }: { date: string }) {
   }
 
   return (
-    <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4 mb-6">
+    <div className="bg-yellow-50/80 dark:bg-yellow-950/15 border border-yellow-200/60 dark:border-yellow-800/40 rounded-2xl p-4 mb-8 shadow-sm shadow-yellow-500/5">
       <div className="flex items-start gap-3">
-        <AlertTriangle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
+        <div className="w-8 h-8 rounded-xl bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center shrink-0">
+          <AlertTriangle className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+        </div>
         <div>
           <p className="font-medium text-yellow-800 dark:text-yellow-300 text-sm">
             {missingHours.length} horas sin registrar

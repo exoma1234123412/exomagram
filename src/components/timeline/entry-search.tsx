@@ -1,0 +1,160 @@
+"use client";
+
+import { useState, useCallback } from "react";
+import { createClient } from "@/lib/supabase/client";
+import type { TimeEntry, Profile } from "@/lib/types/database";
+import { CATEGORIES } from "@/lib/constants";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
+import { Search, X, Loader2 } from "lucide-react";
+
+type EntryWithProfile = TimeEntry & { profiles: Profile };
+
+function getInitials(name: string | null) {
+  if (!name) return "?";
+  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+}
+
+function formatHour(h: number) {
+  const suffix = h >= 12 ? "PM" : "AM";
+  const display = h > 12 ? h - 12 : h === 0 ? 12 : h;
+  return `${display}:00 ${suffix}`;
+}
+
+export function EntrySearch({ orgId }: { orgId: string }) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<EntryWithProfile[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const supabase = createClient();
+
+  const search = useCallback(
+    async (q: string) => {
+      if (q.trim().length < 2) {
+        setResults([]);
+        setHasSearched(false);
+        return;
+      }
+
+      setSearching(true);
+      setHasSearched(true);
+
+      const { data } = await supabase
+        .from("time_entries")
+        .select("*, profiles(*)")
+        .eq("org_id", orgId)
+        .or(`title.ilike.%${q}%,description.ilike.%${q}%,project.ilike.%${q}%`)
+        .order("date", { ascending: false })
+        .order("hour", { ascending: false })
+        .limit(20)
+        .returns<EntryWithProfile[]>();
+
+      setResults(data ?? []);
+      setSearching(false);
+    },
+    [orgId] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
+  let debounceTimer: ReturnType<typeof setTimeout>;
+  function handleChange(value: string) {
+    setQuery(value);
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => search(value), 300);
+  }
+
+  function clear() {
+    setQuery("");
+    setResults([]);
+    setHasSearched(false);
+  }
+
+  return (
+    <div className="mb-4">
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          value={query}
+          onChange={(e) => handleChange(e.target.value)}
+          placeholder="Buscar entradas por titulo, descripcion o proyecto..."
+          className="pl-9 pr-9"
+        />
+        {query && (
+          <button
+            onClick={clear}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+
+      {searching && (
+        <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+          <Loader2 className="w-3 h-3 animate-spin" />
+          Buscando...
+        </div>
+      )}
+
+      {hasSearched && !searching && results.length === 0 && (
+        <p className="text-sm text-muted-foreground mt-2">
+          Sin resultados para &quot;{query}&quot;
+        </p>
+      )}
+
+      {results.length > 0 && (
+        <div className="mt-2 border rounded-lg divide-y max-h-80 overflow-y-auto">
+          {results.map((entry) => {
+            const cat = CATEGORIES[entry.category];
+            return (
+              <div
+                key={entry.id}
+                className="p-3 hover:bg-muted/30 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  {entry.profiles && (
+                    <Avatar className="w-5 h-5">
+                      <AvatarImage src={entry.profiles.avatar_url ?? undefined} />
+                      <AvatarFallback className="text-[8px]">
+                        {getInitials(entry.profiles.full_name)}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                  <span className="text-sm font-medium flex-1 truncate">
+                    {entry.title}
+                  </span>
+                  <Badge
+                    variant="secondary"
+                    className={cn("text-[10px]", cat.color, cat.bgColor)}
+                  >
+                    {cat.emoji} {cat.label}
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground">
+                  <span>{entry.profiles?.full_name}</span>
+                  <span>|</span>
+                  <span>{entry.date}</span>
+                  <span>{formatHour(entry.hour)}</span>
+                  {entry.project && (
+                    <>
+                      <span>|</span>
+                      <Badge variant="outline" className="text-[10px] py-0">
+                        {entry.project}
+                      </Badge>
+                    </>
+                  )}
+                </div>
+                {entry.description && (
+                  <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                    {entry.description}
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}

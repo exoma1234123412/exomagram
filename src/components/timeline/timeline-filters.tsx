@@ -49,12 +49,12 @@ export function TimelineFiltersBar({ orgId, filters, onChange }: TimelineFilters
 
   if (!expanded) {
     return (
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-6">
         <Button
           variant="outline"
           size="sm"
           onClick={() => setExpanded(true)}
-          className="gap-2"
+          className="gap-2 rounded-xl"
         >
           <Filter className="w-3.5 h-3.5" />
           Filtrar
@@ -86,7 +86,7 @@ export function TimelineFiltersBar({ orgId, filters, onChange }: TimelineFilters
   }
 
   return (
-    <div className="mb-4 p-3 bg-muted/30 rounded-lg border space-y-3">
+    <div className="mb-6 p-4 bg-card border border-border/50 rounded-2xl space-y-4 shadow-sm">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium flex items-center gap-2">
           <Filter className="w-3.5 h-3.5" />
@@ -115,10 +115,10 @@ export function TimelineFiltersBar({ orgId, filters, onChange }: TimelineFilters
                 onChange({ ...filters, person: filters.person === m.user_id ? null : m.user_id })
               }
               className={cn(
-                "px-2.5 py-1 rounded-md text-xs font-medium transition-colors",
+                "px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200",
                 filters.person === m.user_id
-                  ? "bg-violet-600 text-white"
-                  : "bg-muted hover:bg-muted/80"
+                  ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
+                  : "bg-accent/60 hover:bg-accent"
               )}
             >
               {m.full_name ?? "Sin nombre"}
@@ -140,10 +140,10 @@ export function TimelineFiltersBar({ orgId, filters, onChange }: TimelineFilters
                   onChange({ ...filters, category: filters.category === key ? null : key })
                 }
                 className={cn(
-                  "px-2.5 py-1 rounded-md text-xs font-medium transition-colors",
+                  "px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200",
                   filters.category === key
-                    ? "bg-violet-600 text-white"
-                    : "bg-muted hover:bg-muted/80"
+                    ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
+                    : "bg-accent/60 hover:bg-accent"
                 )}
               >
                 {cat.emoji} {cat.label}
@@ -165,10 +165,10 @@ export function TimelineFiltersBar({ orgId, filters, onChange }: TimelineFilters
               })
             }
             className={cn(
-              "px-2.5 py-1 rounded-md text-xs font-medium transition-colors",
+              "px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200",
               filters.verification === "with_proof"
-                ? "bg-green-600 text-white"
-                : "bg-muted hover:bg-muted/80"
+                ? "bg-green-600 text-white shadow-sm shadow-green-500/20"
+                : "bg-accent/60 hover:bg-accent"
             )}
           >
             Con evidencia
@@ -181,10 +181,10 @@ export function TimelineFiltersBar({ orgId, filters, onChange }: TimelineFilters
               })
             }
             className={cn(
-              "px-2.5 py-1 rounded-md text-xs font-medium transition-colors",
+              "px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200",
               filters.verification === "without_proof"
-                ? "bg-yellow-600 text-white"
-                : "bg-muted hover:bg-muted/80"
+                ? "bg-yellow-600 text-white shadow-sm shadow-yellow-500/20"
+                : "bg-accent/60 hover:bg-accent"
             )}
           >
             Sin evidencia

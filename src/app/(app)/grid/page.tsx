@@ -43,7 +43,10 @@ export default function GridPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-pulse text-muted-foreground">Cargando...</div>
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" />
+          <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
+        </div>
       </div>
     );
   }
@@ -59,18 +62,19 @@ export default function GridPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold">Vista de Equipo</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Vista de Equipo</h1>
         <p className="text-muted-foreground text-sm capitalize">{displayDate}</p>
       </div>
 
       {/* Date navigation */}
-      <div className="flex items-center gap-2 mb-6">
+      <div className="flex items-center gap-2 mb-8 bg-card/80 border border-border/50 rounded-2xl p-2 w-fit">
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
+          className="rounded-xl"
           onClick={() =>
             setDate(subDays(new Date(date + "T12:00:00"), 1).toISOString().split("T")[0])
           }
@@ -81,11 +85,12 @@ export default function GridPage() {
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="w-auto"
+          className="w-auto border-0 bg-transparent shadow-none focus-visible:ring-0 px-0 h-auto"
         />
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
+          className="rounded-xl"
           onClick={() =>
             setDate(addDays(new Date(date + "T12:00:00"), 1).toISOString().split("T")[0])
           }
@@ -94,8 +99,9 @@ export default function GridPage() {
         </Button>
         {!isToday && (
           <Button
-            variant="ghost"
+            variant="secondary"
             size="sm"
+            className="rounded-xl text-xs font-semibold"
             onClick={() => setDate(new Date().toISOString().split("T")[0])}
           >
             Hoy
