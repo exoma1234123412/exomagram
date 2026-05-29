@@ -12,6 +12,7 @@ import { FloatingAIButton } from "@/components/coach/floating-ai-button";
 import { PresenceIndicator } from "@/components/social/presence-indicator";
 import { PublicCountdown } from "@/components/social/public-countdown";
 import { RankingStrip } from "@/components/social/ranking-strip";
+import { ShameStreakBadge } from "@/components/social/shame-streak";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { GhostEffect } from "@/components/social/ghost-effect";
 import { ThroneProvider } from "@/components/social/throne-crown";
@@ -25,61 +26,64 @@ import { ScreenTint } from "@/components/social/screen-tint";
 import { EntryVerdict } from "@/components/social/entry-verdict";
 import { MomentumKiller } from "@/components/social/momentum-killer";
 import { ProductivityPrison } from "@/components/social/productivity-prison";
+import { MorningShameRecap } from "@/components/social/morning-shame-recap";
 import { OrgProvider } from "@/lib/context/org-context";
 import { ActivityTrackerProvider } from "@/components/tracking/activity-tracker";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const [logDialogOpen, setLogDialogOpen] = useState(false);
+ const [logDialogOpen, setLogDialogOpen] = useState(false);
 
-  useEffect(() => {
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js");
-    }
-  }, []);
+ useEffect(() => {
+ if ("serviceWorker"in navigator) {
+ navigator.serviceWorker.register("/sw.js");
+ }
+ }, []);
 
-  return (
-    <OrgProvider>
-      <ActivityTrackerProvider>
-      <HeartbeatProvider>
-        <DynamicTitleProvider>
-          <ThroneProvider>
-            <GhostEffect>
-              <div className="flex min-h-screen bg-background">
-                <Sidebar />
-                <main className="flex-1 pb-20 md:pb-0 min-w-0 relative bg-grid-palantir">
-                  {/* Top accent line */}
-                  <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-                  <PublicCountdown />
-                  <HerdPressure />
-                  <RankingStrip />
-                  <div className="relative z-[1]">
-                    <ProductivityPrison>
-                      <ErrorBoundary>
-                        {children}
-                      </ErrorBoundary>
-                    </ProductivityPrison>
-                  </div>
-                </main>
-                <MobileNav onLogEntry={() => setLogDialogOpen(true)} />
-                <LogEntryDialog open={logDialogOpen} onOpenChange={setLogDialogOpen} />
-                <KeyboardShortcuts onNewEntry={() => setLogDialogOpen(true)} />
-                <FloatingAIButton />
-                <PresenceIndicator />
-                <AICoachNudge />
-                <LastPlaceCurse />
-                <PerformanceWatermark />
-                <ShameNotifications />
-                <EscalationTimer />
-                <EntryVerdict />
-                <MomentumKiller />
-                <ScreenTint />
-                <InstallPrompt />
-              </div>
-            </GhostEffect>
-          </ThroneProvider>
-        </DynamicTitleProvider>
-      </HeartbeatProvider>
-      </ActivityTrackerProvider>
-    </OrgProvider>
-  );
+ return (
+ <OrgProvider>
+ <ActivityTrackerProvider>
+ <HeartbeatProvider>
+ <DynamicTitleProvider>
+ <ThroneProvider>
+ <GhostEffect>
+ <MorningShameRecap />
+ <div className="flex min-h-screen bg-background">
+ <Sidebar />
+ <main className="flex-1 pb-20 md:pb-0 min-w-0 relative bg-grid-palantir">
+ {/* Top accent line */}
+ <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent"/>
+ <PublicCountdown />
+ <HerdPressure />
+ <RankingStrip />
+ <ShameStreakBadge />
+ <div className="relative z-[1]">
+ <ProductivityPrison>
+ <ErrorBoundary>
+ {children}
+ </ErrorBoundary>
+ </ProductivityPrison>
+ </div>
+ </main>
+ <MobileNav onLogEntry={() => setLogDialogOpen(true)} />
+ <LogEntryDialog open={logDialogOpen} onOpenChange={setLogDialogOpen} />
+ <KeyboardShortcuts onNewEntry={() => setLogDialogOpen(true)} />
+ <FloatingAIButton />
+ <PresenceIndicator />
+ <AICoachNudge />
+ <LastPlaceCurse />
+ <PerformanceWatermark />
+ <ShameNotifications />
+ <EscalationTimer />
+ <EntryVerdict />
+ <MomentumKiller />
+ <ScreenTint />
+ <InstallPrompt />
+ </div>
+ </GhostEffect>
+ </ThroneProvider>
+ </DynamicTitleProvider>
+ </HeartbeatProvider>
+ </ActivityTrackerProvider>
+ </OrgProvider>
+ );
 }

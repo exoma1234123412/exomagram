@@ -8,49 +8,49 @@ export const CATEGORIES: Record<
     label: "Deep Work",
     color: "text-violet-700 dark:text-violet-400",
     bgColor: "bg-violet-100 dark:bg-violet-900/40",
-    emoji: "🎯",
+    emoji: "DW",
   },
   meeting: {
     label: "Reunión",
     color: "text-blue-700 dark:text-blue-400",
     bgColor: "bg-blue-100 dark:bg-blue-900/40",
-    emoji: "🤝",
+    emoji: "MT",
   },
   review: {
     label: "Code Review",
     color: "text-amber-700 dark:text-amber-400",
     bgColor: "bg-amber-100 dark:bg-amber-900/40",
-    emoji: "👀",
+    emoji: "CR",
   },
   admin: {
     label: "Admin",
     color: "text-slate-700 dark:text-slate-400",
     bgColor: "bg-slate-100 dark:bg-slate-800/40",
-    emoji: "📋",
+    emoji: "AD",
   },
   planning: {
     label: "Planning",
     color: "text-emerald-700 dark:text-emerald-400",
     bgColor: "bg-emerald-100 dark:bg-emerald-900/40",
-    emoji: "🗺️",
+    emoji: "PL",
   },
   learning: {
     label: "Aprendizaje",
     color: "text-pink-700 dark:text-pink-400",
     bgColor: "bg-pink-100 dark:bg-pink-900/40",
-    emoji: "📚",
+    emoji: "LR",
   },
   break: {
     label: "Descanso",
     color: "text-green-700 dark:text-green-400",
     bgColor: "bg-green-100 dark:bg-green-900/40",
-    emoji: "☕",
+    emoji: "BK",
   },
   blocked: {
     label: "Bloqueado",
     color: "text-red-700 dark:text-red-400",
     bgColor: "bg-red-100 dark:bg-red-900/40",
-    emoji: "🚫",
+    emoji: "BL",
   },
 };
 
@@ -58,34 +58,34 @@ export const VERIFICATION_STATUS: Record<
   VerificationStatus,
   { label: string; color: string; icon: string }
 > = {
-  unverified: { label: "Sin verificar", color: "text-yellow-600", icon: "⚠️" },
-  verified: { label: "Verificado", color: "text-green-600", icon: "✅" },
-  flagged: { label: "Sospechoso", color: "text-red-600", icon: "🚩" },
-  disputed: { label: "Disputado", color: "text-orange-600", icon: "⚡" },
+  unverified: { label: "Sin verificar", color: "text-yellow-600", icon: "--" },
+  verified: { label: "Verificado", color: "text-green-600", icon: "OK" },
+  flagged: { label: "Sospechoso", color: "text-red-600", icon: "!!" },
+  disputed: { label: "Disputado", color: "text-orange-600", icon: "??" },
 };
 
 export const REACTIONS: Record<
   ReactionType,
   { label: string; emoji: string; description: string }
 > = {
-  verified: { label: "Confirmo", emoji: "✅", description: "Confirmo que esto pasó" },
-  suspicious: { label: "Sospechoso", emoji: "🤔", description: "Esto no me cuadra" },
-  impressive: { label: "Impresionante", emoji: "🔥", description: "Gran trabajo" },
-  helped_me: { label: "Me ayudó", emoji: "🙏", description: "Esto me ayudó directamente" },
+  verified: { label: "Confirmo", emoji: "+1", description: "Confirmo que esto pasó" },
+  suspicious: { label: "Sospechoso", emoji: "??", description: "Requiere revisión" },
+  impressive: { label: "Notable", emoji: "++", description: "Rendimiento destacado" },
+  helped_me: { label: "Asistencia", emoji: ">>", description: "Asistencia directa registrada" },
 };
 
 export const FLAG_TYPES: Record<
   FlagType,
   { label: string; emoji: string; severity: "low" | "medium" | "high" }
 > = {
-  missing_hours: { label: "Horas faltantes", emoji: "🕳️", severity: "high" },
-  no_proof: { label: "Sin evidencia", emoji: "📭", severity: "medium" },
-  late_entries: { label: "Entradas tardías", emoji: "⏰", severity: "medium" },
-  no_closeout: { label: "Sin cierre del día", emoji: "📝", severity: "high" },
-  no_standup: { label: "Sin standup", emoji: "🙊", severity: "high" },
-  low_detail: { label: "Bajo detalle", emoji: "💤", severity: "low" },
-  suspicious_pattern: { label: "Patrón sospechoso", emoji: "🔍", severity: "high" },
-  idle_long: { label: "Idle prolongado", emoji: "💤", severity: "medium" },
+  missing_hours: { label: "Horas faltantes", emoji: "!!", severity: "high" },
+  no_proof: { label: "Sin evidencia", emoji: "--", severity: "medium" },
+  late_entries: { label: "Entradas tardías", emoji: ">>", severity: "medium" },
+  no_closeout: { label: "Sin cierre del día", emoji: "!!", severity: "high" },
+  no_standup: { label: "Sin standup", emoji: "!!", severity: "high" },
+  low_detail: { label: "Bajo detalle", emoji: "..", severity: "low" },
+  suspicious_pattern: { label: "Patrón sospechoso", emoji: "!!", severity: "high" },
+  idle_long: { label: "Idle prolongado", emoji: "..", severity: "medium" },
 };
 
 export const LIVE_STATUS_CONFIG: Record<
@@ -126,7 +126,7 @@ export const ENERGY_LABELS: Record<number, string> = {
   2: "Bajo",
   3: "Normal",
   4: "Energético",
-  5: "En llamas",
+  5: "Máximo",
 };
 
 // ============================================================
@@ -134,41 +134,41 @@ export const ENERGY_LABELS: Record<number, string> = {
 // ============================================================
 
 export const OUTPUT_TYPES: Record<string, { label: string; emoji: string }> = {
-  code: { label: "Código", emoji: "💻" },
-  document: { label: "Documento", emoji: "📄" },
-  design: { label: "Diseño", emoji: "🎨" },
-  email: { label: "Email", emoji: "📧" },
-  decision: { label: "Decisión", emoji: "⚖️" },
-  analysis: { label: "Análisis", emoji: "📊" },
-  presentation: { label: "Presentación", emoji: "📽️" },
-  communication: { label: "Comunicación", emoji: "💬" },
-  review_output: { label: "Review", emoji: "🔍" },
-  none: { label: "Nada tangible", emoji: "🫥" },
+  code: { label: "Código", emoji: "CD" },
+  document: { label: "Documento", emoji: "DC" },
+  design: { label: "Diseño", emoji: "DS" },
+  email: { label: "Email", emoji: "EM" },
+  decision: { label: "Decisión", emoji: "DE" },
+  analysis: { label: "Análisis", emoji: "AN" },
+  presentation: { label: "Presentación", emoji: "PR" },
+  communication: { label: "Comunicación", emoji: "CM" },
+  review_output: { label: "Review", emoji: "RV" },
+  none: { label: "Sin entregable", emoji: "--" },
 };
 
 export const TOOLS: Record<string, { label: string; emoji: string }> = {
-  vscode: { label: "VS Code", emoji: "🔧" },
-  figma: { label: "Figma", emoji: "🎨" },
-  slack: { label: "Slack", emoji: "💬" },
-  zoom: { label: "Zoom", emoji: "📹" },
-  meet: { label: "Google Meet", emoji: "📹" },
-  notion: { label: "Notion", emoji: "📝" },
-  linear: { label: "Linear", emoji: "📋" },
-  terminal: { label: "Terminal", emoji: "⬛" },
-  browser: { label: "Browser", emoji: "🌐" },
-  excel: { label: "Excel/Sheets", emoji: "📊" },
-  github: { label: "GitHub", emoji: "🐙" },
-  email_client: { label: "Email", emoji: "📧" },
-  other: { label: "Otro", emoji: "🔲" },
+  vscode: { label: "VS Code", emoji: "VC" },
+  figma: { label: "Figma", emoji: "FG" },
+  slack: { label: "Slack", emoji: "SL" },
+  zoom: { label: "Zoom", emoji: "ZM" },
+  meet: { label: "Google Meet", emoji: "GM" },
+  notion: { label: "Notion", emoji: "NT" },
+  linear: { label: "Linear", emoji: "LN" },
+  terminal: { label: "Terminal", emoji: "TM" },
+  browser: { label: "Browser", emoji: "BR" },
+  excel: { label: "Excel/Sheets", emoji: "XL" },
+  github: { label: "GitHub", emoji: "GH" },
+  email_client: { label: "Email", emoji: "EM" },
+  other: { label: "Otro", emoji: "--" },
 };
 
 export const LOCATIONS: Record<string, { label: string; emoji: string }> = {
-  office: { label: "Oficina", emoji: "🏢" },
-  home: { label: "Casa", emoji: "🏠" },
-  cafe: { label: "Café", emoji: "☕" },
-  coworking: { label: "Coworking", emoji: "🏗️" },
-  travel: { label: "Viaje", emoji: "✈️" },
-  other: { label: "Otro", emoji: "📍" },
+  office: { label: "Oficina", emoji: "OF" },
+  home: { label: "Remoto", emoji: "RM" },
+  cafe: { label: "Externo", emoji: "EX" },
+  coworking: { label: "Coworking", emoji: "CW" },
+  travel: { label: "Viaje", emoji: "VJ" },
+  other: { label: "Otro", emoji: "--" },
 };
 
 export const DIFFICULTY_LABELS: Record<number, string> = {

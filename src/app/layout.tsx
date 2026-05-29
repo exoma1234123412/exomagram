@@ -3,60 +3,59 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+ variable:"--font-geist-sans",
+ subsets: ["latin"],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+ variable:"--font-geist-mono",
+ subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: {
-    default: "Exomagram — Vigilancia Total del Trabajo",
-    template: "%s | Exomagram",
-  },
-  description:
-    "Ve exactamente qué hace cada miembro de tu equipo, hora por hora. Vigilancia total para equipos que exigen resultados.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://exomagram.com"),
-  openGraph: {
-    title: "Exomagram — Vigilancia Total del Trabajo",
-    description: "Vigilancia total para equipos que exigen resultados.",
-    type: "website",
-  },
-  robots: {
-    index: false,
-    follow: false,
-    googleBot: {
-      index: false,
-      follow: false,
-    },
-  },
+ title: {
+ default:"Exomagram — Vigilancia Total del Trabajo",
+ template:"%s | Exomagram",
+ },
+ description:
+"Ve exactamente qué hace cada miembro de tu equipo, hora por hora. Vigilancia total para equipos que exigen resultados.",
+ metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ||"https://exomagram.com"),
+ openGraph: {
+ title:"Exomagram — Vigilancia Total del Trabajo",
+ description:"Vigilancia total para equipos que exigen resultados.",
+ type:"website",
+ },
+ robots: {
+ index: false,
+ follow: false,
+ googleBot: {
+ index: false,
+ follow: false,
+ },
+ },
 };
 
 export default function RootLayout({
-  children,
+ children,
 }: Readonly<{
-  children: React.ReactNode;
+ children: React.ReactNode;
 }>) {
-  return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full dark`}
-    >
-      <head>
-        <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <meta name="theme-color" content="#060810" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <link rel="apple-touch-icon" href="/icon-192.svg" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-      </head>
-      <body className="min-h-full flex flex-col">
-        {children}
-      </body>
-    </html>
-  );
+ return (
+ <html
+ lang="en"className={`${geistSans.variable} ${geistMono.variable} h-full dark`}
+ >
+ <head>
+ <link rel="manifest"href="/manifest.json"/>
+ <link rel="icon"href="/favicon.svg"type="image/svg+xml"/>
+ <meta name="theme-color"content="#060810"/>
+ <meta name="apple-mobile-web-app-capable"content="yes"/>
+ <meta name="apple-mobile-web-app-status-bar-style"content="black-translucent"/>
+ <link rel="apple-touch-icon"href="/icon-192.svg"/>
+ <meta name="viewport"content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+ </head>
+ <body className="min-h-full flex flex-col">
+ {children}
+ </body>
+ </html>
+ );
 }

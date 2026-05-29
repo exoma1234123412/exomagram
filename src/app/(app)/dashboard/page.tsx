@@ -20,6 +20,7 @@ import { ThroneBanner } from "@/components/social/throne-crown";
 import { ForcedComparison } from "@/components/social/forced-comparison";
 import { HealthCheckin } from "@/components/dashboard/health-checkin";
 import { TeamDebt } from "@/components/accountability/team-debt";
+import { WorstOfToday } from "@/components/social/worst-of-today";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, ChevronLeft, ChevronRight, FileCheck, Calendar } from "lucide-react";
@@ -28,186 +29,186 @@ import { es } from "date-fns/locale";
 import { getTodayMTY } from "@/lib/utils";
 
 export default function DashboardPage() {
-  const { orgId, userId, loading: orgLoading } = useOrg();
-  const [date, setDate] = useState(getTodayMTY());
-  const [logOpen, setLogOpen] = useState(false);
-  const [closeoutOpen, setCloseoutOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<TimelineFilters>({
-    person: null,
-    category: null,
-    verification: null,
-  });
-  const supabase = createClient();
-  const router = useRouter();
+ const { orgId, userId, loading: orgLoading } = useOrg();
+ const [date, setDate] = useState(getTodayMTY());
+ const [logOpen, setLogOpen] = useState(false);
+ const [closeoutOpen, setCloseoutOpen] = useState(false);
+ const [loading, setLoading] = useState(true);
+ const [filters, setFilters] = useState<TimelineFilters>({
+ person: null,
+ category: null,
+ verification: null,
+ });
+ const supabase = createClient();
+ const router = useRouter();
 
-  useEffect(() => {
-    if (orgLoading) return;
-    if (!orgId || !userId) {
-      setLoading(false);
-      return;
-    }
+ useEffect(() => {
+ if (orgLoading) return;
+ if (!orgId || !userId) {
+ setLoading(false);
+ return;
+ }
 
-    async function checkWelcome() {
-      // Redirect to welcome if user has zero time entries
-      const { count } = await supabase
-        .from("time_entries")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", userId!)
-        .eq("org_id", orgId!);
-      if (count === 0) {
-        router.replace("/welcome");
-        return;
-      }
-      setLoading(false);
-    }
-    checkWelcome();
-  }, [orgId, userId, orgLoading]); // eslint-disable-line react-hooks/exhaustive-deps
+ async function checkWelcome() {
+ // Redirect to welcome if user has zero time entries
+ const { count } = await supabase
+ .from("time_entries")
+ .select("id", { count:"exact", head: true })
+ .eq("user_id", userId!)
+ .eq("org_id", orgId!);
+ if (count === 0) {
+ router.replace("/welcome");
+ return;
+ }
+ setLoading(false);
+ }
+ checkWelcome();
+ }, [orgId, userId, orgLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const displayDate = format(new Date(date + "T12:00:00"), "EEEE, d MMMM yyyy", { locale: es });
-  const isToday = date === getTodayMTY();
+ const displayDate = format(new Date(date +"T12:00:00"),"EEEE, d MMMM yyyy", { locale: es });
+ const isToday = date === getTodayMTY();
 
-  if (loading || orgLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-pulse text-muted-foreground font-mono text-xs tracking-widest uppercase">Cargando...</div>
-      </div>
-    );
-  }
+ if (loading || orgLoading) {
+ return (
+ <div className="flex items-center justify-center h-screen">
+ <div className="animate-pulse text-muted-foreground font-mono text-xs tracking-widest uppercase">Cargando...</div>
+ </div>
+ );
+ }
 
-  if (!orgId) return <NoOrgView />;
+ if (!orgId) return <NoOrgView />;
 
-  return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Timeline</h1>
-          <p className="text-muted-foreground text-xs font-mono capitalize mt-1">{displayDate}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          {isToday && (
-            <Button variant="outline" onClick={() => setCloseoutOpen(true)} className="gap-2 hidden sm:flex text-xs font-mono">
-              <FileCheck className="w-3.5 h-3.5" /> Cerrar día
-            </Button>
-          )}
-          <Button onClick={() => setLogOpen(true)} className="gap-2 text-xs font-mono">
-            <Plus className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Registrar hora</span>
-          </Button>
-        </div>
-      </div>
+ return (
+ <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+ {/* Header */}
+ <div className="flex items-center justify-between mb-8">
+ <div>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Timeline</h1>
+ <p className="text-muted-foreground text-xs font-mono capitalize mt-1">{displayDate}</p>
+ </div>
+ <div className="flex items-center gap-2">
+ {isToday && (
+ <Button variant="outline"onClick={() => setCloseoutOpen(true)} className="gap-2 hidden sm:flex text-xs font-mono">
+ <FileCheck className="w-3.5 h-3.5"/> Cerrar día
+ </Button>
+ )}
+ <Button onClick={() => setLogOpen(true)} className="gap-2 text-xs font-mono">
+ <Plus className="w-3.5 h-3.5"/>
+ <span className="hidden sm:inline">Registrar hora</span>
+ </Button>
+ </div>
+ </div>
 
-      {/* Date navigation */}
-      <div className="flex items-center gap-2 mb-8">
-        <Button variant="ghost" size="icon"
-          onClick={() => setDate(subDays(new Date(date + "T12:00:00"), 1).toISOString().split("T")[0])}>
-          <ChevronLeft className="w-4 h-4" />
-        </Button>
-        <div className="flex items-center gap-2 px-1">
-          <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)}
-            className="w-auto border-0 bg-transparent shadow-none focus-visible:ring-0 px-0 h-auto font-mono text-xs" />
-        </div>
-        <Button variant="ghost" size="icon"
-          onClick={() => setDate(addDays(new Date(date + "T12:00:00"), 1).toISOString().split("T")[0])}>
-          <ChevronRight className="w-4 h-4" />
-        </Button>
-        {!isToday && (
-          <Button variant="secondary" size="sm" className="text-xs font-mono"
-            onClick={() => setDate(getTodayMTY())}>
-            Hoy
-          </Button>
-        )}
-      </div>
+ {/* Date navigation */}
+ <div className="flex items-center gap-2 mb-8">
+ <Button variant="ghost"size="icon"onClick={() => setDate(subDays(new Date(date +"T12:00:00"), 1).toISOString().split("T")[0])}>
+ <ChevronLeft className="w-4 h-4"/>
+ </Button>
+ <div className="flex items-center gap-2 px-1">
+ <Calendar className="w-3.5 h-3.5 text-muted-foreground"/>
+ <Input type="date"value={date} onChange={(e) => setDate(e.target.value)}
+ className="w-auto border-0 bg-transparent shadow-none focus-visible:ring-0 px-0 h-auto font-mono text-xs"/>
+ </div>
+ <Button variant="ghost"size="icon"onClick={() => setDate(addDays(new Date(date +"T12:00:00"), 1).toISOString().split("T")[0])}>
+ <ChevronRight className="w-4 h-4"/>
+ </Button>
+ {!isToday && (
+ <Button variant="secondary"size="sm"className="text-xs font-mono"onClick={() => setDate(getTodayMTY())}>
+ Hoy
+ </Button>
+ )}
+ </div>
 
-      {/* Forced comparison — can't dismiss for 5 seconds */}
-      {isToday && <ForcedComparison />}
+ {/* Worst of today — the single worst metric */}
+ {isToday && <WorstOfToday />}
 
-      {/* Throne — who wears the crown this week */}
-      {isToday && <ThroneBanner orgId={orgId} />}
+ {/* Forced comparison — can't dismiss for 5 seconds */}
+ {isToday && <ForcedComparison />}
 
-      {/* Team debt — collective accountability for D/F grades */}
-      {isToday && <TeamDebt orgId={orgId} />}
+ {/* Throne — who wears the crown this week */}
+ {isToday && <ThroneBanner orgId={orgId} />}
 
-      {/* Streak danger — anxiety countdown */}
-      {isToday && <StreakDanger orgId={orgId} />}
+ {/* Team debt — collective accountability for D/F grades */}
+ {isToday && <TeamDebt orgId={orgId} />}
 
-      {/* Fear widget — trust score decay pressure */}
-      {isToday && <FearWidget orgId={orgId} />}
+ {/* Streak danger — anxiety countdown */}
+ {isToday && <StreakDanger orgId={orgId} />}
 
-      {/* AI Public Feed — team announcements, praise, challenges */}
-      {isToday && <PublicFeed orgId={orgId} />}
+ {/* Fear widget — trust score decay pressure */}
+ {isToday && <FearWidget orgId={orgId} />}
 
-      {/* Daily score — your personal scorecard */}
-      {isToday && <DailyScoreWidget orgId={orgId} />}
+ {/* AI Public Feed — team announcements, praise, challenges */}
+ {isToday && <PublicFeed orgId={orgId} />}
 
-      {/* Health check-in — daily wellness */}
-      {isToday && <HealthCheckin orgId={orgId} />}
+ {/* Daily score — your personal scorecard */}
+ {isToday && <DailyScoreWidget orgId={orgId} />}
 
-      {/* Quick log — fast entry */}
-      {isToday && <QuickLog orgId={orgId} />}
+ {/* Health check-in — daily wellness */}
+ {isToday && <HealthCheckin orgId={orgId} />}
 
-      {/* Live status — who's working now */}
-      {isToday && <LiveStatusBar orgId={orgId} />}
+ {/* Quick log — fast entry */}
+ {isToday && <QuickLog orgId={orgId} />}
 
-      {/* Missing hours — gentle reminder */}
-      {isToday && <MissingHoursAlert date={date} />}
+ {/* Live status — who's working now */}
+ {isToday && <LiveStatusBar orgId={orgId} />}
 
-      {/* Filters */}
-      <TimelineFiltersBar orgId={orgId} filters={filters} onChange={setFilters} />
+ {/* Missing hours — gentle reminder */}
+ {isToday && <MissingHoursAlert date={date} />}
 
-      {/* Feed — the core */}
-      <TimelineFeed date={date} orgId={orgId} filters={filters} />
+ {/* Filters */}
+ <TimelineFiltersBar orgId={orgId} filters={filters} onChange={setFilters} />
 
-      <LogEntryDialog open={logOpen} onOpenChange={setLogOpen} defaultDate={date} />
-      <DailyCloseoutDialog open={closeoutOpen} onOpenChange={setCloseoutOpen} />
+ {/* Feed — the core */}
+ <TimelineFeed date={date} orgId={orgId} filters={filters} />
 
-      {/* Bottom padding for sticky pressure bar */}
-      {isToday && <div className="h-16" />}
+ <LogEntryDialog open={logOpen} onOpenChange={setLogOpen} defaultDate={date} />
+ <DailyCloseoutDialog open={closeoutOpen} onOpenChange={setCloseoutOpen} />
 
-      {/* Social pressure bar — sticky bottom with rank, team progress, surveillance */}
-      {isToday && <SocialPressureBar orgId={orgId} />}
-    </div>
-  );
+ {/* Bottom padding for sticky pressure bar */}
+ {isToday && <div className="h-16"/>}
+
+ {/* Social pressure bar — sticky bottom with rank, team progress, surveillance */}
+ {isToday && <SocialPressureBar orgId={orgId} />}
+ </div>
+ );
 }
 
 function NoOrgView() {
-  const [name, setName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const supabase = createClient();
+ const [name, setName] = useState("");
+ const [loading, setLoading] = useState(false);
+ const supabase = createClient();
 
-  async function createOrg(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-    const { data: org } = await supabase.from("organizations").insert({ name, slug }).select().single();
-    if (org) {
-      await supabase.from("org_members").insert({ org_id: org.id, user_id: user.id, role: "owner" });
-      window.location.reload();
-    }
-    setLoading(false);
-  }
+ async function createOrg(e: React.FormEvent) {
+ e.preventDefault();
+ setLoading(true);
+ const { data: { user } } = await supabase.auth.getUser();
+ if (!user) return;
+ const slug = name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
+ const { data: org } = await supabase.from("organizations").insert({ name, slug }).select().single();
+ if (org) {
+ await supabase.from("org_members").insert({ org_id: org.id, user_id: user.id, role:"owner"});
+ window.location.reload();
+ }
+ setLoading(false);
+ }
 
-  return (
-    <div className="flex items-center justify-center min-h-screen px-4">
-      <div className="max-w-md w-full text-center space-y-8">
-        <div className="w-16 h-16 border border-border flex items-center justify-center mx-auto">
-          <span className="text-3xl">🏢</span>
-        </div>
-        <div>
-          <h2 className="text-xl font-mono font-bold tracking-tight uppercase">Crea tu equipo</h2>
-          <p className="text-muted-foreground text-sm font-mono mt-2">Necesitas un equipo para empezar.</p>
-        </div>
-        <form onSubmit={createOrg} className="flex gap-2">
-          <Input placeholder="Nombre del equipo" value={name} onChange={(e) => setName(e.target.value)} required className="font-mono text-sm" />
-          <Button type="submit" disabled={loading} className="font-mono text-sm">
-            {loading ? "Creando..." : "Crear"}
-          </Button>
-        </form>
-      </div>
-    </div>
-  );
+ return (
+ <div className="flex items-center justify-center min-h-screen px-4">
+ <div className="max-w-md w-full text-center space-y-8">
+ <div className="w-16 h-16 border border-border flex items-center justify-center mx-auto">
+ <span className="text-3xl">--</span>
+ </div>
+ <div>
+ <h2 className="text-xl font-mono font-bold tracking-tight uppercase">Crea tu equipo</h2>
+ <p className="text-muted-foreground text-sm font-mono mt-2">Necesitas un equipo para empezar.</p>
+ </div>
+ <form onSubmit={createOrg} className="flex gap-2">
+ <Input placeholder="Nombre del equipo"value={name} onChange={(e) => setName(e.target.value)} required className="font-mono text-sm"/>
+ <Button type="submit"disabled={loading} className="font-mono text-sm">
+ {loading ?"Creando...":"Crear"}
+ </Button>
+ </form>
+ </div>
+ </div>
+ );
 }
