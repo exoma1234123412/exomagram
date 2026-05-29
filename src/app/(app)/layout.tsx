@@ -11,6 +11,9 @@ import { MicroCheckinProvider } from "@/components/accountability/micro-checkin"
 import { KeyboardShortcuts } from "@/components/layout/keyboard-shortcuts";
 import { ScreenPulse } from "@/components/pressure/screen-pulse";
 import { InactivityAlarm } from "@/components/pressure/inactivity-alarm";
+import { MandatoryProofGate } from "@/components/pressure/mandatory-proof-gate";
+import { StandupEnforcer } from "@/components/pressure/standup-enforcer";
+import { WeeklyConfession } from "@/components/pressure/weekly-confession";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [logDialogOpen, setLogDialogOpen] = useState(false);
@@ -34,6 +37,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <KeyboardShortcuts onNewEntry={() => setLogDialogOpen(true)} />
               <ScreenPulse />
               <InactivityAlarm />
+              <MandatoryProofGate />
+              <StandupEnforcer />
+              <WeeklyConfession />
             </div>
           </MicroCheckinProvider>
         </ProofSnapshotProvider>

@@ -50,58 +50,79 @@ import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { ThemeToggle } from "./theme-toggle";
 
-const mainNav = [
+// ─── TRABAJO DIARIO ─────────────────────────────────────
+const dailyNav = [
   { href: "/dashboard", label: "Timeline", icon: LayoutDashboard },
-  { href: "/grid", label: "Equipo", icon: Grid3X3 },
   { href: "/now", label: "Ahora", icon: Radio },
-  { href: "/promises", label: "Promesas", icon: Target },
   { href: "/standup", label: "Standup", icon: MessageSquare },
   { href: "/focus", label: "Focus", icon: Brain },
+  { href: "/grid", label: "Equipo", icon: Grid3X3 },
 ];
 
-const insightsNav = [
+// ─── VIGILANCIA ──────────────────────────────────────────
+const vigilanceNav = [
   { href: "/vigilance", label: "Vigilancia", icon: ScanEye },
-  { href: "/activity-log", label: "Activity Log", icon: ScrollText },
   { href: "/timeline-view", label: "Timeline Visual", icon: GanttChart },
-  { href: "/claude-audit", label: "Claude AI", icon: Brain },
-  { href: "/efficiency", label: "Eficiencia", icon: Gauge },
-  { href: "/output", label: "Output", icon: Eye },
-  { href: "/audit-daily", label: "AI Audit", icon: Brain },
-  { href: "/retro", label: "Retro Semanal", icon: Brain },
+  { href: "/activity-log", label: "Activity Log", icon: ScrollText },
   { href: "/accountability", label: "Accountability", icon: Eye },
-  { href: "/health", label: "Salud", icon: Heart },
-  { href: "/weekly", label: "Semanal", icon: BarChart3 },
+];
+
+// ─── RENDIMIENTO ─────────────────────────────────────────
+const performanceNav = [
+  { href: "/power-rankings", label: "Power Rankings", icon: Trophy },
   { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
+  { href: "/performance", label: "Performance", icon: Gauge },
+  { href: "/health", label: "Salud", icon: Heart },
+];
+
+// ─── ANÁLISIS ────────────────────────────────────────────
+const analyticsNav = [
+  { href: "/weekly", label: "Semanal", icon: BarChart3 },
   { href: "/heatmap", label: "Heatmap", icon: Grid3X3 },
-  { href: "/narrative", label: "Narrativa", icon: BookOpen },
-  { href: "/collab", label: "Colaboración", icon: GitBranch },
-  { href: "/projects", label: "Proyectos", icon: FolderKanban },
   { href: "/insights", label: "Mis Insights", icon: Lightbulb },
   { href: "/org-stats", label: "Org Stats", icon: Building2 },
-  { href: "/compatibility", label: "Compatibilidad", icon: GitMerge },
-  { href: "/budgets", label: "Budgets", icon: PieChart },
-  { href: "/capacity", label: "Capacidad", icon: Gauge },
-  { href: "/sprints", label: "Sprints", icon: Flag },
-  { href: "/reports", label: "Reportes", icon: FileText },
+  { href: "/projects", label: "Proyectos", icon: FolderKanban },
   { href: "/compare", label: "Comparar", icon: Eye },
-  { href: "/digest", label: "Digest", icon: BookOpen },
+  { href: "/compatibility", label: "Compatibilidad", icon: GitMerge },
+  { href: "/collab", label: "Colaboración", icon: GitBranch },
 ];
 
+// ─── PLANIFICACIÓN ───────────────────────────────────────
+const planningNav = [
+  { href: "/sprints", label: "Sprints", icon: Flag },
+  { href: "/capacity", label: "Capacidad", icon: Gauge },
+  { href: "/budgets", label: "Budgets", icon: PieChart },
+  { href: "/goals", label: "Objetivos", icon: Target },
+  { href: "/promises", label: "Promesas", icon: Target },
+];
+
+// ─── EQUIPO & SOCIAL ─────────────────────────────────────
 const socialNav = [
   { href: "/shoutouts", label: "Shoutouts", icon: Sparkles },
   { href: "/kudos", label: "Kudos", icon: Heart },
-  { href: "/goals", label: "Objetivos", icon: Target },
   { href: "/feedback", label: "Feedback", icon: MessageSquareText },
   { href: "/pacts", label: "Pactos", icon: Handshake },
+  { href: "/pulse", label: "Pulse", icon: HeartPulse },
+];
+
+// ─── REPORTES ────────────────────────────────────────────
+const reportsNav = [
+  { href: "/reports", label: "Reportes", icon: FileText },
+  { href: "/narrative", label: "Narrativa AI", icon: BookOpen },
+  { href: "/digest", label: "Digest", icon: BookOpen },
   { href: "/audit", label: "Audit Log", icon: History },
   { href: "/journal", label: "Journal", icon: Journal },
-  { href: "/pulse", label: "Pulse", icon: HeartPulse },
-  { href: "/replay", label: "Replay", icon: Film },
+];
+
+// ─── HERRAMIENTAS ────────────────────────────────────────
+const toolsNav = [
   { href: "/tools", label: "Herramientas", icon: Wrench },
+  { href: "/replay", label: "Replay", icon: Film },
   { href: "/warroom", label: "War Room", icon: Monitor },
 ];
 
-const bottomNav = [
+// ─── CONFIGURACIÓN ───────────────────────────────────────
+const configNav = [
   { href: "/profile", label: "Mi Perfil", icon: User },
   { href: "/admin", label: "Admin", icon: ShieldIcon },
   { href: "/org-settings", label: "Org Config", icon: Settings2 },
@@ -110,7 +131,7 @@ const bottomNav = [
   { href: "/settings", label: "Ajustes", icon: Settings },
 ];
 
-function NavSection({ items, label }: { items: typeof mainNav; label?: string }) {
+function NavSection({ items, label }: { items: typeof dailyNav; label?: string }) {
   const pathname = usePathname();
   return (
     <div>
@@ -186,21 +207,22 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Divider */}
       <div className="mx-4 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
-      {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto">
-        <NavSection items={mainNav} />
-        <NavSection items={insightsNav} label="Insights" />
+        <NavSection items={dailyNav} />
+        <NavSection items={vigilanceNav} label="Vigilancia" />
+        <NavSection items={performanceNav} label="Rendimiento" />
+        <NavSection items={analyticsNav} label="Análisis" />
+        <NavSection items={planningNav} label="Planificación" />
         <NavSection items={socialNav} label="Social" />
-        <NavSection items={bottomNav} />
+        <NavSection items={reportsNav} label="Reportes" />
+        <NavSection items={toolsNav} label="Herramientas" />
+        <NavSection items={configNav} label="Configuración" />
       </nav>
 
-      {/* Divider */}
       <div className="mx-4 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
-      {/* Logout */}
       <div className="p-3">
         <Button
           variant="ghost"
