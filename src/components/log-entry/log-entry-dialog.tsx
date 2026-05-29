@@ -115,8 +115,10 @@ export function LogEntryDialog({
  const [skillsTags, setSkillsTags] = useState("");
  const [learningNotes, setLearningNotes] = useState<string | null>(null);
  const [orgMembers, setOrgMembers] = useState<{ id: string; full_name: string | null }[]>([]);
+ const [orgProjects, setOrgProjects] = useState<{ id: string; name: string }[]>([]);
+ const [projectId, setProjectId] = useState<string | null>(null);
 
- // Fetch org members for collaborator selection
+ // Fetch org members + projects for selection
  useEffect(() => {
  if (!open) return;
  async function loadMembers() {
@@ -144,6 +146,14 @@ export function LogEntryDialog({
  .select("id, full_name")
  .in("id", otherIds);
  if (profiles) setOrgMembers(profiles);
+ // Load org projects
+ const { data: projects } = await supabase
+ .from("projects")
+ .select("id, name")
+ .eq("org_id", membership.org_id)
+ .eq("status", "active")
+ .order("name");
+ if (projects) setOrgProjects(projects);
  }
  loadMembers();
 
@@ -174,6 +184,7 @@ export function LogEntryDialog({
  setMood(null);
  setEnergy(null);
  setProject("");
+ setProjectId(null);
  setProofUrls("");
  setError(null);
  setShowSuccess(false);
@@ -316,6 +327,7 @@ export function LogEntryDialog({
  energy: energy as 1 | 2 | 3 | 4 | 5 | null,
  links: null,
  project: project.trim() || null,
+ project_id: projectId || null,
  proof_urls: proofArray.length > 0 ? proofArray : null,
  is_late: lateness.isLate,
  minutes_late: lateness.minutesLate,
@@ -518,6 +530,7 @@ export function LogEntryDialog({
    setMood(null);
    setEnergy(null);
    setProject("");
+   setProjectId(null);
    setProofUrls("");
    setShowSuccess(false);
    setValidating(false);
@@ -569,6 +582,7 @@ export function LogEntryDialog({
  setMood(null);
  setEnergy(null);
  setProject("");
+ setProjectId(null);
  setProofUrls("");
  setShowSuccess(false);
  setValidating(false);
@@ -716,16 +730,39 @@ export function LogEntryDialog({
  className=""/>
  </div>
 
- {/* Project tag */}
+ {/* Project selection */}
  <div className="space-y-2">
- <Label htmlFor="project"className="text-sm font-medium">
+ <Label className="text-sm font-medium">
  Proyecto{""}
  <span className="text-muted-foreground/60 text-xs font-normal">(opcional)</span>
  </Label>
+ {orgProjects.length > 0 ? (
+ <Select value={projectId ?? "__none__"} onValueChange={(v) => {
+ if (v === "__none__") {
+ setProjectId(null);
+ setProject("");
+ } else {
+ setProjectId(v);
+ const found = orgProjects.find((p) => p.id === v);
+ setProject(found?.name ?? "");
+ }
+ }}>
+ <SelectTrigger>
+ <SelectValue placeholder="Sin proyecto"/>
+ </SelectTrigger>
+ <SelectContent>
+ <SelectItem value="__none__">Sin proyecto</SelectItem>
+ {orgProjects.map((p) => (
+ <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+ ))}
+ </SelectContent>
+ </Select>
+ ) : (
  <Input
- id="project"placeholder="ej: landing-page, api-v2, onboarding"value={project}
+ id="project" placeholder="ej: landing-page, api-v2, onboarding" value={project}
  onChange={(e) => setProject(e.target.value)}
  className=""/>
+ )}
  </div>
 
  {/* PROOF OF WORK */}
