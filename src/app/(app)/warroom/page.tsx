@@ -80,7 +80,7 @@ export default function WarRoomPage() {
       setStatuses(statusData ?? []);
 
       // Real-time
-      supabase
+      const entriesChannel = supabase
         .channel("warroom_entries")
         .on("postgres_changes", {
           event: "INSERT",
@@ -101,7 +101,7 @@ export default function WarRoomPage() {
         })
         .subscribe();
 
-      supabase
+      const statusChannel = supabase
         .channel("warroom_status")
         .on("postgres_changes", {
           event: "*",
@@ -117,6 +117,11 @@ export default function WarRoomPage() {
           setStatuses(data ?? []);
         })
         .subscribe();
+
+      return () => {
+        supabase.removeChannel(entriesChannel);
+        supabase.removeChannel(statusChannel);
+      };
     }
     load();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps

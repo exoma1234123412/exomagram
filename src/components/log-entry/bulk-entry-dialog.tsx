@@ -211,7 +211,7 @@ export function BulkEntryDialog({ open, onOpenChange }: BulkEntryDialogProps) {
 
           {/* Category */}
           <div className="space-y-2">
-            <Label>Categor&iacute;a</Label>
+            <Label>Categoría</Label>
             <div className="grid grid-cols-4 gap-2">
               {(Object.keys(CATEGORIES) as WorkCategory[]).map((key) => {
                 const cat = CATEGORIES[key];
@@ -238,9 +238,9 @@ export function BulkEntryDialog({ open, onOpenChange }: BulkEntryDialogProps) {
           {/* Title */}
           <div className="space-y-2">
             <Label htmlFor="bulk-title">
-              &iquest;Qu&eacute; hiciste?{" "}
+              ¿Qué hiciste?{" "}
               <span className="text-muted-foreground text-xs">
-                (m&iacute;n. {MIN_TITLE_LENGTH} caracteres)
+                (mín. {MIN_TITLE_LENGTH} caracteres)
               </span>
             </Label>
             <Input
@@ -321,7 +321,7 @@ export function BulkEntryDialog({ open, onOpenChange }: BulkEntryDialogProps) {
           </Button>
 
           <p className="text-[11px] text-center text-muted-foreground/60">
-            Se crear&aacute;n {hoursCount} entradas individuales con la misma informaci&oacute;n.
+            Se crearán {hoursCount} entradas individuales con la misma información.
           </p>
         </form>
       </DialogContent>

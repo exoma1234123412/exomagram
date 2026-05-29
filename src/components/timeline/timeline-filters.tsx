@@ -129,7 +129,7 @@ export function TimelineFiltersBar({ orgId, filters, onChange }: TimelineFilters
 
       {/* Category filter */}
       <div className="space-y-1.5">
-        <span className="text-xs text-muted-foreground">Categor&iacute;a</span>
+        <span className="text-xs text-muted-foreground">Categoría</span>
         <div className="flex flex-wrap gap-1.5">
           {(Object.keys(CATEGORIES) as WorkCategory[]).map((key) => {
             const cat = CATEGORIES[key];
