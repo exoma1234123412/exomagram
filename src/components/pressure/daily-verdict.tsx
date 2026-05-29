@@ -28,8 +28,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -43,7 +41,8 @@ import {
   Shield,
   FileCheck,
 } from "lucide-react";
-import { format } from "date-fns/es";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 // ─── Types ──────────────────────────────────────────────────────
 
@@ -522,7 +521,7 @@ export function DailyVerdict({ onOpenCloseout }: DailyVerdictProps) {
             {config.label} {config.emoji}
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {format(new Date(), "EEEE d 'de' MMMM, yyyy")}
+            {format(new Date(), "EEEE d 'de' MMMM, yyyy", { locale: es })}
           </p>
         </div>
 

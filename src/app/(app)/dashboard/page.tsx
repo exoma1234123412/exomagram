@@ -30,6 +30,7 @@ import { UrgencyEngine } from "@/components/pressure/urgency-engine";
 import { DailyScoreboard } from "@/components/pressure/daily-scoreboard";
 import { DailyVerdict } from "@/components/pressure/daily-verdict";
 import { GhostDetector } from "@/components/pressure/ghost-detector";
+import { GapAnalyzer } from "@/components/pressure/gap-analyzer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, ChevronLeft, ChevronRight, FileCheck, Layers, Calendar } from "lucide-react";
@@ -226,6 +227,9 @@ export default function DashboardPage() {
       {/* DAILY SCOREBOARD — ranked list of who's logging today */}
       {isToday && <DailyScoreboard orgId={orgId} />}
 
+      {/* GAP ANALYZER — hour-by-hour gap visualization */}
+      {isToday && <GapAnalyzer orgId={orgId} />}
+
       {/* GHOST DETECTOR — calls out online but not logging */}
       {isToday && <GhostDetector orgId={orgId} />}
 
@@ -252,7 +256,7 @@ export default function DashboardPage() {
       <DailyCloseoutDialog open={closeoutOpen} onOpenChange={setCloseoutOpen} />
 
       {/* DAILY VERDICT — end-of-day judgment overlay */}
-      {isToday && <DailyVerdict orgId={orgId} />}
+      {isToday && <DailyVerdict onOpenCloseout={() => setCloseoutOpen(true)} />}
     </div>
   );
 }

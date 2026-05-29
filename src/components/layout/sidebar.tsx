@@ -42,6 +42,9 @@ import {
   Flag,
   CreditCard,
   Settings2,
+  ScanEye,
+  ScrollText,
+  GanttChart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/notifications/notification-bell";
@@ -57,6 +60,10 @@ const mainNav = [
 ];
 
 const insightsNav = [
+  { href: "/vigilance", label: "Vigilancia", icon: ScanEye },
+  { href: "/activity-log", label: "Activity Log", icon: ScrollText },
+  { href: "/timeline-view", label: "Timeline Visual", icon: GanttChart },
+  { href: "/claude-audit", label: "Claude AI", icon: Brain },
   { href: "/efficiency", label: "Eficiencia", icon: Gauge },
   { href: "/output", label: "Output", icon: Eye },
   { href: "/audit-daily", label: "AI Audit", icon: Brain },

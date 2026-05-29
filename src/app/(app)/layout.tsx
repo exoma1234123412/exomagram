@@ -9,6 +9,8 @@ import { SpotCheckProvider } from "@/components/accountability/spot-check";
 import { ProofSnapshotProvider } from "@/components/accountability/proof-snapshot";
 import { MicroCheckinProvider } from "@/components/accountability/micro-checkin";
 import { KeyboardShortcuts } from "@/components/layout/keyboard-shortcuts";
+import { ScreenPulse } from "@/components/pressure/screen-pulse";
+import { InactivityAlarm } from "@/components/pressure/inactivity-alarm";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [logDialogOpen, setLogDialogOpen] = useState(false);
@@ -30,6 +32,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <MobileNav onLogEntry={() => setLogDialogOpen(true)} />
               <LogEntryDialog open={logDialogOpen} onOpenChange={setLogDialogOpen} />
               <KeyboardShortcuts onNewEntry={() => setLogDialogOpen(true)} />
+              <ScreenPulse />
+              <InactivityAlarm />
             </div>
           </MicroCheckinProvider>
         </ProofSnapshotProvider>
