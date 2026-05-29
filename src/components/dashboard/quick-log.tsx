@@ -40,10 +40,38 @@ export function QuickLog({ orgId }: { orgId: string }) {
     }, { onConflict: "user_id,org_id,date,hour" });
 
     if (!error) {
+      // Capture values before resetting state
+      const savedTitle = title;
+      const savedCategory = category;
+
       setSuccess(true);
       setTitle("");
       setCategory("");
       setTimeout(() => setSuccess(false), 2000);
+
+      // Fire claude-react in background (fire and forget)
+      supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.id)
+        .single()
+        .then(({ data: profile }) => {
+          fetch("/api/claude-react", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              org_id: orgId,
+              event_type: "entry_created",
+              event_data: {
+                user_name: profile?.full_name ?? "Usuario",
+                title: savedTitle,
+                category: savedCategory,
+                hour: now.getHours(),
+                has_proof: false,
+              },
+            }),
+          }).catch(() => {});
+        });
     }
     setLoading(false);
   }

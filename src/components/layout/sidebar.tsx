@@ -24,6 +24,19 @@ import {
   Sparkles,
   Gauge,
   Monitor,
+  Gavel,
+  TrendingUp,
+  Pickaxe,
+  Swords,
+  Stethoscope,
+  Waves,
+  Siren,
+  FileSignature,
+  Shuffle,
+  EyeOff,
+  Activity,
+  Droplets,
+  Dna,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/notifications/notification-bell";
@@ -56,6 +69,22 @@ const moreNav = [
   { href: "/goals", label: "Objetivos", icon: Target },
   { href: "/audit", label: "Audit Log", icon: History },
   { href: "/warroom", label: "War Room", icon: Monitor },
+];
+
+const creativeNav = [
+  { href: "/tribunal", label: "Tribunal Diario", icon: Gavel },
+  { href: "/predictions", label: "Predicciones", icon: TrendingUp },
+  { href: "/archaeology", label: "Fósiles", icon: Pickaxe },
+  { href: "/duel", label: "Focus Duel", icon: Swords },
+  { href: "/autopsy", label: "Autopsia Reunión", icon: Stethoscope },
+  { href: "/entropy", label: "Entropía", icon: Waves },
+  { href: "/panic", label: "Botón Pánico", icon: Siren },
+  { href: "/contract", label: "Pacto Semanal", icon: FileSignature },
+  { href: "/roulette", label: "Ruleta", icon: Shuffle },
+  { href: "/silent-hours", label: "Horas Silencio", icon: EyeOff },
+  { href: "/pulse", label: "Pulso EKG", icon: Activity },
+  { href: "/trust-decay", label: "Trust Decay", icon: Droplets },
+  { href: "/dna-evolution", label: "DNA Evolución", icon: Dna },
 ];
 
 const configNav = [
@@ -123,6 +152,7 @@ export function Sidebar() {
         <NavSection items={aiNav} label="AI" />
         <NavSection items={metricsNav} label="Métricas" />
         <NavSection items={moreNav} label="Más" />
+        <NavSection items={creativeNav} label="Laboratorio" />
         <NavSection items={configNav} />
       </nav>
 

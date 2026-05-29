@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   CATEGORIES,
@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { cn, formatHour } from "@/lib/utils";
-import { AlertTriangle, Shield, Clock, BookTemplate } from "lucide-react";
+import { AlertTriangle, Shield, Clock, BookTemplate, CheckCircle2 } from "lucide-react";
 import { updateStreakOnEntry } from "@/lib/streak-utils";
 import { EntryTemplates, ManageTemplatesDialog, type EntryTemplate } from "./entry-templates";
 
@@ -64,6 +64,8 @@ export function LogEntryDialog({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [templatesOpen, setTemplatesOpen] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const savedTitleRef = useRef("");
 
   // Reset form state when dialog closes
   useEffect(() => {
@@ -78,6 +80,7 @@ export function LogEntryDialog({
       setProject("");
       setProofUrls("");
       setError(null);
+      setShowSuccess(false);
     }
   }, [open, defaultHour, defaultDate]);
 
@@ -170,10 +173,45 @@ export function LogEntryDialog({
 
     if (insertError) {
       setError(insertError.message);
-    } else {
-      // Update activity streak
-      updateStreakOnEntry(user.id, membership.org_id, date);
+      setLoading(false);
+      return;
+    }
 
+    // Update activity streak
+    updateStreakOnEntry(user.id, membership.org_id, date);
+
+    // Show success state before closing
+    savedTitleRef.current = title;
+    setShowSuccess(true);
+    setLoading(false);
+
+    // Fire claude-react in background (fire and forget)
+    const profilePromise = supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", user.id)
+      .single();
+
+    profilePromise.then(({ data: profile }) => {
+      fetch("/api/claude-react", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          org_id: membership.org_id,
+          event_type: "entry_created",
+          event_data: {
+            user_name: profile?.full_name ?? "Usuario",
+            title: title,
+            category: category,
+            hour: parseInt(hour),
+            has_proof: proofArray.length > 0,
+          },
+        }),
+      }).catch(() => {});
+    });
+
+    // Wait 1.5s then close and reset form
+    setTimeout(() => {
       setCategory("");
       setTitle("");
       setDescription("");
@@ -181,9 +219,9 @@ export function LogEntryDialog({
       setEnergy(null);
       setProject("");
       setProofUrls("");
+      setShowSuccess(false);
       onOpenChange(false);
-    }
-    setLoading(false);
+    }, 1500);
   }
 
   return (
@@ -441,6 +479,23 @@ export function LogEntryDialog({
         </form>
 
         <ManageTemplatesDialog open={templatesOpen} onOpenChange={setTemplatesOpen} />
+
+        {/* Success overlay */}
+        {showSuccess && (
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm rounded-2xl animate-in fade-in duration-200">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center animate-in zoom-in duration-300">
+                <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
+              </div>
+              <p className="text-sm font-medium text-foreground/80 max-w-[280px] text-center truncate">
+                {savedTitleRef.current}
+              </p>
+              <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                Registrado
+              </p>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

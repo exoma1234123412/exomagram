@@ -366,3 +366,372 @@ export interface RoulettePairing {
   deadline: string | null;
   created_at: string;
 }
+
+// ============================================================
+// V4 Features
+// ============================================================
+
+export interface Standup {
+  id: string;
+  user_id: string;
+  org_id: string;
+  date: string;
+  yesterday: string;
+  today_plan: string;
+  blockers: string | null;
+  mood: MoodLevel | null;
+  submitted_at: string;
+}
+
+export interface AuditLogEntry {
+  id: string;
+  org_id: string;
+  user_id: string;
+  action:
+    | "entry_created"
+    | "entry_updated"
+    | "entry_deleted"
+    | "closeout_submitted"
+    | "standup_submitted"
+    | "reaction_added"
+    | "reaction_removed"
+    | "flag_created"
+    | "flag_resolved"
+    | "profile_updated"
+    | "member_joined"
+    | "member_removed"
+    | "goal_created"
+    | "goal_updated"
+    | "shoutout_given";
+  target_type: string | null;
+  target_id: string | null;
+  old_data: Record<string, unknown> | null;
+  new_data: Record<string, unknown> | null;
+  ip_address: string | null;
+  created_at: string;
+}
+
+export type ShoutoutCategory =
+  | "helped_me"
+  | "great_work"
+  | "team_player"
+  | "problem_solver"
+  | "above_and_beyond";
+
+export interface Shoutout {
+  id: string;
+  from_user_id: string;
+  to_user_id: string;
+  org_id: string;
+  message: string;
+  category: ShoutoutCategory;
+  entry_id: string | null;
+  date: string;
+  created_at: string;
+}
+
+export interface GithubConnection {
+  id: string;
+  user_id: string;
+  org_id: string;
+  github_username: string;
+  github_token: string | null;
+  repos: string[];
+  connected_at: string;
+}
+
+export type GithubEventType =
+  | "commit"
+  | "pr_opened"
+  | "pr_merged"
+  | "pr_reviewed"
+  | "issue_opened"
+  | "issue_closed";
+
+export interface GithubEvent {
+  id: string;
+  user_id: string;
+  org_id: string;
+  event_type: GithubEventType;
+  repo: string;
+  title: string;
+  url: string | null;
+  sha: string | null;
+  date: string;
+  hour: number | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+}
+
+export type AiReviewType = "daily_individual" | "daily_team" | "weekly_retro";
+
+export interface AiReview {
+  id: string;
+  org_id: string;
+  date: string;
+  user_id: string | null;
+  review_type: AiReviewType;
+  findings: Record<string, unknown>;
+  summary: string;
+  trust_impact: number;
+  created_at: string;
+}
+
+export interface MeetingVerification {
+  id: string;
+  entry_id: string;
+  requester_id: string;
+  verifier_id: string;
+  org_id: string;
+  status: "pending" | "confirmed" | "denied";
+  created_at: string;
+  responded_at: string | null;
+}
+
+export type NotificationType =
+  | "entry_logged"
+  | "shoutout_received"
+  | "reaction_received"
+  | "flag_raised"
+  | "standup_reminder"
+  | "closeout_reminder"
+  | "verification_request"
+  | "goal_completed"
+  | "streak_milestone";
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  org_id: string;
+  type: NotificationType;
+  title: string;
+  body: string | null;
+  link: string | null;
+  read: boolean;
+  from_user_id: string | null;
+  created_at: string;
+}
+
+export interface PomodoroSession {
+  id: string;
+  user_id: string;
+  org_id: string;
+  task_title: string;
+  category: string | null;
+  duration_minutes: number;
+  started_at: string;
+  completed_at: string | null;
+  was_interrupted: boolean;
+  entry_id: string | null;
+}
+
+export interface PublicDashboard {
+  id: string;
+  org_id: string;
+  token: string;
+  label: string;
+  show_names: boolean;
+  show_details: boolean;
+  active: boolean;
+  created_by: string;
+  created_at: string;
+}
+
+export interface EntryComment {
+  id: string;
+  entry_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+}
+
+export type GoalPeriod = "weekly" | "monthly";
+export type GoalStatus = "active" | "completed" | "failed" | "cancelled";
+
+export interface Goal {
+  id: string;
+  user_id: string;
+  org_id: string;
+  title: string;
+  description: string | null;
+  target_hours: number | null;
+  target_category: string | null;
+  period: GoalPeriod;
+  start_date: string;
+  end_date: string;
+  status: GoalStatus;
+  progress: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PulseResponse {
+  id: string;
+  user_id: string;
+  org_id: string;
+  week: string;
+  question_id: string;
+  score: number;
+  created_at: string;
+}
+
+export interface EntryBookmark {
+  id: string;
+  user_id: string;
+  entry_id: string;
+  note: string | null;
+  created_at: string;
+}
+
+export type AccountabilityPactTargetType =
+  | "hours_with_proof"
+  | "total_hours"
+  | "proof_percent"
+  | "closeout_days";
+
+export type AccountabilityPactStatus = "active" | "completed" | "failed";
+
+export interface AccountabilityPact {
+  id: string;
+  creator_id: string;
+  partner_id: string;
+  org_id: string;
+  title: string;
+  target_type: AccountabilityPactTargetType;
+  target_value: number;
+  duration_days: number;
+  start_date: string;
+  end_date: string;
+  status: AccountabilityPactStatus;
+  creator_progress: number;
+  partner_progress: number;
+  created_at: string;
+}
+
+// ============================================================
+// V5 SaaS Features
+// ============================================================
+
+export interface WebhookDelivery {
+  id: string;
+  org_id: string;
+  url: string;
+  event_type: string;
+  payload: Record<string, unknown>;
+  status_code: number | null;
+  response_body: string | null;
+  success: boolean;
+  created_at: string;
+}
+
+// ============================================================
+// v6 — Promises, Buddies, Rankings, AI tables, Feed, Summaries
+// ============================================================
+
+export type PromiseStatus = "pending" | "delivered" | "broken";
+
+export interface DailyPromise {
+  id: string;
+  user_id: string;
+  org_id: string;
+  date: string;
+  title: string;
+  status: PromiseStatus;
+  created_at: string;
+}
+
+export interface BuddyPair {
+  id: string;
+  org_id: string;
+  user_a: string;
+  user_b: string;
+  active: boolean;
+  created_at: string;
+}
+
+export type MirrorTierLevel = "bronze" | "silver" | "gold" | "platinum" | "diamond";
+
+export interface MirrorTier {
+  id: string;
+  user_id: string;
+  org_id: string;
+  tier: MirrorTierLevel;
+  score: number;
+  updated_at: string;
+}
+
+export interface PowerRanking {
+  id: string;
+  user_id: string;
+  org_id: string;
+  rank: number;
+  total: number;
+  updated_at: string;
+}
+
+export interface AiWorkProfile {
+  id: string;
+  user_id: string;
+  org_id: string;
+  profile_data: Record<string, unknown>;
+  last_updated: string | null;
+  created_at: string;
+}
+
+export interface AiDailyInsight {
+  id: string;
+  user_id: string;
+  org_id: string;
+  date: string;
+  insight: Record<string, unknown>;
+  predictive: Record<string, unknown> | null;
+  relationships: Record<string, unknown> | null;
+  recommendation: string | null;
+  created_at: string;
+}
+
+export type PublicFeedType =
+  | "ai_announcement"
+  | "achievement"
+  | "praise"
+  | "milestone"
+  | "challenge"
+  | "team_update"
+  | "warning"
+  | "shame";
+
+export type FeedUrgency = "low" | "normal" | "high" | "critical";
+
+export interface PublicFeedItem {
+  id: string;
+  org_id: string;
+  type: PublicFeedType;
+  title: string;
+  body: string;
+  target_user_id: string | null;
+  urgency: FeedUrgency;
+  emoji: string | null;
+  is_ai_generated: boolean;
+  created_at: string;
+}
+
+export interface WeeklySummary {
+  id: string;
+  user_id: string;
+  org_id: string;
+  week_start: string;
+  week_end: string;
+  summary: Record<string, unknown>;
+  ai_narrative: string | null;
+  created_at: string;
+}
+
+export interface JournalEntry {
+  id: string;
+  user_id: string;
+  org_id: string;
+  week_of: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}

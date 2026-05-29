@@ -34,7 +34,7 @@ interface MemberDigest {
   has_standup: boolean;
 }
 
-const FROM_ADDRESS = "exomagram@exomapeptides.mx";
+const FROM_ADDRESS = process.env.RESEND_FROM_ADDRESS || "exomagram@exomapeptides.mx";
 
 export async function POST(request: Request) {
   // Verify cron secret (emails are triggered by cron or admin, not end users)

@@ -9,6 +9,7 @@ import { KeyboardShortcuts } from "@/components/layout/keyboard-shortcuts";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { AICoachNudge } from "@/components/coach/ai-coach-nudge";
 import { FloatingAIButton } from "@/components/coach/floating-ai-button";
+import { PresenceIndicator } from "@/components/social/presence-indicator";
 import { OrgProvider } from "@/lib/context/org-context";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -30,6 +31,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <LogEntryDialog open={logDialogOpen} onOpenChange={setLogDialogOpen} />
           <KeyboardShortcuts onNewEntry={() => setLogDialogOpen(true)} />
           <FloatingAIButton />
+          <PresenceIndicator />
           <AICoachNudge />
         </div>
       </HeartbeatProvider>
