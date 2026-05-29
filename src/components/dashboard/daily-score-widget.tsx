@@ -76,73 +76,73 @@ export function DailyScoreWidget({ orgId }: { orgId: string }) {
   const proofPercent = data.hoursLogged > 0 ? Math.round((data.hoursWithProof / data.hoursLogged) * 100) : 0;
 
   return (
-    <div className={cn("rounded-xl bg-gradient-to-r to-transparent p-4 mb-8 border transition-all duration-300 hover:shadow-lg hover:shadow-primary/5", scoreBg)}>
-      <div className="flex items-center gap-6 flex-wrap">
-        {/* Score circle */}
+    <div className={cn("border p-4 mb-8 transition-all duration-300 corner-marks", scoreBg.replace("from-", "bg-"))}>
+      <div className="flex items-center gap-6 flex-wrap relative z-10">
+        {/* Score readout */}
         <div className="relative w-16 h-16 shrink-0">
           <svg className="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
-            <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" className="text-muted/20" />
-            <circle cx="32" cy="32" r="28" fill="none" strokeWidth="4"
+            <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="3" className="text-border/30" />
+            <circle cx="32" cy="32" r="28" fill="none" strokeWidth="3"
               className={scoreColor}
               strokeDasharray={`${2 * Math.PI * 28}`}
               strokeDashoffset={`${2 * Math.PI * 28 * (1 - data.score / 100)}`}
-              strokeLinecap="round"
+              strokeLinecap="butt"
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className={cn("text-lg font-bold tabular-nums tracking-tight", scoreColor)}>{data.score}</span>
+            <span className={cn("text-xl font-mono font-black tabular-nums tracking-tight", scoreColor)}>{data.score}</span>
           </div>
         </div>
 
-        {/* Stats */}
+        {/* Stats grid */}
         <div className="flex items-center gap-5 flex-wrap flex-1">
           <div className="flex items-center gap-1.5">
-            <Clock className="w-4 h-4 text-muted-foreground" />
-            <span className={cn("text-sm font-semibold tabular-nums tracking-tight",
-              data.hoursLogged >= EXPECTED_DAILY_HOURS ? "text-green-600" :
-              data.hoursLogged >= 4 ? "text-foreground" : "text-red-600"
+            <Clock className="w-3.5 h-3.5 text-muted-foreground/60" />
+            <span className={cn("text-sm font-mono font-bold tabular-nums tracking-tight",
+              data.hoursLogged >= EXPECTED_DAILY_HOURS ? "text-green-500" :
+              data.hoursLogged >= 4 ? "text-foreground" : "text-red-500"
             )}>
               {data.hoursLogged}/{EXPECTED_DAILY_HOURS}h
             </span>
           </div>
 
           <div className="flex items-center gap-1.5">
-            <Shield className={cn("w-4 h-4", proofPercent >= 80 ? "text-green-500" : "text-yellow-500")} />
-            <span className="text-sm font-semibold tabular-nums tracking-tight">{proofPercent}%</span>
-            <span className="text-[10px] text-muted-foreground">evidencia</span>
+            <Shield className={cn("w-3.5 h-3.5", proofPercent >= 80 ? "text-green-500" : "text-yellow-500")} />
+            <span className="text-sm font-mono font-bold tabular-nums tracking-tight">{proofPercent}%</span>
+            <span className="text-[9px] font-mono text-muted-foreground/50 uppercase tracking-wider">evidencia</span>
           </div>
 
           {data.streak > 0 && (
             <div className="flex items-center gap-1.5">
-              <Flame className="w-4 h-4 text-orange-500" />
-              <span className="text-sm font-semibold tabular-nums tracking-tight">{data.streak}d</span>
+              <Flame className="w-3.5 h-3.5 text-orange-500" />
+              <span className="text-sm font-mono font-bold tabular-nums tracking-tight">{data.streak}d</span>
             </div>
           )}
 
           <div className="flex items-center gap-1.5">
             {data.hasStandup ? (
-              <CheckCircle2 className="w-4 h-4 text-green-500" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
             ) : (
-              <AlertTriangle className="w-4 h-4 text-yellow-500" />
+              <AlertTriangle className="w-3.5 h-3.5 text-yellow-500" />
             )}
-            <span className="text-[10px] text-muted-foreground">Standup</span>
+            <span className="text-[9px] font-mono text-muted-foreground/50 uppercase tracking-wider">Standup</span>
           </div>
 
           <div className="flex items-center gap-1.5">
             {data.hasCloseout ? (
-              <CheckCircle2 className="w-4 h-4 text-green-500" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
             ) : currentHour >= 17 ? (
-              <AlertTriangle className="w-4 h-4 text-yellow-500" />
+              <AlertTriangle className="w-3.5 h-3.5 text-yellow-500" />
             ) : (
-              <Clock className="w-4 h-4 text-muted-foreground/40" />
+              <Clock className="w-3.5 h-3.5 text-muted-foreground/30" />
             )}
-            <span className="text-[10px] text-muted-foreground">Cierre</span>
+            <span className="text-[9px] font-mono text-muted-foreground/50 uppercase tracking-wider">Cierre</span>
           </div>
         </div>
 
-        {/* Missing hours nudge */}
+        {/* Missing hours alert */}
         {data.missingHours.length > 0 && data.missingHours.length <= 4 && (
-          <div className="text-xs text-yellow-700 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-950/20 px-3 py-1.5 rounded-lg">
+          <div className="text-[10px] font-mono text-yellow-500 bg-yellow-500/8 border border-yellow-500/20 px-3 py-1.5">
             Faltan: {data.missingHours.map((h) => `${h > 12 ? h - 12 : h}${h >= 12 ? "pm" : "am"}`).join(", ")}
           </div>
         )}

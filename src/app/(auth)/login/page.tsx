@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock } from "lucide-react";
+import { Logo } from "@/components/layout/logo";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -38,21 +38,32 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <Card className="w-full max-w-md border-border/50 shadow-sm">
-        <CardHeader className="text-center space-y-3 pb-2">
-          <div className="mx-auto w-10 h-10 bg-primary rounded-lg flex items-center justify-center mb-1">
-            <Clock className="w-5 h-5 text-primary-foreground" />
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background bg-grid-palantir relative overflow-hidden">
+      {/* Ambient accent lines */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />
+        <div className="absolute top-0 bottom-0 left-0 w-px bg-gradient-to-b from-transparent via-primary/10 to-transparent" />
+        <div className="absolute top-0 bottom-0 right-0 w-px bg-gradient-to-b from-transparent via-primary/10 to-transparent" />
+      </div>
+
+      <Card className="w-full max-w-md border-border/60 shadow-none relative corner-marks">
+        <CardHeader className="text-center space-y-4 pb-2">
+          <div className="mx-auto relative">
+            <Logo size={56} />
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-primary rounded-full animate-pulse shadow-[0_0_8px] shadow-primary/60" />
           </div>
-          <div className="space-y-1">
-            <CardTitle className="text-xl font-medium tracking-tight">Exomagram</CardTitle>
-            <CardDescription className="text-muted-foreground">Transparencia total del trabajo de tu equipo</CardDescription>
+          <div className="space-y-2">
+            <CardTitle className="text-lg font-mono font-black tracking-[0.15em] uppercase">Exomagram</CardTitle>
+            <CardDescription className="text-muted-foreground font-mono text-[10px] tracking-[0.2em] uppercase">
+              Vigilancia total del trabajo
+            </CardDescription>
           </div>
         </CardHeader>
         <CardContent className="pt-2">
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+              <Label htmlFor="email" className="text-[10px] font-mono font-semibold tracking-[0.15em] uppercase text-muted-foreground">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -60,11 +71,11 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-10 rounded-xl"
+                className="h-10 font-mono text-sm"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium">Contraseña</Label>
+              <Label htmlFor="password" className="text-[10px] font-mono font-semibold tracking-[0.15em] uppercase text-muted-foreground">Contraseña</Label>
               <Input
                 id="password"
                 type="password"
@@ -72,31 +83,31 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="h-10 rounded-xl"
+                className="h-10 font-mono text-sm"
               />
             </div>
             {error && (
-              <div className="bg-destructive/5 border border-destructive/20 rounded-xl px-3 py-2">
-                <p className="text-sm text-destructive font-medium">{error}</p>
+              <div className="bg-destructive/5 border border-destructive/30 px-3 py-2">
+                <p className="text-xs font-mono text-destructive font-medium">{error}</p>
               </div>
             )}
             <Button
               type="submit"
-              className="w-full h-10 rounded-xl font-medium"
+              className="w-full h-10 font-mono font-bold text-xs tracking-[0.1em] uppercase"
               disabled={loading}
             >
-              {loading ? "Entrando..." : "Iniciar sesión"}
+              {loading ? "Verificando..." : "Acceder al sistema"}
             </Button>
           </form>
-          <p className="text-center text-sm text-muted-foreground mt-4">
-            <Link href="/forgot-password" className="text-foreground hover:underline font-medium transition-colors">
-              ¿Olvidaste tu contraseña?
+          <p className="text-center text-[10px] font-mono text-muted-foreground/50 mt-4">
+            <Link href="/forgot-password" className="text-muted-foreground hover:text-primary transition-colors">
+              Recuperar acceso
             </Link>
           </p>
-          <p className="text-center text-sm text-muted-foreground mt-2">
-            ¿No tienes cuenta?{" "}
-            <Link href="/signup" className="text-foreground hover:underline font-medium transition-colors">
-              Crear cuenta
+          <p className="text-center text-[10px] font-mono text-muted-foreground/50 mt-2">
+            Sin acceso?{" "}
+            <Link href="/signup" className="text-muted-foreground hover:text-primary transition-colors">
+              Solicitar cuenta
             </Link>
           </p>
         </CardContent>

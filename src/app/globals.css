@@ -48,75 +48,75 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Light mode — clean, quiet, professional */
+/* Light mode — Palantir: clinical, cold, angular */
 :root {
-  --background: oklch(0.99 0 0);
-  --foreground: oklch(0.14 0.005 260);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.14 0.005 260);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.14 0.005 260);
-  --primary: oklch(0.35 0.015 260);
+  --background: oklch(0.96 0.004 230);
+  --foreground: oklch(0.10 0.01 230);
+  --card: oklch(0.97 0.003 230);
+  --card-foreground: oklch(0.10 0.01 230);
+  --popover: oklch(0.97 0.003 230);
+  --popover-foreground: oklch(0.10 0.01 230);
+  --primary: oklch(0.45 0.10 220);
   --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.96 0.003 260);
-  --secondary-foreground: oklch(0.25 0.01 260);
-  --muted: oklch(0.965 0.003 260);
-  --muted-foreground: oklch(0.50 0.008 260);
-  --accent: oklch(0.96 0.003 260);
-  --accent-foreground: oklch(0.25 0.01 260);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.925 0.004 260);
-  --input: oklch(0.925 0.004 260);
-  --ring: oklch(0.35 0.015 260);
-  --chart-1: oklch(0.45 0.03 260);
-  --chart-2: oklch(0.55 0.025 250);
-  --chart-3: oklch(0.50 0.02 240);
-  --chart-4: oklch(0.55 0.02 160);
-  --chart-5: oklch(0.50 0.02 30);
-  --radius: 0.75rem;
-  --sidebar: oklch(0.985 0.002 260);
-  --sidebar-foreground: oklch(0.14 0.005 260);
-  --sidebar-primary: oklch(0.35 0.015 260);
+  --secondary: oklch(0.93 0.006 230);
+  --secondary-foreground: oklch(0.15 0.01 230);
+  --muted: oklch(0.94 0.005 230);
+  --muted-foreground: oklch(0.42 0.012 230);
+  --accent: oklch(0.93 0.006 230);
+  --accent-foreground: oklch(0.15 0.01 230);
+  --destructive: oklch(0.55 0.24 25);
+  --border: oklch(0.88 0.008 230);
+  --input: oklch(0.90 0.006 230);
+  --ring: oklch(0.45 0.10 220);
+  --chart-1: oklch(0.50 0.10 220);
+  --chart-2: oklch(0.55 0.08 200);
+  --chart-3: oklch(0.50 0.06 180);
+  --chart-4: oklch(0.55 0.06 160);
+  --chart-5: oklch(0.50 0.04 30);
+  --radius: 0.125rem;
+  --sidebar: oklch(0.95 0.004 230);
+  --sidebar-foreground: oklch(0.10 0.01 230);
+  --sidebar-primary: oklch(0.45 0.10 220);
   --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.955 0.004 260);
-  --sidebar-accent-foreground: oklch(0.25 0.01 260);
-  --sidebar-border: oklch(0.93 0.004 260);
-  --sidebar-ring: oklch(0.35 0.015 260);
+  --sidebar-accent: oklch(0.92 0.006 230);
+  --sidebar-accent-foreground: oklch(0.15 0.01 230);
+  --sidebar-border: oklch(0.88 0.008 230);
+  --sidebar-ring: oklch(0.45 0.10 220);
 }
 
-/* Dark mode — near black, clean contrast */
+/* Dark mode — Palantir Foundry: void-black, electric cyan accents */
 .dark {
-  --background: oklch(0.10 0.005 260);
-  --foreground: oklch(0.90 0.005 260);
-  --card: oklch(0.13 0.006 260);
-  --card-foreground: oklch(0.90 0.005 260);
-  --popover: oklch(0.12 0.006 260);
-  --popover-foreground: oklch(0.90 0.005 260);
-  --primary: oklch(0.75 0.01 260);
-  --primary-foreground: oklch(0.10 0.005 260);
-  --secondary: oklch(0.17 0.008 260);
-  --secondary-foreground: oklch(0.90 0.005 260);
-  --muted: oklch(0.18 0.006 260);
-  --muted-foreground: oklch(0.55 0.008 260);
-  --accent: oklch(0.18 0.008 260);
-  --accent-foreground: oklch(0.90 0.005 260);
-  --destructive: oklch(0.65 0.22 25);
-  --border: oklch(0.22 0.008 260);
-  --input: oklch(0.20 0.008 260);
-  --ring: oklch(0.75 0.01 260);
-  --chart-1: oklch(0.65 0.02 260);
-  --chart-2: oklch(0.55 0.02 250);
-  --chart-3: oklch(0.50 0.015 240);
-  --chart-4: oklch(0.55 0.02 160);
-  --chart-5: oklch(0.50 0.02 30);
-  --sidebar: oklch(0.08 0.005 260);
-  --sidebar-foreground: oklch(0.85 0.005 260);
-  --sidebar-primary: oklch(0.75 0.01 260);
-  --sidebar-primary-foreground: oklch(0.90 0.005 260);
-  --sidebar-accent: oklch(0.16 0.008 260);
-  --sidebar-accent-foreground: oklch(0.85 0.005 260);
-  --sidebar-border: oklch(0.20 0.008 260);
-  --sidebar-ring: oklch(0.75 0.01 260);
+  --background: oklch(0.05 0.008 230);
+  --foreground: oklch(0.85 0.008 220);
+  --card: oklch(0.08 0.01 230);
+  --card-foreground: oklch(0.85 0.008 220);
+  --popover: oklch(0.07 0.01 230);
+  --popover-foreground: oklch(0.85 0.008 220);
+  --primary: oklch(0.70 0.14 200);
+  --primary-foreground: oklch(0.05 0.008 230);
+  --secondary: oklch(0.12 0.01 230);
+  --secondary-foreground: oklch(0.85 0.008 220);
+  --muted: oklch(0.13 0.008 230);
+  --muted-foreground: oklch(0.45 0.012 220);
+  --accent: oklch(0.12 0.01 230);
+  --accent-foreground: oklch(0.85 0.008 220);
+  --destructive: oklch(0.60 0.22 25);
+  --border: oklch(0.18 0.014 220);
+  --input: oklch(0.13 0.01 230);
+  --ring: oklch(0.70 0.14 200);
+  --chart-1: oklch(0.65 0.12 200);
+  --chart-2: oklch(0.55 0.08 200);
+  --chart-3: oklch(0.50 0.06 180);
+  --chart-4: oklch(0.55 0.06 160);
+  --chart-5: oklch(0.50 0.04 30);
+  --sidebar: oklch(0.03 0.006 230);
+  --sidebar-foreground: oklch(0.78 0.008 220);
+  --sidebar-primary: oklch(0.70 0.14 200);
+  --sidebar-primary-foreground: oklch(0.85 0.008 220);
+  --sidebar-accent: oklch(0.10 0.01 230);
+  --sidebar-accent-foreground: oklch(0.78 0.008 220);
+  --sidebar-border: oklch(0.15 0.012 220);
+  --sidebar-ring: oklch(0.70 0.14 200);
 }
 
 @layer base {
@@ -128,9 +128,11 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    font-feature-settings: "ss01", "ss02", "cv01";
   }
   html {
     @apply font-sans scroll-smooth;
+    letter-spacing: 0.01em;
   }
 }
 
@@ -156,13 +158,13 @@
 /* Glass effect utility — used by mobile-nav and keyboard-shortcuts */
 @layer utilities {
   .glass {
-    backdrop-filter: blur(16px) saturate(180%);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    backdrop-filter: blur(12px) saturate(120%);
+    -webkit-backdrop-filter: blur(12px) saturate(120%);
   }
 
   .glass-subtle {
-    backdrop-filter: blur(8px) saturate(140%);
-    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    backdrop-filter: blur(6px) saturate(110%);
+    -webkit-backdrop-filter: blur(6px) saturate(110%);
   }
 }
 
@@ -224,26 +226,26 @@
 /* Focus ring */
 @layer base {
   *:focus-visible {
-    outline: 2px solid oklch(0.35 0.015 260 / 40%);
-    outline-offset: 2px;
-    border-radius: var(--radius);
+    outline: 1px solid oklch(0.50 0.10 210 / 50%);
+    outline-offset: 1px;
+    border-radius: 0;
   }
 
   .dark *:focus-visible {
-    outline-color: oklch(0.75 0.01 260 / 40%);
+    outline-color: oklch(0.65 0.12 210 / 50%);
   }
 }
 
 /* Selection styling */
 @layer base {
   ::selection {
-    background-color: oklch(0.35 0.015 260 / 15%);
-    color: oklch(0.14 0.005 260);
+    background-color: oklch(0.45 0.10 210 / 20%);
+    color: oklch(0.10 0.005 230);
   }
 
   .dark ::selection {
-    background-color: oklch(0.75 0.01 260 / 20%);
-    color: oklch(0.95 0.005 260);
+    background-color: oklch(0.65 0.12 210 / 25%);
+    color: oklch(0.95 0.005 220);
   }
 }
 
@@ -404,6 +406,257 @@
 
   .animate-slot-settle {
     animation: slot-settle 0.3s ease-out;
+  }
+}
+
+/* ===== PALANTIR UTILITIES ===== */
+
+/* Palantir-style grid background for data panels */
+@layer utilities {
+  .bg-grid-palantir {
+    background-image:
+      linear-gradient(oklch(0.30 0.01 220 / 15%) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(0.30 0.01 220 / 15%) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .dark .bg-grid-palantir {
+    background-image:
+      linear-gradient(oklch(0.20 0.01 220 / 12%) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(0.20 0.01 220 / 12%) 1px, transparent 1px);
+  }
+}
+
+/* Dense grid for sidebar/panels */
+@layer utilities {
+  .bg-grid-dense {
+    background-image:
+      linear-gradient(oklch(0.20 0.01 220 / 8%) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(0.20 0.01 220 / 8%) 1px, transparent 1px);
+    background-size: 12px 12px;
+  }
+}
+
+/* Palantir status indicator dot */
+@layer utilities {
+  .status-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .status-dot-active {
+    box-shadow: 0 0 6px currentColor, 0 0 2px currentColor;
+  }
+}
+
+/* Palantir section divider with label */
+@layer utilities {
+  .palantir-divider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-geist-mono), monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .palantir-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    opacity: 0.4;
+  }
+}
+
+/* Corner marks — HUD-style bracket corners on panels */
+@layer utilities {
+  .corner-marks {
+    position: relative;
+  }
+
+  .corner-marks::before,
+  .corner-marks::after {
+    content: "";
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-color: oklch(0.70 0.14 200 / 40%);
+    pointer-events: none;
+  }
+
+  .corner-marks::before {
+    top: 0;
+    left: 0;
+    border-top: 1px solid;
+    border-left: 1px solid;
+  }
+
+  .corner-marks::after {
+    bottom: 0;
+    right: 0;
+    border-bottom: 1px solid;
+    border-right: 1px solid;
+  }
+}
+
+/* Scan line animation for live data panels */
+@keyframes scan-line {
+  0% { transform: translateY(-100%); opacity: 0.3; }
+  50% { opacity: 0.6; }
+  100% { transform: translateY(100%); opacity: 0.3; }
+}
+
+@layer utilities {
+  .animate-scan {
+    animation: scan-line 4s linear infinite;
+  }
+}
+
+/* Data cell for tables and grids */
+@layer utilities {
+  .data-cell {
+    font-family: var(--font-geist-mono), monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+}
+
+/* Terminal-style label */
+@layer utilities {
+  .label-mono {
+    font-family: var(--font-geist-mono), monospace;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+}
+
+/* Palantir card — flat, bordered, no shadow */
+@layer utilities {
+  .card-palantir {
+    border: 1px solid var(--border);
+    background: var(--card);
+    transition: border-color 0.15s ease;
+  }
+
+  .card-palantir:hover {
+    border-color: oklch(0.65 0.12 210 / 30%);
+  }
+}
+
+/* Glow line — thin accent border top */
+@layer utilities {
+  .glow-line-top {
+    border-top: 1px solid oklch(0.70 0.14 200 / 30%);
+  }
+
+  .glow-line-left {
+    border-left: 1px solid oklch(0.70 0.14 200 / 30%);
+  }
+}
+
+/* Power glow — electric cyan halo on key elements */
+@layer utilities {
+  .power-glow {
+    box-shadow: 0 0 8px oklch(0.70 0.14 200 / 20%), 0 0 2px oklch(0.70 0.14 200 / 15%);
+  }
+
+  .power-glow-strong {
+    box-shadow: 0 0 12px oklch(0.70 0.14 200 / 30%), 0 0 4px oklch(0.70 0.14 200 / 25%), inset 0 0 4px oklch(0.70 0.14 200 / 8%);
+  }
+}
+
+/* Threat level indicator bar */
+@layer utilities {
+  .threat-bar {
+    height: 2px;
+    background: linear-gradient(90deg, oklch(0.55 0.15 150), oklch(0.65 0.18 85), oklch(0.60 0.22 30));
+  }
+}
+
+/* Operational data number — large, commanding */
+@layer utilities {
+  .data-number {
+    font-family: var(--font-geist-mono), monospace;
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+}
+
+/* System status badge */
+@layer utilities {
+  .system-badge {
+    font-family: var(--font-geist-mono), monospace;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border: 1px solid;
+  }
+}
+
+/* Pulsing accent border for active panels */
+@keyframes border-pulse {
+  0%, 100% { border-color: oklch(0.70 0.14 200 / 20%); }
+  50% { border-color: oklch(0.70 0.14 200 / 50%); }
+}
+
+@layer utilities {
+  .animate-border-pulse {
+    animation: border-pulse 3s ease-in-out infinite;
+  }
+}
+
+/* Ticker slide-in for live feed entries */
+@keyframes ticker-in {
+  0% { transform: translateY(-100%); opacity: 0; max-height: 0; }
+  30% { max-height: 80px; }
+  100% { transform: translateY(0); opacity: 1; max-height: 80px; }
+}
+
+@layer utilities {
+  .animate-ticker-in {
+    animation: ticker-in 0.5s ease-out;
+  }
+}
+
+/* Crosshair overlay for surveillance panels */
+@layer utilities {
+  .crosshair-overlay {
+    position: relative;
+  }
+
+  .crosshair-overlay::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: oklch(0.70 0.14 200 / 6%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .crosshair-overlay::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: oklch(0.70 0.14 200 / 6%);
+    pointer-events: none;
+    z-index: 0;
   }
 }
 

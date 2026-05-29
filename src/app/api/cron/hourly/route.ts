@@ -65,7 +65,7 @@ export async function GET(request: Request) {
     try {
       const res = await fetch(
         `${new URL(request.url).origin}/api/ai-notifications?org_id=${org.id}`,
-        { method: "POST" }
+        { method: "POST", headers: { Authorization: `Bearer ${process.env.CRON_SECRET}` } }
       );
       const data = await res.json();
       results[`notifications_${org.id}`] = {

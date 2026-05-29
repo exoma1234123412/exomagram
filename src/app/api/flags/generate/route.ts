@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { dispatchWebhook } from "@/lib/webhooks";
 
 const EXPECTED_DAILY_HOURS = 8;
 
@@ -249,6 +250,15 @@ export async function POST(request: Request) {
             ...flag,
           });
           existingFlagSet.add(flagKey); // prevent duplicates within same run
+
+          // Fire-and-forget webhook for flag creation
+          void dispatchWebhook(org.id, "flag.created", {
+            user_id: member.user_id,
+            org_id: org.id,
+            flag_type: flag.flag_type,
+            details: flag.details,
+            date,
+          });
         }
       }
 

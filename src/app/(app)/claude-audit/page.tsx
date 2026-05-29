@@ -197,7 +197,7 @@ export default function ClaudeAuditPage() {
                 <div className="mt-4 pt-4 border-t">
                   <p className="text-xs font-semibold text-primary uppercase mb-2">Ideas maquiavelicas</p>
                   {data.machiavelli_ideas.map((idea, i) => (
-                    <p key={i} className="text-sm text-violet-700 dark:text-violet-400 mb-1">{i + 1}. {idea}</p>
+                    <p key={i} className="text-sm text-primary dark:text-primary mb-1">{i + 1}. {idea}</p>
                   ))}
                 </div>
               )}

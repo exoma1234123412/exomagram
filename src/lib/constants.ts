@@ -152,5 +152,11 @@ export const ACHIEVEMENTS: Record<
   impressive_10: { label: "Estrella", emoji: "⭐", description: "Recibir 10 reacciones de 'impresionante'" },
   closeout_streak: { label: "Disciplina", emoji: "📋", description: "5 cierres de dia consecutivos" },
   high_trust: { label: "Confiable", emoji: "🏆", description: "Trust score >90 por 7 dias" },
-  team_player: { label: "Team Player", emoji: "💪", description: "Verificar 20 entradas de companeros" },
+  team_player: { label: "Team Player", emoji: "💪", description: "Verificar 20 entradas de compañeros" },
+  madrugador: { label: "Madrugador Secreto", emoji: "🌄", description: "3 entradas antes de las 9am en una semana" },
+  maquina: { label: "Máquina", emoji: "🤖", description: "8+ horas con 100% evidencia en 1 día" },
+  imparable: { label: "Imparable", emoji: "⚡", description: "Racha de 10 días sin fallar" },
+  primer_sangre: { label: "Primer sangre", emoji: "🗡️", description: "Primera entrada del día para el equipo, 5 veces" },
+  sin_excusas: { label: "Sin excusas", emoji: "🎯", description: "0 entradas tardías en una semana completa" },
+  cumplidor: { label: "Cumplidor", emoji: "🤝", description: "10 promesas cumplidas con 0 rotas" },
 };

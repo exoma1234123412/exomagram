@@ -89,7 +89,7 @@ export function PresenceIndicator() {
     if (!orgId) return;
 
     const channel = supabase
-      .channel("presence_indicator")
+      .channel(`presence_indicator_${orgId}`)
       .on(
         "postgres_changes",
         {

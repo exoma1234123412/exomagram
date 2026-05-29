@@ -93,7 +93,7 @@ export async function GET(request: Request) {
     for (const org of orgs ?? []) {
       await fetch(
         `${new URL(request.url).origin}/api/ai-process-day?org_id=${org.id}&date=${date}`,
-        { method: "POST" }
+        { method: "POST", headers: cronHeaders }
       );
     }
     results.ai_process_day = "completed";

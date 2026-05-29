@@ -6,6 +6,7 @@ import { CATEGORIES } from "@/lib/constants";
 import type { WorkCategory } from "@/lib/types/database";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { SlotReward } from "@/components/dashboard/slot-reward";
 import { cn } from "@/lib/utils";
 import { Send, Zap } from "lucide-react";
 
@@ -15,6 +16,7 @@ export function QuickLog({ orgId }: { orgId: string }) {
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [showSlot, setShowSlot] = useState(false);
   const supabase = createClient();
 
   async function handleSubmit(e: React.FormEvent) {
@@ -48,6 +50,9 @@ export function QuickLog({ orgId }: { orgId: string }) {
       setTitle("");
       setCategory("");
       setTimeout(() => setSuccess(false), 2000);
+
+      // Trigger slot machine — casino reward loop
+      setTimeout(() => setShowSlot(true), 800);
 
       // Fire claude-react in background (fire and forget)
       supabase
@@ -123,6 +128,8 @@ export function QuickLog({ orgId }: { orgId: string }) {
           <Send className="w-4 h-4" />
         </Button>
       </form>
+
+      <SlotReward show={showSlot} onClose={() => setShowSlot(false)} />
     </div>
   );
 }

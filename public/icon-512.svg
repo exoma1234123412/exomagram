@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" fill="#060810"/>
+  <!-- Grid background -->
+  <defs>
+    <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#3dd8e0" stroke-width="0.3" opacity="0.06"/>
+    </pattern>
+  </defs>
+  <rect width="512" height="512" fill="url(#grid)"/>
+  <!-- Outer rings -->
+  <circle cx="256" cy="256" r="200" stroke="#3dd8e0" stroke-width="1.5" opacity="0.15"/>
+  <circle cx="256" cy="256" r="165" stroke="#3dd8e0" stroke-width="0.75" opacity="0.1"/>
+  <!-- Eye shape -->
+  <path d="M72 256C72 256 148 140 256 140C364 140 440 256 440 256C440 256 364 372 256 372C148 372 72 256 72 256Z" stroke="#3dd8e0" stroke-width="3.5" fill="none" opacity="0.85"/>
+  <!-- Inner eye highlight -->
+  <path d="M72 256C72 256 148 140 256 140C364 140 440 256 440 256C440 256 364 372 256 372C148 372 72 256 72 256Z" fill="#3dd8e0" opacity="0.03"/>
+  <!-- Iris ring -->
+  <circle cx="256" cy="256" r="70" stroke="#3dd8e0" stroke-width="2.5" fill="none" opacity="0.9"/>
+  <circle cx="256" cy="256" r="55" stroke="#3dd8e0" stroke-width="0.75" opacity="0.3"/>
+  <!-- Pupil -->
+  <circle cx="256" cy="256" r="30" fill="#3dd8e0" opacity="0.95"/>
+  <!-- Light reflection -->
+  <circle cx="274" cy="238" r="9" fill="#ffffff" opacity="0.7"/>
+  <circle cx="266" cy="244" r="3" fill="#ffffff" opacity="0.4"/>
+  <!-- Corner brackets -->
+  <path d="M32 80V32H80" stroke="#3dd8e0" stroke-width="2.5" opacity="0.5"/>
+  <path d="M432 32H480V80" stroke="#3dd8e0" stroke-width="2.5" opacity="0.5"/>
+  <path d="M480 432V480H432" stroke="#3dd8e0" stroke-width="2.5" opacity="0.5"/>
+  <path d="M80 480H32V432" stroke="#3dd8e0" stroke-width="2.5" opacity="0.5"/>
+  <!-- Crosshair lines -->
+  <line x1="256" y1="48" x2="256" y2="100" stroke="#3dd8e0" stroke-width="1" opacity="0.15"/>
+  <line x1="256" y1="412" x2="256" y2="464" stroke="#3dd8e0" stroke-width="1" opacity="0.15"/>
+  <line x1="48" y1="256" x2="100" y2="256" stroke="#3dd8e0" stroke-width="1" opacity="0.15"/>
+  <line x1="412" y1="256" x2="464" y2="256" stroke="#3dd8e0" stroke-width="1" opacity="0.15"/>
+  <!-- Tick marks around eye -->
+  <line x1="256" y1="136" x2="256" y2="148" stroke="#3dd8e0" stroke-width="0.75" opacity="0.3"/>
+  <line x1="256" y1="364" x2="256" y2="376" stroke="#3dd8e0" stroke-width="0.75" opacity="0.3"/>
+</svg>

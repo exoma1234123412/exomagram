@@ -124,46 +124,46 @@ export function FearWidget({ orgId }: { orgId: string }) {
 
   return (
     <div className={cn(
-      "rounded-xl border p-4 mb-8 transition-all duration-300",
+      "border p-4 mb-8 transition-all duration-300",
       isCritical
-        ? "bg-gradient-to-r from-red-500/15 to-red-900/10 border-red-500/40 animate-danger-pulse"
+        ? "bg-red-500/5 border-red-500/50 animate-danger-pulse"
         : isDanger
-        ? "bg-gradient-to-r from-red-500/10 to-orange-500/5 border-red-500/20"
-        : "bg-gradient-to-r from-yellow-500/10 to-orange-500/5 border-yellow-500/20"
+        ? "bg-red-500/3 border-red-500/25"
+        : "bg-yellow-500/3 border-yellow-500/20"
     )}>
       {/* Header */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="flex items-center justify-between w-full text-left"
+        className="flex items-center justify-between w-full text-left cursor-pointer"
       >
         <div className="flex items-center gap-3">
           <div className={cn(
-            "w-10 h-10 rounded-xl flex items-center justify-center",
+            "w-9 h-9 border flex items-center justify-center",
             isCritical
-              ? "bg-red-500/20"
+              ? "border-red-500/40 bg-red-500/10"
               : isDanger
-              ? "bg-red-500/15"
-              : "bg-yellow-500/15"
+              ? "border-red-500/25 bg-red-500/5"
+              : "border-yellow-500/25 bg-yellow-500/5"
           )}>
             {isCritical ? (
-              <Skull className="w-5 h-5 text-red-500 animate-countdown-tick" />
+              <Skull className="w-4 h-4 text-red-500 animate-countdown-tick" />
             ) : (
-              <TrendingDown className={cn("w-5 h-5", isDanger ? "text-red-500" : "text-yellow-600")} />
+              <TrendingDown className={cn("w-4 h-4", isDanger ? "text-red-500" : "text-yellow-500")} />
             )}
           </div>
           <div>
             <div className="flex items-center gap-2">
               <span className={cn(
-                "text-sm font-bold",
-                isCritical ? "text-red-500" : isDanger ? "text-red-600 dark:text-red-400" : "text-yellow-700 dark:text-yellow-400"
+                "text-[11px] font-mono font-bold uppercase tracking-[0.1em]",
+                isCritical ? "text-red-500" : isDanger ? "text-red-400" : "text-yellow-500"
               )}>
                 {isCritical ? "TRUST SCORE EN RIESGO EXTREMO" : `−${data.projectedLoss} puntos pendientes`}
               </span>
             </div>
-            <p className="text-[10px] text-muted-foreground">
-              Trust Score actual: <span className="font-bold tabular-nums">{data.trustScore}</span>
+            <p className="text-[9px] font-mono text-muted-foreground/50">
+              Trust Score: <span className="font-bold tabular-nums text-foreground">{data.trustScore}</span>
               {data.trustScore < data.teamAvgScore && (
-                <span className="text-red-500"> ({data.teamAvgScore - data.trustScore}pts debajo del equipo)</span>
+                <span className="text-red-500"> ({data.teamAvgScore - data.trustScore}pts debajo)</span>
               )}
             </p>
           </div>
@@ -171,15 +171,15 @@ export function FearWidget({ orgId }: { orgId: string }) {
 
         <div className="flex items-center gap-2">
           <div className={cn(
-            "text-xs font-bold px-2 py-1 rounded-lg tabular-nums",
+            "text-[11px] font-mono font-black px-2.5 py-1 tabular-nums tracking-tight border",
             isCritical
-              ? "bg-red-500/20 text-red-500"
-              : "bg-orange-500/15 text-orange-600 dark:text-orange-400"
+              ? "border-red-500/40 text-red-500 bg-red-500/10"
+              : "border-orange-500/25 text-orange-400 bg-orange-500/5"
           )}>
             {data.trustScore} → {Math.max(0, data.trustScore - data.projectedLoss)}
           </div>
           <ChevronDown className={cn(
-            "w-4 h-4 text-muted-foreground transition-transform",
+            "w-3.5 h-3.5 text-muted-foreground/40 transition-transform",
             expanded && "rotate-180"
           )} />
         </div>
@@ -187,49 +187,49 @@ export function FearWidget({ orgId }: { orgId: string }) {
 
       {/* Expanded penalties */}
       {expanded && (
-        <div className="mt-4 space-y-2">
+        <div className="mt-4 space-y-1.5">
           {data.pendingPenalties.map((penalty, i) => (
             <div
               key={i}
               className={cn(
-                "flex items-center justify-between px-3 py-2 rounded-lg text-xs",
+                "flex items-center justify-between px-3 py-2 text-[11px] font-mono border",
                 penalty.urgent
-                  ? "bg-red-500/10 dark:bg-red-950/30"
-                  : "bg-muted/30"
+                  ? "bg-red-500/5 border-red-500/20"
+                  : "bg-muted/20 border-border/30"
               )}
             >
               <div className="flex items-center gap-2">
                 {penalty.urgent ? (
-                  <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
+                  <AlertTriangle className="w-3 h-3 text-red-500" />
                 ) : (
-                  <ShieldAlert className="w-3.5 h-3.5 text-yellow-500" />
+                  <ShieldAlert className="w-3 h-3 text-yellow-500" />
                 )}
                 <span className="font-medium">{penalty.label}</span>
               </div>
               <div className="flex items-center gap-3">
                 <span className={cn(
-                  "font-mono font-bold",
-                  penalty.urgent ? "text-red-500" : "text-muted-foreground"
+                  "font-bold tabular-nums",
+                  penalty.urgent ? "text-red-500" : "text-muted-foreground/60"
                 )}>
                   {penalty.deadline}
                 </span>
-                <span className="font-bold text-red-500 tabular-nums">−{penalty.points}</span>
+                <span className="font-black text-red-500 tabular-nums">−{penalty.points}</span>
               </div>
             </div>
           ))}
 
           {/* Days to zero projection */}
           {data.daysToZero <= 30 && (
-            <div className="flex items-center gap-2 mt-3 px-3 py-2 rounded-lg bg-red-500/10 dark:bg-red-950/30">
-              <Skull className="w-4 h-4 text-red-500" />
-              <span className="text-xs font-bold text-red-500">
+            <div className="flex items-center gap-2 mt-3 px-3 py-2 bg-red-500/5 border border-red-500/30">
+              <Skull className="w-3.5 h-3.5 text-red-500" />
+              <span className="text-[10px] font-mono font-bold text-red-500">
                 A este ritmo, tu Trust Score llega a 0 en {data.daysToZero} días.
               </span>
             </div>
           )}
 
           {/* Surveillance reminder */}
-          <div className="flex items-center gap-2 mt-2 text-[10px] text-muted-foreground">
+          <div className="flex items-center gap-2 mt-2 text-[9px] font-mono text-muted-foreground/40">
             <Eye className="w-3 h-3 animate-eye-blink" />
             <span>Tu equipo y administradores pueden ver este score en tiempo real.</span>
           </div>

@@ -14,15 +14,15 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Exomagram — Transparencia total del trabajo",
+    default: "Exomagram — Vigilancia Total del Trabajo",
     template: "%s | Exomagram",
   },
   description:
-    "Ve exactamente qué hace cada miembro de tu equipo, hora por hora. Transparencia radical para equipos modernos.",
+    "Ve exactamente qué hace cada miembro de tu equipo, hora por hora. Vigilancia total para equipos que exigen resultados.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://exomagram.com"),
   openGraph: {
-    title: "Exomagram — Transparencia total del trabajo",
-    description: "Transparencia radical para equipos modernos.",
+    title: "Exomagram — Vigilancia Total del Trabajo",
+    description: "Vigilancia total para equipos que exigen resultados.",
     type: "website",
   },
   robots: {
@@ -47,9 +47,11 @@ export default function RootLayout({
     >
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#09090b" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <meta name="theme-color" content="#060810" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <link rel="apple-touch-icon" href="/icon-192.svg" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
       </head>
       <body className="min-h-full flex flex-col">

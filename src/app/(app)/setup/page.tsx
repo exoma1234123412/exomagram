@@ -46,25 +46,34 @@ export default function SetupPage() {
     setSaving(true);
     setError(null);
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setError("No se pudo obtener el usuario.");
+        setSaving(false);
+        return;
+      }
 
-    const { error: updateError } = await supabase
-      .from("profiles")
-      .update({
-        work_start_hour: start,
-        work_end_hour: end,
-        setup_completed: true,
-      })
-      .eq("id", user.id);
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({
+          work_start_hour: start,
+          work_end_hour: end,
+          setup_completed: true,
+        })
+        .eq("id", user.id);
 
-    if (updateError) {
-      setError(updateError.message);
+      if (updateError) {
+        setError(updateError.message);
+        setSaving(false);
+        return;
+      }
+
+      router.push("/home");
+    } catch (err) {
+      setError("Error inesperado al guardar.");
       setSaving(false);
-      return;
     }
-
-    router.push("/home");
   }
 
   return (

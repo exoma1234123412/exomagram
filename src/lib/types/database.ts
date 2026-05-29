@@ -31,6 +31,9 @@ export interface Profile {
   avatar_url: string | null;
   role: string | null;
   timezone: string;
+  work_start_hour: number;
+  work_end_hour: number;
+  setup_completed: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -734,4 +737,74 @@ export interface JournalEntry {
   content: string;
   created_at: string;
   updated_at: string;
+}
+
+// ============================================================
+// V8 — Unconventional Features
+// ============================================================
+
+export interface DeadmanAlert {
+  id: string;
+  user_id: string;
+  org_id: string;
+  triggered_at: string;
+  hours_missing: number;
+  status: "active" | "acknowledged" | "resolved";
+  acknowledged_by: string | null;
+  resolved_at: string | null;
+}
+
+export interface TaskAuction {
+  id: string;
+  org_id: string;
+  created_by: string;
+  title: string;
+  description: string | null;
+  max_hours: number;
+  status: "open" | "claimed" | "completed" | "failed";
+  winner_id: string | null;
+  winning_bid: number | null;
+  deadline: string;
+  created_at: string;
+}
+
+export interface AuctionBid {
+  id: string;
+  auction_id: string;
+  user_id: string;
+  hours_bid: number;
+  created_at: string;
+}
+
+export interface AuditLottery {
+  id: string;
+  org_id: string;
+  date: string;
+  selected_user_id: string;
+  findings: Record<string, unknown> | null;
+  passed: boolean | null;
+  status: "pending" | "auditing" | "passed" | "failed";
+  created_at: string;
+}
+
+export interface TrustInvestment {
+  id: string;
+  investor_id: string;
+  target_id: string;
+  org_id: string;
+  amount: number;
+  invested_at: string;
+  current_value: number;
+  status: "active" | "sold";
+  sold_at: string | null;
+}
+
+export interface MonthlyObituary {
+  id: string;
+  user_id: string;
+  org_id: string;
+  month: string;
+  content: string;
+  ai_generated: boolean;
+  created_at: string;
 }

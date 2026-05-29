@@ -93,7 +93,7 @@ const NOTIF_TYPE_CONFIG: Record<NotificationType, NotifTypeConfig> = {
   closeout_reminder: {
     icon: ClipboardList,
     color: "text-primary",
-    bgColor: "bg-violet-50 dark:bg-violet-950/30",
+    bgColor: "bg-primary/5 dark:bg-primary/10",
     defaultLink: "/dashboard",
   },
   standup_reminder: {

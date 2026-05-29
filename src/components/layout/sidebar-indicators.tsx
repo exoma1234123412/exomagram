@@ -57,7 +57,7 @@ interface PowerRankingRow {
 interface PulseResponseRow {
   id: string;
   user_id: string;
-  week_of: string;
+  week: string;
 }
 
 interface JournalRow {
@@ -288,39 +288,43 @@ export function SidebarIndicators({ children }: { children: ReactNode }) {
           .select("user_id, status, last_heartbeat")
           .eq("org_id", orgId),
 
-        // 6. Power rankings (custom view or table)
+        // 6. Power rankings (custom view or table — may not exist yet)
         supabase
           .from("power_rankings")
           .select("user_id, rank, total")
           .eq("org_id", orgId)
           .eq("user_id", userId)
-          .limit(1),
+          .limit(1)
+          .then((res) => ({ data: res.data ?? [] })),
 
         // 7. Pulse responses this week
         supabase
           .from("pulse_responses")
-          .select("id, user_id, week_of")
+          .select("id, user_id, week")
           .eq("user_id", userId)
           .eq("org_id", orgId)
-          .gte("week_of", weekMonday)
-          .limit(1),
+          .gte("week", weekMonday)
+          .limit(1)
+          .then((res) => ({ data: res.data ?? [] })),
 
-        // 8. Journal entries this week
+        // 8. Journal entries this week (may not exist yet)
         supabase
           .from("journal_entries")
           .select("id, user_id, week_of")
           .eq("user_id", userId)
           .eq("org_id", orgId)
           .gte("week_of", weekMonday)
-          .limit(1),
+          .limit(1)
+          .then((res) => ({ data: res.data ?? [] })),
 
-        // 9. Mirror tier
+        // 9. Mirror tier (may not exist yet)
         supabase
           .from("mirror_tiers")
           .select("user_id, tier, score")
           .eq("user_id", userId)
           .eq("org_id", orgId)
-          .limit(1),
+          .limit(1)
+          .then((res) => ({ data: res.data ?? [] })),
       ]);
 
       // ── Process time entries / gaps ──────────────────────────────────
@@ -582,7 +586,7 @@ function TextBadge({
 function tierColorClass(tier: string): string {
   switch (tier.toUpperCase()) {
     case "S":
-      return "bg-violet-500 text-white shadow-violet-500/30";
+      return "bg-primary text-white shadow-primary/30";
     case "A":
       return "bg-emerald-500 text-white shadow-emerald-500/30";
     case "B":

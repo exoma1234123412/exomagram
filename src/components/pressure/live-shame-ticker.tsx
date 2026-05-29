@@ -250,10 +250,10 @@ const variantStyles: Record<
     pulse: "shadow-blue-500/40",
   },
   record: {
-    bg: "bg-violet-500/10 dark:bg-violet-500/15",
-    border: "border-violet-500/30",
-    text: "text-violet-700 dark:text-violet-300",
-    pulse: "shadow-violet-500/40",
+    bg: "bg-primary/10 dark:bg-primary/15",
+    border: "border-primary/30",
+    text: "text-primary dark:text-primary",
+    pulse: "shadow-primary/40",
   },
 };
 

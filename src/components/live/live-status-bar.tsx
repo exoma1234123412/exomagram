@@ -25,7 +25,7 @@ export function LiveStatusBar({ orgId }: { orgId: string }) {
     fetch();
 
     const channel = supabase
-      .channel("live_status_rt")
+      .channel(`live_status_rt_${orgId}`)
       .on("postgres_changes", {
         event: "*",
         schema: "public",
@@ -39,65 +39,76 @@ export function LiveStatusBar({ orgId }: { orgId: string }) {
 
   if (statuses.length === 0) return null;
 
-  const online = statuses.filter((s) => s.status !== "offline");
-  const offline = statuses.filter((s) => s.status === "offline");
+  // Treat stale heartbeats (>5 min) as offline regardless of stored status
+  const STALE_MS = 5 * 60 * 1000;
+  const now = Date.now();
+  const corrected = statuses.map((s) => {
+    const heartbeatAge = now - new Date(s.last_heartbeat).getTime();
+    if (s.status !== "offline" && heartbeatAge > STALE_MS) {
+      return { ...s, status: "offline" as const };
+    }
+    return s;
+  });
+
+  const online = corrected.filter((s) => s.status !== "offline");
+  const offline = corrected.filter((s) => s.status === "offline");
 
   return (
-    <div className="bg-card/80 glass border border-border/40 rounded-2xl p-5 mb-8 shadow-sm shadow-primary/3">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold flex items-center gap-2.5">
-          <span className="relative flex h-2.5 w-2.5">
+    <div className="border border-border bg-card/60 p-4 mb-8 corner-marks">
+      <div className="flex items-center justify-between mb-3 relative z-10">
+        <h3 className="text-[10px] font-mono font-bold tracking-[0.15em] uppercase flex items-center gap-2.5 text-foreground">
+          <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500 shadow-[0_0_6px] shadow-green-500/50" />
           </span>
           En vivo ahora
         </h3>
-        <span className="text-xs text-muted-foreground/70 font-medium tabular-nums">
-          {online.length} activos · {offline.length} offline
+        <span className="text-[10px] font-mono text-muted-foreground/50 tabular-nums tracking-wide">
+          {online.length} activos / {offline.length} offline
         </span>
       </div>
-      <div className="flex flex-wrap gap-2.5">
-        {statuses.map((s) => {
+      <div className="flex flex-wrap gap-1.5 relative z-10">
+        {corrected.map((s) => {
           const config = LIVE_STATUS_CONFIG[s.status];
           return (
             <div
               key={s.user_id}
               className={cn(
-                "flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm transition-all duration-200",
+                "flex items-center gap-2 px-2.5 py-2 text-sm transition-all duration-200 border",
                 s.status === "offline"
-                  ? "bg-muted/30 opacity-40"
-                  : "bg-accent/50 hover:bg-accent hover:shadow-sm"
+                  ? "bg-muted/20 border-border/30 opacity-35"
+                  : "bg-accent/30 border-border/50 hover:border-primary/30"
               )}
             >
               <div className="relative">
-                <Avatar className="w-8 h-8 ring-2 ring-background">
+                <Avatar className="w-7 h-7 ring-1 ring-border">
                   <AvatarImage src={s.profiles?.avatar_url ?? undefined} />
-                  <AvatarFallback className="text-[10px] font-semibold bg-gradient-to-br from-blue-100 to-sky-100 dark:from-blue-900/40 dark:to-sky-900/30">
+                  <AvatarFallback className="text-[9px] font-mono font-bold bg-muted">
                     {getInitials(s.profiles?.full_name)}
                   </AvatarFallback>
                 </Avatar>
                 <div
                   className={cn(
-                    "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-card",
+                    "absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-[1.5px] border-card",
                     config.dotColor,
-                    s.status !== "offline" && "animate-pulse-glow"
+                    s.status !== "offline" && "shadow-[0_0_4px] shadow-current"
                   )}
                 />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-semibold truncate">
+                <p className="text-[11px] font-mono font-semibold truncate">
                   {s.profiles?.full_name?.split(" ")[0] ?? "?"}
                 </p>
                 {s.current_task && s.status !== "offline" ? (
-                  <p className="text-[10px] text-muted-foreground truncate max-w-[120px]">
+                  <p className="text-[9px] font-mono text-muted-foreground/60 truncate max-w-[120px]">
                     {s.current_task}
                   </p>
                 ) : (
-                  <p className={cn("text-[10px] font-medium", config.color)}>{config.label}</p>
+                  <p className={cn("text-[9px] font-mono font-medium", config.color)}>{config.label}</p>
                 )}
               </div>
               {s.status !== "offline" && (
-                <span className="text-[10px] text-muted-foreground/50 font-medium tabular-nums ml-1">
+                <span className="text-[9px] font-mono text-muted-foreground/40 tabular-nums ml-1">
                   {timeAgo(s.started_at)}
                 </span>
               )}

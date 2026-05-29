@@ -74,29 +74,37 @@ supabase/
 | `src/app/(app)/dashboard/page.tsx` | Main page — the pattern all pages follow |
 | `src/app/globals.css` | Design system CSS variables and utilities |
 
-## Design System (Exoma Blue + Black)
+## Design System (Palantir Style — Cyan-Steel + Black)
 
 ### Brand
-- Primary: Exoma Blue (oklch hue 258). Use `text-primary`, never hardcode `text-blue-600`
-- Gradients: `from-blue-600 to-blue-700` (buttons), `from-blue-500 to-blue-700` (logos/loaders)
-- Shadows: `shadow-blue-600/25`
+- Primary: Cyan-steel (oklch hue ~210-220). Use `text-primary`, never hardcode `text-blue-600`
+- No gradients, no shadows — flat, border-defined surfaces
 - Category `deep_work` uses violet — this is the ONLY place violet appears
+
+### Aesthetic
+- **Angular**: Near-zero border-radius (--radius: 0.125rem)
+- **Dark-first**: Pitch-black backgrounds, subtle cool borders
+- **Monospace**: Headers, labels, data, nav — all `font-mono`
+- **Dense**: Compact layouts, small type, tracked-out uppercase labels
+- **Border-defined**: No box-shadows, cards/panels defined by borders
+- **Grid backgrounds**: `bg-grid-palantir` and `bg-grid-dense` for data panels
 
 ### Patterns
 - Page containers: `max-w-Xxl mx-auto px-4 sm:px-6 py-8`
-- Page headers: `text-2xl font-bold tracking-tight`
+- Page headers: `text-xl font-mono font-bold tracking-tight uppercase`
+- Section labels: `font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40`
 - Section spacing: `mb-8`
-- Numbers: `tabular-nums tracking-tight`
-- Cards: `transition-all duration-300 hover:shadow-lg hover:shadow-primary/5`
-- Stat boxes: `bg-accent/40 rounded-xl`
-- Buttons: `rounded-xl`
-- Dialogs: `rounded-2xl`
-- Avatars in lists: `ring-2 ring-background shadow-sm`
-- Loading: blue gradient square with `animate-pulse` + "Cargando..." text
-- Empty: icon in `w-16 h-16 rounded-2xl bg-primary/10` container
+- Numbers: `font-mono tabular-nums tracking-tight`
+- Cards: `border border-border transition-colors hover:border-primary/30` — no shadows
+- Stat boxes: `bg-accent/30 border border-border`
+- Buttons: flat, no rounded corners, `font-mono text-xs`
+- Dialogs: system radius (near-square)
+- Avatars in lists: `ring-1 ring-border`
+- Loading: `animate-pulse font-mono text-xs tracking-widest uppercase` + "Cargando..."
+- Empty: icon in `w-16 h-16 border border-border` container
 
 ### CSS Utilities (from globals.css)
-`.glass` `.glass-subtle` `.bg-grid-pattern` `.text-gradient` `.animate-shimmer` `.animate-pulse-glow` `.glow-blue` `.animate-float` `.noise` `.safe-area-pb`
+`.glass` `.glass-subtle` `.bg-grid-palantir` `.bg-grid-dense` `.corner-marks` `.card-palantir` `.glow-line-top` `.glow-line-left` `.label-mono` `.data-cell` `.palantir-divider` `.status-dot` `.status-dot-active` `.animate-shimmer` `.animate-scan` `.safe-area-pb`
 
 ## Workflows
 

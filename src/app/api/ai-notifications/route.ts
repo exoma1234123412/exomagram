@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     supabase.from("activity_streaks").select("user_id, current_streak").eq("org_id", orgId),
     supabase.from("live_status").select("user_id, status").eq("org_id", orgId),
     supabase.from("ai_work_profiles").select("user_id, profile_data").eq("org_id", orgId),
-    supabase.from("public_feed").select("id").eq("org_id", orgId).eq("created_at", `gte.${today}T00:00:00`).limit(1),
+    supabase.from("public_feed").select("id").eq("org_id", orgId).gte("created_at", `${today}T00:00:00`).limit(1),
   ]);
 
   // Build state

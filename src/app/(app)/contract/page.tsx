@@ -110,6 +110,7 @@ export default function ContractPage() {
   const [c1, setC1] = useState("");
   const [c2, setC2] = useState("");
   const [c3, setC3] = useState("");
+  const [consequence, setConsequence] = useState("");
 
   // Week navigation
   const [currentWeek, setCurrentWeek] = useState(getWeekStart());
@@ -211,10 +212,25 @@ export default function ContractPage() {
       .single();
 
     if (data) {
+      // Store in audit_log with consequence
+      await supabase.from("audit_log").insert({
+        org_id: orgId,
+        user_id: userId,
+        action: "entry_created",
+        target_type: "weekly_contract",
+        target_id: data.id,
+        new_data: {
+          commitments: texts,
+          consequence: consequence.trim() || null,
+          week_start: currentWeek,
+        },
+      });
+
       setMyContract(data as WeeklyContract);
       setC1("");
       setC2("");
       setC3("");
+      setConsequence("");
     }
     setSubmitting(false);
   }
@@ -392,6 +408,20 @@ export default function ContractPage() {
                       />
                     </div>
                   ))}
+                </div>
+
+                {/* Consequence */}
+                <div className="pt-2">
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                    Si no cumplo... (consecuencia publica)
+                  </label>
+                  <textarea
+                    placeholder="Ej: Invito el almuerzo al equipo / Hago la presentacion que nadie quiere / Limpio el backlog"
+                    value={consequence}
+                    onChange={(e) => setConsequence(e.target.value)}
+                    rows={2}
+                    className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+                  />
                 </div>
 
                 <Button

@@ -12,7 +12,13 @@ import { MissingHoursAlert } from "@/components/alerts/missing-hours-alert";
 import { DailyCloseoutDialog } from "@/components/closeout/daily-closeout-dialog";
 import { DailyScoreWidget } from "@/components/dashboard/daily-score-widget";
 import { QuickLog } from "@/components/dashboard/quick-log";
+import { StreakDanger } from "@/components/dashboard/streak-danger";
+import { FearWidget } from "@/components/dashboard/fear-widget";
+import { SocialPressureBar } from "@/components/dashboard/social-pressure-bar";
 import { PublicFeed } from "@/components/feed/public-feed";
+import { ThroneBanner } from "@/components/social/throne-crown";
+import { ForcedComparison } from "@/components/social/forced-comparison";
+import { TeamDebt } from "@/components/accountability/team-debt";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, ChevronLeft, ChevronRight, FileCheck, Calendar } from "lucide-react";
@@ -63,7 +69,7 @@ export default function DashboardPage() {
   if (loading || orgLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-pulse text-muted-foreground">Cargando...</div>
+        <div className="animate-pulse text-muted-foreground font-mono text-xs tracking-widest uppercase">Cargando...</div>
       </div>
     );
   }
@@ -75,17 +81,17 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-medium tracking-tight">Timeline</h1>
-          <p className="text-muted-foreground text-sm capitalize mt-0.5">{displayDate}</p>
+          <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Timeline</h1>
+          <p className="text-muted-foreground text-xs font-mono capitalize mt-1">{displayDate}</p>
         </div>
         <div className="flex items-center gap-2">
           {isToday && (
-            <Button variant="outline" onClick={() => setCloseoutOpen(true)} className="gap-2 hidden sm:flex rounded-xl">
-              <FileCheck className="w-4 h-4" /> Cerrar día
+            <Button variant="outline" onClick={() => setCloseoutOpen(true)} className="gap-2 hidden sm:flex text-xs font-mono">
+              <FileCheck className="w-3.5 h-3.5" /> Cerrar día
             </Button>
           )}
-          <Button onClick={() => setLogOpen(true)} className="gap-2 rounded-xl">
-            <Plus className="w-4 h-4" />
+          <Button onClick={() => setLogOpen(true)} className="gap-2 text-xs font-mono">
+            <Plus className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Registrar hora</span>
           </Button>
         </div>
@@ -93,26 +99,41 @@ export default function DashboardPage() {
 
       {/* Date navigation */}
       <div className="flex items-center gap-2 mb-8">
-        <Button variant="ghost" size="icon" className="rounded-xl"
+        <Button variant="ghost" size="icon"
           onClick={() => setDate(subDays(new Date(date + "T12:00:00"), 1).toISOString().split("T")[0])}>
           <ChevronLeft className="w-4 h-4" />
         </Button>
         <div className="flex items-center gap-2 px-1">
-          <Calendar className="w-4 h-4 text-muted-foreground" />
+          <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
           <Input type="date" value={date} onChange={(e) => setDate(e.target.value)}
-            className="w-auto border-0 bg-transparent shadow-none focus-visible:ring-0 px-0 h-auto" />
+            className="w-auto border-0 bg-transparent shadow-none focus-visible:ring-0 px-0 h-auto font-mono text-xs" />
         </div>
-        <Button variant="ghost" size="icon" className="rounded-xl"
+        <Button variant="ghost" size="icon"
           onClick={() => setDate(addDays(new Date(date + "T12:00:00"), 1).toISOString().split("T")[0])}>
           <ChevronRight className="w-4 h-4" />
         </Button>
         {!isToday && (
-          <Button variant="secondary" size="sm" className="rounded-xl text-xs"
+          <Button variant="secondary" size="sm" className="text-xs font-mono"
             onClick={() => setDate(getTodayMTY())}>
             Hoy
           </Button>
         )}
       </div>
+
+      {/* Forced comparison — can't dismiss for 5 seconds */}
+      {isToday && <ForcedComparison />}
+
+      {/* Throne — who wears the crown this week */}
+      {isToday && <ThroneBanner orgId={orgId} />}
+
+      {/* Team debt — collective accountability for D/F grades */}
+      {isToday && <TeamDebt orgId={orgId} />}
+
+      {/* Streak danger — anxiety countdown */}
+      {isToday && <StreakDanger orgId={orgId} />}
+
+      {/* Fear widget — trust score decay pressure */}
+      {isToday && <FearWidget orgId={orgId} />}
 
       {/* AI Public Feed — team announcements, praise, challenges */}
       {isToday && <PublicFeed orgId={orgId} />}
@@ -137,6 +158,12 @@ export default function DashboardPage() {
 
       <LogEntryDialog open={logOpen} onOpenChange={setLogOpen} defaultDate={date} />
       <DailyCloseoutDialog open={closeoutOpen} onOpenChange={setCloseoutOpen} />
+
+      {/* Bottom padding for sticky pressure bar */}
+      {isToday && <div className="h-16" />}
+
+      {/* Social pressure bar — sticky bottom with rank, team progress, surveillance */}
+      {isToday && <SocialPressureBar orgId={orgId} />}
     </div>
   );
 }
@@ -163,16 +190,16 @@ function NoOrgView() {
   return (
     <div className="flex items-center justify-center min-h-screen px-4">
       <div className="max-w-md w-full text-center space-y-8">
-        <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center mx-auto">
+        <div className="w-16 h-16 border border-border flex items-center justify-center mx-auto">
           <span className="text-3xl">🏢</span>
         </div>
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Crea tu equipo</h2>
-          <p className="text-muted-foreground mt-2">Necesitas un equipo para empezar.</p>
+          <h2 className="text-xl font-mono font-bold tracking-tight uppercase">Crea tu equipo</h2>
+          <p className="text-muted-foreground text-sm font-mono mt-2">Necesitas un equipo para empezar.</p>
         </div>
         <form onSubmit={createOrg} className="flex gap-2">
-          <Input placeholder="Nombre del equipo" value={name} onChange={(e) => setName(e.target.value)} required className="rounded-xl" />
-          <Button type="submit" disabled={loading} className="rounded-xl">
+          <Input placeholder="Nombre del equipo" value={name} onChange={(e) => setName(e.target.value)} required className="font-mono text-sm" />
+          <Button type="submit" disabled={loading} className="font-mono text-sm">
             {loading ? "Creando..." : "Crear"}
           </Button>
         </form>

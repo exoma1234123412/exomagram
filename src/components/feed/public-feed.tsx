@@ -48,7 +48,7 @@ export function PublicFeed({ orgId }: { orgId: string }) {
 
     // Real-time
     const channel = supabase
-      .channel("public_feed_rt")
+      .channel(`public_feed_rt_${orgId}`)
       .on("postgres_changes", {
         event: "INSERT",
         schema: "public",

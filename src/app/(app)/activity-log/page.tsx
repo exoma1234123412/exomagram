@@ -83,7 +83,7 @@ const EVENT_TYPE_CONFIG: Record<
     label: "Cierre",
     icon: Shield,
     color: "text-primary",
-    bgColor: "bg-violet-100 dark:bg-violet-900/40",
+    bgColor: "bg-primary/10 dark:bg-primary/20",
   },
   flag: {
     label: "Flag",
