@@ -27,13 +27,18 @@ interface PersonAudit {
   grade: string;
   score: number;
   verdict: string;
+  se_hizo_pendejo: boolean;
+  evidencia_de_bullshit: string[];
   red_flags: string[];
   inconsistencies: string[];
+  what_they_actually_did: string;
   strengths: string[];
   coaching: string;
   trust_impact: number;
   efficiency_rating: string;
   bullshit_meter: number;
+  hours_that_actually_count: string;
+  money_wasted: string;
 }
 
 interface AuditData {
@@ -41,9 +46,15 @@ interface AuditData {
   model: string;
   team_verdict: string;
   team_score: number;
+  quien_se_hizo_pendejo: string;
   people: PersonAudit[];
   team_patterns: string[];
+  toxic_dynamics: string[];
+  machiavelli_ideas: string[];
+  structural_changes: string[];
   recommendation: string;
+  who_deserves_a_raise: string;
+  who_needs_a_talk: string;
 }
 
 const GRADE_STYLE: Record<string, { color: string; bg: string; emoji: string }> = {
@@ -174,10 +185,64 @@ export default function ClaudeAuditPage() {
                 </div>
               )}
 
+              {/* Quien se hizo pendejo */}
+              {data.quien_se_hizo_pendejo && data.quien_se_hizo_pendejo !== "nadie" && (
+                <div className="mt-4 p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl">
+                  <p className="text-xs font-bold text-red-600 uppercase mb-1">Se hicieron pendejo(s):</p>
+                  <p className="text-sm font-medium text-red-700 dark:text-red-400">{data.quien_se_hizo_pendejo}</p>
+                </div>
+              )}
+
+              {/* Toxic dynamics */}
+              {data.toxic_dynamics?.length > 0 && (
+                <div className="mt-4 pt-4 border-t">
+                  <p className="text-xs font-semibold text-red-600 uppercase mb-2">Dinamicas toxicas</p>
+                  {data.toxic_dynamics.map((d, i) => (
+                    <p key={i} className="text-sm text-red-700 dark:text-red-400 mb-1">- {d}</p>
+                  ))}
+                </div>
+              )}
+
+              {/* Machiavelli ideas */}
+              {data.machiavelli_ideas?.length > 0 && (
+                <div className="mt-4 pt-4 border-t">
+                  <p className="text-xs font-semibold text-violet-600 uppercase mb-2">Ideas maquiavelicas</p>
+                  {data.machiavelli_ideas.map((idea, i) => (
+                    <p key={i} className="text-sm text-violet-700 dark:text-violet-400 mb-1">{i + 1}. {idea}</p>
+                  ))}
+                </div>
+              )}
+
+              {/* Structural changes */}
+              {data.structural_changes?.length > 0 && (
+                <div className="mt-4 pt-4 border-t">
+                  <p className="text-xs font-semibold text-blue-600 uppercase mb-2">Cambios estructurales</p>
+                  {data.structural_changes.map((c, i) => (
+                    <p key={i} className="text-sm text-muted-foreground mb-1">- {c}</p>
+                  ))}
+                </div>
+              )}
+
+              {/* Who deserves raise / who needs talk */}
+              <div className="mt-4 pt-4 border-t grid grid-cols-2 gap-4">
+                {data.who_deserves_a_raise && (
+                  <div className="p-3 bg-green-50 dark:bg-green-950/15 rounded-xl">
+                    <p className="text-[10px] font-bold text-green-600 uppercase mb-1">Merece un aumento</p>
+                    <p className="text-sm text-green-700 dark:text-green-400">{data.who_deserves_a_raise}</p>
+                  </div>
+                )}
+                {data.who_needs_a_talk && (
+                  <div className="p-3 bg-red-50 dark:bg-red-950/15 rounded-xl">
+                    <p className="text-[10px] font-bold text-red-600 uppercase mb-1">Necesita una conversacion seria</p>
+                    <p className="text-sm text-red-700 dark:text-red-400">{data.who_needs_a_talk}</p>
+                  </div>
+                )}
+              </div>
+
               {data.recommendation && (
-                <div className="mt-3 p-3 bg-primary/5 rounded-xl">
+                <div className="mt-4 p-3 bg-primary/5 rounded-xl">
                   <p className="text-xs font-semibold text-primary uppercase mb-1 flex items-center gap-1">
-                    <Target className="w-3 h-3" /> Recomendación
+                    <Target className="w-3 h-3" /> Accion #1 para manana
                   </p>
                   <p className="text-sm font-medium">{data.recommendation}</p>
                 </div>
@@ -211,12 +276,40 @@ export default function ClaudeAuditPage() {
                             BS: {person.bullshit_meter}%
                           </Badge>
                         )}
+                        {person.se_hizo_pendejo && (
+                          <Badge variant="destructive" className="text-[10px] animate-pulse">
+                            SE HIZO PENDEJO
+                          </Badge>
+                        )}
+                        {person.hours_that_actually_count && (
+                          <Badge variant="outline" className="text-[10px]">
+                            Horas reales: {person.hours_that_actually_count}
+                          </Badge>
+                        )}
+                        {person.money_wasted && person.money_wasted !== "$0" && (
+                          <Badge variant="outline" className="text-[10px] text-red-600 border-red-300">
+                            {person.money_wasted} desperdiciado
+                          </Badge>
+                        )}
                       </div>
                       <p className={cn("text-sm mt-1 font-medium", gs.color)}>{person.verdict}</p>
+                      {person.what_they_actually_did && (
+                        <p className="text-xs text-muted-foreground mt-1 italic">Realmente produjo: {person.what_they_actually_did}</p>
+                      )}
                     </div>
                   </div>
 
-                  {/* Inconsistencies — the killer feature */}
+                  {/* Evidencia de bullshit */}
+                  {person.evidencia_de_bullshit?.length > 0 && (
+                    <div className="mb-3 p-3 bg-red-100 dark:bg-red-950/25 rounded-xl border border-red-300 dark:border-red-700">
+                      <p className="text-[10px] font-bold text-red-700 uppercase mb-1.5">EVIDENCIA DE BULLSHIT</p>
+                      {person.evidencia_de_bullshit.map((ev, j) => (
+                        <p key={j} className="text-xs text-red-800 dark:text-red-300 mb-0.5 font-medium">- {ev}</p>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Inconsistencies */}
                   {person.inconsistencies?.length > 0 && (
                     <div className="mb-3 p-3 bg-red-50 dark:bg-red-950/15 rounded-xl border border-red-200/50 dark:border-red-800/30">
                       <p className="text-[10px] font-semibold text-red-600 uppercase mb-1.5 flex items-center gap-1">

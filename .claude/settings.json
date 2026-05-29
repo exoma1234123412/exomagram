@@ -1,0 +1,37 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "description": "Auto-typecheck after file edits",
+        "matcher": {
+          "tool": "Edit"
+        },
+        "type": "command",
+        "command": ["bash", "-c", "npx tsc --noEmit --pretty 2>&1 | head -5 || true"],
+        "timeout": 15000
+      },
+      {
+        "description": "Block commits with violet brand colors",
+        "matcher": {
+          "tool": "Bash",
+          "args": { "command": "git commit*" }
+        },
+        "type": "command",
+        "command": ["bash", "-c", "violations=$(grep -rn 'text-violet-[56]00' src/ --include='*.tsx' | grep -v 'deep_work\\|CATEGORY\\|deepWork\\|Deep Work' | head -3); if [ -n \"$violations\" ]; then echo \"BLOCKED: Brand violet colors found. Use text-primary instead.\"; echo \"$violations\"; exit 2; fi"],
+        "timeout": 10000
+      }
+    ],
+    "PreToolUse": [
+      {
+        "description": "Warn before deleting files",
+        "matcher": {
+          "tool": "Bash",
+          "args": { "command": "*rm -rf*" }
+        },
+        "type": "command",
+        "command": ["bash", "-c", "echo 'WARNING: Destructive rm -rf detected. Proceed with caution.'; exit 0"],
+        "timeout": 5000
+      }
+    ]
+  }
+}
