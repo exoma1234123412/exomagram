@@ -26,6 +26,14 @@ interface ValidateRequest {
     hour: number;
     date: string;
   }[];
+  /** Optional: recent validation results from previous submissions (client-provided). */
+  recent_validations?: {
+    title: string;
+    approved: boolean;
+    quality_score: number;
+    issues: string[];
+    date: string;
+  }[];
 }
 
 interface ValidationResult {
@@ -79,7 +87,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
   }
 
-  const { category, title, description, hour, date, proof_urls, recent_entries } = body;
+  const { category, title, description, hour, date, proof_urls, recent_entries, recent_validations } = body;
 
   // Basic validation before calling AI
   if (!category || !title) {

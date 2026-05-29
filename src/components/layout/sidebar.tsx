@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Logo } from "@/components/layout/logo";
+import { AudioToggle } from "@/components/audio/audio-toggle";
 import {
  Tooltip,
  TooltipContent,
@@ -137,27 +138,14 @@ export function Sidebar() {
  </div>
  ) : (
  <>
- <div className="flex items-center justify-between mb-2">
- <div className="flex items-center gap-2.5">
- <div className="relative">
- <Logo size={30} />
- <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_6px] shadow-green-500/60"/>
- </div>
- <div>
- <span className="font-mono text-[12px] font-black tracking-[0.14em] text-foreground block leading-none">
- EXOMAGRAM
+ <div className="flex items-center justify-between">
+ <div className="flex items-center gap-2">
+ <Logo size={26} />
+ <span className="text-[13px] font-semibold tracking-tight text-foreground">
+ Exomagram
  </span>
- <span className="font-mono text-[8px] tracking-[0.2em] text-muted-foreground uppercase mt-0.5 block">
- Sistema de Vigilancia
- </span>
- </div>
  </div>
  <NotificationBell />
- </div>
- <div className="h-px bg-border mt-2"/>
- <div className="flex items-center gap-1.5 mt-2">
- <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_4px] shadow-green-500/50"/>
- <span className="font-mono text-[8px] tracking-[0.15em] text-green-500 uppercase font-semibold">Operativo</span>
  </div>
  </>
  )}
@@ -208,12 +196,12 @@ export function Sidebar() {
  key={item.href}
  href={item.href}
  className={cn(
- "flex items-center gap-3 px-3 py-2 text-[12px] font-mono font-medium transition-colors relative",
+ "flex items-center gap-2.5 px-3 py-1.5 text-[13px] transition-colors relative",
  isActive
- ?"text-primary bg-primary/10":"text-sidebar-foreground hover:text-foreground hover:bg-accent")}
+ ?"text-foreground bg-accent":"text-muted-foreground hover:text-foreground hover:bg-accent/50")}
  >
  {isActive && (
- <span className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary"/>
+ <span className="absolute left-0 top-1 bottom-1 w-[2px] bg-primary"/>
  )}
  <div className="relative">
  <item.icon
@@ -222,14 +210,14 @@ export function Sidebar() {
  isActive ?"text-primary":"text-muted-foreground")}
  />
  {showAlertBadge && (
- <span className="absolute -top-1.5 -right-2 w-3.5 h-3.5 bg-red-500 text-white text-[7px] font-mono font-bold flex items-center justify-center animate-pulse">
- {alertCriticalCount > 9 ? "9+" : alertCriticalCount}
+ <span className="absolute -top-1 -right-1.5 w-3 h-3 bg-red-500 text-white text-[7px] font-mono font-bold flex items-center justify-center">
+ {alertCriticalCount > 9 ? "+" : alertCriticalCount}
  </span>
  )}
  </div>
  <span className="flex-1">{item.label}</span>
  {showAlertBadge && (
- <span className="bg-red-500 text-white text-[8px] font-mono font-bold px-1.5 py-0.5 tabular-nums">
+ <span className="bg-red-500/15 text-red-400 text-[10px] font-mono font-semibold px-1.5 py-0.5 tabular-nums">
  {alertCriticalCount}
  </span>
  )}
@@ -251,6 +239,7 @@ export function Sidebar() {
  </TooltipTrigger>
  <TooltipContent side="right" className="font-mono text-xs">Buscar</TooltipContent>
  </Tooltip>
+ <AudioToggle collapsed />
  <Tooltip>
  <TooltipTrigger
  onClick={handleLogout}
@@ -266,18 +255,19 @@ export function Sidebar() {
  onClick={() => {
  window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }));
  }}
- className="flex items-center gap-2.5 w-full px-2 py-1.5 text-[10px] font-mono tracking-wide text-muted-foreground hover:text-foreground transition-colors cursor-pointer uppercase">
+ className="flex items-center gap-2.5 w-full px-2 py-1.5 text-[12px] text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors cursor-pointer">
  <Search className="w-3.5 h-3.5"/>
  <span className="flex-1 text-left">Buscar</span>
- <kbd className="border border-border px-1 py-0.5 bg-accent/30 font-mono text-[8px] tracking-normal normal-case inline-flex items-center gap-0.5">
+ <kbd className="border border-border px-1.5 py-0.5 bg-accent/50 font-mono text-[9px] inline-flex items-center gap-0.5">
  <Command className="w-2.5 h-2.5" />K
  </kbd>
  </button>
+ <AudioToggle />
  <button
  onClick={handleLogout}
- className="flex items-center gap-2.5 w-full px-2 py-1.5 text-[10px] font-mono tracking-wide text-muted-foreground hover:text-foreground transition-colors cursor-pointer uppercase">
+ className="flex items-center gap-2.5 w-full px-2 py-1.5 text-[12px] text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors cursor-pointer">
  <LogOut className="w-3.5 h-3.5"/>
- Cerrar sesión
+ Cerrar sesion
  </button>
  </>
  )}
@@ -286,7 +276,7 @@ export function Sidebar() {
  <button
  onClick={toggleCollapsed}
  className={cn(
- "flex items-center w-full py-1.5 text-[10px] font-mono tracking-wide text-muted-foreground hover:text-foreground transition-colors cursor-pointer uppercase",
+ "flex items-center w-full py-1.5 text-[12px] text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors cursor-pointer",
  collapsed ? "justify-center p-2" : "gap-2.5 px-2"
  )}>
  {collapsed ? (

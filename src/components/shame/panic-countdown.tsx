@@ -34,22 +34,38 @@ type CountdownPhase = "hidden" | "warning" | "urgent" | "critical" | "dead";
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** Get the current Date object in Monterrey timezone. */
+/** Get the current Date object in Monterrey timezone.
+ *  Falls back to a UTC-6 approximation if Intl timezone support fails.
+ */
 function getNowMTY(): Date {
-  return new Date(
-    new Date().toLocaleString("en-US", { timeZone: "America/Monterrey" })
-  );
+  try {
+    return new Date(
+      new Date().toLocaleString("en-US", { timeZone: "America/Monterrey" })
+    );
+  } catch {
+    // Fallback: UTC-6 approximation (CST, no DST adjustment)
+    const now = new Date();
+    return new Date(now.getTime() - 6 * 60 * 60 * 1000);
+  }
 }
 
-/** Get current hour (0-23) in Monterrey timezone. */
+/** Get current hour (0-23) in Monterrey timezone.
+ *  Falls back to UTC-6 if Intl.DateTimeFormat with timezone fails.
+ */
 function getMTYHour(): number {
-  const now = new Date();
-  const mtyTime = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Monterrey",
-    hour: "numeric",
-    hour12: false,
-  }).format(now);
-  return parseInt(mtyTime, 10);
+  try {
+    const now = new Date();
+    const mtyTime = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Monterrey",
+      hour: "numeric",
+      hour12: false,
+    }).format(now);
+    const parsed = parseInt(mtyTime, 10);
+    // Intl can return 24 for midnight in some locales — normalise
+    return isNaN(parsed) ? getNowMTY().getHours() : parsed % 24;
+  } catch {
+    return getNowMTY().getHours();
+  }
 }
 
 /** Check if today is a weekday in MTY timezone. */
@@ -64,11 +80,15 @@ function isMTYWeekday(): boolean {
  * Returns 0 if already past.
  */
 function msUntilHourMTY(targetHour: number): number {
-  const now = getNowMTY();
-  const target = new Date(now);
-  target.setHours(targetHour, 0, 0, 0);
-  const diff = target.getTime() - now.getTime();
-  return Math.max(0, diff);
+  try {
+    const now = getNowMTY();
+    const target = new Date(now);
+    target.setHours(targetHour, 0, 0, 0);
+    const diff = target.getTime() - now.getTime();
+    return Math.max(0, diff);
+  } catch {
+    return 0;
+  }
 }
 
 /**
@@ -131,16 +151,22 @@ export function PanicCountdown() {
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // -- Load user profile work_end_hour --
+  // Default is 18 (6 pm). If query fails or returns null we keep the default.
   useEffect(() => {
     if (!userId) return;
     async function loadProfile() {
-      const { data } = await supabase
-        .from("profiles")
-        .select("work_end_hour")
-        .eq("id", userId)
-        .single();
-      if (data?.work_end_hour) {
-        setWorkEndHour(data.work_end_hour);
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("work_end_hour")
+          .eq("id", userId)
+          .single();
+        if (!error && data?.work_end_hour != null) {
+          setWorkEndHour(data.work_end_hour);
+        }
+        // On error or null value: silently keep default of 18
+      } catch {
+        // Network or unexpected error — keep default of 18
       }
     }
     loadProfile();
@@ -211,9 +237,23 @@ export function PanicCountdown() {
         return;
       }
 
-      const currentHour = getMTYHour();
-      const isPastDeadline = currentHour >= workEndHour;
       const remaining = msUntilHourMTY(workEndHour);
+
+      // Grace period: 15 minutes after the deadline before showing "DÍA PERDIDO".
+      // People sometimes log their last hour right at the cutoff.
+      const GRACE_MS = 15 * 60 * 1000;
+      let msPastDeadline = 0;
+      if (remaining === 0) {
+        try {
+          const now = getNowMTY();
+          const deadline = new Date(now);
+          deadline.setHours(workEndHour, 0, 0, 0);
+          msPastDeadline = Math.max(0, now.getTime() - deadline.getTime());
+        } catch {
+          msPastDeadline = 0;
+        }
+      }
+      const isPastDeadline = remaining === 0 && msPastDeadline > GRACE_MS;
 
       setMsRemaining(remaining);
       setPhase(getPhase(remaining, hoursLogged, isPastDeadline));
@@ -249,7 +289,7 @@ export function PanicCountdown() {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <span className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-red-500">
-                DIA PERDIDO
+                DÍA PERDIDO
               </span>
               <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-red-500/60">
                 PERMANENTE
@@ -257,7 +297,7 @@ export function PanicCountdown() {
             </div>
             <p className="font-mono text-[11px] text-red-400/80 mt-1 leading-relaxed">
               {hoursLogged}/{EXPECTED_DAILY_HOURS} horas registradas.
-              {" "}Tu Trust Score caera ~{trustImpact} puntos.
+              {" "}Tu Trust Score caerá ~{trustImpact} puntos.
               {" "}{missing} hora{missing !== 1 ? "s" : ""} sin registrar = perdida{missing !== 1 ? "s" : ""} permanente{missing !== 1 ? "s" : ""}.
             </p>
           </div>
@@ -326,9 +366,9 @@ export function PanicCountdown() {
   if (phase === "warning") {
     urgencyMessage = `Quedan ${Math.ceil(minutesLeft)} minutos para registrar tu dia. Llevas ${hoursLogged}/${EXPECTED_DAILY_HOURS} horas.`;
   } else if (phase === "urgent") {
-    urgencyMessage = `Quedan ${Math.ceil(minutesLeft)} minutos. ${missing} hora${missing !== 1 ? "s" : ""} sin registrar. Trust Score caera ~${trustImpact} puntos.`;
+    urgencyMessage = `Quedan ${Math.ceil(minutesLeft)} minutos. ${missing} hora${missing !== 1 ? "s" : ""} sin registrar. Trust Score caerá ~${trustImpact} puntos.`;
   } else {
-    urgencyMessage = `${Math.ceil(minutesLeft)} MINUTOS. Despues: DIA PERDIDO PERMANENTE. ${hoursLogged} horas. Tu Trust Score caera ~${trustImpact} puntos.`;
+    urgencyMessage = `${Math.ceil(minutesLeft)} MINUTOS. Después: DÍA PERDIDO PERMANENTE. ${hoursLogged} horas. Tu Trust Score caerá ~${trustImpact} puntos.`;
   }
 
   // Build label
@@ -338,7 +378,7 @@ export function PanicCountdown() {
   } else if (phase === "urgent") {
     phaseLabel = "URGENTE";
   } else {
-    phaseLabel = "CRITICO";
+    phaseLabel = "CRÍTICO";
   }
 
   return (
@@ -379,7 +419,7 @@ export function PanicCountdown() {
           </p>
           {phase === "critical" && (
             <p className={cn("font-mono text-[11px] mt-0.5", config.impactColor)}>
-              0 horas registradas = dia perdido permanente en el historial.
+              0 horas registradas = día perdido permanente en el historial.
             </p>
           )}
         </div>

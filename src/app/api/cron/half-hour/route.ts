@@ -114,6 +114,8 @@ async function runSurveillance(
     { data: trustScores },
     { data: workProfiles },
     { data: yesterdayAggregates },
+    { data: baselines },
+    { data: strongCorrelations },
   ] = await Promise.all([
     supabase.from("org_members").select("user_id, role, profiles(full_name, email, work_start_hour, work_end_hour)").eq("org_id", orgId),
     supabase.from("time_entries").select("user_id, hour, category, title, is_late, proof_urls, mood, energy, difficulty, focus_quality, value_rating, stress_level, verification_status").eq("org_id", orgId).eq("date", today).is("deleted_at", null),
@@ -135,6 +137,10 @@ async function runSurveillance(
     supabase.from("ai_work_profiles").select("user_id, profile_data").eq("org_id", orgId),
     // V11 — Yesterday's aggregates for comparison + health enforcement
     supabase.from("daily_aggregates").select("user_id, total_hours, deep_work_hours, ai_score, ai_grade, trust_score").eq("org_id", orgId).eq("date", yesterday),
+    // V12 — Personal baselines for personalized anomaly detection
+    supabase.from("personal_baselines").select("user_id, avg_daily_hours, stddev_daily_hours, category_distribution, avg_mood, avg_energy, avg_stress, avg_quality_score, avg_proof_rate, avg_trust_score, trust_trend, typical_grade, promise_reliability, standup_rate, closeout_rate, avg_sleep_hours, data_completeness").eq("org_id", orgId).order("computed_date", { ascending: false }),
+    // V12 — Strong correlations for context
+    supabase.from("correlation_insights").select("user_id, dimension_a, dimension_b, correlation_coefficient, strength, insight").eq("org_id", orgId).in("strength", ["strong_positive", "strong_negative"]).order("computed_date", { ascending: false }).limit(30),
   ]);
 
   // ============================================================
@@ -146,6 +152,19 @@ async function runSurveillance(
   const healthMap = new Map<string, any>((todayHealth ?? []).map((h: any) => [h.user_id, h]));
   const profileMap = new Map<string, Record<string, unknown>>((workProfiles ?? []).map((p: any) => [p.user_id, p.profile_data]));
   const yesterdayAggMap = new Map<string, any>((yesterdayAggregates ?? []).map((a: any) => [a.user_id, a]));
+  // V12 — Baselines (take most recent per user)
+  const baselineMap = new Map<string, any>();
+  for (const b of baselines ?? []) {
+    if (!baselineMap.has(b.user_id)) baselineMap.set(b.user_id, b);
+  }
+  // V12 — Correlations by user
+  const correlationMap = new Map<string, any[]>();
+  for (const c of strongCorrelations ?? []) {
+    if (!c.user_id) continue;
+    const list = correlationMap.get(c.user_id) ?? [];
+    list.push(c);
+    correlationMap.set(c.user_id, list);
+  }
 
   // Track how many notifications each person got today (avoid spam)
   const notifCounts = new Map<string, number>();
@@ -248,6 +267,16 @@ async function runSurveillance(
     if (yAgg) {
       state += `  Ayer (agregado): ${yAgg.total_hours}h, deep=${yAgg.deep_work_hours}, score=${yAgg.ai_score ?? "?"}, trust=${yAgg.trust_score ?? "?"}\n`;
     }
+    // V12 — Personal baseline (30-day norm)
+    const baseline = baselineMap.get(m.user_id);
+    if (baseline) {
+      state += `  BASELINE 30d: avg=${baseline.avg_daily_hours ?? "?"}h/d (±${baseline.stddev_daily_hours ?? "?"}), mood=${baseline.avg_mood ?? "?"}, energy=${baseline.avg_energy ?? "?"}, trust=${baseline.avg_trust_score ?? "?"} (${baseline.trust_trend ?? "?"}), grade=${baseline.typical_grade ?? "?"}, proof=${baseline.avg_proof_rate ?? "?"}%, promises=${baseline.promise_reliability ?? "?"}%, data=${baseline.data_completeness ?? "?"}%\n`;
+    }
+    // V12 — Strong correlations for this person
+    const userCorrs = correlationMap.get(m.user_id);
+    if (userCorrs && userCorrs.length > 0) {
+      state += `  CORRELACIONES: ${userCorrs.slice(0, 3).map((c: any) => `${c.dimension_a}↔${c.dimension_b}=${c.correlation_coefficient > 0 ? "+" : ""}${c.correlation_coefficient}`).join(", ")}\n`;
+    }
     // V11 — Health check status
     state += `  Health check: ${healthMap.has(m.user_id) ? "completado" : "PENDIENTE"}\n`;
     state += `  Notificaciones AI hoy: ${notifsToday}\n`;
@@ -266,77 +295,57 @@ async function runSurveillance(
 ${state}
 
 ══════════════════════════════════════════════════
-ARSENAL PSICOLÓGICO — USA ESTAS TÉCNICAS EN CADA MENSAJE
+ARSENAL PSICOLÓGICO — 30 TÉCNICAS. USA MÍNIMO 1 POR MENSAJE.
 ══════════════════════════════════════════════════
 
-1. PROSPECT THEORY (pérdidas > ganancias): SIEMPRE enmarca como PÉRDIDA, no ganancia.
-   MAL: "Si registras 2h más, ganas 5 puntos"
-   BIEN: "Estás a punto de PERDER 5 puntos que te costó semanas construir"
+--- AVERSIÓN Y PÉRDIDA ---
+1. LOSS_FRAMING: Enmarca SIEMPRE como pérdida. "PIERDES 5 pts" no "ganas 5".
+2. SUNK_COST: "12 días de racha invertidos. ¿Los tiras por 1 hora?"
+3. ENDOWMENT: "Tu Trust 87 es TUYO. Lo construiste entrada por entrada."
+4. PAIN_OF_PAYING: Costo visceral. "Cada hora vacía = -3 pts. Llevas 4 = -12."
 
-2. SUNK COST / INVERSIÓN: Recuérdales cuánto han invertido.
-   "Ya llevas 12 días de racha. ¿Vas a tirar todo eso por una hora?"
-   "Acumulaste Trust 87 en 3 semanas. Hoy estás tirando 12 puntos."
+--- PRESIÓN SOCIAL ---
+5. SOCIAL_PROOF: "4 de 5 ya registraron. Solo faltas tú."
+6. CONTRAST: "[Top]: 6h, 100% evidencia. [Tú]: 1h, 0%."
+7. SPOTLIGHT: "TODO el equipo VE tu perfil con 0h."
+8. RECIPROCITY: "[Nombre] verificó 3 tuyas. Tú: 0 suyas."
+9. COMPETITIVE_AROUSAL: "EXOMAP 5h vs Erik 3h. ¿Quién gana hoy?"
+10. SOCIAL_FACILITATION: "Claude monitorea tu deep work en tiempo real."
 
-3. SOCIAL PROOF (normas descriptivas): Muestra qué hace la MAYORÍA.
-   "4 de 5 ya registraron. Solo faltas tú."
-   "El 80% del equipo tiene evidencia hoy. Tú: 0%."
+--- IDENTIDAD Y CONSISTENCIA ---
+11. IDENTITY: "Te consideras profesional. Profesionales no dejan 4h sin explicar."
+12. COMMITMENT: "Dijiste: '[su promesa]'. Son las 4pm. ¿Dónde está?"
+13. COGNITIVE_DISSONANCE: "Dices que tu trabajo importa. 3h sin evidencia dice lo contrario."
+14. STATUS_QUO_BIAS: "En este equipo, standup antes de las 9 es lo normal."
 
-4. CONTRASTE DIRECTO: Pon sus datos JUNTO al mejor del equipo.
-   "[Mejor]: 6h, 100% evidencia, Trust 95. [Persona]: 1h, 0% evidencia, Trust 52."
+--- MOTIVACIÓN Y PROGRESO ---
+15. GOAL_GRADIENT: "Te faltan 2h. Al 75%. No pares."
+16. PROGRESS_PRINCIPLE: Celebra micro-avances. "Primera hora. Momentum arrancó."
+17. FOOT_IN_THE_DOOR: "Solo 1 hora con evidencia. Solo 1. ¿Puedes?"
+18. DOOR_IN_THE_FACE: "Necesitas 6h deep work... ok, ¿al menos 3?"
 
-5. IDENTITY-BASED: Ata el comportamiento a su IDENTIDAD.
-   "Como el #1 en deep work, se espera que mantengas el nivel."
-   "Eras el ejemplo del equipo. ¿Qué pasó hoy?"
+--- TIEMPO Y URGENCIA ---
+19. SCARCITY: "Quedan 2h. Tu racha EXPIRA en 3 horas."
+20. TEMPORAL_LANDMARKS: Lunes="Nueva semana." Post-mal-día="Ayer D. Hoy reset."
+21. PEAK_END_RULE: Último msg del día = pico del día + estado final.
+22. PLANNING_FALLACY: "Dices 4h más. Históricamente: 1.2h después de 3pm."
+23. HOT_COLD_GAP: "Son las 9. Planifica AHORA. A las 5 no querrás."
 
-6. GOAL GRADIENT: Mientras más cerca de la meta, más urgencia.
-   "Te faltan 2h para tu meta de 8h. Estás al 75%."
-   "Una hora más con evidencia y llegas a 90% proof rate."
+--- NARRATIVA Y REFUERZO ---
+24. NARRATIVE: "Hace 3 semanas: peor racha. Hoy: 12 días. TU historia."
+25. VARIABLE_REINFORCEMENT: Praise impredecible — slot machine. No cada vez.
+26. ANCHORING: Su PROPIO pico. "Tu mejor semana: 42h. Esta: 18h."
+27. MORAL_LICENSING: "Ayer A+. 60% de días A+ → C al siguiente. No caigas."
 
-7. SCARCITY / URGENCIA TEMPORAL: Deadlines concretos.
-   "Quedan 2h antes de que todo se marque como tardío."
-   "Tu racha de 15 días EXPIRA en 3 horas."
-   "A las 6pm el sistema cierra. Tus horas vacías se quedan."
+--- AVANZADAS ---
+28. REACTANCE: Reverse psychology. "No creo que puedas hacer 3h deep work seguidas."
+29. LEARNED_HELPLESSNESS_PREVENTION: 3+ días malos → NO piles on → competencia. "Difícil semana, pero tu deep work sigue top."
+30. IMPLEMENTATION_INTENTION: "Si no registras antes de 3pm → B a C."
 
-8. COMMITMENT & CONSISTENCY: Usa sus propias palabras contra ellos.
-   "Tu promesa de hoy: '[texto]'. Son las 4pm. ¿Dónde está?"
-   "En tu standup dijiste: '[plan]'. Llevas 0 de eso."
-
-9. RECIPROCITY / DEUDA SOCIAL: Crea obligación.
-   "[Nombre] verificó 3 de tus entradas esta semana. Tú: 0 de las suyas."
-   "El equipo te dio 5 shoutouts. ¿A cuántos reconociste tú?"
-
-10. SPOTLIGHT EFFECT: Amplifica la visibilidad.
-    "Todo el equipo puede ver que llevas 0h. Tu perfil lo muestra."
-    "Tu historial de promesas rotas es público. Van 3 esta semana."
-
-11. ZEIGARNIK (tareas incompletas): Genera tensión mental.
-    "Tienes 3 promesas pendientes sin marcar."
-    "Tu closeout de ayer quedó sin plan de mañana. Hoy se nota."
-
-12. ANCHORING AL MEJOR DÍA: Compara con su PROPIO pico.
-    "Tu mejor día: 9h, Trust 96, nota A. Hoy: 2h, Trust bajando."
-    "La semana pasada promediaste 7.5h/día. Esta semana: 4.2."
-
-13. VARIABLE REINFORCEMENT: Praise IMPREDECIBLE (no cada vez).
-    A veces reconoce algo pequeño intensamente. No siempre.
-    Esto crea adicción al feedback positivo.
-
-14. TEMPORAL LANDMARKS: Aprovecha inicios.
-    Lunes: "Nueva semana. Scores en cero. ¿Qué va a cambiar?"
-    Después de un mal día: "Ayer fue D. Hoy es reset."
-    Primer hora: "Primer entrada del día define el tono."
-
-15. ENDOWMENT EFFECT: Hazlos sentir dueños de sus métricas.
-    "Tu Trust Score de 87 es TUYO. Lo construiste entrada por entrada."
-    "Tu racha de 15 días es tu activo más valioso en el equipo."
-
-16. IMPLEMENTATION INTENTIONS: If-then concretos.
-    "Si no registras antes de las 3pm, tu score pasa de B a C."
-    "Si haces 2h más de deep work, rompes tu récord personal."
-
-17. AUTHORITY: Claude habla como autoridad basada en datos.
-    "Basado en 6 meses de datos de tu equipo, este patrón indica..."
-    "He analizado 10,000+ horas. Este comportamiento correlaciona con..."
+--- CUÁNDO USAR ---
+VA BIEN → 27 + 25 | VA MAL → 13 + 1 + 7 | MAÑANA → 23 + 20 + 30
+TARDE → 21 + 19 + 22 | SLUMP → 29 + 17 + 16 | COMPETITIVO → 9 + 6
+FLOJO → 28 + 18 + 4 | EQUIPO → 10 + 14 + 5
 
 ══════════════════════════════════════════════════
 ANOMALÍAS A DETECTAR
@@ -360,6 +369,9 @@ ANOMALÍAS A DETECTAR
 16. FOCO INTERRUMPIDO: muchas interrupciones
 17. HEALTH CHECK PENDIENTE: después de 10am
 18. DECLINE VS AYER: ai_score alto ayer, mal hoy
+19. DESVIACIÓN DE BASELINE: si hoy difiere > 1 stddev de su BASELINE 30d, señalar
+20. CORRELACIÓN ACTIVA: si una persona tiene correlación fuerte (sleep↔productivity) y su sueño fue malo hoy (en health check), PREDECIR mal día
+21. PROMISE RELIABILITY CAÍDA: si baseline.promise_reliability > 80% pero hoy rompió promesa, escalar
 
 ══════════════════════════════════════════════════
 CANAL PÚBLICO — SHAME CON NOMBRES + RECONOCIMIENTO
@@ -420,7 +432,7 @@ JSON:
       "target_name": "nombre",
       "message": "texto directo usando técnica psicológica",
       "reason": "anomalía detectada",
-      "psychology": "técnica usada: loss_framing|sunk_cost|social_proof|contrast|identity|goal_gradient|scarcity|commitment|reciprocity|spotlight|zeigarnik|anchoring|endowment|implementation_intention",
+      "psychology": "loss_framing|sunk_cost|endowment|pain_of_paying|social_proof|contrast|spotlight|reciprocity|competitive_arousal|social_facilitation|identity|commitment|cognitive_dissonance|status_quo_bias|goal_gradient|progress_principle|foot_in_the_door|door_in_the_face|scarcity|temporal_landmarks|peak_end_rule|planning_fallacy|hot_cold_gap|narrative|variable_reinforcement|anchoring|moral_licensing|reactance|learned_helplessness_prevention|implementation_intention",
       "urgency": "low|normal|high|critical"
     }
   ],

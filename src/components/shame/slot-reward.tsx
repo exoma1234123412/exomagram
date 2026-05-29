@@ -127,6 +127,9 @@ export function SlotReward({ trigger, onComplete }: SlotRewardProps) {
 
   const prevTrigger = useRef(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Stores the timestamp (ms) after which the slot is allowed to trigger again.
+  // Set to Date.now() + 60_000 each time a trigger fires (reward or not).
+  const cooldownEndRef = useRef<number>(0);
 
   // ---- Cleanup on unmount ----
   useEffect(() => {
@@ -196,11 +199,19 @@ export function SlotReward({ trigger, onComplete }: SlotRewardProps) {
 
   useEffect(() => {
     if (trigger && !prevTrigger.current) {
-      const reward = generateReward();
-      startSpin(reward);
+      const now = Date.now();
+      if (now < cooldownEndRef.current) {
+        // Still in cooldown — skip animation entirely and report 0 XP.
+        onComplete(0);
+      } else {
+        // Start the 60-second cooldown, then run the full slot experience.
+        cooldownEndRef.current = now + 60_000;
+        const reward = generateReward();
+        startSpin(reward);
+      }
     }
     prevTrigger.current = trigger;
-  }, [trigger, startSpin]);
+  }, [trigger, startSpin, onComplete]);
 
   // ---- Dismiss ----
   function handleDismiss() {

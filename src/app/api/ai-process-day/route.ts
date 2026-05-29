@@ -46,6 +46,8 @@ export async function POST(request: Request) {
     { data: streaks },
     { data: existingProfiles },
     { data: previousInsights },
+    { data: allBaselines },
+    { data: allCorrelations },
   ] = await Promise.all([
     supabase.from("org_members").select("user_id, role, profiles(full_name, email)").eq("org_id", orgId),
     supabase.from("time_entries").select("*").eq("org_id", orgId).gte("date", weekStart).lte("date", date).order("date").order("hour"),
@@ -57,6 +59,9 @@ export async function POST(request: Request) {
     supabase.from("activity_streaks").select("*").eq("org_id", orgId),
     supabase.from("ai_work_profiles").select("*").eq("org_id", orgId),
     supabase.from("ai_daily_insights").select("*").eq("org_id", orgId).eq("date", date),
+    // V12 — Personal baselines + correlations for context
+    supabase.from("personal_baselines").select("user_id, avg_daily_hours, stddev_daily_hours, avg_mood, avg_energy, avg_stress, avg_quality_score, avg_trust_score, trust_trend, typical_grade, promise_reliability, category_distribution, data_completeness").eq("org_id", orgId).order("computed_date", { ascending: false }),
+    supabase.from("correlation_insights").select("user_id, dimension_a, dimension_b, correlation_coefficient, strength").eq("org_id", orgId).in("strength", ["strong_positive", "strong_negative"]).order("computed_date", { ascending: false }).limit(50),
   ]);
 
   // Build context per person
@@ -104,8 +109,23 @@ export async function POST(request: Request) {
     const closeout = userCloseouts.find((c: any) => c.date === date);
     const dayPromises = userPromises.filter((p: any) => p.date === date);
 
+    // V12 — Get baseline and correlations for this person
+    const userBaseline = (allBaselines ?? []).find((b: any) => b.user_id === userId);
+    const userCorrelations = (allCorrelations ?? []).filter((c: any) => c.user_id === userId);
+
+    const baselineContext = userBaseline
+      ? `BASELINE 30d: avg=${userBaseline.avg_daily_hours ?? "?"}h/d (±${userBaseline.stddev_daily_hours ?? "?"}), mood=${userBaseline.avg_mood ?? "?"}, energy=${userBaseline.avg_energy ?? "?"}, stress=${userBaseline.avg_stress ?? "?"}, trust=${userBaseline.avg_trust_score ?? "?"} (${userBaseline.trust_trend ?? "?"}), grade=${userBaseline.typical_grade ?? "?"}, quality=${userBaseline.avg_quality_score ?? "?"}, promises=${userBaseline.promise_reliability ?? "?"}%, data_completeness=${userBaseline.data_completeness ?? "?"}%
+Distribución categorías: ${userBaseline.category_distribution ? JSON.stringify(userBaseline.category_distribution) : "sin datos"}`
+      : "BASELINE: Primera vez (sin datos de 30 días)";
+
+    const correlationContext = userCorrelations.length > 0
+      ? `CORRELACIONES FUERTES: ${userCorrelations.map((c: any) => `${c.dimension_a}↔${c.dimension_b}=${c.correlation_coefficient > 0 ? "+" : ""}${c.correlation_coefficient} (${c.strength})`).join(", ")}`
+      : "CORRELACIONES: Sin datos suficientes";
+
     const context = `PERSONA: ${name}
 ${previousProfileData}
+${baselineContext}
+${correlationContext}
 DATOS DE LA SEMANA:
 ${weekData}
 STANDUP DE HOY: ${standup ? `Ayer="${standup.yesterday}" Hoy="${standup.today_plan}" Blockers="${standup.blockers ?? "ninguno"}"` : "NO HIZO"}

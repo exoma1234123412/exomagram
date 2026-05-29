@@ -291,6 +291,18 @@ export function LogEntryDialog({
  .map((s) => s.trim())
  .filter(Boolean);
 
+ // V12 — Capture revision if editing existing entry
+ const { data: existingEntry } = await supabase
+ .from("time_entries")
+ .select("*")
+ .eq("user_id", user.id)
+ .eq("org_id", membership.org_id)
+ .eq("date", date)
+ .eq("hour", parseInt(hour))
+ .maybeSingle();
+
+ const currentVersion = existingEntry?.entry_version ?? 0;
+
  const { data: upsertedEntry, error: insertError } = await supabase.from("time_entries").upsert(
  {
  user_id: user.id,
@@ -326,6 +338,8 @@ export function LogEntryDialog({
  blocker_detail: category ==="blocked"? blockerDetail : null,
  skills_tags: skillsArray.length > 0 ? skillsArray : [],
  learning_notes: category ==="learning"? learningNotes : null,
+ // V12 — Version tracking
+ entry_version: currentVersion + 1,
  },
  { onConflict:"user_id,org_id,date,hour"}
  ).select("id").single();
@@ -336,8 +350,38 @@ export function LogEntryDialog({
  return;
  }
 
- // Store entry data for Claude followup
+ // V12 — Save revision if this was an edit (existing entry had data)
  const savedEntryId = upsertedEntry?.id ?? null;
+ if (existingEntry && savedEntryId) {
+   const newData = {
+     category, title: finalTitle, description: finalDescription || null,
+     mood, energy, proof_urls: proofArray.length > 0 ? proofArray : null,
+     difficulty, focus_quality: focusQuality, value_rating: valueRating,
+     stress_level: stressLevel, confidence: confidence, interruptions,
+     context_switches: contextSwitches, output_type: outputType, location,
+     tools_used: toolsUsed, collaborators, client_facing: clientFacing,
+     project: project.trim() || null,
+   };
+   const changedFields = Object.keys(newData).filter((k) => {
+     const oldVal = JSON.stringify((existingEntry as Record<string, unknown>)[k] ?? null);
+     const newVal = JSON.stringify((newData as Record<string, unknown>)[k] ?? null);
+     return oldVal !== newVal;
+   });
+   if (changedFields.length > 0) {
+     supabase.from("entry_revisions").insert({
+       entry_id: savedEntryId,
+       user_id: user.id,
+       org_id: membership.org_id,
+       version: currentVersion,
+       old_data: Object.fromEntries(changedFields.map((k) => [k, (existingEntry as Record<string, unknown>)[k] ?? null])),
+       new_data: Object.fromEntries(changedFields.map((k) => [k, (newData as Record<string, unknown>)[k] ?? null])),
+       changed_fields: changedFields,
+       change_source: "user",
+     }).then(() => {}); // fire-and-forget
+   }
+ }
+
+ // Store entry data for Claude followup
  setFollowupEntryId(savedEntryId);
  setFollowupCategory(category as string);
  setFollowupTitle(finalTitle);

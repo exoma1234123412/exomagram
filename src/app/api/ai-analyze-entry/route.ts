@@ -222,7 +222,11 @@ Solo JSON valido, sin texto adicional.`;
 
     await supabase
       .from("time_entries")
-      .update({ verification_note: verificationNote })
+      .update({
+        verification_note: verificationNote,
+        // V12 — Persist quality score directly on entry
+        quality_score: Math.max(0, Math.min(100, score)),
+      })
       .eq("id", entry_id);
 
     // ── 7. Create accountability flags if conflicts detected ───────

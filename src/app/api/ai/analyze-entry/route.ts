@@ -348,6 +348,12 @@ Solo JSON valido, sin texto adicional.`;
       trust_impact: trustImpact,
     });
 
+    // V12 — Persist quality_score directly on the entry (indexed, queryable)
+    await supabase
+      .from("time_entries")
+      .update({ quality_score: qualityScore })
+      .eq("id", entry_id);
+
     return NextResponse.json({ success: true, analysis });
   } catch (err) {
     const errorMessage =

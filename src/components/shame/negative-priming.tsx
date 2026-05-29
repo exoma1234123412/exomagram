@@ -17,10 +17,17 @@
 // Queries: time_entries, trust_score_history, daily_closeouts,
 // daily_promises, accountability_flags, entry_reactions.
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useOrg } from "@/lib/context/org-context";
 import { getTodayMTY, cn } from "@/lib/utils";
+
+// ---------------------------------------------------------------------------
+// Module-level fallback for environments where localStorage is unavailable
+// (private browsing, storage quota exceeded, security restrictions).
+// Keyed by the same storage key so it behaves identically to localStorage.
+// ---------------------------------------------------------------------------
+const _inMemoryPrimed = new Set<string>();
 
 // ---------------------------------------------------------------------------
 // Types
@@ -59,18 +66,25 @@ function getStorageKey(date: string): string {
 }
 
 function wasPrimedToday(todayDate: string): boolean {
+  const key = getStorageKey(todayDate);
+  // Check in-memory fallback first — covers the case where localStorage was
+  // unavailable on a previous markAsPrimed call this session.
+  if (_inMemoryPrimed.has(key)) return true;
   try {
-    return localStorage.getItem(getStorageKey(todayDate)) === "true";
+    return localStorage.getItem(key) === "true";
   } catch {
     return false;
   }
 }
 
 function markAsPrimed(todayDate: string): void {
+  const key = getStorageKey(todayDate);
+  // Always record in-memory so the check works even if localStorage fails.
+  _inMemoryPrimed.add(key);
   try {
-    localStorage.setItem(getStorageKey(todayDate), "true");
+    localStorage.setItem(key, "true");
   } catch {
-    // localStorage unavailable
+    // localStorage unavailable — in-memory fallback already set above.
   }
 }
 
@@ -105,135 +119,177 @@ export function NegativePriming() {
   const [stats, setStats] = useState<YesterdayStats | null>(null);
   const [countdown, setCountdown] = useState(5);
   const [quality, setQuality] = useState<DayQuality>("bad");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Ref used by the safety timeout so it can cancel itself after fetchData
+  // resolves normally without racing with state updates.
+  const safetyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ---- Fetch yesterday's data ----
   const fetchData = useCallback(async () => {
     if (!orgId || !userId) return;
 
-    const yesterday = getYesterdayMTY();
+    // Safety timeout: if queries haven't resolved within 8 seconds, unblock
+    // the user by auto-dismissing the overlay and marking as primed so it
+    // doesn't re-appear on the next page load.
+    safetyTimerRef.current = setTimeout(() => {
+      const today = getTodayMTY();
+      markAsPrimed(today);
+      setVisible(false);
+    }, 8000);
 
-    const [
-      entriesRes,
-      trustRes,
-      allTrustRes,
-      closeoutRes,
-      promisesRes,
-      flagsRes,
-      reactionsRes,
-    ] = await Promise.all([
-      // Hours logged yesterday
-      supabase
-        .from("time_entries")
-        .select("hour")
-        .eq("user_id", userId)
-        .eq("org_id", orgId)
-        .eq("date", yesterday)
-        .is("deleted_at", null),
-      // Trust score yesterday
-      supabase
-        .from("trust_score_history")
-        .select("score")
-        .eq("user_id", userId)
-        .eq("org_id", orgId)
-        .eq("date", yesterday)
-        .limit(1)
-        .single(),
-      // All trust scores yesterday (for rank)
-      supabase
-        .from("trust_score_history")
-        .select("user_id, score")
-        .eq("org_id", orgId)
-        .eq("date", yesterday)
-        .order("score", { ascending: false }),
-      // Closeout yesterday
-      supabase
-        .from("daily_closeouts")
-        .select("id")
-        .eq("user_id", userId)
-        .eq("org_id", orgId)
-        .eq("date", yesterday)
-        .limit(1)
-        .single(),
-      // Broken promises yesterday
-      supabase
-        .from("daily_promises")
-        .select("title, status")
-        .eq("user_id", userId)
-        .eq("org_id", orgId)
-        .eq("date", yesterday)
-        .eq("status", "broken"),
-      // Flags raised yesterday
-      supabase
-        .from("accountability_flags")
-        .select("id")
-        .eq("user_id", userId)
-        .eq("org_id", orgId)
-        .eq("date", yesterday),
-      // Suspicious reactions on yesterday's entries
-      supabase
-        .from("time_entries")
-        .select("id")
-        .eq("user_id", userId)
-        .eq("org_id", orgId)
-        .eq("date", yesterday)
-        .is("deleted_at", null),
-    ]);
+    try {
+      const yesterday = getYesterdayMTY();
 
-    // Count unique hours
-    const uniqueHours = new Set((entriesRes.data ?? []).map((e) => e.hour));
-    const hoursLogged = uniqueHours.size;
+      const [
+        entriesRes,
+        trustRes,
+        allTrustRes,
+        closeoutRes,
+        promisesRes,
+        flagsRes,
+        reactionsRes,
+      ] = await Promise.all([
+        // Hours logged yesterday
+        supabase
+          .from("time_entries")
+          .select("hour")
+          .eq("user_id", userId)
+          .eq("org_id", orgId)
+          .eq("date", yesterday)
+          .is("deleted_at", null),
+        // Trust score yesterday
+        supabase
+          .from("trust_score_history")
+          .select("score")
+          .eq("user_id", userId)
+          .eq("org_id", orgId)
+          .eq("date", yesterday)
+          .limit(1)
+          .single(),
+        // All trust scores yesterday (for rank)
+        supabase
+          .from("trust_score_history")
+          .select("user_id, score")
+          .eq("org_id", orgId)
+          .eq("date", yesterday)
+          .order("score", { ascending: false }),
+        // Closeout yesterday
+        supabase
+          .from("daily_closeouts")
+          .select("id")
+          .eq("user_id", userId)
+          .eq("org_id", orgId)
+          .eq("date", yesterday)
+          .limit(1)
+          .single(),
+        // Broken promises yesterday
+        supabase
+          .from("daily_promises")
+          .select("title, status")
+          .eq("user_id", userId)
+          .eq("org_id", orgId)
+          .eq("date", yesterday)
+          .eq("status", "broken"),
+        // Flags raised yesterday
+        supabase
+          .from("accountability_flags")
+          .select("id")
+          .eq("user_id", userId)
+          .eq("org_id", orgId)
+          .eq("date", yesterday),
+        // Suspicious reactions on yesterday's entries
+        supabase
+          .from("time_entries")
+          .select("id")
+          .eq("user_id", userId)
+          .eq("org_id", orgId)
+          .eq("date", yesterday)
+          .is("deleted_at", null),
+      ]);
 
-    // Trust score and rank
-    const trustScore = trustRes.data?.score ?? null;
-    const allScores = allTrustRes.data ?? [];
-    let rank: number | null = null;
-    let totalMembers: number | null = null;
-    if (allScores.length > 0) {
-      totalMembers = allScores.length;
-      const idx = allScores.findIndex((s) => s.user_id === userId);
-      rank = idx >= 0 ? idx + 1 : null;
+      // Count unique hours
+      const uniqueHours = new Set((entriesRes.data ?? []).map((e) => e.hour));
+      const hoursLogged = uniqueHours.size;
+
+      // Trust score and rank
+      const trustScore = trustRes.data?.score ?? null;
+      const allScores = allTrustRes.data ?? [];
+      let rank: number | null = null;
+      let totalMembers: number | null = null;
+      if (allScores.length > 0) {
+        totalMembers = allScores.length;
+        const idx = allScores.findIndex((s) => s.user_id === userId);
+        rank = idx >= 0 ? idx + 1 : null;
+      }
+
+      // Closeout
+      const hadCloseout = !!closeoutRes.data;
+
+      // Broken promises
+      const brokenPromises = (promisesRes.data ?? []).map((p) => p.title);
+
+      // Flags
+      const flagCount = flagsRes.data?.length ?? 0;
+
+      // Suspicious reactions: fetch reactions for yesterday's entries
+      const entryIds = (reactionsRes.data ?? []).map((e) => e.id);
+      let suspiciousReactions = 0;
+      if (entryIds.length > 0) {
+        const { data: reactions } = await supabase
+          .from("entry_reactions")
+          .select("id")
+          .in("entry_id", entryIds)
+          .eq("reaction", "suspicious");
+        suspiciousReactions = reactions?.length ?? 0;
+      }
+
+      const result: YesterdayStats = {
+        hoursLogged,
+        trustScore,
+        rank,
+        totalMembers,
+        hadCloseout,
+        brokenPromises,
+        flagCount,
+        suspiciousReactions,
+      };
+
+      setStats(result);
+
+      const q = assessQuality(result);
+      setQuality(q);
+      // Good day gets 2-second timer, bad day gets 5
+      setCountdown(q === "good" ? 2 : 5);
+      setLoading(false);
+    } catch {
+      // Any query error: show a brief message, then auto-dismiss after 2
+      // seconds so the user is never permanently blocked.
+      setErrorMessage("No se pudo cargar datos de ayer");
+      setLoading(false);
+      setTimeout(() => {
+        const today = getTodayMTY();
+        markAsPrimed(today);
+        setVisible(false);
+      }, 2000);
+    } finally {
+      // Cancel the safety timeout if fetchData finished (success or error)
+      // before the 8-second deadline.
+      if (safetyTimerRef.current !== null) {
+        clearTimeout(safetyTimerRef.current);
+        safetyTimerRef.current = null;
+      }
     }
-
-    // Closeout
-    const hadCloseout = !!closeoutRes.data;
-
-    // Broken promises
-    const brokenPromises = (promisesRes.data ?? []).map((p) => p.title);
-
-    // Flags
-    const flagCount = flagsRes.data?.length ?? 0;
-
-    // Suspicious reactions: fetch reactions for yesterday's entries
-    const entryIds = (reactionsRes.data ?? []).map((e) => e.id);
-    let suspiciousReactions = 0;
-    if (entryIds.length > 0) {
-      const { data: reactions } = await supabase
-        .from("entry_reactions")
-        .select("id")
-        .in("entry_id", entryIds)
-        .eq("reaction", "suspicious");
-      suspiciousReactions = reactions?.length ?? 0;
-    }
-
-    const result: YesterdayStats = {
-      hoursLogged,
-      trustScore,
-      rank,
-      totalMembers,
-      hadCloseout,
-      brokenPromises,
-      flagCount,
-      suspiciousReactions,
-    };
-
-    setStats(result);
-
-    const q = assessQuality(result);
-    setQuality(q);
-    // Good day gets 2-second timer, bad day gets 5
-    setCountdown(q === "good" ? 2 : 5);
-    setLoading(false);
   }, [orgId, userId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ---- Cleanup safety timer on unmount ----
+  useEffect(() => {
+    return () => {
+      if (safetyTimerRef.current !== null) {
+        clearTimeout(safetyTimerRef.current);
+      }
+    };
+  }, []);
 
   // ---- Check if should show ----
   useEffect(() => {
@@ -350,6 +406,26 @@ export function NegativePriming() {
             <p className="font-mono text-[10px] text-muted-foreground mt-4 uppercase tracking-[0.2em]">
               Analizando...
             </p>
+            {/* Escape hatch — nearly invisible, exists only to unblock the
+                user if something goes wrong during the loading phase. */}
+            <button
+              onClick={handleDismiss}
+              className="absolute bottom-2 right-3 font-mono text-[8px] text-muted-foreground/20 hover:text-muted-foreground/40 transition-colors"
+            >
+              Saltar
+            </button>
+          </div>
+        )}
+
+        {/* Error state — auto-dismisses after 2 s, shown when queries fail */}
+        {!loading && errorMessage && (
+          <div>
+            <p className="font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-6">
+              RESUMEN DE AYER
+            </p>
+            <p className="font-mono text-sm text-muted-foreground">
+              {errorMessage}
+            </p>
           </div>
         )}
 
@@ -379,7 +455,7 @@ export function NegativePriming() {
             </div>
 
             {/* Countdown / dismiss */}
-            <div className="mt-8">
+            <div className="mt-8 relative">
               {countdown > 0 ? (
                 <p className="font-mono text-[10px] text-muted-foreground/60">
                   Puedes cerrar en {countdown} segundo{countdown !== 1 ? "s" : ""}
@@ -390,6 +466,15 @@ export function NegativePriming() {
                   className="bg-primary text-primary-foreground font-mono text-xs px-6 py-2.5 transition-colors duration-150 hover:bg-primary/90"
                 >
                   Entendido
+                </button>
+              )}
+              {/* Escape hatch — nearly invisible during the forced wait */}
+              {countdown > 0 && (
+                <button
+                  onClick={handleDismiss}
+                  className="absolute bottom-0 right-0 font-mono text-[8px] text-muted-foreground/20 hover:text-muted-foreground/40 transition-colors"
+                >
+                  Saltar
                 </button>
               )}
             </div>
@@ -409,7 +494,7 @@ export function NegativePriming() {
             </p>
 
             {/* Countdown / dismiss */}
-            <div className="mt-8">
+            <div className="mt-8 relative">
               {countdown > 0 ? (
                 <p className="font-mono text-[10px] text-muted-foreground/60">
                   Puedes cerrar en {countdown} segundo{countdown !== 1 ? "s" : ""}
@@ -422,12 +507,21 @@ export function NegativePriming() {
                   Entendido
                 </button>
               )}
+              {/* Escape hatch — nearly invisible during the forced wait */}
+              {countdown > 0 && (
+                <button
+                  onClick={handleDismiss}
+                  className="absolute bottom-0 right-0 font-mono text-[8px] text-muted-foreground/20 hover:text-muted-foreground/40 transition-colors"
+                >
+                  Saltar
+                </button>
+              )}
             </div>
           </div>
         )}
 
-        {/* No data edge case */}
-        {!loading && !stats && (
+        {/* No data edge case — only shown when there was no error and no stats */}
+        {!loading && !stats && !errorMessage && (
           <div>
             <p className="font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-6">
               RESUMEN DE AYER

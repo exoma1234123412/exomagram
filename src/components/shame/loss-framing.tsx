@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useOrg } from "@/lib/context/org-context";
 import { getTodayMTY } from "@/lib/utils";
@@ -11,6 +11,8 @@ import {
   Clock,
   Flame,
   ShieldAlert,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -35,6 +37,8 @@ interface LossAlert {
 
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 const MAX_ALERTS = 5;
+const DEFAULT_VISIBLE = 3;
+const AUTO_COLLAPSE_MS = 30_000; // 30 seconds
 
 const URGENCY_ORDER: Record<AlertUrgency, number> = {
   critical: 0,
@@ -84,6 +88,11 @@ export function LossFramingAlerts() {
   const supabase = createClient();
   const [alerts, setAlerts] = useState<LossAlert[]>([]);
   const [loading, setLoading] = useState(true);
+  // true = all alerts visible; false = collapsed to summary line
+  const [expanded, setExpanded] = useState(true);
+  // true = overflow alerts (beyond DEFAULT_VISIBLE) are shown
+  const [overflowOpen, setOverflowOpen] = useState(false);
+  const collapseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const generateAlerts = useCallback(async () => {
     if (!orgId || !userId) return;
@@ -242,12 +251,55 @@ export function LossFramingAlerts() {
     return () => clearInterval(interval);
   }, [orgId, userId, generateAlerts]);
 
+  // Auto-collapse after 30 s; reset timer whenever user expands
+  useEffect(() => {
+    if (!expanded) return;
+
+    if (collapseTimerRef.current) clearTimeout(collapseTimerRef.current);
+    collapseTimerRef.current = setTimeout(() => {
+      setExpanded(false);
+      setOverflowOpen(false);
+    }, AUTO_COLLAPSE_MS);
+
+    return () => {
+      if (collapseTimerRef.current) clearTimeout(collapseTimerRef.current);
+    };
+  }, [expanded]);
+
   if (loading || !orgId || !userId) return null;
   if (alerts.length === 0) return null;
 
+  // Collapsed state: single summary line
+  if (!expanded) {
+    const criticalCount = alerts.filter((a) => a.urgency === "critical").length;
+    return (
+      <button
+        type="button"
+        onClick={() => setExpanded(true)}
+        className="w-full border border-red-500/20 bg-red-950/5 px-3 py-2 flex items-center gap-2 text-left"
+      >
+        <ShieldAlert className="size-3 shrink-0 text-red-400" />
+        <span className="font-mono text-[11px] text-foreground flex-1">
+          {alerts.length} pérdidas activas
+          {criticalCount > 0 && (
+            <span className="text-red-400 font-bold animate-pulse ml-1">
+              ({criticalCount} críticas)
+            </span>
+          )}
+        </span>
+        <ChevronDown className="size-3 shrink-0 text-muted-foreground" />
+      </button>
+    );
+  }
+
+  // Expanded state: show up to DEFAULT_VISIBLE alerts, overflow indicator if more exist
+  const visibleAlerts = overflowOpen ? alerts : alerts.slice(0, DEFAULT_VISIBLE);
+  const overflowCount = alerts.length - DEFAULT_VISIBLE;
+  const hasOverflow = alerts.length > DEFAULT_VISIBLE;
+
   return (
     <div className="space-y-1">
-      {alerts.map((alert) => (
+      {visibleAlerts.map((alert) => (
         <div
           key={alert.id}
           className="border border-red-500/20 bg-red-950/5 px-3 py-2 flex items-center gap-2"
@@ -268,6 +320,25 @@ export function LossFramingAlerts() {
           </span>
         </div>
       ))}
+
+      {hasOverflow && (
+        <button
+          type="button"
+          onClick={() => setOverflowOpen((prev) => !prev)}
+          className="w-full border border-red-500/10 bg-red-950/5 px-3 py-1.5 flex items-center gap-2 text-left"
+        >
+          {overflowOpen ? (
+            <ChevronUp className="size-3 shrink-0 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="size-3 shrink-0 text-muted-foreground" />
+          )}
+          <span className="font-mono text-[11px] text-muted-foreground flex-1">
+            {overflowOpen
+              ? "Mostrar menos"
+              : `Y +${overflowCount} más ${overflowCount === 1 ? "alerta" : "alertas"}`}
+          </span>
+        </button>
+      )}
     </div>
   );
 }

@@ -48,6 +48,21 @@ export interface Organization {
   created_at: string;
 }
 
+export type ProjectStatus = "active" | "archived" | "completed";
+
+export interface Project {
+  id: string;
+  org_id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  status: ProjectStatus;
+  color: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface OrgMember {
   id: string;
   org_id: string;
@@ -91,6 +106,7 @@ export interface TimeEntry {
   verification_note: string | null;
   verified_by: string | null;
   project: string | null;
+  project_id: string | null;
   // V10 — Extended data collection
   difficulty: MoodLevel | null;
   focus_quality: MoodLevel | null;
@@ -108,6 +124,9 @@ export interface TimeEntry {
   blocker_detail: string | null;
   skills_tags: string[];
   learning_notes: string | null;
+  // V12 — Quality + versioning
+  quality_score: number | null;
+  entry_version: number;
   created_at: string;
   updated_at: string;
   // V11 — Soft deletes
@@ -1104,4 +1123,126 @@ export interface EntryDeletionLog {
   reason: string | null;
   entry_snapshot: Record<string, unknown>;
   deleted_at: string;
+}
+
+// ============================================================
+// V12 — Data Intelligence
+// ============================================================
+
+export type ChangeSource = "user" | "ai_enrich" | "ai_validation" | "admin";
+
+export interface EntryRevision {
+  id: string;
+  entry_id: string;
+  user_id: string;
+  org_id: string;
+  version: number;
+  old_data: Record<string, unknown>;
+  new_data: Record<string, unknown>;
+  changed_fields: string[];
+  change_source: ChangeSource;
+  ai_validation_result: Record<string, unknown> | null;
+  created_at: string;
+}
+
+export interface PersonalBaseline {
+  id: string;
+  user_id: string;
+  org_id: string;
+  computed_date: string;
+  window_days: number;
+  avg_daily_hours: number | null;
+  stddev_daily_hours: number | null;
+  median_daily_hours: number | null;
+  category_distribution: Record<string, number> | null;
+  avg_quality_score: number | null;
+  avg_proof_rate: number | null;
+  avg_late_rate: number | null;
+  avg_mood: number | null;
+  avg_energy: number | null;
+  avg_stress: number | null;
+  avg_focus_quality: number | null;
+  avg_difficulty: number | null;
+  avg_confidence: number | null;
+  typical_start_hour: number | null;
+  typical_end_hour: number | null;
+  peak_productivity_hours: number[] | null;
+  meeting_heavy_days: number[] | null;
+  avg_interruptions_per_hour: number | null;
+  avg_context_switches_per_hour: number | null;
+  avg_daily_collaborators: number | null;
+  standup_rate: number | null;
+  closeout_rate: number | null;
+  health_check_rate: number | null;
+  promise_reliability: number | null;
+  avg_trust_score: number | null;
+  trust_trend: string | null;
+  avg_ai_score: number | null;
+  typical_grade: string | null;
+  avg_sleep_hours: number | null;
+  avg_sleep_quality: number | null;
+  avg_exercise_minutes: number | null;
+  avg_daily_commits: number | null;
+  avg_daily_lines: number | null;
+  avg_daily_prs: number | null;
+  data_completeness: number | null;
+  entries_in_window: number | null;
+  days_with_data: number | null;
+  created_at: string;
+}
+
+export type CorrelationStrength =
+  | "strong_positive"
+  | "moderate_positive"
+  | "weak"
+  | "moderate_negative"
+  | "strong_negative";
+
+export interface CorrelationInsight {
+  id: string;
+  user_id: string | null;
+  org_id: string;
+  computed_date: string;
+  window_days: number;
+  dimension_a: string;
+  dimension_b: string;
+  correlation_coefficient: number | null;
+  p_value: number | null;
+  sample_size: number | null;
+  strength: CorrelationStrength | null;
+  insight: string | null;
+  actionable: boolean;
+  recommendation: string | null;
+  confidence: number | null;
+  data_quality: string | null;
+  created_at: string;
+}
+
+// ============================================================
+// V13 — Event Log
+// ============================================================
+
+export interface EventLog {
+  id: string;
+  org_id: string;
+  user_id: string;
+  event_type: string;
+  data: Record<string, unknown>;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+// ============================================================
+// V14 — AI Memory
+// ============================================================
+
+export interface AIMemory {
+  id: string;
+  user_id: string;
+  org_id: string;
+  memory_type: string;
+  content: Record<string, unknown>;
+  summary: string | null;
+  expires_at: string | null;
+  created_at: string;
 }

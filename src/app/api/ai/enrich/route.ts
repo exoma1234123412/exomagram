@@ -274,6 +274,11 @@ Solo JSON valido (el array), sin texto adicional.`;
         updates.could_be_async = suggestion.could_be_async;
       }
 
+      // V12 — quality_score (always update to latest AI assessment)
+      if (suggestion.quality_score != null) {
+        updates.quality_score = Math.max(0, Math.min(100, Math.round(suggestion.quality_score)));
+      }
+
       if (Object.keys(updates).length === 0) continue;
 
       updates.updated_at = new Date().toISOString();

@@ -18,20 +18,23 @@ export const metadata: Metadata = {
  template:"%s | Exomagram",
  },
  description:
-"Ve exactamente qué hace cada miembro de tu equipo, hora por hora. Vigilancia total para equipos que exigen resultados.",
+"Cada hora queda registrada. Cada excusa queda expuesta. Vigilancia total para equipos que exigen resultados.",
  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ||"https://exomagram.com"),
  openGraph: {
  title:"Exomagram — Vigilancia Total del Trabajo",
- description:"Vigilancia total para equipos que exigen resultados.",
+ description:"Cada hora queda registrada. Cada excusa queda expuesta.",
  type:"website",
+ siteName:"Exomagram",
+ locale:"es_MX",
+ },
+ twitter: {
+ card:"summary_large_image",
+ title:"Exomagram — Vigilancia Total del Trabajo",
+ description:"Cada hora queda registrada. Cada excusa queda expuesta.",
  },
  robots: {
  index: false,
  follow: false,
- googleBot: {
- index: false,
- follow: false,
- },
  },
 };
 
@@ -42,7 +45,7 @@ export default function RootLayout({
 }>) {
  return (
  <html
- lang="en"className={`${geistSans.variable} ${geistMono.variable} h-full dark`}
+ lang="es"className={`${geistSans.variable} ${geistMono.variable} h-full dark`}
  >
  <head>
  <link rel="manifest"href="/manifest.json"/>

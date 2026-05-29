@@ -1,57 +1,86 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, RefreshCw, Home } from "lucide-react";
+import { RefreshCw, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Logo } from "@/components/layout/logo";
 
 export default function AppError({
- error,
- reset,
+  error,
+  reset,
 }: {
- error: Error & { digest?: string };
- reset: () => void;
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
- useEffect(() => {
- console.error("App section error:", error);
- }, [error]);
+  const [showDetails, setShowDetails] = useState(false);
 
- return (
- <div className="flex items-center justify-center min-h-[60vh] px-4">
- <Card className="max-w-md w-full">
- <CardContent className="p-8 text-center space-y-4">
- <div className="w-16 h-16 bg-destructive/10 flex items-center justify-center mx-auto">
- <AlertTriangle className="w-8 h-8 text-destructive"/>
- </div>
- <h2 className="text-xl font-bold tracking-tight">Algo salió mal</h2>
- <p className="text-sm text-muted-foreground">
- Ocurrió un error inesperado. Intenta recargar la página.
- </p>
- {process.env.NODE_ENV ==="development"&& error.message && (
- <div className="bg-destructive/5 border border-destructive/20 p-3">
- <p className="text-xs text-destructive/70 font-mono break-all text-left">
- {error.message}
- </p>
- {error.digest && (
- <p className="text-[10px] text-muted-foreground font-mono mt-1 text-left">
- Digest: {error.digest}
- </p>
- )}
- </div>
- )}
- <div className="flex gap-2 justify-center pt-2">
- <Button onClick={reset} variant="outline"className="gap-2">
- <RefreshCw className="w-4 h-4"/>
- Reintentar
- </Button>
- <Button className="gap-2"render={<Link href="/feed"/>}>
- <Home className="w-4 h-4"/>
- Volver al inicio
- </Button>
- </div>
- </CardContent>
- </Card>
- </div>
- );
+  useEffect(() => {
+    console.error("App section error:", error);
+  }, [error]);
+
+  return (
+    <div className="flex items-center justify-center min-h-[60vh] px-4">
+      <div className="relative max-w-md w-full border border-border animate-border-pulse p-8 space-y-6">
+        {/* Corner marks */}
+        <span className="absolute -top-px -left-px w-3 h-3 border-t border-l border-primary" />
+        <span className="absolute -top-px -right-px w-3 h-3 border-t border-r border-primary" />
+        <span className="absolute -bottom-px -left-px w-3 h-3 border-b border-l border-primary" />
+        <span className="absolute -bottom-px -right-px w-3 h-3 border-b border-r border-primary" />
+
+        <div className="flex flex-col items-center gap-4 text-center">
+          <Logo size={40} />
+          <div className="space-y-1">
+            <h2 className="font-mono text-xl font-bold uppercase tracking-tight">
+              ERROR DEL SISTEMA
+            </h2>
+            <p className="text-sm font-mono text-muted-foreground">
+              Algo falló — pero la vigilancia continúa.
+            </p>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            El equipo no se va a vigilar solo. Vuelve al dashboard.
+          </p>
+        </div>
+
+        <div className="flex gap-2 justify-center">
+          <Button onClick={reset} className="gap-2 font-mono text-xs bg-primary">
+            <RefreshCw className="w-3.5 h-3.5" />
+            Reintentar
+          </Button>
+          <Button variant="outline" className="gap-2 font-mono text-xs" render={<Link href="/dashboard" />}>
+            Ir al Dashboard
+          </Button>
+        </div>
+
+        {(error.message || error.digest) && (
+          <div className="space-y-2">
+            <button
+              onClick={() => setShowDetails((v) => !v)}
+              className="flex items-center gap-1 font-mono text-[10px] text-muted-foreground/60 uppercase tracking-widest mx-auto hover:text-muted-foreground transition-colors duration-200"
+            >
+              Detalles del error
+              <ChevronDown
+                className={`w-3 h-3 transition-transform duration-200 ${showDetails ? "rotate-180" : ""}`}
+              />
+            </button>
+            {showDetails && (
+              <div className="bg-destructive/5 border border-destructive/20 p-3 space-y-1">
+                {error.message && (
+                  <p className="font-mono text-[10px] text-muted-foreground/50 break-all text-left">
+                    {error.message}
+                  </p>
+                )}
+                {error.digest && (
+                  <p className="font-mono text-[10px] text-muted-foreground/50 text-left">
+                    digest: {error.digest}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

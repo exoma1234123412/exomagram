@@ -31,8 +31,10 @@ import { AIMorningBriefing } from "@/components/ai/ai-morning-briefing";
 import { MorningShameRecap } from "@/components/social/morning-shame-recap";
 import { OrgProvider } from "@/lib/context/org-context";
 import { ActivityTrackerProvider } from "@/components/tracking/activity-tracker";
+import { DataPipelineProvider } from "@/components/tracking/data-pipeline";
 import { ClaudeLiveCommentary } from "@/components/ai/claude-live-commentary";
 import { AIAutoFlags } from "@/components/ai/ai-auto-flags";
+import { AudioProvider } from "@/components/audio/audio-provider";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
  const [logDialogOpen, setLogDialogOpen] = useState(false);
@@ -45,7 +47,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
  return (
  <OrgProvider>
+ <AudioProvider>
  <ActivityTrackerProvider>
+ <DataPipelineProvider>
  <HeartbeatProvider>
  <DynamicTitleProvider>
  <ThroneProvider>
@@ -54,9 +58,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
  <MorningShameRecap />
  <div className="flex min-h-screen bg-background">
  <Sidebar />
- <main className="flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0 min-w-0 relative bg-grid-palantir">
- {/* Top accent line */}
- <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent"/>
+ <main className="flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0 min-w-0 relative">
  <PublicCountdown />
  <HerdPressure />
  <RankingStrip />
@@ -91,7 +93,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
  </ThroneProvider>
  </DynamicTitleProvider>
  </HeartbeatProvider>
+ </DataPipelineProvider>
  </ActivityTrackerProvider>
+ </AudioProvider>
  </OrgProvider>
  );
 }

@@ -92,65 +92,75 @@ export async function POST(request: Request) {
     max_tokens: 3000,
     messages: [{
       role: "user",
-      content: `Eres el AI Manager de Exoma. Son las ${currentHour}:00. Genera notificaciones que INCITEN ACCIÓN usando psicología conductual.
+      content: `Eres el AI Manager de Exomagram. Son las ${currentHour}:00. Genera notificaciones que CAMBIEN COMPORTAMIENTO usando psicología conductual avanzada.
 
 ESTADO DEL EQUIPO:
 ${state}
 
-Genera DOS tipos de notificaciones:
+═══ 30 TÉCNICAS PSICOLÓGICAS — USA MÍNIMO 1 POR MENSAJE ═══
 
-═══ PUBLIC SHAME — CON NOMBRES, TODO EL EQUIPO VE ═══
-Estas situaciones se exponen PÚBLICAMENTE con nombre completo. Sin anonimizar. Sin suavizar:
-- 0 horas al mediodía: "[Nombre] lleva 0 horas a las [hora]. El equipo lleva [X] promedio."
-- Entrada rechazada por Claude: "[Nombre] no pudo describir su trabajo. Claude rechazó la entrada."
-- Promesa rota: "[Nombre] rompió su promesa: '[título]'."
-- Sin standup a las 10am: "[Nombre] no ha hecho standup. [X]/[Y] ya lo hicieron."
-- Sin closeout al final del día: "[Nombre] no cerró su día."
-- Trust Score < 50: "[Nombre] tiene Trust Score de [X]. Nivel crítico."
-- Racha rota: "[Nombre] perdió su racha de [X] días."
-- 3+ flags sin resolver: "[Nombre] acumula [X] alertas sin resolver."
-- 0 evidencia en todas las entradas: "[Nombre] registró [X]h sin una sola evidencia."
-- Ghost (online pero sin actividad): "[Nombre] dice estar online pero [X] min sin actividad."
-- Meeting tax > 50%: "[Nombre] lleva [X]h de [Y]h en reuniones."
-- Git vs horas: "[Nombre] dice [X]h deep work pero 0 commits hoy."
-- También: reconocimiento positivo, datos del equipo, milestones, retos grupales.
+--- AVERSIÓN ---
+1.LOSS_FRAMING: "PIERDES 5 pts" no "ganas 5" | 2.SUNK_COST: "12 días invertidos. ¿Los tiras?" | 3.ENDOWMENT: "Tu Trust 87 es TUYO" | 4.PAIN_OF_PAYING: "Cada hora vacía = -3 pts"
+--- PRESIÓN SOCIAL ---
+5.SOCIAL_PROOF: "4/5 ya hicieron. Solo tú faltas" | 6.CONTRAST: "[Top] 6h 100% vs [Tú] 1h 0%" | 7.SPOTLIGHT: "El equipo VE tu 0h" | 8.RECIPROCITY: "Verificó 3 tuyas. Tú: 0 suyas" | 9.COMPETITIVE_AROUSAL: "EXOMAP 5h vs Erik 3h" | 10.SOCIAL_FACILITATION: "Claude monitorea en vivo"
+--- IDENTIDAD ---
+11.IDENTITY: "Profesionales no dejan 4h sin explicar" | 12.COMMITMENT: "Dijiste: '[promesa]'. ¿Dónde?" | 13.COGNITIVE_DISSONANCE: "Dices que importa. 3h sin evidencia dice lo contrario" | 14.STATUS_QUO_BIAS: "Standup antes de 9 es lo normal aquí"
+--- PROGRESO ---
+15.GOAL_GRADIENT: "Faltan 2h. Al 75%" | 16.PROGRESS_PRINCIPLE: "Primera hora. Momentum" | 17.FOOT_IN_THE_DOOR: "Solo 1h con evidencia. ¿Puedes?" | 18.DOOR_IN_THE_FACE: "6h deep work... ok, ¿3?"
+--- TIEMPO ---
+19.SCARCITY: "Racha EXPIRA en 3h" | 20.TEMPORAL_LANDMARKS: "Lunes = reset" | 21.PEAK_END_RULE: último msg = pico+estado | 22.PLANNING_FALLACY: "Dices 4h más. Historial: 1.2h" | 23.HOT_COLD_GAP: "9am: planifica AHORA. 5pm no querrás"
+--- NARRATIVA ---
+24.NARRATIVE: "Hace 3 sem peor racha. Hoy 12 días. TU historia" | 25.VARIABLE_REINFORCEMENT: praise impredecible=adicción | 26.ANCHORING: "Tu pico: 42h. Esta semana: 18h" | 27.MORAL_LICENSING: "Ayer A+. 60% → C al siguiente"
+--- AVANZADAS ---
+28.REACTANCE: reverse psych "No creo que puedas 3h deep work" | 29.LEARNED_HELPLESSNESS_PREVENTION: 3+ días malos → no piles on, cambia a competencia | 30.IMPLEMENTATION_INTENTION: "Si no antes de 3pm → B a C"
 
-═══ PRIVADO — SOLO EL INDIVIDUO VE ═══
-Solo salud/bienestar se comunica en privado:
-- Sueño malo, estrés alto, mood bajo: coaching empático
-- Loss aversion: "Tu score bajará X si no..."
-- Retos personalizados: "Llevas 3h deep work, ¿puedes llegar a 4?"
-- Tips basados en perfil de personalidad
+CUÁNDO:
+BIEN→27+25 | MAL→13+1+7 | MAÑANA→23+20+30 | TARDE→21+19+22
+SLUMP→29+17+16 | COMPETITIVO→9+6 | FLOJO→28+18+4 | EQUIPO→10+14+5
+
+═══ PUBLIC SHAME — NOMBRES COMPLETOS ═══
+Shame OBLIGATORIO si aplica (elige técnica según contexto arriba):
+- 0h al mediodía → CONTRAST+SOCIAL_PROOF | Rechazada → SPOTLIGHT+COGNITIVE_DISSONANCE
+- Promesa rota → COMMITMENT (cita sus palabras) | Sin standup → SOCIAL_PROOF+STATUS_QUO
+- Trust<50 → ENDOWMENT+SUNK_COST | Racha rota → SUNK_COST+NARRATIVE
+- 0 evidencia → SOCIAL_PROOF ("único sin") | Ghost → SPOTLIGHT+SOCIAL_FACILITATION
+- Meeting>50% → ANCHORING | Git vs horas → CONTRAST+COGNITIVE_DISSONANCE
+Positivo → VARIABLE_REINFORCEMENT (no siempre, sorprende)
+
+═══ PRIVADO — SOLO SALUD/BIENESTAR + COACHING ═══
+Sueño/estrés/mood: coaching empático. Retos: GOAL_GRADIENT+SCARCITY. Tips: perfil AI.
 
 REGLAS:
-- NOMBRES COMPLETOS en público. Nunca "alguien" o "un miembro del equipo"
-- Salud/bienestar NUNCA se expone públicamente
-- Números concretos SIEMPRE
-- Cada notificación = 1 call-to-action claro
-- Español mexicano informal, directo, brutal
+- NOMBRES COMPLETOS en público siempre
+- En "psychology" indica la técnica usada
+- Salud NUNCA público
+- Números concretos siempre
+- 1 call-to-action por mensaje
+- Español mexicano informal, brutal
 
 JSON:
 {
   "private_notifications": [
     {
       "target_name": "nombre",
-      "message": "texto directo con datos",
-      "psychology": "qué principio psicológico usaste",
+      "message": "texto aplicando técnica",
+      "psychology": "loss_framing|sunk_cost|endowment|pain_of_paying|social_proof|contrast|spotlight|reciprocity|competitive_arousal|social_facilitation|identity|commitment|cognitive_dissonance|status_quo_bias|goal_gradient|progress_principle|foot_in_the_door|door_in_the_face|scarcity|temporal_landmarks|peak_end_rule|planning_fallacy|hot_cold_gap|narrative|variable_reinforcement|anchoring|moral_licensing|reactance|learned_helplessness_prevention|implementation_intention",
       "call_to_action": "acción específica",
       "urgency": "low/normal/high/critical"
     }
   ],
   "public_feed": [
     {
-      "type": "praise/milestone/challenge/team_update/ai_announcement",
+      "type": "shame/praise/milestone/challenge/team_update/ai_announcement/warning",
       "title": "título corto",
-      "body": "texto del feed",
-      "target_name": "nombre o null para team-wide",
-      "emoji": "1 emoji relevante",
-      "urgency": "low/normal/high"
+      "body": "texto con nombre completo",
+      "target_name": "nombre o null",
+      "psychology": "técnica usada",
+      "emoji": "1 emoji",
+      "urgency": "low/normal/high/critical"
     }
   ],
-  "skipped": ["nombres de personas que no necesitan notificación ahora y por qué"]
+  "skipped": ["nombres y razón por la que no necesitan mensaje"]
 }
 
 Solo JSON válido.`,
