@@ -256,3 +256,113 @@ export interface Subscription {
   cancelled_at: string | null;
   created_at: string;
 }
+
+// ============================================================
+// Creative Features (v7)
+// ============================================================
+
+export interface TribunalSession {
+  id: string;
+  org_id: string;
+  date: string;
+  entry_id: string;
+  nominated_user_id: string;
+  reason: string | null;
+  status: "voting" | "guilty" | "innocent" | "expired";
+  guilty_votes: number;
+  innocent_votes: number;
+  created_at: string;
+}
+
+export interface TribunalVote {
+  id: string;
+  session_id: string;
+  user_id: string;
+  vote: "guilty" | "innocent";
+  created_at: string;
+}
+
+export interface Prediction {
+  id: string;
+  org_id: string;
+  created_by: string;
+  question: string;
+  type: "yes_no" | "numeric" | "person";
+  resolution_date: string;
+  status: "open" | "resolved_yes" | "resolved_no" | "cancelled";
+  actual_value: string | null;
+  created_at: string;
+}
+
+export interface PredictionBet {
+  id: string;
+  prediction_id: string;
+  user_id: string;
+  bet: string;
+  confidence: number;
+  is_correct: boolean | null;
+  created_at: string;
+}
+
+export interface FocusDuel {
+  id: string;
+  org_id: string;
+  challenger_id: string;
+  opponent_id: string;
+  date: string;
+  status: "pending" | "active" | "completed" | "declined";
+  challenger_hours: number;
+  opponent_hours: number;
+  winner_id: string | null;
+  loser_confession: string | null;
+  created_at: string;
+}
+
+export interface MeetingRating {
+  id: string;
+  entry_id: string;
+  user_id: string;
+  org_id: string;
+  rating: number;
+  would_skip: boolean;
+  comment: string | null;
+  created_at: string;
+}
+
+export interface PanicEvent {
+  id: string;
+  user_id: string;
+  org_id: string;
+  reason: string | null;
+  status: "active" | "rescued" | "resolved";
+  rescued_by: string | null;
+  rescued_at: string | null;
+  resolved_at: string | null;
+  created_at: string;
+}
+
+export interface WeeklyContract {
+  id: string;
+  user_id: string;
+  org_id: string;
+  week_start: string;
+  commitments: { text: string; delivered: boolean; grade?: string }[];
+  overall_grade: string | null;
+  ai_assessment: string | null;
+  status: "active" | "graded";
+  created_at: string;
+  graded_at: string | null;
+}
+
+export interface RoulettePairing {
+  id: string;
+  org_id: string;
+  date: string;
+  user_a: string;
+  user_b: string;
+  triggered_at: string | null;
+  user_a_verified: boolean;
+  user_b_verified: boolean;
+  deadline: string | null;
+  created_at: string;
+}
