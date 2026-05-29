@@ -369,6 +369,117 @@ export function LogEntryDialog({
  // Shame overlay handles its own timing — no auto-close here
  }
 
+ // Negative submit — entry registered with penalty when Claude rejects and user can't improve
+ async function handleNegativeSubmit() {
+  setValidating(false);
+  setLoading(true);
+  setError(null);
+
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) { setError("No autenticado"); setLoading(false); return; }
+
+  const { data: membership } = await supabase
+   .from("org_members")
+   .select("org_id")
+   .eq("user_id", user.id)
+   .limit(1)
+   .single();
+  if (!membership) { setError("Sin organización"); setLoading(false); return; }
+
+  // Save entry as flagged with original (rejected) content
+  const { error: insertError } = await supabase.from("time_entries").upsert(
+   {
+    user_id: user.id,
+    org_id: membership.org_id,
+    date,
+    hour: parseInt(hour),
+    category: (category || "admin") as WorkCategory,
+    title: title || "Hora sin actividad productiva",
+    description: "[RECHAZADA POR CLAUDE] " + (description || "El usuario no pudo describir trabajo específico para esta hora."),
+    mood: mood as 1 | 2 | 3 | 4 | 5 | null,
+    energy: energy as 1 | 2 | 3 | 4 | 5 | null,
+    links: null,
+    project: null,
+    proof_urls: null,
+    is_late: lateness.isLate,
+    minutes_late: lateness.minutesLate,
+    logged_at: new Date().toISOString(),
+    verification_status: "flagged" as const,
+    verification_note: "Entrada rechazada por Claude AI — el usuario no mejoró la descripción",
+    value_rating: 1 as const,
+    confidence: 1 as const,
+   },
+   { onConflict: "user_id,org_id,date,hour" }
+  );
+
+  if (insertError) { setError(insertError.message); setLoading(false); return; }
+
+  // Create accountability flag
+  await supabase.from("accountability_flags").insert({
+   user_id: user.id,
+   org_id: membership.org_id,
+   date,
+   flag_type: "low_detail",
+   details: `Entrada ${parseInt(hour)}:00 rechazada por Claude. Título original: "${title}". El usuario admitió no tener trabajo productivo que reportar.`,
+   resolved: false,
+  });
+
+  // Notify via claude-react
+  const { data: profile } = await supabase.from("profiles").select("full_name").eq("id", user.id).single();
+  fetch("/api/claude-react", {
+   method: "POST",
+   headers: { "Content-Type": "application/json" },
+   body: JSON.stringify({
+    org_id: membership.org_id,
+    event_type: "entry_created",
+    event_data: {
+     user_id: user.id,
+     user_name: profile?.full_name ?? "Usuario",
+     title: "HORA IMPRODUCTIVA (rechazada por Claude)",
+     category: category || "admin",
+     hour: parseInt(hour),
+     has_proof: false,
+     is_late: lateness.isLate,
+    },
+   }),
+  }).catch(() => {});
+
+  // Show success and close
+  savedTitleRef.current = "Hora registrada como improductiva";
+  setLoading(false);
+  setShowSuccess(true);
+  setTimeout(() => {
+   setCategory("");
+   setTitle("");
+   setDescription("");
+   setMood(null);
+   setEnergy(null);
+   setProject("");
+   setProofUrls("");
+   setShowSuccess(false);
+   setValidating(false);
+   setAdvancedOpen(false);
+   setDifficulty(null);
+   setFocusQuality(null);
+   setValueRating(null);
+   setStressLevel(null);
+   setConfidence(null);
+   setInterruptions(0);
+   setContextSwitches(0);
+   setOutputType(null);
+   setLocation(null);
+   setToolsUsed([]);
+   setCollaborators([]);
+   setClientFacing(false);
+   setCouldBeAsync(false);
+   setBlockerDetail(null);
+   setSkillsTags("");
+   setLearningNotes(null);
+   onOpenChange(false);
+  }, 1500);
+ }
+
  function handleShameClose() {
  setShowShame(false);
  setShameEntry(null);
@@ -894,6 +1005,7 @@ export function LogEntryDialog({
  }}
  recentEntries={recentEntries}
  onApproved={handleActualSubmit}
+ onNegativeSubmit={handleActualSubmit}
  onCancel={() => setValidating(false)}
  />
  )}

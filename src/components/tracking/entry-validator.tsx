@@ -34,6 +34,7 @@ interface EntryValidatorProps {
   entry: EntryData;
   recentEntries: { title: string; description: string }[];
   onApproved: (updatedEntry?: { title: string; description: string }) => void;
+  onNegativeSubmit: () => void;
   onCancel: () => void;
 }
 
@@ -68,6 +69,7 @@ export function EntryValidator({
   entry,
   recentEntries,
   onApproved,
+  onNegativeSubmit,
   onCancel,
 }: EntryValidatorProps) {
   const [state, setState] = useState<ValidatorState>("scanning");
@@ -126,7 +128,10 @@ export function EntryValidator({
         }
 
         if (!res.ok) {
-          setState("error");
+          // Auth or server error — approve by default, don't block the user
+          console.warn("[EntryValidator] API returned", res.status, "— approving by default");
+          setState("approved");
+          setResult({ approved: true, issues: [], suggestions: [], quality_score: 50, red_flags: [], copycat_score: 0 });
           return;
         }
 
@@ -138,12 +143,15 @@ export function EntryValidator({
         } else {
           setState("rejected");
         }
-      } catch {
+      } catch (err) {
+        console.warn("[EntryValidator] Fetch error — approving by default:", err);
         const elapsed = Date.now() - startTime;
         if (elapsed < 2000) {
           await new Promise((r) => setTimeout(r, 2000 - elapsed));
         }
-        setState("error");
+        // Network error — approve by default, don't block
+        setState("approved");
+        setResult({ approved: true, issues: [], suggestions: [], quality_score: 50, red_flags: [], copycat_score: 0 });
       }
     },
     [entry, recentEntries, editTitle, editDescription]
@@ -392,22 +400,41 @@ export function EntryValidator({
           </div>
 
           {/* Action buttons */}
-          <div className="border-t border-border px-4 py-3 shrink-0 flex gap-2">
-            <Button
-              onClick={onCancel}
-              variant="outline"
-              className="flex-1 font-mono text-[10px] uppercase tracking-wider"
-            >
-              Cancelar
-            </Button>
-            <Button
-              onClick={handleRetry}
-              disabled={!editTitle.trim() || editDescription.split(/\s+/).filter(Boolean).length < 5}
-              className="flex-1 font-mono text-[10px] uppercase tracking-wider bg-primary text-primary-foreground gap-1.5"
-            >
-              <RefreshCw className="w-3 h-3" />
-              Re-evaluar con Claude
-            </Button>
+          <div className="border-t border-border px-4 py-3 shrink-0 space-y-2">
+            <div className="flex gap-2">
+              <Button
+                onClick={onCancel}
+                variant="outline"
+                className="flex-1 font-mono text-[10px] uppercase tracking-wider"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleRetry}
+                disabled={!editTitle.trim() || editDescription.split(/\s+/).filter(Boolean).length < 5}
+                className="flex-1 font-mono text-[10px] uppercase tracking-wider bg-primary text-primary-foreground gap-1.5"
+              >
+                <RefreshCw className="w-3 h-3" />
+                Re-evaluar con Claude
+              </Button>
+            </div>
+
+            {/* Negative submit — admit you did nothing, register with penalty */}
+            {attempt >= 2 && (
+              <div className="border-t border-red-500/20 pt-2">
+                <Button
+                  onClick={onNegativeSubmit}
+                  variant="outline"
+                  className="w-full font-mono text-[10px] uppercase tracking-wider text-red-500 border-red-500/30 hover:bg-red-500/10 hover:text-red-600 gap-1.5"
+                >
+                  <AlertTriangle className="w-3 h-3" />
+                  No fui productivo — registrar con penalidad
+                </Button>
+                <p className="text-[9px] text-red-500/60 text-center mt-1.5 font-mono">
+                  Se registra la hora como improductiva. Afecta tu Trust Score.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}
