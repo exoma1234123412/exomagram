@@ -39,7 +39,7 @@ const FROM_ADDRESS = "exomagram@exomapeptides.mx";
 export async function POST(request: Request) {
   // Verify cron secret (emails are triggered by cron or admin, not end users)
   const authHeader = request.headers.get("authorization");
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

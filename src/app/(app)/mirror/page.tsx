@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
@@ -587,13 +586,13 @@ export default function MirrorPage() {
             .select("id, full_name, email")
             .in("id", senderIds);
 
-          const senderMap = new Map(
-            (senderProfiles ?? []).map((p) => [
+          const senderMap = new Map<string, string>(
+            ((senderProfiles ?? []) as Array<{ id: string; full_name: string | null; email: string }>).map((p) => [
               p.id,
               p.full_name ?? p.email,
             ])
           );
-          const entryMap = new Map(
+          const entryMap = new Map<string, string>(
             (entries30d ?? []).map((e) => [e.id, e.title])
           );
 

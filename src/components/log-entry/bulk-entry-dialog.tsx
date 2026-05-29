@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   CATEGORIES,
@@ -53,6 +53,23 @@ export function BulkEntryDialog({ open, onOpenChange }: BulkEntryDialogProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<string | null>(null);
+
+  // Reset form state when dialog closes
+  useEffect(() => {
+    if (!open) {
+      const now = new Date();
+      setCategory("");
+      setTitle("");
+      setDescription("");
+      setStartHour(Math.max(7, now.getHours() - 3).toString());
+      setEndHour(Math.min(18, now.getHours()).toString());
+      setDate(now.toISOString().split("T")[0]);
+      setProject("");
+      setProofUrls("");
+      setError(null);
+      setResult(null);
+    }
+  }, [open]);
 
   const start = parseInt(startHour);
   const end = parseInt(endHour);

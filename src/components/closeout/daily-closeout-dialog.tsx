@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+import { cn, getTodayMTY } from "@/lib/utils";
 import { CheckCircle2 } from "lucide-react";
 
 interface DailyCloseoutDialogProps {
@@ -31,7 +31,7 @@ export function DailyCloseoutDialog({ open, onOpenChange }: DailyCloseoutDialogP
   const [submitted, setSubmitted] = useState(false);
   const supabase = createClient();
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = getTodayMTY();
 
   useEffect(() => {
     async function loadStats() {
@@ -68,7 +68,7 @@ export function DailyCloseoutDialog({ open, onOpenChange }: DailyCloseoutDialogP
     setLoading(true);
 
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) { setLoading(false); return; }
 
     const { data: membership } = await supabase
       .from("org_members")
@@ -77,7 +77,7 @@ export function DailyCloseoutDialog({ open, onOpenChange }: DailyCloseoutDialogP
       .limit(1)
       .single();
 
-    if (!membership) return;
+    if (!membership) { setLoading(false); return; }
 
     await supabase.from("daily_closeouts").upsert({
       user_id: user.id,

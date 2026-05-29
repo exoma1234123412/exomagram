@@ -11,9 +11,13 @@ export async function POST(request: Request) {
 
   if (!orgId) return NextResponse.json({ error: "org_id required" }, { status: 400 });
 
+  const authHeader = request.headers.get("authorization");
+  const isCron = authHeader === `Bearer ${process.env.CRON_SECRET}`;
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!isCron) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
 
   // Get all entries for the date
   const { data: entries } = await supabase

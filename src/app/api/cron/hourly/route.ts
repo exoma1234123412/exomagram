@@ -60,5 +60,22 @@ export async function GET(request: Request) {
     }
   }
 
+  // Run AI Notifications (private + public feed)
+  for (const org of orgs ?? []) {
+    try {
+      const res = await fetch(
+        `${new URL(request.url).origin}/api/ai-notifications?org_id=${org.id}`,
+        { method: "POST" }
+      );
+      const data = await res.json();
+      results[`notifications_${org.id}`] = {
+        private: data.private_sent,
+        public: data.public_posted,
+      };
+    } catch (e) {
+      results[`notifications_error_${org.id}`] = (e as Error).message;
+    }
+  }
+
   return NextResponse.json({ success: true, ...results });
 }

@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { useEffect, useState } from "react";
@@ -10,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { cn, getInitials } from "@/lib/utils";
+import { cn, getInitials, getTodayMTY } from "@/lib/utils";
 import { MOOD_LABELS } from "@/lib/constants";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -38,7 +37,7 @@ export default function StandupPage() {
   const [submitting, setSubmitting] = useState(false);
   const [orgId, setOrgId] = useState<string | null>(null);
   const supabase = createClient();
-  const today = new Date().toISOString().split("T")[0];
+  const today = getTodayMTY();
 
   useEffect(() => {
     async function load() {

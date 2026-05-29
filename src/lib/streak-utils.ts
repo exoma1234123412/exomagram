@@ -9,7 +9,7 @@ export async function updateStreakOnEntry(userId: string, orgId: string, date: s
     .eq("user_id", userId)
     .eq("org_id", orgId)
     .limit(1)
-    .single();
+    .maybeSingle();
 
   const yesterday = new Date(date);
   yesterday.setDate(yesterday.getDate() - 1);

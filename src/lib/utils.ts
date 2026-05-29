@@ -27,6 +27,10 @@ export function formatHourShort(h: number): string {
   return `${display}${suffix}`;
 }
 
+export function getTodayMTY(): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Monterrey" }).format(new Date());
+}
+
 export function timeAgo(dateStr: string): string {
   const diff = (Date.now() - new Date(dateStr).getTime()) / 1000 / 60;
   if (diff < 1) return "ahora";

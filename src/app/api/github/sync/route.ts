@@ -88,9 +88,30 @@ export async function POST(request: Request) {
     }
   }
 
-  // Upsert events
+  // Insert events, skipping duplicates
   let inserted = 0;
   for (const event of events) {
+    // Check if this event already exists to avoid duplicates on re-sync
+    let query = supabase
+      .from("github_events")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("org_id", orgId)
+      .eq("event_type", event.event_type)
+      .eq("repo", event.repo)
+      .eq("date", event.date);
+
+    if (event.sha) {
+      query = query.eq("sha", event.sha);
+    } else if (event.url) {
+      query = query.eq("url", event.url);
+    } else {
+      query = query.eq("title", event.title);
+    }
+
+    const { data: existing } = await query.limit(1).single();
+    if (existing) continue; // Already synced
+
     const { error } = await supabase.from("github_events").insert({
       user_id: user.id,
       org_id: orgId,

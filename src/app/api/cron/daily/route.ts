@@ -16,9 +16,12 @@ export async function GET(request: Request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const date = yesterday.toISOString().split("T")[0];
+  // Use Monterrey timezone for correct date calculation
+  const mtyNow = new Date();
+  const mtyDateStr = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Monterrey" }).format(mtyNow);
+  const mtyYesterday = new Date(mtyDateStr + "T12:00:00");
+  mtyYesterday.setDate(mtyYesterday.getDate() - 1);
+  const date = mtyYesterday.toISOString().split("T")[0];
 
   const results: Record<string, unknown> = { date };
 
@@ -99,8 +102,9 @@ export async function GET(request: Request) {
   }
 
   // 6. Generate weekly summary (every Sunday)
-  const dayOfWeek = new Date().getDay();
-  if (dayOfWeek === 0) { // Sunday
+  const mtyDay = new Intl.DateTimeFormat("en-US", { weekday: "short", timeZone: "America/Monterrey" }).format(mtyNow);
+  const isSunday = mtyDay === "Sun";
+  if (isSunday) {
     try {
       const lastMonday = new Date();
       lastMonday.setDate(lastMonday.getDate() - 6);

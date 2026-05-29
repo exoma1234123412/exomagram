@@ -63,15 +63,19 @@ export async function POST(request: Request) {
     { data: closeouts },
     { data: standups },
     { data: promises },
-    { data: reactions },
   ] = await Promise.all([
     supabase.from("time_entries").select("*, profiles(full_name)").eq("org_id", orgId).eq("date", date),
     supabase.from("org_members").select("user_id, profiles(full_name, role)").eq("org_id", orgId),
     supabase.from("daily_closeouts").select("user_id").eq("org_id", orgId).eq("date", date),
     supabase.from("standups").select("user_id").eq("org_id", orgId).eq("date", date),
     supabase.from("daily_promises").select("user_id, status").eq("org_id", orgId).eq("date", date),
-    supabase.from("entry_reactions").select("entry_id, reaction"),
   ]);
+
+  // Fetch reactions only for relevant entry IDs
+  const entryIds = entries?.map((e) => e.id) ?? [];
+  const { data: reactions } = entryIds.length > 0
+    ? await supabase.from("entry_reactions").select("entry_id, reaction").in("entry_id", entryIds)
+    : { data: [] as { entry_id: string; reaction: string }[] };
 
   const closeoutSet = new Set(closeouts?.map((c) => c.user_id) ?? []);
   const standupSet = new Set(standups?.map((s) => s.user_id) ?? []);

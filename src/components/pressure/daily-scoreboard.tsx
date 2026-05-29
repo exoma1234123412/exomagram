@@ -7,7 +7,7 @@ import { EXPECTED_DAILY_HOURS } from "@/lib/constants";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { cn, getInitials } from "@/lib/utils";
+import { cn, getInitials, getTodayMTY } from "@/lib/utils";
 import {
   Trophy,
   Medal,
@@ -95,7 +95,7 @@ export function DailyScoreboard({ orgId }: { orgId: string }) {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
-  const today = new Date().toISOString().split("T")[0];
+  const today = getTodayMTY();
 
   const loadData = useCallback(async () => {
     const {

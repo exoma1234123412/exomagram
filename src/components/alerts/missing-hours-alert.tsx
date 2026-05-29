@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { WORK_HOURS, EXPECTED_DAILY_HOURS } from "@/lib/constants";
-import { formatHour, formatHourShort } from "@/lib/utils";
+import { formatHour, formatHourShort, getTodayMTY } from "@/lib/utils";
 import { AlertTriangle } from "lucide-react";
 
 export function MissingHoursAlert({ date }: { date: string }) {
@@ -16,17 +16,27 @@ export function MissingHoursAlert({ date }: { date: string }) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      const { data: membership } = await supabase
+        .from("org_members")
+        .select("org_id")
+        .eq("user_id", user.id)
+        .limit(1)
+        .maybeSingle();
+
+      if (!membership) return;
+
       const { data: entries } = await supabase
         .from("time_entries")
         .select("hour")
         .eq("user_id", user.id)
+        .eq("org_id", membership.org_id)
         .eq("date", date);
 
       const loggedHours = new Set(entries?.map((e) => e.hour) ?? []);
       setTotalLogged(loggedHours.size);
 
       const now = new Date();
-      const isToday = date === now.toISOString().split("T")[0];
+      const isToday = date === getTodayMTY();
       const currentHour = now.getHours();
 
       const missing = WORK_HOURS.filter((h) => {

@@ -28,10 +28,12 @@ export async function POST(request: Request) {
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-  // Calculate week range
+  // Calculate week range (ISO week: Monday-Sunday)
   const weekStart = weekStartParam ?? (() => {
     const d = new Date();
-    d.setDate(d.getDate() - d.getDay() - 7); // Last week's Sunday
+    // Go to last Monday: subtract (getDay()+6)%7 to get this Monday, then -7 for last Monday
+    const daysSinceMonday = (d.getDay() + 6) % 7; // Mon=0, Tue=1, ..., Sun=6
+    d.setDate(d.getDate() - daysSinceMonday - 7);
     return d.toISOString().split("T")[0];
   })();
   const weekEnd = new Date(weekStart + "T12:00:00");
@@ -56,7 +58,6 @@ export async function POST(request: Request) {
       { data: promises },
       { data: github },
       { data: shoutoutsRx },
-      { data: reactions },
     ] = await Promise.all([
       supabase.from("time_entries").select("*").eq("user_id", member.user_id).eq("org_id", orgId)
         .gte("date", weekStart).lte("date", weekEndStr).order("date").order("hour"),
@@ -71,7 +72,6 @@ export async function POST(request: Request) {
       supabase.from("shoutouts").select("*, profiles:profiles!shoutouts_from_user_id_fkey(full_name)")
         .eq("to_user_id", member.user_id).eq("org_id", orgId)
         .gte("date", weekStart).lte("date", weekEndStr),
-      supabase.from("entry_reactions").select("entry_id, reaction"),
     ]);
 
     // Compute stats
@@ -86,8 +86,12 @@ export async function POST(request: Request) {
     const uniqueDates = new Set(entries?.map((e) => e.date) ?? []);
     const keptPromises = promises?.filter((p) => p.status === "delivered").length ?? 0;
     const brokenPromises = promises?.filter((p) => p.status === "broken").length ?? 0;
-    const entryIds = new Set(entries?.map((e) => e.id) ?? []);
-    const suspicious = (reactions ?? []).filter((r) => r.reaction === "suspicious" && entryIds.has(r.entry_id)).length;
+    const entryIds = entries?.map((e) => e.id) ?? [];
+    const { data: reactions } = entryIds.length > 0
+      ? await supabase.from("entry_reactions").select("entry_id, reaction").in("entry_id", entryIds)
+      : { data: [] as { entry_id: string; reaction: string }[] };
+    const entryIdSet = new Set(entryIds);
+    const suspicious = (reactions ?? []).filter((r) => r.reaction === "suspicious" && entryIdSet.has(r.entry_id)).length;
 
     // Build day-by-day breakdown for Claude
     const byDate = new Map<string, typeof entries>();

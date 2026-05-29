@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { useEffect, useState } from "react";
@@ -120,7 +119,7 @@ export default function OrgStatsPage() {
       setHourDistribution(hourCounts);
 
       // Top contributors
-      const memberMap = new Map(members?.map((m) => [m.user_id, m.profiles?.full_name ?? "?"]) ?? []);
+      const memberMap = new Map<string, string>(members?.map((m) => [m.user_id, (m.profiles as unknown as { full_name: string | null })?.full_name ?? "?"]) ?? []);
       setTopContributors(
         Array.from(userHours.entries())
           .sort((a, b) => b[1] - a[1])

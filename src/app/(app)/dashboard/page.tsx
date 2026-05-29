@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { useEffect, useState } from "react";
@@ -11,14 +10,16 @@ import { MissingHoursAlert } from "@/components/alerts/missing-hours-alert";
 import { DailyCloseoutDialog } from "@/components/closeout/daily-closeout-dialog";
 import { DailyScoreWidget } from "@/components/dashboard/daily-score-widget";
 import { QuickLog } from "@/components/dashboard/quick-log";
+import { PublicFeed } from "@/components/feed/public-feed";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, ChevronLeft, ChevronRight, FileCheck, Calendar } from "lucide-react";
 import { format, addDays, subDays } from "date-fns";
 import { es } from "date-fns/locale";
+import { getTodayMTY } from "@/lib/utils";
 
 export default function DashboardPage() {
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [date, setDate] = useState(getTodayMTY());
   const [orgId, setOrgId] = useState<string | null>(null);
   const [logOpen, setLogOpen] = useState(false);
   const [closeoutOpen, setCloseoutOpen] = useState(false);
@@ -43,7 +44,7 @@ export default function DashboardPage() {
   }, []);
 
   const displayDate = format(new Date(date + "T12:00:00"), "EEEE, d MMMM yyyy", { locale: es });
-  const isToday = date === new Date().toISOString().split("T")[0];
+  const isToday = date === getTodayMTY();
 
   if (loading) {
     return (
@@ -93,11 +94,14 @@ export default function DashboardPage() {
         </Button>
         {!isToday && (
           <Button variant="secondary" size="sm" className="rounded-xl text-xs"
-            onClick={() => setDate(new Date().toISOString().split("T")[0])}>
+            onClick={() => setDate(getTodayMTY())}>
             Hoy
           </Button>
         )}
       </div>
+
+      {/* AI Public Feed — team announcements, praise, challenges */}
+      {isToday && <PublicFeed orgId={orgId} />}
 
       {/* Daily score — your personal scorecard */}
       {isToday && <DailyScoreWidget orgId={orgId} />}

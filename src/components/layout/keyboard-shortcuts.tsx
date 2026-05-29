@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { TimeEntry, Profile } from "@/lib/types/database";
@@ -85,10 +85,11 @@ export function KeyboardShortcuts({ onNewEntry }: KeyboardShortcutsProps) {
     setSearching(false);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const searchTimer = useRef<NodeJS.Timeout>(undefined);
   function handleInput(value: string) {
     setQuery(value);
-    const timer = setTimeout(() => search(value), 300);
-    return () => clearTimeout(timer);
+    clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => search(value), 300);
   }
 
   function navigate(href: string) {

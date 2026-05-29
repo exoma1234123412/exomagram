@@ -25,6 +25,7 @@ import {
   Sparkles,
   Gauge,
   FileText,
+  Rss,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/notifications/notification-bell";
@@ -32,6 +33,7 @@ import { NotificationBell } from "@/components/notifications/notification-bell";
 // --- DIA A DIA ---
 const dailyNav = [
   { href: "/home", label: "Inicio", icon: Home },
+  { href: "/feed", label: "Feed", icon: Rss },
   { href: "/dashboard", label: "Timeline", icon: LayoutDashboard },
   { href: "/standup", label: "Standup", icon: MessageSquare },
   { href: "/grid", label: "Equipo", icon: Grid3X3 },

@@ -38,21 +38,58 @@ export async function POST(request: Request) {
 
     if (!members) continue;
 
-    // Get all time entries for this org+date
-    const { data: entries } = await supabase
-      .from("time_entries")
-      .select("*")
-      .eq("org_id", org.id)
-      .eq("date", date);
+    // ── Batch queries per org (avoid N+1) ──────────────────────────
+    const weekAgo = new Date(date);
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const weekStart = weekAgo.toISOString().split("T")[0];
 
-    // Get closeouts for this org+date
-    const { data: closeouts } = await supabase
-      .from("daily_closeouts")
-      .select("user_id")
-      .eq("org_id", org.id)
-      .eq("date", date);
+    const [
+      { data: entries },
+      { data: closeouts },
+      { data: allLiveStatus },
+      { data: allWeekEntries },
+      { data: allRecentCloseouts },
+      { data: allRecentTrustScores },
+      { data: allStreaks },
+      { data: allExistingFlags },
+    ] = await Promise.all([
+      // Today's entries for this org
+      supabase.from("time_entries").select("*").eq("org_id", org.id).eq("date", date),
+      // Today's closeouts
+      supabase.from("daily_closeouts").select("user_id").eq("org_id", org.id).eq("date", date),
+      // All live_status for this org
+      supabase.from("live_status").select("user_id, status, last_heartbeat").eq("org_id", org.id),
+      // Week entries for burnout detection
+      supabase.from("time_entries").select("user_id, mood, energy, date, id").eq("org_id", org.id).gte("date", weekStart).lte("date", date),
+      // Recent closeouts (for closeout_streak achievement)
+      supabase.from("daily_closeouts").select("user_id, date").eq("org_id", org.id).order("date", { ascending: false }),
+      // Recent trust scores (for high_trust achievement)
+      supabase.from("trust_score_history").select("user_id, score, date").eq("org_id", org.id).order("date", { ascending: false }),
+      // All streaks for this org
+      supabase.from("activity_streaks").select("*").eq("org_id", org.id),
+      // Existing flags for today (for dedup)
+      supabase.from("accountability_flags").select("user_id, flag_type").eq("org_id", org.id).eq("date", date),
+    ]);
+
+    // Batch fetch reactions: get all entry IDs for this org, then fetch all reactions
+    const allTodayEntryIds = (entries ?? []).map((e) => e.id);
+    const allWeekEntryIds = (allWeekEntries ?? []).map((e) => e.id);
+    const allEntryIds = [...new Set([...allTodayEntryIds, ...allWeekEntryIds])];
+
+    const memberUserIds = members.map((m) => m.user_id);
+    const [{ data: allReactions }, { data: allVerifiedGiven }] = await Promise.all([
+      allEntryIds.length > 0
+        ? supabase.from("entry_reactions").select("entry_id, user_id, reaction").in("entry_id", allEntryIds)
+        : Promise.resolve({ data: [] as { entry_id: string; user_id: string; reaction: string }[] }),
+      memberUserIds.length > 0
+        ? supabase.from("entry_reactions").select("user_id, reaction").in("user_id", memberUserIds).eq("reaction", "verified")
+        : Promise.resolve({ data: [] as { user_id: string; reaction: string }[] }),
+    ]);
 
     const closeoutUserIds = new Set(closeouts?.map((c) => c.user_id) ?? []);
+    const existingFlagSet = new Set(
+      (allExistingFlags ?? []).map((f) => `${f.user_id}:${f.flag_type}`)
+    );
 
     for (const member of members) {
       const userEntries =
@@ -125,17 +162,13 @@ export async function POST(request: Request) {
         }
       }
 
-      // 7. Ghost hours: entries logged during idle/offline heartbeat periods
-      const { data: liveStatus } = await supabase
-        .from("live_status")
-        .select("status, last_heartbeat")
-        .eq("user_id", member.user_id)
-        .eq("org_id", org.id)
-        .limit(1)
-        .single();
+      // 7. Ghost hours: entries logged during idle/offline heartbeat periods (pre-fetched)
+      const memberLiveStatus = (allLiveStatus ?? []).find(
+        (s) => s.user_id === member.user_id
+      );
 
-      if (liveStatus) {
-        const heartbeat = new Date(liveStatus.last_heartbeat);
+      if (memberLiveStatus) {
+        const heartbeat = new Date(memberLiveStatus.last_heartbeat);
         const dateObj = new Date(date + "T18:00:00");
         const heartbeatAge = (dateObj.getTime() - heartbeat.getTime()) / 1000 / 60 / 60;
         // If last heartbeat was >8 hours before end of workday but they logged entries
@@ -178,22 +211,15 @@ export async function POST(request: Request) {
         }
       }
 
-      // 10. Burnout detection: check last 7 days for overwork + declining mood
-      const weekAgo = new Date(date);
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      const weekAgoStr = weekAgo.toISOString().split("T")[0];
-      const { data: weekEntries } = await supabase
-        .from("time_entries")
-        .select("mood, energy, date")
-        .eq("user_id", member.user_id)
-        .eq("org_id", org.id)
-        .gte("date", weekAgoStr)
-        .lte("date", date);
+      // 10. Burnout detection: check last 7 days for overwork + declining mood (pre-fetched)
+      const memberWeekEntries = (allWeekEntries ?? []).filter(
+        (e) => e.user_id === member.user_id
+      );
 
-      if (weekEntries && weekEntries.length > 0) {
-        const totalWeekHours = weekEntries.length;
-        const moodValues = weekEntries.filter((e) => e.mood).map((e) => e.mood as number);
-        const energyValues = weekEntries.filter((e) => e.energy).map((e) => e.energy as number);
+      if (memberWeekEntries.length > 0) {
+        const totalWeekHours = memberWeekEntries.length;
+        const moodValues = memberWeekEntries.filter((e) => e.mood).map((e) => e.mood as number);
+        const energyValues = memberWeekEntries.filter((e) => e.energy).map((e) => e.energy as number);
         const avgMood = moodValues.length > 0 ? moodValues.reduce((a, b) => a + b, 0) / moodValues.length : 3;
         const avgEnergy = energyValues.length > 0 ? energyValues.reduce((a, b) => a + b, 0) / energyValues.length : 3;
 
@@ -206,18 +232,10 @@ export async function POST(request: Request) {
         }
       }
 
-      // Insert flags (skip duplicates)
+      // Insert flags (skip duplicates using pre-fetched set)
       for (const flag of flags) {
-        const { data: existing } = await supabase
-          .from("accountability_flags")
-          .select("id")
-          .eq("user_id", member.user_id)
-          .eq("org_id", org.id)
-          .eq("flag_type", flag.flag_type)
-          .eq("date", date)
-          .limit(1);
-
-        if (!existing || existing.length === 0) {
+        const flagKey = `${member.user_id}:${flag.flag_type}`;
+        if (!existingFlagSet.has(flagKey)) {
           await supabase.from("accountability_flags").insert({
             user_id: member.user_id,
             org_id: org.id,
@@ -230,6 +248,7 @@ export async function POST(request: Request) {
             org_id: org.id,
             ...flag,
           });
+          existingFlagSet.add(flagKey); // prevent duplicates within same run
         }
       }
 
@@ -240,17 +259,12 @@ export async function POST(request: Request) {
       const lateCount = userEntries.filter((e) => e.is_late).length;
       const hasCloseout = closeoutUserIds.has(member.user_id);
 
-      // Get suspicious reaction count for this user's entries
+      // Get suspicious reaction count from pre-fetched reactions
       const userEntryIds = userEntries.map((e) => e.id);
-      let suspiciousCount = 0;
-      if (userEntryIds.length > 0) {
-        const { count } = await supabase
-          .from("entry_reactions")
-          .select("*", { count: "exact", head: true })
-          .in("entry_id", userEntryIds)
-          .eq("reaction", "suspicious");
-        suspiciousCount = count ?? 0;
-      }
+      const userEntryIdSet = new Set(userEntryIds);
+      const suspiciousCount = (allReactions ?? []).filter(
+        (r) => userEntryIdSet.has(r.entry_id) && r.reaction === "suspicious"
+      ).length;
 
       const hoursRatio = Math.min(userEntries.length / EXPECTED_DAILY_HOURS, 1);
       const proofRatio =
@@ -287,14 +301,10 @@ export async function POST(request: Request) {
         { onConflict: "user_id,org_id,date" }
       );
 
-      // Update activity streak
-      const { data: streak } = await supabase
-        .from("activity_streaks")
-        .select("*")
-        .eq("user_id", member.user_id)
-        .eq("org_id", org.id)
-        .limit(1)
-        .single();
+      // Update activity streak (from pre-fetched data)
+      const streak = (allStreaks ?? []).find(
+        (s) => s.user_id === member.user_id
+      ) ?? null;
 
       if (userEntries.length > 0) {
         const yesterday = new Date(date);
@@ -363,60 +373,45 @@ export async function POST(request: Request) {
         achievementsToGrant.push("zero_late");
       }
 
-      // closeout_streak: check last 5 closeouts
-      const { data: recentCloseouts } = await supabase
-        .from("daily_closeouts")
-        .select("date")
-        .eq("user_id", member.user_id)
-        .eq("org_id", org.id)
-        .order("date", { ascending: false })
-        .limit(5);
-      if (recentCloseouts && recentCloseouts.length >= 5) {
+      // closeout_streak: check last 5 closeouts (from pre-fetched data)
+      const memberRecentCloseouts = (allRecentCloseouts ?? []).filter(
+        (c) => c.user_id === member.user_id
+      ).slice(0, 5);
+      if (memberRecentCloseouts.length >= 5) {
         achievementsToGrant.push("closeout_streak");
       }
 
-      // high_trust: trust score >90
+      // high_trust: trust score >90 (from pre-fetched data)
       if (trustScore > 90) {
-        const { data: highScores } = await supabase
-          .from("trust_score_history")
-          .select("score")
-          .eq("user_id", member.user_id)
-          .eq("org_id", org.id)
-          .order("date", { ascending: false })
-          .limit(7);
+        const memberRecentScores = (allRecentTrustScores ?? []).filter(
+          (s) => s.user_id === member.user_id
+        ).slice(0, 7);
         if (
-          highScores &&
-          highScores.length >= 7 &&
-          highScores.every((s) => s.score > 90)
+          memberRecentScores.length >= 7 &&
+          memberRecentScores.every((s) => s.score > 90)
         ) {
           achievementsToGrant.push("high_trust");
         }
       }
 
-      // helpful: 10+ helped_me reactions received
+      // helpful: 10+ helped_me reactions received (from pre-fetched data)
       if (userEntryIds.length > 0) {
-        const { count: helpedCount } = await supabase
-          .from("entry_reactions")
-          .select("*", { count: "exact", head: true })
-          .in("entry_id", userEntryIds)
-          .eq("reaction", "helped_me");
-        if ((helpedCount ?? 0) >= 10) achievementsToGrant.push("helpful");
+        const helpedCount = (allReactions ?? []).filter(
+          (r) => userEntryIdSet.has(r.entry_id) && r.reaction === "helped_me"
+        ).length;
+        if (helpedCount >= 10) achievementsToGrant.push("helpful");
 
-        const { count: impressiveCount } = await supabase
-          .from("entry_reactions")
-          .select("*", { count: "exact", head: true })
-          .in("entry_id", userEntryIds)
-          .eq("reaction", "impressive");
-        if ((impressiveCount ?? 0) >= 10) achievementsToGrant.push("impressive_10");
+        const impressiveCount = (allReactions ?? []).filter(
+          (r) => userEntryIdSet.has(r.entry_id) && r.reaction === "impressive"
+        ).length;
+        if (impressiveCount >= 10) achievementsToGrant.push("impressive_10");
       }
 
-      // team_player: 20+ verified reactions given
-      const { count: verifiedGiven } = await supabase
-        .from("entry_reactions")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", member.user_id)
-        .eq("reaction", "verified");
-      if ((verifiedGiven ?? 0) >= 20) achievementsToGrant.push("team_player");
+      // team_player: 20+ verified reactions given (from pre-fetched data)
+      const verifiedGivenCount = (allVerifiedGiven ?? []).filter(
+        (r) => r.user_id === member.user_id
+      ).length;
+      if (verifiedGivenCount >= 20) achievementsToGrant.push("team_player");
 
       // Upsert achievements (ignore duplicates)
       for (const achType of achievementsToGrant) {

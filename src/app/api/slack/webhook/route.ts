@@ -7,10 +7,14 @@ import type { WorkCategory } from "@/lib/types/database";
 // Sends daily digest to a Slack webhook URL
 // Body: { webhook_url, org_id, date? }
 export async function POST(request: Request) {
+  const authHeader = request.headers.get("authorization");
+  const isCron = authHeader === `Bearer ${process.env.CRON_SECRET}`;
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  if (!isCron) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    }
   }
 
   const body = await request.json();

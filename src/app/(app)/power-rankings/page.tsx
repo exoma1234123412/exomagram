@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
@@ -394,8 +393,8 @@ export default function PowerRankingsPage() {
         }
       }
 
-      const streakMap = new Map(
-        streaks?.map((s) => [s.user_id, s.current_streak]) ?? []
+      const streakMap = new Map<string, number>(
+        ((streaks ?? []) as Array<{ user_id: string; current_streak: number }>).map((s) => [s.user_id, s.current_streak])
       );
 
       const workdays = dates.length;

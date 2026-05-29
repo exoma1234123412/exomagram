@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { useEffect, useState } from "react";
@@ -47,9 +46,9 @@ export default function CollabPage() {
 
       if (!memberData) { setLoading(false); return; }
 
-      const profiles = memberData.map((m) => m.profiles);
+      const profiles = memberData.map((m) => m.profiles as unknown as Profile);
       setMembers(profiles);
-      const profileMap = new Map(profiles.map((p) => [p.id, p]));
+      const profileMap = new Map<string, Profile>(profiles.map((p) => [p.id, p]));
 
       // Build collaboration graph from:
       // 1. Shoutouts

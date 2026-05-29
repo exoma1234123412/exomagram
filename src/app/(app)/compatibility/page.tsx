@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { useEffect, useState } from "react";
@@ -57,7 +56,7 @@ export default function CompatibilityPage() {
 
       if (!members || !entries || members.length < 2) { setLoading(false); return; }
 
-      const profileMap = new Map(members.map((m) => [m.user_id, m.profiles]));
+      const profileMap = new Map<string, Profile>(members.map((m) => [m.user_id, m.profiles as unknown as Profile]));
       setMemberProfiles(profileMap);
 
       // Build per-user data structures

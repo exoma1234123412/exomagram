@@ -16,6 +16,7 @@ export type FlagType =
   | "no_proof"
   | "late_entries"
   | "no_closeout"
+  | "no_standup"
   | "low_detail"
   | "suspicious_pattern"
   | "idle_long";

@@ -82,6 +82,7 @@ export const FLAG_TYPES: Record<
   no_proof: { label: "Sin evidencia", emoji: "📭", severity: "medium" },
   late_entries: { label: "Entradas tardías", emoji: "⏰", severity: "medium" },
   no_closeout: { label: "Sin cierre del día", emoji: "📝", severity: "high" },
+  no_standup: { label: "Sin standup", emoji: "🙊", severity: "high" },
   low_detail: { label: "Bajo detalle", emoji: "💤", severity: "low" },
   suspicious_pattern: { label: "Patrón sospechoso", emoji: "🔍", severity: "high" },
   idle_long: { label: "Idle prolongado", emoji: "💤", severity: "medium" },

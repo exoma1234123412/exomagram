@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   CATEGORIES,
@@ -64,6 +64,22 @@ export function LogEntryDialog({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [templatesOpen, setTemplatesOpen] = useState(false);
+
+  // Reset form state when dialog closes
+  useEffect(() => {
+    if (!open) {
+      setCategory("");
+      setTitle("");
+      setDescription("");
+      setHour(defaultHour?.toString() ?? new Date().getHours().toString());
+      setDate(defaultDate ?? new Date().toISOString().split("T")[0]);
+      setMood(null);
+      setEnergy(null);
+      setProject("");
+      setProofUrls("");
+      setError(null);
+    }
+  }, [open, defaultHour, defaultDate]);
 
   function applyTemplate(template: EntryTemplate) {
     setCategory(template.category);

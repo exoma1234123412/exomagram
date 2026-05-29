@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
@@ -171,6 +170,7 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [orgId, setOrgId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [orgName, setOrgName] = useState("");
   const [members, setMembers] = useState<
     Pick<Profile, "id" | "full_name" | "email">[]
@@ -213,6 +213,7 @@ export default function ReportsPage() {
         return;
       }
       setOrgId(membership.org_id);
+      setUserId(user.id);
 
       const { data: org } = await supabase
         .from("organizations")
@@ -640,12 +641,26 @@ export default function ReportsPage() {
     window.print();
   }, []);
 
-  const generateShareLink = useCallback(() => {
+  const generateShareLink = useCallback(async () => {
+    if (!orgId || !userId) return;
     const token = crypto.randomUUID();
+    const { error } = await supabase.from("public_dashboards").insert({
+      org_id: orgId,
+      token,
+      created_by: userId,
+      label: "Dashboard público",
+      show_names: true,
+      show_details: true,
+      active: true,
+    });
+    if (error) {
+      console.error("Error creating share link:", error);
+      return;
+    }
     const link = `${window.location.origin}/public/${token}`;
     setShareLink(link);
     navigator.clipboard.writeText(link);
-  }, []);
+  }, [orgId, userId, supabase]);
 
   // -----------------------------------------------------------------------
   // Saved reports

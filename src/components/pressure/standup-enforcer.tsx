@@ -220,7 +220,7 @@ export function StandupEnforcer() {
       await supabase.from("accountability_flags").insert({
         user_id: userId!,
         org_id: orgId!,
-        flag_type: "no_closeout",
+        flag_type: "no_standup",
         date: today,
         details: "no_standup: Standup no completado antes de las 12pm",
       });

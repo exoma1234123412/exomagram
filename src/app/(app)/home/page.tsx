@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -18,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, getTodayMTY } from "@/lib/utils";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
@@ -114,7 +113,7 @@ export default function HomePage() {
   const [coach, setCoach] = useState<CoachMessage>({ message: "", loading: false });
   const [closeoutOpen, setCloseoutOpen] = useState(false);
   const supabase = createClient();
-  const today = new Date().toISOString().split("T")[0];
+  const today = getTodayMTY();
 
   // Update time mode every minute
   useEffect(() => {
@@ -149,8 +148,8 @@ export default function HomePage() {
       ] = await Promise.all([
         supabase.from("profiles").select("full_name").eq("id", user.id).single(),
         supabase.from("time_entries").select("id, proof_urls").eq("user_id", user.id).eq("date", today),
-        supabase.from("activity_streaks").select("current_streak").eq("user_id", user.id).eq("org_id", membership.org_id).single(),
-        supabase.from("standups").select("*").eq("user_id", user.id).eq("date", today).single(),
+        supabase.from("activity_streaks").select("current_streak").eq("user_id", user.id).eq("org_id", membership.org_id).maybeSingle(),
+        supabase.from("standups").select("*").eq("user_id", user.id).eq("date", today).maybeSingle(),
         supabase.from("daily_promises").select("*").eq("user_id", user.id).eq("date", today).order("created_at"),
         supabase.from("live_status").select("id").eq("org_id", membership.org_id).neq("status", "offline"),
       ]);
@@ -425,7 +424,7 @@ function ProductionSection({ state, setState }: { state: UserState; setState: Re
       <SocialPressureWidget orgId={state.orgId} />
 
       {/* Missing hours */}
-      <MissingHoursAlert date={new Date().toISOString().split("T")[0]} />
+      <MissingHoursAlert date={getTodayMTY()} />
 
       {/* Work session tracker */}
       <WorkSessionTracker orgId={state.orgId} />
@@ -512,7 +511,7 @@ function InlineStandup({ state, setState }: { state: UserState; setState: React.
   const [mood, setMood] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const supabase = createClient();
-  const today = new Date().toISOString().split("T")[0];
+  const today = getTodayMTY();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -617,7 +616,7 @@ function InlinePromiseMaker({ state, setState }: { state: UserState; setState: R
   const [newPromise, setNewPromise] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const supabase = createClient();
-  const today = new Date().toISOString().split("T")[0];
+  const today = getTodayMTY();
 
   async function addPromise(e: React.FormEvent) {
     e.preventDefault();
