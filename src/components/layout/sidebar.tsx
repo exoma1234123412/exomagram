@@ -51,6 +51,7 @@ const mainNav = [
 ];
 
 const insightsNav = [
+  { href: "/audit-daily", label: "AI Audit", icon: Brain },
   { href: "/accountability", label: "Accountability", icon: Eye },
   { href: "/health", label: "Salud", icon: Heart },
   { href: "/weekly", label: "Semanal", icon: BarChart3 },

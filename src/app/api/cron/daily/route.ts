@@ -68,5 +68,19 @@ export async function GET(request: Request) {
     results.ai_review_error = (e as Error).message;
   }
 
+  // 4. Run AI Audit (grades everyone A-F, impacts trust score)
+  try {
+    const { data: orgs } = await supabase.from("organizations").select("id");
+    for (const org of orgs ?? []) {
+      await fetch(
+        `${new URL(request.url).origin}/api/ai-audit?org_id=${org.id}&date=${date}`,
+        { method: "POST" }
+      );
+    }
+    results.ai_audit = "completed";
+  } catch (e) {
+    results.ai_audit_error = (e as Error).message;
+  }
+
   return NextResponse.json({ success: true, ...results });
 }
