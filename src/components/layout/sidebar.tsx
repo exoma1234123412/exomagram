@@ -56,6 +56,7 @@ const dailyNav = [
   { href: "/now", label: "Ahora", icon: Radio },
   { href: "/standup", label: "Standup", icon: MessageSquare },
   { href: "/focus", label: "Focus", icon: Brain },
+  { href: "/brain", label: "Claude Brain", icon: Brain },
   { href: "/grid", label: "Equipo", icon: Grid3X3 },
 ];
 
