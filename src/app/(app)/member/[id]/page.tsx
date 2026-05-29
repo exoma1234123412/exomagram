@@ -24,6 +24,7 @@ import {
   AlertTriangle,
   Brain,
   MessageSquare,
+  Eye,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -272,13 +273,22 @@ export default function MemberPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
       {/* Back link */}
-      <Link
-        href="/accountability"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-8"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Volver a Accountability
-      </Link>
+      <div className="flex items-center justify-between mb-8">
+        <Link
+          href="/accountability"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Volver a Accountability
+        </Link>
+        <Link
+          href={`/deep-profile/${memberId}`}
+          className="inline-flex items-center gap-1 text-xs font-mono text-primary hover:underline uppercase tracking-wider"
+        >
+          Ver dossier completo
+          <Eye className="w-3 h-3" />
+        </Link>
+      </div>
 
       {/* Profile header */}
       <div className="flex items-center gap-4 mb-8">

@@ -717,10 +717,10 @@ export default function TeamPage() {
                       variant="outline"
                       size="sm"
                       className="flex-1 rounded-xl text-xs h-8"
-                      render={<Link href={`/member/${m.userId}`} />}
+                      render={<Link href={`/deep-profile/${m.userId}`} />}
                     >
                       <Eye className="w-3.5 h-3.5 mr-1" />
-                      Ver perfil
+                      Dossier
                     </Button>
                     <Button
                       variant={alreadyKudos ? "default" : "outline"}

@@ -55,8 +55,8 @@ export default function LoginPage() {
           </div>
           <div className="space-y-2">
             <CardTitle className="text-lg font-mono font-black tracking-[0.15em] uppercase">Exomagram</CardTitle>
-            <CardDescription className="text-muted-foreground font-mono text-[10px] tracking-[0.2em] uppercase">
-              Vigilancia total del trabajo
+            <CardDescription className="font-mono text-[10px] tracking-[0.2em] uppercase text-muted-foreground">
+              Sistema de Vigilancia
             </CardDescription>
           </div>
         </CardHeader>
@@ -99,14 +99,14 @@ export default function LoginPage() {
               {loading ? "Verificando..." : "Acceder al sistema"}
             </Button>
           </form>
-          <p className="text-center text-[10px] font-mono text-muted-foreground/50 mt-4">
-            <Link href="/forgot-password" className="text-muted-foreground hover:text-primary transition-colors">
+          <p className="text-center text-[10px] font-mono text-muted-foreground mt-4">
+            <Link href="/forgot-password" className="text-foreground/70 hover:text-primary transition-colors underline underline-offset-2">
               Recuperar acceso
             </Link>
           </p>
-          <p className="text-center text-[10px] font-mono text-muted-foreground/50 mt-2">
+          <p className="text-center text-[10px] font-mono text-muted-foreground mt-2">
             Sin acceso?{" "}
-            <Link href="/signup" className="text-muted-foreground hover:text-primary transition-colors">
+            <Link href="/signup" className="text-foreground/70 hover:text-primary transition-colors underline underline-offset-2">
               Solicitar cuenta
             </Link>
           </p>

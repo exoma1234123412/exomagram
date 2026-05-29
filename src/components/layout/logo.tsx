@@ -19,24 +19,26 @@ export function Logo({ size = 28, className }: LogoProps) {
     >
       {/* Background */}
       <rect width="32" height="32" fill="var(--sidebar, #060810)" />
+      {/* Outer ring */}
+      <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="0.5" opacity="0.15" />
       {/* Eye shape */}
       <path
-        d="M4 16C4 16 8 7 16 7C24 7 28 16 28 16C28 16 24 25 16 25C8 25 4 16 4 16Z"
+        d="M3 16C3 16 7.5 6 16 6C24.5 6 29 16 29 16C29 16 24.5 26 16 26C7.5 26 3 16 3 16Z"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="2"
         fill="none"
       />
       {/* Iris */}
-      <circle cx="16" cy="16" r="5" stroke="currentColor" strokeWidth="1.2" fill="none" />
+      <circle cx="16" cy="16" r="5.5" stroke="currentColor" strokeWidth="1.5" fill="none" />
       {/* Pupil */}
-      <circle cx="16" cy="16" r="2.2" fill="currentColor" />
+      <circle cx="16" cy="16" r="2.5" fill="currentColor" />
       {/* Light reflection */}
-      <circle cx="18" cy="14" r="1" fill="var(--foreground, #ccc)" opacity="0.6" />
+      <circle cx="18.5" cy="13.5" r="1.2" fill="white" opacity="0.7" />
       {/* Corner brackets */}
-      <path d="M2 5V2H5" stroke="currentColor" strokeWidth="1" opacity="0.45" />
-      <path d="M27 2H30V5" stroke="currentColor" strokeWidth="1" opacity="0.45" />
-      <path d="M30 27V30H27" stroke="currentColor" strokeWidth="1" opacity="0.45" />
-      <path d="M5 30H2V27" stroke="currentColor" strokeWidth="1" opacity="0.45" />
+      <path d="M2 6V2H6" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
+      <path d="M26 2H30V6" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
+      <path d="M30 26V30H26" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
+      <path d="M6 30H2V26" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
     </svg>
   );
 }

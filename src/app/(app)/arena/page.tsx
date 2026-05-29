@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useOrg } from "@/lib/context/org-context";
 import { createClient } from "@/lib/supabase/client";
 import type {
@@ -12,7 +12,12 @@ import type {
   TrustScoreHistory,
   Prediction,
   PredictionBet,
+  TribunalSession,
+  TribunalVote,
+  AuditLottery,
+  TimeEntry,
 } from "@/lib/types/database";
+import { CATEGORIES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -37,13 +42,23 @@ import {
   Target,
   Hammer,
   ShieldCheck,
+  Scale,
+  XCircle,
+  CheckCircle2,
+  Shield,
+  AlertTriangle,
+  FileText,
+  ImageOff,
+  Ticket,
+  Shuffle,
+  Users,
 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
 // ─── Types ──────────────────────────────────────────────────────
 
-type Tab = "duelos" | "bounties" | "mercado" | "apuestas";
+type Tab = "tribunal" | "duelos" | "bounties" | "mercado" | "apuestas";
 
 interface TeamMember {
   user_id: string;
@@ -76,9 +91,31 @@ interface PredictionWithBets extends Prediction {
   my_bet: PredictionBet | null;
 }
 
+interface SessionWithDetails extends TribunalSession {
+  entry: TimeEntry | null;
+  nominated_profile: Profile | null;
+  votes: (TribunalVote & { profile: Profile | null })[];
+}
+
+interface AuditFindings {
+  hoursLogged: number;
+  totalEntries: number;
+  entriesWithProof: number;
+  proofPercent: number;
+  lateEntries: number;
+  hasCloseout: boolean;
+  categories: Record<string, number>;
+  score: number;
+}
+
+interface EnrichedLottery extends AuditLottery {
+  profile: Profile | null;
+}
+
 // ─── Tab Config ─────────────────────────────────────────────────
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
+  { id: "tribunal", label: "TRIBUNAL", icon: Scale },
   { id: "duelos", label: "DUELOS", icon: Swords },
   { id: "bounties", label: "BOUNTIES", icon: Crosshair },
   { id: "mercado", label: "MERCADO", icon: CandlestickChart },
@@ -91,10 +128,22 @@ export default function ArenaPage() {
   const { orgId, userId, loading: orgLoading } = useOrg();
   const supabase = createClient();
 
-  const [tab, setTab] = useState<Tab>("duelos");
+  const [tab, setTab] = useState<Tab>("tribunal");
   const [loading, setLoading] = useState(true);
   const [profileMap, setProfileMap] = useState<Map<string, Profile>>(new Map());
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [allMembers, setAllMembers] = useState<TeamMember[]>([]);
+
+  // Tribunal state
+  const [tribunalSession, setTribunalSession] = useState<SessionWithDetails | null>(null);
+  const [creatingTribunal, setCreatingTribunal] = useState(false);
+  const [votingTribunal, setVotingTribunal] = useState(false);
+
+  // Lottery state
+  const [todayLottery, setTodayLottery] = useState<EnrichedLottery | null>(null);
+  const [todayFindings, setTodayFindings] = useState<AuditFindings | null>(null);
+  const [spinningLottery, setSpinningLottery] = useState(false);
+  const [auditingLottery, setAuditingLottery] = useState(false);
 
   // Duels state
   const [duels, setDuels] = useState<DuelWithProfiles[]>([]);
@@ -130,10 +179,12 @@ export default function ArenaPage() {
 
     const map = new Map<string, Profile>();
     const team: TeamMember[] = [];
+    const all: TeamMember[] = [];
     for (const m of members ?? []) {
       if (m.profiles) {
         const p = m.profiles as unknown as Profile;
         map.set(m.user_id, p);
+        all.push({ user_id: m.user_id, profile: p });
         if (m.user_id !== userId) {
           team.push({ user_id: m.user_id, profile: p });
         }
@@ -141,6 +192,7 @@ export default function ArenaPage() {
     }
     setProfileMap(map);
     setTeamMembers(team);
+    setAllMembers(all);
     return map;
   }, [orgId, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -294,6 +346,72 @@ export default function ArenaPage() {
     );
   }, [orgId, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ─── Load tribunal ─────────────────────────────────────────────
+
+  const loadTribunal = useCallback(async (pMap: Map<string, Profile>) => {
+    if (!orgId) return;
+    const { data: todaySession } = await supabase
+      .from("tribunal_sessions")
+      .select("*")
+      .eq("org_id", orgId)
+      .eq("date", today)
+      .limit(1)
+      .single();
+
+    if (todaySession) {
+      const { data: entry } = await supabase
+        .from("time_entries")
+        .select("*")
+        .eq("id", todaySession.entry_id)
+        .single();
+
+      const { data: votes } = await supabase
+        .from("tribunal_votes")
+        .select("*")
+        .eq("session_id", todaySession.id)
+        .order("created_at", { ascending: true });
+
+      setTribunalSession({
+        ...todaySession,
+        entry: entry ?? null,
+        nominated_profile: pMap.get(todaySession.nominated_user_id) ?? null,
+        votes: (votes ?? []).map((v) => ({
+          ...v,
+          profile: pMap.get(v.user_id) ?? null,
+        })),
+      });
+    } else {
+      setTribunalSession(null);
+    }
+  }, [orgId, today]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ─── Load lottery ─────────────────────────────────────────────
+
+  const loadLottery = useCallback(async (pMap: Map<string, Profile>) => {
+    if (!orgId) return;
+    const { data: todayData } = await supabase
+      .from("audit_lotteries")
+      .select("*")
+      .eq("org_id", orgId)
+      .eq("date", today)
+      .limit(1)
+      .maybeSingle();
+
+    if (todayData) {
+      const lottery = todayData as AuditLottery;
+      setTodayLottery({
+        ...lottery,
+        profile: pMap.get(lottery.selected_user_id) ?? null,
+      });
+      if (lottery.findings) {
+        setTodayFindings(lottery.findings as unknown as AuditFindings);
+      }
+    } else {
+      setTodayLottery(null);
+      setTodayFindings(null);
+    }
+  }, [orgId, today]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ─── Initial load ──────────────────────────────────────────────
 
   useEffect(() => {
@@ -306,6 +424,8 @@ export default function ArenaPage() {
     async function init() {
       const pMap = await loadProfiles();
       await Promise.all([
+        loadTribunal(pMap),
+        loadLottery(pMap),
         loadDuels(pMap),
         loadAuctions(pMap),
         loadMarket(pMap),
@@ -388,6 +508,195 @@ export default function ArenaPage() {
     await loadPredictions(pMap);
   }
 
+  // ─── Tribunal actions ───────────────────────────────────────────
+
+  async function createTribunalSession() {
+    if (!orgId || !userId) return;
+    setCreatingTribunal(true);
+
+    const { data: entries } = await supabase
+      .from("time_entries")
+      .select("*")
+      .eq("org_id", orgId)
+      .eq("date", today)
+      .order("created_at", { ascending: true });
+
+    if (!entries || entries.length === 0) {
+      setCreatingTribunal(false);
+      return;
+    }
+
+    const scored = entries.map((e) => {
+      let suspicion = 0;
+      if (!e.proof_urls || e.proof_urls.length === 0) suspicion += 3;
+      if (!e.description || e.description.length < 10) suspicion += 2;
+      if (e.title.length < 15) suspicion += 1;
+      if (e.verification_status === "flagged") suspicion += 4;
+      if (e.is_late) suspicion += 1;
+      return { entry: e, suspicion };
+    });
+    scored.sort((a, b) => b.suspicion - a.suspicion);
+    const target = scored[0].entry;
+
+    const reasons: string[] = [];
+    if (!target.proof_urls || target.proof_urls.length === 0) reasons.push("Sin evidencia");
+    if (!target.description || target.description.length < 10) reasons.push("Descripcion vaga");
+    if (target.title.length < 15) reasons.push("Titulo corto");
+    if (target.verification_status === "flagged") reasons.push("Marcado sospechoso");
+    if (target.is_late) reasons.push("Entrada tardia");
+
+    const { error } = await supabase.from("tribunal_sessions").insert({
+      org_id: orgId,
+      date: today,
+      entry_id: target.id,
+      nominated_user_id: target.user_id,
+      reason: reasons.join(", "),
+      status: "voting",
+      guilty_votes: 0,
+      innocent_votes: 0,
+    });
+
+    if (!error) {
+      const pMap = await loadProfiles();
+      await loadTribunal(pMap);
+    }
+    setCreatingTribunal(false);
+  }
+
+  async function castTribunalVote(vote: "guilty" | "innocent") {
+    if (!tribunalSession || !userId) return;
+    setVotingTribunal(true);
+
+    const alreadyVoted = tribunalSession.votes.some((v) => v.user_id === userId);
+    if (alreadyVoted) {
+      setVotingTribunal(false);
+      return;
+    }
+
+    await supabase.from("tribunal_votes").insert({
+      session_id: tribunalSession.id,
+      user_id: userId,
+      vote,
+    });
+
+    const newGuilty = tribunalSession.guilty_votes + (vote === "guilty" ? 1 : 0);
+    const newInnocent = tribunalSession.innocent_votes + (vote === "innocent" ? 1 : 0);
+    const totalVotes = newGuilty + newInnocent;
+
+    let newStatus: TribunalSession["status"] = "voting";
+    if (totalVotes >= 3) {
+      if (newGuilty > newInnocent) newStatus = "guilty";
+      else if (newInnocent > newGuilty) newStatus = "innocent";
+    }
+
+    await supabase
+      .from("tribunal_sessions")
+      .update({ guilty_votes: newGuilty, innocent_votes: newInnocent, status: newStatus })
+      .eq("id", tribunalSession.id);
+
+    if (newStatus === "guilty") {
+      await supabase
+        .from("time_entries")
+        .update({ verification_status: "flagged" })
+        .eq("id", tribunalSession.entry_id);
+    } else if (newStatus === "innocent") {
+      await supabase
+        .from("time_entries")
+        .update({ verification_status: "verified" })
+        .eq("id", tribunalSession.entry_id);
+    }
+
+    const pMap = await loadProfiles();
+    await loadTribunal(pMap);
+    setVotingTribunal(false);
+  }
+
+  // ─── Lottery actions ──────────────────────────────────────────
+
+  async function auditUser(targetUserId: string): Promise<AuditFindings> {
+    if (!orgId) {
+      return { hoursLogged: 0, totalEntries: 0, entriesWithProof: 0, proofPercent: 0, lateEntries: 0, hasCloseout: false, categories: {}, score: 0 };
+    }
+
+    const { data: entries } = await supabase
+      .from("time_entries")
+      .select("*")
+      .eq("user_id", targetUserId)
+      .eq("org_id", orgId)
+      .eq("date", today);
+
+    const { data: closeout } = await supabase
+      .from("daily_closeouts")
+      .select("*")
+      .eq("user_id", targetUserId)
+      .eq("org_id", orgId)
+      .eq("date", today)
+      .maybeSingle();
+
+    const entryList = (entries ?? []) as TimeEntry[];
+    const hoursLogged = entryList.length;
+    const entriesWithProof = entryList.filter((e) => e.proof_urls && e.proof_urls.length > 0).length;
+    const proofPercent = hoursLogged > 0 ? Math.round((entriesWithProof / hoursLogged) * 100) : 0;
+    const lateEntries = entryList.filter((e) => e.is_late).length;
+    const hasCloseout = !!closeout;
+    const categories: Record<string, number> = {};
+    for (const e of entryList) {
+      categories[e.category] = (categories[e.category] ?? 0) + 1;
+    }
+
+    const hoursScore = Math.min(30, Math.round((hoursLogged / 8) * 30));
+    const proofScore = Math.round((proofPercent / 100) * 30);
+    const closeoutScore = hasCloseout ? 20 : 0;
+    const punctualityScore = Math.max(0, 20 - lateEntries * 5);
+    const score = hoursScore + proofScore + closeoutScore + punctualityScore;
+
+    return { hoursLogged, totalEntries: entryList.length, entriesWithProof, proofPercent, lateEntries, hasCloseout, categories, score };
+  }
+
+  async function handleLotterySpinComplete(selectedUserId: string) {
+    if (!orgId) return;
+    setSpinningLottery(false);
+    setAuditingLottery(true);
+
+    const { data: newLottery, error } = await supabase
+      .from("audit_lotteries")
+      .insert({
+        org_id: orgId,
+        date: today,
+        selected_user_id: selectedUserId,
+        status: "auditing",
+        findings: null,
+        passed: null,
+      })
+      .select()
+      .single();
+
+    if (error || !newLottery) {
+      setAuditingLottery(false);
+      return;
+    }
+
+    const findings = await auditUser(selectedUserId);
+    const passed = findings.score >= 70;
+    const finalStatus = passed ? "passed" : "failed";
+
+    await supabase
+      .from("audit_lotteries")
+      .update({ findings: findings as unknown as Record<string, unknown>, passed, status: finalStatus })
+      .eq("id", newLottery.id);
+
+    const pMap = await loadProfiles();
+    setTodayLottery({
+      ...(newLottery as AuditLottery),
+      findings: findings as unknown as Record<string, unknown>,
+      passed,
+      status: finalStatus,
+      profile: pMap.get(selectedUserId) ?? null,
+    });
+    setTodayFindings(findings);
+    setAuditingLottery(false);
+  }
+
   // ─── Loading ───────────────────────────────────────────────────
 
   if (orgLoading || loading) {
@@ -456,6 +765,24 @@ export default function ArenaPage() {
       </div>
 
       {/* Tab content */}
+      {tab === "tribunal" && (
+        <TribunalTab
+          session={tribunalSession}
+          userId={userId}
+          creating={creatingTribunal}
+          voting={votingTribunal}
+          createSession={createTribunalSession}
+          castVote={castTribunalVote}
+          todayLottery={todayLottery}
+          todayFindings={todayFindings}
+          spinning={spinningLottery}
+          auditing={auditingLottery}
+          allMembers={allMembers}
+          onStartSpin={() => setSpinningLottery(true)}
+          onSpinComplete={handleLotterySpinComplete}
+          profileMap={profileMap}
+        />
+      )}
       {tab === "duelos" && (
         <DuelosTab
           duels={activeDuels}
@@ -504,6 +831,480 @@ export default function ArenaPage() {
           placeBet={placePredictionBet}
         />
       )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TAB 0: TRIBUNAL + LOTERIA
+// ═══════════════════════════════════════════════════════════════════
+
+function TribunalTab({
+  session,
+  userId,
+  creating,
+  voting,
+  createSession,
+  castVote,
+  todayLottery,
+  todayFindings,
+  spinning,
+  auditing,
+  allMembers,
+  onStartSpin,
+  onSpinComplete,
+  profileMap,
+}: {
+  session: SessionWithDetails | null;
+  userId: string | null;
+  creating: boolean;
+  voting: boolean;
+  createSession: () => void;
+  castVote: (vote: "guilty" | "innocent") => void;
+  todayLottery: EnrichedLottery | null;
+  todayFindings: AuditFindings | null;
+  spinning: boolean;
+  auditing: boolean;
+  allMembers: TeamMember[];
+  onStartSpin: () => void;
+  onSpinComplete: (selectedId: string) => void;
+  profileMap: Map<string, Profile>;
+}) {
+  const userAlreadyVoted = session?.votes.some((v) => v.user_id === userId) ?? false;
+  const isOwnEntry = session?.nominated_user_id === userId;
+  const isResolved = session?.status === "guilty" || session?.status === "innocent";
+  const totalVotes = (session?.guilty_votes ?? 0) + (session?.innocent_votes ?? 0);
+  const guiltyPct = totalVotes > 0 ? Math.round(((session?.guilty_votes ?? 0) / totalVotes) * 100) : 0;
+
+  const canSpin = allMembers.length >= 2 && !spinning && !auditing && !todayLottery;
+  const hasLotteryResults = todayLottery && todayFindings && todayLottery.profile;
+
+  return (
+    <div className="space-y-8">
+      {/* ── Section 1: Tribunal del Dia ─────────────────────────── */}
+      <div>
+        <p className="palantir-divider text-muted-foreground/40 mb-3">TRIBUNAL DEL DIA</p>
+
+        {!session ? (
+          <div className="border border-border p-6 flex flex-col items-center gap-4">
+            <div className="w-16 h-16 border border-border flex items-center justify-center">
+              <Scale className="w-6 h-6 text-primary/40" />
+            </div>
+            <div className="text-center">
+              <p className="font-mono text-xs text-muted-foreground mb-3">
+                Identifica la entrada mas sospechosa del dia y somete a votacion.
+              </p>
+              <Button
+                onClick={createSession}
+                disabled={creating}
+                className="bg-primary text-primary-foreground font-mono text-xs gap-2"
+              >
+                {creating ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Gavel className="w-3 h-3" />
+                )}
+                {creating ? "Buscando..." : "Iniciar Tribunal"}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {/* Status badge */}
+            <div className={cn(
+              "flex items-center gap-2 px-3 py-2 border font-mono text-xs",
+              session.status === "voting" && "border-amber-500/30 bg-amber-500/5 text-amber-600 dark:text-amber-400",
+              session.status === "guilty" && "border-red-500/30 bg-red-500/5 text-red-600 dark:text-red-400",
+              session.status === "innocent" && "border-green-500/30 bg-green-500/5 text-green-600 dark:text-green-400",
+              session.status === "expired" && "border-border bg-accent/20 text-muted-foreground"
+            )}>
+              {session.status === "voting" && <><Scale className="w-3 h-3" /> Votacion en curso</>}
+              {session.status === "guilty" && <><XCircle className="w-3 h-3" /> CULPABLE</>}
+              {session.status === "innocent" && <><CheckCircle2 className="w-3 h-3" /> INOCENTE</>}
+              {session.status === "expired" && <><Clock className="w-3 h-3" /> Expirada</>}
+            </div>
+
+            {/* Accused entry card */}
+            <div className="border border-border p-4 transition-colors hover:border-primary/30">
+              {/* Accused user */}
+              <div className="flex items-center gap-2 mb-3">
+                <Avatar className="w-7 h-7 ring-1 ring-border">
+                  <AvatarImage src={session.nominated_profile?.avatar_url ?? undefined} />
+                  <AvatarFallback className="text-[8px] font-mono">
+                    {getInitials(session.nominated_profile?.full_name ?? null)}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="text-xs font-mono font-medium">
+                    {session.nominated_profile?.full_name ?? "Desconocido"}
+                  </p>
+                  <p className="font-mono text-[9px] text-muted-foreground/40">Acusado</p>
+                </div>
+              </div>
+
+              {session.entry && (
+                <div className="space-y-2">
+                  {/* Category + hour */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge className={cn("text-[9px] font-mono", CATEGORIES[session.entry.category]?.bgColor, CATEGORIES[session.entry.category]?.color)}>
+                      {CATEGORIES[session.entry.category]?.emoji} {CATEGORIES[session.entry.category]?.label}
+                    </Badge>
+                    <span className="font-mono text-[9px] text-muted-foreground/40 tabular-nums">
+                      {session.entry.hour}:00
+                    </span>
+                    {session.entry.is_late && (
+                      <Badge variant="outline" className="text-[9px] font-mono text-amber-600 border-amber-300">
+                        Tardia
+                      </Badge>
+                    )}
+                  </div>
+
+                  {/* Title */}
+                  <p className="text-sm font-mono font-medium">{session.entry.title}</p>
+                  {session.entry.description ? (
+                    <p className="text-xs text-muted-foreground line-clamp-2">{session.entry.description}</p>
+                  ) : (
+                    <p className="text-xs text-red-500 font-mono flex items-center gap-1">
+                      <AlertTriangle className="w-3 h-3" /> Sin descripcion
+                    </p>
+                  )}
+
+                  {/* Proof status */}
+                  <div className="flex items-center gap-2 text-xs font-mono">
+                    {session.entry.proof_urls && session.entry.proof_urls.length > 0 ? (
+                      <span className="flex items-center gap-1 text-green-600">
+                        <FileText className="w-3 h-3" />
+                        {session.entry.proof_urls.length} evidencia{session.entry.proof_urls.length > 1 ? "s" : ""}
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-red-500">
+                        <ImageOff className="w-3 h-3" /> Sin evidencia
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Reason */}
+                  {session.reason && (
+                    <div className="bg-accent/30 border border-border p-2">
+                      <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 mb-1">
+                        Motivo
+                      </p>
+                      <p className="text-xs font-mono">{session.reason}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Voting area */}
+              {session.status === "voting" && (
+                <div className="mt-3 pt-3 border-t border-border">
+                  {isOwnEntry ? (
+                    <div className="text-center py-2">
+                      <Shield className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
+                      <p className="font-mono text-[9px] text-muted-foreground">No puedes votar tu propia entrada</p>
+                    </div>
+                  ) : userAlreadyVoted ? (
+                    <div className="text-center py-2">
+                      <Check className="w-4 h-4 text-primary mx-auto mb-1" />
+                      <p className="font-mono text-[9px] text-muted-foreground">Voto registrado. Esperando al equipo.</p>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => castVote("guilty")}
+                        disabled={voting}
+                        className="flex-1 bg-red-600 text-white font-mono text-xs gap-1.5 hover:bg-red-700"
+                      >
+                        {voting ? <Loader2 className="w-3 h-3 animate-spin" /> : <XCircle className="w-3 h-3" />}
+                        Culpable
+                      </Button>
+                      <Button
+                        onClick={() => castVote("innocent")}
+                        disabled={voting}
+                        className="flex-1 bg-green-600 text-white font-mono text-xs gap-1.5 hover:bg-green-700"
+                      >
+                        {voting ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
+                        Inocente
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Vote tally */}
+              {totalVotes > 0 && (
+                <div className="mt-3 pt-3 border-t border-border">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Users className="w-3 h-3 text-muted-foreground/40" />
+                    <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40">
+                      Votos ({totalVotes})
+                    </span>
+                  </div>
+
+                  {/* Vote bar */}
+                  <div className="flex h-1.5 w-full overflow-hidden bg-accent/30 mb-2">
+                    {(session?.guilty_votes ?? 0) > 0 && (
+                      <div className="bg-red-500 transition-all duration-500" style={{ width: `${guiltyPct}%` }} />
+                    )}
+                    {(session?.innocent_votes ?? 0) > 0 && (
+                      <div className="bg-green-500 transition-all duration-500" style={{ width: `${100 - guiltyPct}%` }} />
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 mb-2">
+                    <div className="bg-red-500/5 border border-red-500/20 p-2 text-center">
+                      <p className="text-lg font-mono font-bold tabular-nums tracking-tight text-red-600 dark:text-red-400">
+                        {session?.guilty_votes ?? 0}
+                      </p>
+                      <p className="font-mono text-[9px] text-red-600/60">Culpable</p>
+                    </div>
+                    <div className="bg-green-500/5 border border-green-500/20 p-2 text-center">
+                      <p className="text-lg font-mono font-bold tabular-nums tracking-tight text-green-600 dark:text-green-400">
+                        {session?.innocent_votes ?? 0}
+                      </p>
+                      <p className="font-mono text-[9px] text-green-600/60">Inocente</p>
+                    </div>
+                  </div>
+
+                  {/* Individual votes */}
+                  <div className="space-y-1">
+                    {session?.votes.map((v) => (
+                      <div key={v.id} className="flex items-center gap-2">
+                        <Avatar className="w-5 h-5 ring-1 ring-border">
+                          <AvatarImage src={v.profile?.avatar_url ?? undefined} />
+                          <AvatarFallback className="text-[7px] font-mono">
+                            {getInitials(v.profile?.full_name ?? null)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-xs font-mono truncate flex-1">
+                          {v.profile?.full_name?.split(" ")[0] ?? "?"}
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "font-mono text-[8px]",
+                            v.vote === "guilty"
+                              ? "border-red-500/30 text-red-500"
+                              : "border-green-500/30 text-green-500"
+                          )}
+                        >
+                          {v.vote === "guilty" ? "Culpable" : "Inocente"}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Section 2: Loteria Auditoria ────────────────────────── */}
+      <div>
+        <p className="palantir-divider text-muted-foreground/40 mb-3">LOTERIA AUDITORIA</p>
+
+        {!todayLottery && !spinning && !auditing ? (
+          <div className="border border-border p-6 flex flex-col items-center gap-4">
+            <div className="w-16 h-16 border border-border flex items-center justify-center">
+              <Ticket className="w-6 h-6 text-primary/40" />
+            </div>
+            <div className="text-center">
+              <p className="font-mono text-xs text-muted-foreground mb-3">
+                {allMembers.length < 2
+                  ? "Se necesitan al menos 2 miembros para la loteria."
+                  : "Nadie ha sido auditado hoy. Gira la ruleta."}
+              </p>
+              {allMembers.length >= 2 && (
+                <Button
+                  onClick={onStartSpin}
+                  disabled={!canSpin}
+                  className="bg-primary text-primary-foreground font-mono text-xs gap-2"
+                >
+                  <Shuffle className="w-3 h-3" />
+                  Girar Ruleta
+                </Button>
+              )}
+            </div>
+          </div>
+        ) : spinning ? (
+          <div className="border border-primary/30 p-6">
+            <LotterySpinCompact
+              members={allMembers}
+              onComplete={onSpinComplete}
+            />
+          </div>
+        ) : auditing ? (
+          <div className="border border-border p-6 flex flex-col items-center gap-3">
+            <Loader2 className="w-6 h-6 text-primary animate-spin" />
+            <p className="font-mono text-xs text-muted-foreground">Analizando ultimas 24 horas...</p>
+          </div>
+        ) : hasLotteryResults && todayLottery.profile ? (
+          <div className="border border-border p-4 transition-colors hover:border-primary/30">
+            {/* Result header */}
+            <div className="flex items-center gap-3 mb-3">
+              <Avatar className="w-8 h-8 ring-1 ring-border">
+                <AvatarImage src={todayLottery.profile.avatar_url ?? undefined} />
+                <AvatarFallback className="text-[9px] font-mono font-bold">
+                  {getInitials(todayLottery.profile.full_name)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-mono font-medium truncate">
+                  {todayLottery.profile.full_name ?? todayLottery.profile.email}
+                </p>
+                <p className="font-mono text-[9px] text-muted-foreground/40">Auditado hoy</p>
+              </div>
+              <div className={cn(
+                "text-center px-3 py-1.5 border",
+                todayFindings.score >= 70
+                  ? "border-green-500/20 bg-green-500/5"
+                  : "border-red-500/20 bg-red-500/5"
+              )}>
+                <p className={cn(
+                  "text-xl font-mono font-black tabular-nums tracking-tight",
+                  todayFindings.score >= 70 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                )}>
+                  {todayFindings.score}
+                </p>
+              </div>
+              <Badge className={cn(
+                "font-mono text-[9px]",
+                todayFindings.score >= 70
+                  ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400"
+                  : "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400"
+              )}>
+                {todayFindings.score >= 70 ? (
+                  <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> APROBADO</span>
+                ) : (
+                  <span className="flex items-center gap-1"><XCircle className="w-3 h-3" /> REPROBADO</span>
+                )}
+              </Badge>
+            </div>
+
+            {/* Compact findings grid */}
+            <div className="grid grid-cols-4 gap-2">
+              <div className="bg-accent/30 border border-border p-2 text-center">
+                <p className="text-sm font-mono font-bold tabular-nums tracking-tight">{todayFindings.hoursLogged}</p>
+                <p className="font-mono text-[9px] text-muted-foreground/40">Horas</p>
+              </div>
+              <div className="bg-accent/30 border border-border p-2 text-center">
+                <p className="text-sm font-mono font-bold tabular-nums tracking-tight">{todayFindings.proofPercent}%</p>
+                <p className="font-mono text-[9px] text-muted-foreground/40">Evidencia</p>
+              </div>
+              <div className="bg-accent/30 border border-border p-2 text-center">
+                <p className="text-sm font-mono font-bold tabular-nums tracking-tight">{todayFindings.lateEntries}</p>
+                <p className="font-mono text-[9px] text-muted-foreground/40">Tardias</p>
+              </div>
+              <div className="bg-accent/30 border border-border p-2 text-center">
+                <p className="text-sm font-mono font-bold tabular-nums tracking-tight">{todayFindings.hasCloseout ? "Si" : "No"}</p>
+                <p className="font-mono text-[9px] text-muted-foreground/40">Cierre</p>
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+// ─── Compact Lottery Spin ────────────────────────────────────────
+
+function LotterySpinCompact({
+  members,
+  onComplete,
+}: {
+  members: TeamMember[];
+  onComplete: (selectedId: string) => void;
+}) {
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [phase, setPhase] = useState<"fast" | "slowing" | "done">("fast");
+  const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const finalIdxRef = useRef(Math.floor(Math.random() * members.length));
+
+  useEffect(() => {
+    if (members.length === 0) return;
+
+    const totalFastTicks = 20;
+    const totalSlowTicks = 12;
+    let tick = 0;
+    let idx = 0;
+
+    function nextTick() {
+      tick++;
+      idx = (idx + 1) % members.length;
+      setCurrentIdx(idx);
+
+      if (tick < totalFastTicks) {
+        intervalRef.current = setTimeout(nextTick, 60);
+      } else if (tick < totalFastTicks + totalSlowTicks) {
+        const slowTick = tick - totalFastTicks;
+        const delay = 100 + slowTick * 60;
+        setPhase("slowing");
+        intervalRef.current = setTimeout(() => {
+          if (slowTick === totalSlowTicks - 2) {
+            setCurrentIdx(finalIdxRef.current);
+            setPhase("done");
+            setTimeout(() => {
+              onComplete(members[finalIdxRef.current].user_id);
+            }, 600);
+          } else {
+            nextTick();
+          }
+        }, delay);
+      }
+    }
+
+    intervalRef.current = setTimeout(nextTick, 60);
+
+    return () => {
+      if (intervalRef.current) clearTimeout(intervalRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const current = members[currentIdx];
+
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 animate-pulse">
+        Seleccionando candidato...
+      </p>
+      <Avatar className={cn(
+        "w-16 h-16 ring-1 ring-border transition-all duration-300",
+        phase === "done" && "ring-2 ring-primary scale-110"
+      )}>
+        <AvatarImage src={current.profile.avatar_url ?? undefined} />
+        <AvatarFallback className="text-lg font-mono font-bold bg-primary text-primary-foreground">
+          {getInitials(current.profile.full_name)}
+        </AvatarFallback>
+      </Avatar>
+      <p className={cn(
+        "font-mono font-bold tabular-nums tracking-tight transition-all duration-300",
+        phase === "fast" && "text-muted-foreground blur-[1px] text-xs",
+        phase === "slowing" && "text-foreground text-sm",
+        phase === "done" && "text-primary text-base"
+      )}>
+        {current.profile.full_name ?? current.profile.email}
+      </p>
+      <div className="flex items-center gap-1">
+        {members.map((m, i) => (
+          <Avatar
+            key={m.user_id}
+            className={cn(
+              "w-6 h-6 transition-all duration-200 shrink-0",
+              i === currentIdx
+                ? "ring-2 ring-primary scale-125"
+                : "ring-1 ring-border/30 opacity-40 scale-90"
+            )}
+          >
+            <AvatarImage src={m.profile.avatar_url ?? undefined} />
+            <AvatarFallback className="text-[8px] font-mono">
+              {getInitials(m.profile.full_name)}
+            </AvatarFallback>
+          </Avatar>
+        ))}
+      </div>
     </div>
   );
 }

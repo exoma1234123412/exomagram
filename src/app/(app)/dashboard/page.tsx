@@ -18,6 +18,7 @@ import { SocialPressureBar } from "@/components/dashboard/social-pressure-bar";
 import { PublicFeed } from "@/components/feed/public-feed";
 import { ThroneBanner } from "@/components/social/throne-crown";
 import { ForcedComparison } from "@/components/social/forced-comparison";
+import { HealthCheckin } from "@/components/dashboard/health-checkin";
 import { TeamDebt } from "@/components/accountability/team-debt";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -140,6 +141,9 @@ export default function DashboardPage() {
 
       {/* Daily score — your personal scorecard */}
       {isToday && <DailyScoreWidget orgId={orgId} />}
+
+      {/* Health check-in — daily wellness */}
+      {isToday && <HealthCheckin orgId={orgId} />}
 
       {/* Quick log — fast entry */}
       {isToday && <QuickLog orgId={orgId} />}

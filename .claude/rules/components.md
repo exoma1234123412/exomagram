@@ -18,4 +18,6 @@ paths:
 - Error messages: wrap in `bg-destructive/5 border border-destructive/20`
 - Typography: headers use `font-mono font-bold uppercase tracking-tight`
 - Data values: use `font-mono tabular-nums` for numbers
-- Section labels: `font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40`
+- Section labels: `font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground`
+- NEVER use opacity below /60 on text. Minimum contrast: `text-muted-foreground` (0.58 lightness on dark)
+- Inactive icons: `text-muted-foreground` not `/50` or `/40`

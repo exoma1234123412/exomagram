@@ -16,7 +16,7 @@ import {
   Mail, Crosshair,
   ArrowDownUp, CandlestickChart, Hammer, Newspaper, Ghost, Timer, Ticket,
   UserMinus, Link2, Clock3, ShieldMinus, Lock, Handshake, Shield,
-  Radar, FileText,
+  Radar, FileText, Bone, Database, Table2,
 } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Logo } from "@/components/layout/logo";
@@ -50,6 +50,8 @@ const menuSections = [
       { href: "/bios", label: "Bios AI", icon: Brain },
       { href: "/archaeology", label: "Fósiles", icon: Pickaxe },
       { href: "/excuses", label: "Detector Excusas", icon: MessageSquareWarning },
+      { href: "/excuse-archaeology", label: "Arqueología Excusas", icon: Bone },
+      { href: "/brutal-truth", label: "Verdad Brutal", icon: Skull },
     ],
   },
   {
@@ -61,11 +63,13 @@ const menuSections = [
       { href: "/capital", label: "Trust Capital", icon: ShieldMinus },
       { href: "/irrevocable", label: "Apuesta Irrevocable", icon: Lock },
       { href: "/collateral", label: "Colateral", icon: Handshake },
+      { href: "/shame-score", label: "Indice Verguenza", icon: Skull },
     ],
   },
   {
     label: "VIGILANCIA",
     items: [
+      { href: "/surveillance", label: "Vigilancia Total", icon: Eye },
       { href: "/radar", label: "Radar", icon: Radar },
       { href: "/pulse", label: "Pulso EKG", icon: Activity },
       { href: "/trust-decay", label: "Trust Decay", icon: Droplets },
@@ -77,6 +81,7 @@ const menuSections = [
       { href: "/twin", label: "Accountability Twin", icon: Users },
       { href: "/deadman", label: "Dead Man's Switch", icon: Timer },
       { href: "/ghost-radar", label: "Fantasma Inverso", icon: Ghost },
+      { href: "/ghost-mode", label: "Modo Fantasma", icon: Ghost },
       { href: "/lottery", label: "Lotería Auditoría", icon: Ticket },
       { href: "/inverted", label: "Modo Invertido", icon: ArrowDownUp },
     ],
@@ -91,6 +96,7 @@ const menuSections = [
       { href: "/autopsy", label: "Autopsia Reunión", icon: Stethoscope },
       { href: "/retro", label: "Retro semanal", icon: BarChart3 },
       { href: "/health", label: "Salud", icon: Heart },
+      { href: "/matrix", label: "Matriz", icon: Table2 },
     ],
   },
   {
@@ -106,10 +112,12 @@ const menuSections = [
       { href: "/warroom", label: "War Room", icon: Monitor },
       { href: "/future-letter", label: "Carta Futuro", icon: Mail },
       { href: "/bounties", label: "Bounties", icon: Crosshair },
+      { href: "/blood-contract", label: "Contrato Sangre", icon: Droplets },
       { href: "/elimination", label: "Eliminación", icon: Skull },
       { href: "/survivor", label: "Battle Royale", icon: Swords },
       { href: "/subastas", label: "Subasta Tareas", icon: Hammer },
       { href: "/trust-market", label: "Mercado Confianza", icon: CandlestickChart },
+      { href: "/black-market", label: "Mercado Negro", icon: CandlestickChart },
       { href: "/obituario", label: "Obituario", icon: Newspaper },
       { href: "/price-game", label: "Precio Correcto", icon: ArrowDownUp },
     ],
@@ -130,7 +138,9 @@ const menuSections = [
       { href: "/capsule", label: "Time Capsule", icon: Package },
       { href: "/retention", label: "Retención", icon: ShieldAlert },
       { href: "/insurance", label: "Seguro Trust Score", icon: Shield },
+      { href: "/inheritance", label: "Herencia Digital", icon: Users },
       { href: "/reports", label: "Reportes", icon: FileText },
+      { href: "/raw-data", label: "Raw Data", icon: Database },
     ],
   },
   {

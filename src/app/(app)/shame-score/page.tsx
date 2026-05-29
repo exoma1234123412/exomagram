@@ -8,15 +8,11 @@ import type { Profile } from "@/lib/types/database";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Skull,
-  Users,
-  TrendingUp,
   ChevronDown,
   ChevronUp,
   Calendar,
-  AlertTriangle,
-  Shield,
 } from "lucide-react";
-import { subDays, format, startOfWeek, endOfWeek, eachDayOfInterval } from "date-fns";
+import { subDays, format, startOfWeek, endOfWeek } from "date-fns";
 import { es } from "date-fns/locale";
 
 /* ------------------------------------------------------------------ */
@@ -452,7 +448,6 @@ export default function ShameScorePage() {
     ? Math.round(members.reduce((s, m) => s + m.score, 0) / members.length)
     : 0;
   const totalTeamShame = members.reduce((s, m) => s + m.score, 0);
-  const maxShame = members.length > 0 ? members[0].score : 0;
   const cleanMembers = members.filter((m) => m.score < 50);
   const criticalMembers = members.filter((m) => m.score >= 500);
 

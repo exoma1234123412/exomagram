@@ -26,6 +26,7 @@ import { EntryVerdict } from "@/components/social/entry-verdict";
 import { MomentumKiller } from "@/components/social/momentum-killer";
 import { ProductivityPrison } from "@/components/social/productivity-prison";
 import { OrgProvider } from "@/lib/context/org-context";
+import { ActivityTrackerProvider } from "@/components/tracking/activity-tracker";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [logDialogOpen, setLogDialogOpen] = useState(false);
@@ -38,6 +39,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <OrgProvider>
+      <ActivityTrackerProvider>
       <HeartbeatProvider>
         <DynamicTitleProvider>
           <ThroneProvider>
@@ -77,6 +79,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </ThroneProvider>
         </DynamicTitleProvider>
       </HeartbeatProvider>
+      </ActivityTrackerProvider>
     </OrgProvider>
   );
 }

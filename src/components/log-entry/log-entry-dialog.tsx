@@ -9,8 +9,16 @@ import {
   ENERGY_LABELS,
   MAX_BACKFILL_HOURS,
   MIN_TITLE_LENGTH,
+  OUTPUT_TYPES,
+  TOOLS,
+  LOCATIONS,
+  DIFFICULTY_LABELS,
+  FOCUS_LABELS,
+  VALUE_LABELS,
+  STRESS_LABELS,
+  CONFIDENCE_LABELS,
 } from "@/lib/constants";
-import type { WorkCategory } from "@/lib/types/database";
+import type { WorkCategory, OutputType, WorkLocation } from "@/lib/types/database";
 import {
   Dialog,
   DialogContent,
@@ -30,7 +38,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { cn, formatHour } from "@/lib/utils";
-import { AlertTriangle, Shield, Clock, BookTemplate, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, Shield, Clock, BookTemplate, CheckCircle2, ChevronDown } from "lucide-react";
 import { updateStreakOnEntry } from "@/lib/streak-utils";
 import { EntryTemplates, ManageTemplatesDialog, type EntryTemplate } from "./entry-templates";
 
@@ -67,6 +75,58 @@ export function LogEntryDialog({
   const [showSuccess, setShowSuccess] = useState(false);
   const savedTitleRef = useRef("");
 
+  // V10 — Advanced data fields
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [difficulty, setDifficulty] = useState<number | null>(null);
+  const [focusQuality, setFocusQuality] = useState<number | null>(null);
+  const [valueRating, setValueRating] = useState<number | null>(null);
+  const [stressLevel, setStressLevel] = useState<number | null>(null);
+  const [confidence, setConfidence] = useState<number | null>(null);
+  const [interruptions, setInterruptions] = useState<number>(0);
+  const [contextSwitches, setContextSwitches] = useState<number>(0);
+  const [outputType, setOutputType] = useState<OutputType | null>(null);
+  const [location, setLocation] = useState<WorkLocation | null>(null);
+  const [toolsUsed, setToolsUsed] = useState<string[]>([]);
+  const [collaborators, setCollaborators] = useState<string[]>([]);
+  const [clientFacing, setClientFacing] = useState(false);
+  const [couldBeAsync, setCouldBeAsync] = useState(false);
+  const [blockerDetail, setBlockerDetail] = useState<string | null>(null);
+  const [skillsTags, setSkillsTags] = useState("");
+  const [learningNotes, setLearningNotes] = useState<string | null>(null);
+  const [orgMembers, setOrgMembers] = useState<{ id: string; full_name: string | null }[]>([]);
+
+  // Fetch org members for collaborator selection
+  useEffect(() => {
+    if (!open) return;
+    async function loadMembers() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: membership } = await supabase
+        .from("org_members")
+        .select("org_id")
+        .eq("user_id", user.id)
+        .limit(1)
+        .single();
+      if (!membership) return;
+      const { data: members } = await supabase
+        .from("org_members")
+        .select("user_id")
+        .eq("org_id", membership.org_id);
+      if (!members) return;
+      const otherIds = members
+        .map((m: { user_id: string }) => m.user_id)
+        .filter((id: string) => id !== user.id);
+      if (otherIds.length === 0) { setOrgMembers([]); return; }
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", otherIds);
+      if (profiles) setOrgMembers(profiles);
+    }
+    loadMembers();
+  }, [open]);
+
   // Reset form state when dialog closes
   useEffect(() => {
     if (!open) {
@@ -81,6 +141,24 @@ export function LogEntryDialog({
       setProofUrls("");
       setError(null);
       setShowSuccess(false);
+      // Reset advanced fields
+      setAdvancedOpen(false);
+      setDifficulty(null);
+      setFocusQuality(null);
+      setValueRating(null);
+      setStressLevel(null);
+      setConfidence(null);
+      setInterruptions(0);
+      setContextSwitches(0);
+      setOutputType(null);
+      setLocation(null);
+      setToolsUsed([]);
+      setCollaborators([]);
+      setClientFacing(false);
+      setCouldBeAsync(false);
+      setBlockerDetail(null);
+      setSkillsTags("");
+      setLearningNotes(null);
     }
   }, [open, defaultHour, defaultDate]);
 
@@ -149,6 +227,11 @@ export function LogEntryDialog({
       .map((l) => l.trim())
       .filter(Boolean);
 
+    const skillsArray = skillsTags
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
     const { error: insertError } = await supabase.from("time_entries").upsert(
       {
         user_id: user.id,
@@ -167,6 +250,23 @@ export function LogEntryDialog({
         minutes_late: lateness.minutesLate,
         logged_at: new Date().toISOString(),
         verification_status: proofArray.length > 0 ? "unverified" : "unverified",
+        // V10 — Advanced data
+        difficulty: difficulty as 1 | 2 | 3 | 4 | 5 | null,
+        focus_quality: focusQuality as 1 | 2 | 3 | 4 | 5 | null,
+        value_rating: valueRating as 1 | 2 | 3 | 4 | 5 | null,
+        stress_level: stressLevel as 1 | 2 | 3 | 4 | 5 | null,
+        confidence: confidence as 1 | 2 | 3 | 4 | 5 | null,
+        interruptions,
+        context_switches: contextSwitches,
+        output_type: outputType,
+        location,
+        tools_used: toolsUsed.length > 0 ? toolsUsed : [],
+        collaborators: collaborators.length > 0 ? collaborators : [],
+        client_facing: clientFacing,
+        could_be_async: category === "meeting" ? couldBeAsync : null,
+        blocker_detail: category === "blocked" ? blockerDetail : null,
+        skills_tags: skillsArray.length > 0 ? skillsArray : [],
+        learning_notes: category === "learning" ? learningNotes : null,
       },
       { onConflict: "user_id,org_id,date,hour" }
     );
@@ -220,6 +320,24 @@ export function LogEntryDialog({
       setProject("");
       setProofUrls("");
       setShowSuccess(false);
+      // Reset advanced fields
+      setAdvancedOpen(false);
+      setDifficulty(null);
+      setFocusQuality(null);
+      setValueRating(null);
+      setStressLevel(null);
+      setConfidence(null);
+      setInterruptions(0);
+      setContextSwitches(0);
+      setOutputType(null);
+      setLocation(null);
+      setToolsUsed([]);
+      setCollaborators([]);
+      setClientFacing(false);
+      setCouldBeAsync(false);
+      setBlockerDetail(null);
+      setSkillsTags("");
+      setLearningNotes(null);
       onOpenChange(false);
     }, 1500);
   }
@@ -445,6 +563,287 @@ export function LogEntryDialog({
                 ))}
               </div>
             </div>
+          </div>
+
+          {/* DATOS AVANZADOS — collapsible section */}
+          <div className="border border-border p-3 mt-4">
+            <button
+              type="button"
+              onClick={() => setAdvancedOpen(!advancedOpen)}
+              className="flex items-center gap-1 px-2 py-1 cursor-pointer w-full"
+            >
+              <ChevronDown
+                className={cn(
+                  "w-3.5 h-3.5 text-muted-foreground/40 transition-transform duration-200",
+                  advancedOpen && "rotate-180"
+                )}
+              />
+              <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40">
+                Datos avanzados
+              </span>
+            </button>
+
+            {advancedOpen && (
+              <div className="mt-3 space-y-4">
+                {/* Row 1 — Five 1-5 Rating Scales */}
+                <div className="space-y-3">
+                  {([
+                    { label: "Dificultad", value: difficulty, setter: setDifficulty, labels: DIFFICULTY_LABELS },
+                    { label: "Enfoque", value: focusQuality, setter: setFocusQuality, labels: FOCUS_LABELS },
+                    { label: "Valor", value: valueRating, setter: setValueRating, labels: VALUE_LABELS },
+                    { label: "Estrés", value: stressLevel, setter: setStressLevel, labels: STRESS_LABELS },
+                    { label: "Confianza", value: confidence, setter: setConfidence, labels: CONFIDENCE_LABELS },
+                  ] as const).map((rating) => (
+                    <div key={rating.label} className="flex items-center gap-3">
+                      <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 w-20 shrink-0">
+                        {rating.label}
+                      </span>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((level) => (
+                          <button
+                            key={level}
+                            type="button"
+                            onClick={() => rating.setter(rating.value === level ? null : level)}
+                            className={cn(
+                              "w-7 h-7 text-xs font-mono border border-border transition-colors",
+                              rating.value === level
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "hover:border-primary/30"
+                            )}
+                            title={rating.labels[level]}
+                          >
+                            {level}
+                          </button>
+                        ))}
+                      </div>
+                      {rating.value && (
+                        <span className="text-[10px] font-mono text-muted-foreground/60">
+                          {rating.labels[rating.value]}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Row 2 — Counts */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40">
+                      Interrupciones
+                    </span>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={interruptions}
+                      onChange={(e) => setInterruptions(Math.max(0, parseInt(e.target.value) || 0))}
+                      className="h-7 text-xs font-mono w-20"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40">
+                      Cambios de contexto
+                    </span>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={contextSwitches}
+                      onChange={(e) => setContextSwitches(Math.max(0, parseInt(e.target.value) || 0))}
+                      className="h-7 text-xs font-mono w-20"
+                    />
+                  </div>
+                </div>
+
+                {/* Row 3 — Output Type & Location */}
+                <div className="space-y-1">
+                  <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40">
+                    Tipo de output
+                  </span>
+                  <div className="flex flex-wrap gap-1">
+                    {(Object.keys(OUTPUT_TYPES) as Array<keyof typeof OUTPUT_TYPES>).map((key) => {
+                      const opt = OUTPUT_TYPES[key];
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => setOutputType(outputType === key ? null : key as OutputType)}
+                          className={cn(
+                            "px-2 py-1 text-[10px] font-mono border border-border transition-colors",
+                            outputType === key
+                              ? "bg-primary/10 border-primary/40 text-primary"
+                              : "hover:border-primary/30"
+                          )}
+                        >
+                          {opt.emoji} {opt.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40">
+                    Ubicacion
+                  </span>
+                  <div className="flex flex-wrap gap-1">
+                    {(Object.keys(LOCATIONS) as Array<keyof typeof LOCATIONS>).map((key) => {
+                      const loc = LOCATIONS[key];
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => setLocation(location === key ? null : key as WorkLocation)}
+                          className={cn(
+                            "px-2 py-1 text-[10px] font-mono border border-border transition-colors",
+                            location === key
+                              ? "bg-primary/10 border-primary/40 text-primary"
+                              : "hover:border-primary/30"
+                          )}
+                        >
+                          {loc.emoji} {loc.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Row 4 — Tools Used */}
+                <div className="space-y-1">
+                  <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40">
+                    Herramientas
+                  </span>
+                  <div className="flex flex-wrap gap-1">
+                    {(Object.keys(TOOLS) as Array<keyof typeof TOOLS>).map((key) => {
+                      const tool = TOOLS[key];
+                      const selected = toolsUsed.includes(key);
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() =>
+                            setToolsUsed(
+                              selected
+                                ? toolsUsed.filter((t) => t !== key)
+                                : [...toolsUsed, key]
+                            )
+                          }
+                          className={cn(
+                            "px-2 py-1 text-[10px] font-mono border border-border transition-colors",
+                            selected
+                              ? "bg-primary/10 border-primary/40 text-primary"
+                              : "hover:border-primary/30"
+                          )}
+                        >
+                          {tool.emoji} {tool.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Row 5 — Collaborators */}
+                {orgMembers.length > 0 && (
+                  <div className="space-y-1">
+                    <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40">
+                      Colaboradores
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {orgMembers.map((member) => (
+                        <label
+                          key={member.id}
+                          className={cn(
+                            "flex items-center gap-1.5 px-2 py-1 text-[10px] font-mono border border-border cursor-pointer transition-colors",
+                            collaborators.includes(member.id)
+                              ? "bg-primary/10 border-primary/40 text-primary"
+                              : "hover:border-primary/30"
+                          )}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={collaborators.includes(member.id)}
+                            onChange={(e) =>
+                              setCollaborators(
+                                e.target.checked
+                                  ? [...collaborators, member.id]
+                                  : collaborators.filter((c) => c !== member.id)
+                              )
+                            }
+                            className="w-3 h-3 accent-primary"
+                          />
+                          {member.full_name || "Sin nombre"}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Row 6 — Boolean Flags */}
+                <div className="flex flex-wrap gap-3">
+                  <label className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-mono border border-border cursor-pointer transition-colors hover:border-primary/30">
+                    <input
+                      type="checkbox"
+                      checked={clientFacing}
+                      onChange={(e) => setClientFacing(e.target.checked)}
+                      className="w-3 h-3 accent-primary"
+                    />
+                    Cliente externo
+                  </label>
+                  {category === "meeting" && (
+                    <label className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-mono border border-border cursor-pointer transition-colors hover:border-primary/30">
+                      <input
+                        type="checkbox"
+                        checked={couldBeAsync}
+                        onChange={(e) => setCouldBeAsync(e.target.checked)}
+                        className="w-3 h-3 accent-primary"
+                      />
+                      Pudo ser async
+                    </label>
+                  )}
+                </div>
+
+                {/* Row 7 — Conditional text fields */}
+                {category === "blocked" && (
+                  <div className="space-y-1">
+                    <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40">
+                      Detalle del bloqueo
+                    </span>
+                    <Textarea
+                      value={blockerDetail ?? ""}
+                      onChange={(e) => setBlockerDetail(e.target.value || null)}
+                      placeholder="Describe qué te bloquea y qué necesitas para avanzar..."
+                      rows={2}
+                      className="text-xs"
+                    />
+                  </div>
+                )}
+
+                <div className="space-y-1">
+                  <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40">
+                    Skills usados
+                  </span>
+                  <Input
+                    value={skillsTags}
+                    onChange={(e) => setSkillsTags(e.target.value)}
+                    placeholder="react, typescript, sql (separados por coma)"
+                    className="h-7 text-xs font-mono"
+                  />
+                </div>
+
+                {category === "learning" && (
+                  <div className="space-y-1">
+                    <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40">
+                      Notas de aprendizaje
+                    </span>
+                    <Textarea
+                      value={learningNotes ?? ""}
+                      onChange={(e) => setLearningNotes(e.target.value || null)}
+                      placeholder="Que aprendiste, recursos consultados, conclusiones..."
+                      rows={2}
+                      className="text-xs"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {error && (
