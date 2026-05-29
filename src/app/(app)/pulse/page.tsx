@@ -126,14 +126,19 @@ export default function PulsePage() {
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center h-screen text-muted-foreground">Cargando...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center py-24 gap-3">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
+        <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
       <div className="flex items-center gap-3 mb-2">
         <HeartPulse className="w-6 h-6 text-pink-500" />
-        <h1 className="text-2xl font-bold">Pulse Check</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Pulse Check</h1>
       </div>
       <p className="text-muted-foreground text-sm mb-6">
         Encuesta anonima semanal del equipo

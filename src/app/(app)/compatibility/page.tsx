@@ -138,17 +138,20 @@ export default function CompatibilityPage() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
       <div className="flex items-center gap-3 mb-2">
         <GitMerge className="w-6 h-6 text-primary" />
-        <h1 className="text-2xl font-bold">Compatibilidad</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Compatibilidad</h1>
       </div>
       <p className="text-muted-foreground text-sm mb-6">
         Patrones de colaboracion entre miembros (30 dias)
       </p>
 
       {loading ? (
-        <div className="text-center py-20 text-muted-foreground">Cargando...</div>
+        <div className="flex flex-col items-center justify-center py-24 gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
+          <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
+        </div>
       ) : pairs.length === 0 ? (
         <div className="text-center py-20 text-muted-foreground">
           No hay suficientes datos de colaboracion todavia.

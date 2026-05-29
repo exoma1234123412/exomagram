@@ -201,7 +201,7 @@
     background: linear-gradient(
       90deg,
       oklch(0.95 0.005 280) 0%,
-      oklch(0.92 0.01 275) 50%,
+      oklch(0.92 0.01 258) 50%,
       oklch(0.95 0.005 280) 100%
     );
     background-size: 200% 100%;
@@ -212,7 +212,7 @@
     background: linear-gradient(
       90deg,
       oklch(0.22 0.015 280) 0%,
-      oklch(0.28 0.02 275) 50%,
+      oklch(0.28 0.02 258) 50%,
       oklch(0.22 0.015 280) 100%
     );
     background-size: 200% 100%;

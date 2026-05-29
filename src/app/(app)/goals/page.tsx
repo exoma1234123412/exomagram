@@ -24,7 +24,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { Target, Plus, CheckCircle2, X, Loader2 } from "lucide-react";
+import { Target, Plus, CheckCircle2, X } from "lucide-react";
 
 interface Goal {
   id: string;

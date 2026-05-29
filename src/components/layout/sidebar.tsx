@@ -36,6 +36,12 @@ import {
   PieChart,
   BookOpen as Journal,
   HeartPulse,
+  Plug,
+  FileText,
+  Gauge,
+  Flag,
+  CreditCard,
+  Settings2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/notifications/notification-bell";
@@ -52,6 +58,7 @@ const mainNav = [
 
 const insightsNav = [
   { href: "/audit-daily", label: "AI Audit", icon: Brain },
+  { href: "/retro", label: "Retro Semanal", icon: Brain },
   { href: "/accountability", label: "Accountability", icon: Eye },
   { href: "/health", label: "Salud", icon: Heart },
   { href: "/weekly", label: "Semanal", icon: BarChart3 },
@@ -64,6 +71,9 @@ const insightsNav = [
   { href: "/org-stats", label: "Org Stats", icon: Building2 },
   { href: "/compatibility", label: "Compatibilidad", icon: GitMerge },
   { href: "/budgets", label: "Budgets", icon: PieChart },
+  { href: "/capacity", label: "Capacidad", icon: Gauge },
+  { href: "/sprints", label: "Sprints", icon: Flag },
+  { href: "/reports", label: "Reportes", icon: FileText },
   { href: "/compare", label: "Comparar", icon: Eye },
   { href: "/digest", label: "Digest", icon: BookOpen },
 ];
@@ -85,6 +95,9 @@ const socialNav = [
 const bottomNav = [
   { href: "/profile", label: "Mi Perfil", icon: User },
   { href: "/admin", label: "Admin", icon: ShieldIcon },
+  { href: "/org-settings", label: "Org Config", icon: Settings2 },
+  { href: "/integrations", label: "Integraciones", icon: Plug },
+  { href: "/pricing", label: "Plan", icon: CreditCard },
   { href: "/settings", label: "Ajustes", icon: Settings },
 ];
 
