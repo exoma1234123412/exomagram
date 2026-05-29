@@ -116,6 +116,10 @@ async function runSurveillance(
     { data: yesterdayAggregates },
     { data: baselines },
     { data: strongCorrelations },
+    { data: todayVerifications },
+    { data: recentShoutouts },
+    { data: recentDailyAggs },
+    { data: recentWeeklyAggs },
   ] = await Promise.all([
     supabase.from("org_members").select("user_id, role, profiles(full_name, email, work_start_hour, work_end_hour)").eq("org_id", orgId),
     supabase.from("time_entries").select("user_id, hour, category, title, is_late, proof_urls, mood, energy, difficulty, focus_quality, value_rating, stress_level, verification_status").eq("org_id", orgId).eq("date", today).is("deleted_at", null),
@@ -141,6 +145,11 @@ async function runSurveillance(
     supabase.from("personal_baselines").select("user_id, avg_daily_hours, stddev_daily_hours, category_distribution, avg_mood, avg_energy, avg_stress, avg_quality_score, avg_proof_rate, avg_trust_score, trust_trend, typical_grade, promise_reliability, standup_rate, closeout_rate, avg_sleep_hours, data_completeness").eq("org_id", orgId).order("computed_date", { ascending: false }),
     // V12 — Strong correlations for context
     supabase.from("correlation_insights").select("user_id, dimension_a, dimension_b, correlation_coefficient, strength, insight").eq("org_id", orgId).in("strength", ["strong_positive", "strong_negative"]).order("computed_date", { ascending: false }).limit(30),
+    // PSYCHOLOGY DATA — reciprocity, peaks, shoutouts, recent grades
+    supabase.from("entry_reactions").select("user_id, entry_id, reaction, created_at").eq("reaction", "verified").gte("created_at", `${today}T00:00:00`),
+    supabase.from("shoutouts").select("from_user_id, to_user_id").eq("org_id", orgId).gte("date", yesterday),
+    supabase.from("daily_aggregates").select("user_id, total_hours, ai_grade, ai_score, trust_score, date").eq("org_id", orgId).order("date", { ascending: false }).limit(50),
+    supabase.from("weekly_aggregates").select("user_id, total_hours, avg_ai_score, avg_trust_score, week_start").eq("org_id", orgId).order("week_start", { ascending: false }).limit(20),
   ]);
 
   // ============================================================
@@ -166,6 +175,85 @@ async function runSurveillance(
     correlationMap.set(c.user_id, list);
   }
 
+  // ============================================================
+  // PSYCHOLOGY PRE-COMPUTATION
+  // ============================================================
+
+  // Reciprocity: verifications given today per user
+  const verificationsGiven = new Map<string, number>();
+  for (const v of todayVerifications ?? []) {
+    verificationsGiven.set(v.user_id, (verificationsGiven.get(v.user_id) ?? 0) + 1);
+  }
+
+  // Shoutout reciprocity: given vs received
+  const shoutoutsGiven = new Map<string, number>();
+  const shoutoutsReceived = new Map<string, number>();
+  for (const s of recentShoutouts ?? []) {
+    shoutoutsGiven.set(s.from_user_id, (shoutoutsGiven.get(s.from_user_id) ?? 0) + 1);
+    shoutoutsReceived.set(s.to_user_id, (shoutoutsReceived.get(s.to_user_id) ?? 0) + 1);
+  }
+
+  // Peak performance + consecutive bad days + moral licensing data
+  const peakData = new Map<string, { bestHours: number; bestTrust: number; bestGrade: string; bestWeekHours: number }>();
+  const consecutiveBadDays = new Map<string, number>();
+  const recentGrades = new Map<string, string[]>();
+
+  for (const agg of recentDailyAggs ?? []) {
+    const uid = agg.user_id;
+    // Track peaks
+    const current = peakData.get(uid) ?? { bestHours: 0, bestTrust: 0, bestGrade: "F", bestWeekHours: 0 };
+    if (agg.total_hours > current.bestHours) current.bestHours = agg.total_hours;
+    if ((agg.trust_score ?? 0) > current.bestTrust) current.bestTrust = agg.trust_score ?? 0;
+    const gradeOrder = ["A", "B", "C", "D", "F"];
+    if (gradeOrder.indexOf(agg.ai_grade ?? "F") < gradeOrder.indexOf(current.bestGrade)) current.bestGrade = agg.ai_grade ?? "F";
+    peakData.set(uid, current);
+
+    // Track recent grades for moral licensing + consecutive bad days
+    const grades = recentGrades.get(uid) ?? [];
+    grades.push(agg.ai_grade ?? "?");
+    recentGrades.set(uid, grades);
+  }
+
+  // Consecutive bad days (D or F from most recent)
+  for (const [uid, grades] of recentGrades) {
+    let bad = 0;
+    for (const g of grades) { // grades are in desc date order
+      if (g === "D" || g === "F") bad++;
+      else break;
+    }
+    consecutiveBadDays.set(uid, bad);
+  }
+
+  // Weekly peaks
+  for (const w of recentWeeklyAggs ?? []) {
+    const current = peakData.get(w.user_id) ?? { bestHours: 0, bestTrust: 0, bestGrade: "F", bestWeekHours: 0 };
+    if (w.total_hours > current.bestWeekHours) current.bestWeekHours = w.total_hours;
+    peakData.set(w.user_id, current);
+  }
+
+  // Head-to-head pairs (find closest performers for competitive arousal)
+  const memberHours: { uid: string; name: string; hours: number }[] = [];
+  for (const m of members ?? []) {
+    const p = m.profiles as unknown as { full_name: string } | null;
+    const hours = (todayEntries ?? []).filter((e: any) => e.user_id === m.user_id).length;
+    memberHours.push({ uid: m.user_id, name: p?.full_name ?? "?", hours });
+  }
+  memberHours.sort((a, b) => b.hours - a.hours);
+  const headToHead: string[] = [];
+  for (let i = 0; i < memberHours.length - 1; i++) {
+    const diff = Math.abs(memberHours[i].hours - memberHours[i + 1].hours);
+    if (diff <= 2 && memberHours[i].hours > 0) {
+      headToHead.push(`${memberHours[i].name} ${memberHours[i].hours}h vs ${memberHours[i + 1].name} ${memberHours[i + 1].hours}h`);
+    }
+  }
+
+  // Team completion rates (for social proof)
+  const totalMembers = (members ?? []).length;
+  const membersWithEntries = new Set((todayEntries ?? []).map((e: any) => e.user_id)).size;
+  const membersWithStandup = standupSet.size;
+  const membersWithCloseout = closeoutSet.size;
+  const membersWithHealth = healthMap.size;
+
   // Track how many notifications each person got today (avoid spam)
   const notifCounts = new Map<string, number>();
   for (const n of recentNotifs ?? []) {
@@ -183,6 +271,17 @@ async function runSurveillance(
     }
     state += "\n";
   }
+
+  // Team-level psychology data
+  state += `=== DATOS PARA TÉCNICAS PSICOLÓGICAS ===\n`;
+  state += `SOCIAL_PROOF: ${membersWithEntries}/${totalMembers} con entradas, ${membersWithStandup}/${totalMembers} con standup, ${membersWithCloseout}/${totalMembers} con closeout, ${membersWithHealth}/${totalMembers} con health check\n`;
+  if (headToHead.length > 0) {
+    state += `COMPETITIVE_AROUSAL matchups: ${headToHead.join(" | ")}\n`;
+  }
+  state += `SCARCITY: son las ${hour}:${String(minute).padStart(2, "0")}. Horas restantes de trabajo: ~${Math.max(0, 18 - hour)}. ${hour >= 15 ? "ZONA DE URGENCIA (después de 3pm)" : hour < 10 ? "ZONA MAÑANA (hot-cold gap)" : "ZONA PRODUCTIVA"}\n`;
+  const dayName = new Date().toLocaleDateString("es-MX", { weekday: "long", timeZone: "America/Monterrey" });
+  state += `TEMPORAL_LANDMARKS: ${dayName}${dayName === "lunes" ? " (FRESH START — nueva semana)" : dayName === "viernes" ? " (CIERRE SEMANAL — última oportunidad)" : ""}\n`;
+  state += `RANKING HOY: ${memberHours.map((m, i) => `${i + 1}. ${m.name} ${m.hours}h`).join(", ")}\n\n`;
 
   state += "=== ESTADO POR PERSONA ===\n";
 
@@ -280,6 +379,31 @@ async function runSurveillance(
     // V11 — Health check status
     state += `  Health check: ${healthMap.has(m.user_id) ? "completado" : "PENDIENTE"}\n`;
     state += `  Notificaciones AI hoy: ${notifsToday}\n`;
+
+    // ── PSYCHOLOGY DATA ──
+    const peak = peakData.get(m.user_id);
+    const badDays = consecutiveBadDays.get(m.user_id) ?? 0;
+    const grades = recentGrades.get(m.user_id) ?? [];
+    const verificationsOut = verificationsGiven.get(m.user_id) ?? 0;
+    const shoutsGiven = shoutoutsGiven.get(m.user_id) ?? 0;
+    const shoutsReceived = shoutoutsReceived.get(m.user_id) ?? 0;
+    const yGrade = grades[0] ?? "?";
+
+    state += `  ── PSYCH DATA ──\n`;
+    if (peak) {
+      state += `  PEAK: mejor_día=${peak.bestHours}h, mejor_trust=${peak.bestTrust}, mejor_grade=${peak.bestGrade}, mejor_semana=${peak.bestWeekHours}h\n`;
+    }
+    state += `  ANCHORING: ayer_grade=${yGrade}, días_malos_consecutivos=${badDays}\n`;
+    state += `  RECIPROCITY: verificaciones_dadas_hoy=${verificationsOut}, shoutouts_dados=${shoutsGiven}, shoutouts_recibidos=${shoutsReceived}\n`;
+    if (badDays >= 3) {
+      state += `  !! LEARNED_HELPLESSNESS_RISK: ${badDays} días malos seguidos. NO piles on. Usa FOOT_IN_THE_DOOR.\n`;
+    }
+    if (yGrade === "A" || yGrade === "A+") {
+      state += `  !! MORAL_LICENSING_RISK: ayer fue ${yGrade}. Alto riesgo de relajarse hoy.\n`;
+    }
+    if (shoutsReceived > 0 && shoutsGiven === 0) {
+      state += `  !! RECIPROCITY_DEBT: recibió ${shoutsReceived} shoutouts, dio 0.\n`;
+    }
   }
 
   // ============================================================

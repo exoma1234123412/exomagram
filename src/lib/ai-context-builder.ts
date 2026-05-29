@@ -51,7 +51,8 @@ export async function buildTeamContext(
   const cutoffStr = cutoff.toISOString().split("T")[0];
 
   // ── Fetch all data in parallel ────────────────────────────────
-  const queries: Promise<{ data: unknown[] | null }>[] = [
+  // Supabase query builders are PromiseLike, not full Promise
+  const queries: PromiseLike<{ data: unknown[] | null }>[] = [
     // 0: members
     supabase
       .from("org_members")

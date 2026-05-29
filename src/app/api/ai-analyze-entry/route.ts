@@ -220,14 +220,42 @@ Solo JSON valido, sin texto adicional.`;
     // Format: "[Grade] Score — Commentary [tags]"
     const verificationNote = `[${grade}] ${score}/100 — ${commentary}${tags ? ` [${tags}]` : ""}`;
 
-    await supabase
-      .from("time_entries")
-      .update({
-        verification_note: verificationNote,
-        // V12 — Persist quality score directly on entry
-        quality_score: Math.max(0, Math.min(100, score)),
-      })
-      .eq("id", entry_id);
+    // Save to time_entries AND persist full analysis to ai_daily_insights
+    await Promise.all([
+      supabase
+        .from("time_entries")
+        .update({
+          verification_note: verificationNote,
+          // V12 — Persist quality score directly on entry
+          quality_score: Math.max(0, Math.min(100, score)),
+        })
+        .eq("id", entry_id),
+
+      // Persist full analysis result to ai_daily_insights (upsert for the date)
+      supabase
+        .from("ai_daily_insights")
+        .upsert(
+          {
+            user_id: entry.user_id,
+            org_id,
+            date: entry.date,
+            insight: {
+              grade,
+              score,
+              commentary,
+              tags: analysis.tags ?? [],
+              sentiment: analysis.sentiment ?? "neutral",
+              patterns: analysis.patterns ?? [],
+              red_flags: analysis.red_flags ?? [],
+              conflicts: analysis.conflicts ?? [],
+              entry_id,
+            },
+            grade,
+            score: Math.max(0, Math.min(100, score)),
+          },
+          { onConflict: "user_id,org_id,date", ignoreDuplicates: false },
+        ),
+    ]);
 
     // ── 7. Create accountability flags if conflicts detected ───────
     const conflicts = analysis.conflicts ?? [];

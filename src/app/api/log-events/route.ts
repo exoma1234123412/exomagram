@@ -5,64 +5,31 @@ import { NextRequest, NextResponse } from "next/server";
 // POST /api/log-events
 //
 // Receives batched client-side events via sendBeacon or fetch.
-// Authenticates via Supabase session, then inserts into audit_log.
+// Authenticates via Supabase session, then inserts into event_log.
 // Designed for speed — sendBeacon fires on page unload.
+//
+// Uses event_log (not audit_log) because audit_log has a CHECK constraint
+// that only allows a fixed set of actions. event_log is schema-flexible
+// for high-volume client-side telemetry.
 
 interface ClientEvent {
-  action: string;
-  targetType?: string | null;
-  targetId?: string | null;
+  event_type?: string;
+  // Legacy field name support (from sendBeacon payloads)
+  org_id?: string;
+  user_id?: string;
   data?: Record<string, unknown> | null;
-  timestamp?: string;
+  metadata?: Record<string, unknown> | null;
 }
 
-// Valid actions we accept from the client.
-// We map them to audit_log action types or store as-is.
-const ALLOWED_ACTIONS = new Set([
-  "entry_created",
-  "entry_updated",
-  "entry_deleted",
-  "closeout_submitted",
-  "standup_submitted",
-  "reaction_added",
-  "reaction_removed",
-  "flag_created",
-  "flag_resolved",
-  "profile_updated",
-  "member_joined",
-  "member_removed",
-  "goal_created",
-  "goal_updated",
-  "shoutout_given",
-  // Extended client-side events
-  "page_view",
-  "feature_used",
-  "button_clicked",
-  "dialog_opened",
-  "search_performed",
-  "filter_applied",
-  "timer_started",
-  "timer_stopped",
-  "ai_interaction",
-  "error_occurred",
-]);
+// Max events per request to prevent abuse
+const MAX_EVENTS_PER_REQUEST = 100;
 
 export async function POST(request: NextRequest) {
-  // ── 1. Authenticate via Supabase server client ──────────────
-  const serverClient = await createServerSupabase();
-  const {
-    data: { user },
-  } = await serverClient.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
-  }
-
-  // ── 2. Parse body ───────────────────────────────────────────
+  // ── 1. Parse body first (sendBeacon can't retry) ────────────
   let events: ClientEvent[];
   try {
     const body = await request.json();
-    events = Array.isArray(body) ? body : body.events ? body.events : [body];
+    events = Array.isArray(body) ? body : [body];
   } catch {
     return NextResponse.json(
       { error: "JSON invalido" },
@@ -74,9 +41,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, inserted: 0 });
   }
 
-  // Cap at 50 events per request to prevent abuse
-  if (events.length > 50) {
-    events = events.slice(0, 50);
+  if (events.length > MAX_EVENTS_PER_REQUEST) {
+    events = events.slice(0, MAX_EVENTS_PER_REQUEST);
+  }
+
+  // ── 2. Authenticate via Supabase server client ──────────────
+  const serverClient = await createServerSupabase();
+  const {
+    data: { user },
+  } = await serverClient.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   }
 
   // ── 3. Get user's org membership ────────────────────────────
@@ -96,36 +72,21 @@ export async function POST(request: NextRequest) {
 
   const orgId = membership.org_id;
 
-  // ── 4. Build audit_log rows ─────────────────────────────────
-  const rows: {
-    org_id: string;
-    user_id: string;
-    action: string;
-    target_type: string | null;
-    target_id: string | null;
-    new_data: Record<string, unknown> | null;
-    old_data: null;
-    ip_address: string | null;
-  }[] = [];
-  for (const evt of events) {
-    if (!evt.action) continue;
-
-    // Sanitize action — only allow known actions
-    const action = ALLOWED_ACTIONS.has(evt.action)
-      ? evt.action
-      : "feature_used";
-
-    rows.push({
+  // ── 4. Build event_log rows ─────────────────────────────────
+  // Server-side enforces user_id and org_id from the session,
+  // ignoring any client-sent values (security).
+  const rows = events
+    .filter((evt) => evt.event_type)
+    .map((evt) => ({
       org_id: orgId,
       user_id: user.id,
-      action,
-      target_type: evt.targetType ?? null,
-      target_id: evt.targetId ?? null,
-      new_data: evt.data ?? null,
-      old_data: null,
-      ip_address: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
-    });
-  }
+      event_type: evt.event_type!,
+      data: evt.data ?? {},
+      metadata: {
+        ...(evt.metadata ?? {}),
+        ip: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+      },
+    }));
 
   if (rows.length === 0) {
     return NextResponse.json({ success: true, inserted: 0 });
@@ -138,7 +99,7 @@ export async function POST(request: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    const { error } = await supabase.from("audit_log").insert(rows);
+    const { error } = await supabase.from("event_log").insert(rows);
 
     if (error) {
       console.error("[log-events] Insert error:", error.message);

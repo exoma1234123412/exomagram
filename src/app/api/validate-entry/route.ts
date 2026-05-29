@@ -110,6 +110,37 @@ export async function POST(request: Request) {
           .join("\n")
       : "No hay entradas recientes.";
 
+  // Build recent validation history context (helps Claude remember previous rejections)
+  let validationHistoryText = "";
+  if (recent_validations && recent_validations.length > 0) {
+    validationHistoryText = recent_validations
+      .map(
+        (v, i) =>
+          `${i + 1}. "${v.title}" → ${v.approved ? "APROBADA" : "RECHAZADA"} (${v.quality_score}/100)${v.issues.length > 0 ? ` Problemas: ${v.issues.join("; ")}` : ""}`
+      )
+      .join("\n");
+  }
+
+  // Fetch user's recent quality scores from server side for additional context
+  const { data: recentServerEntries } = await supabase
+    .from("time_entries")
+    .select("title, category, quality_score, date, hour")
+    .eq("user_id", user.id)
+    .eq("org_id", membership.org_id)
+    .order("date", { ascending: false })
+    .order("hour", { ascending: false })
+    .limit(10);
+
+  let serverPatternText = "";
+  if (recentServerEntries && recentServerEntries.length > 0) {
+    const avgScore = recentServerEntries
+      .filter((e) => e.quality_score != null)
+      .map((e) => e.quality_score as number);
+    const avg = avgScore.length > 0 ? Math.round(avgScore.reduce((a, b) => a + b, 0) / avgScore.length) : null;
+    serverPatternText = `\nCalidad promedio reciente del usuario: ${avg ?? "sin datos"}/100`;
+    serverPatternText += `\nÚltimas 10 entradas guardadas: ${recentServerEntries.map((e) => `[${e.category}] "${e.title}" (${e.quality_score ?? "?"}pts)`).join("; ")}`;
+  }
+
   const categoryLabel = CATEGORIES[category as WorkCategory]?.label ?? category;
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -133,6 +164,8 @@ Evalúa esta entrada:
 
 Entradas recientes del mismo usuario (para detectar copias):
 ${recentEntriesText}
+${serverPatternText}
+${validationHistoryText ? `\nHistorial de validaciones recientes de esta sesión (rechazos previos = el usuario ya fue advertido):\n${validationHistoryText}` : ""}
 
 Responde SOLO con JSON válido, sin markdown ni backticks:
 {
