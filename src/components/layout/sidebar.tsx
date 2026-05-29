@@ -70,6 +70,7 @@ const vigilanceNav = [
 
 // ─── RENDIMIENTO ─────────────────────────────────────────
 const performanceNav = [
+  { href: "/mirror", label: "El Espejo", icon: Eye },
   { href: "/power-rankings", label: "Power Rankings", icon: Trophy },
   { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
   { href: "/performance", label: "Performance", icon: Gauge },

@@ -82,5 +82,25 @@ export async function GET(request: Request) {
     results.ai_audit_error = (e as Error).message;
   }
 
+  // 5. Generate weekly summary (every Sunday)
+  const dayOfWeek = new Date().getDay();
+  if (dayOfWeek === 0) { // Sunday
+    try {
+      const lastMonday = new Date();
+      lastMonday.setDate(lastMonday.getDate() - 6);
+      const weekStart = lastMonday.toISOString().split("T")[0];
+      const { data: orgs } = await supabase.from("organizations").select("id");
+      for (const org of orgs ?? []) {
+        await fetch(
+          `${new URL(request.url).origin}/api/weekly-summary/generate?org_id=${org.id}&week_start=${weekStart}`,
+          { method: "POST" }
+        );
+      }
+      results.weekly_summary = "generated";
+    } catch (e) {
+      results.weekly_summary_error = (e as Error).message;
+    }
+  }
+
   return NextResponse.json({ success: true, ...results });
 }

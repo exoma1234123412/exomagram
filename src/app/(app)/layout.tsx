@@ -14,6 +14,9 @@ import { InactivityAlarm } from "@/components/pressure/inactivity-alarm";
 import { MandatoryProofGate } from "@/components/pressure/mandatory-proof-gate";
 import { StandupEnforcer } from "@/components/pressure/standup-enforcer";
 import { WeeklyConfession } from "@/components/pressure/weekly-confession";
+import { AdaptiveTheme } from "@/components/pressure/adaptive-theme";
+import { MorningIntention } from "@/components/pressure/morning-intention";
+import { AccountabilityBuddy } from "@/components/pressure/accountability-buddy";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [logDialogOpen, setLogDialogOpen] = useState(false);
@@ -37,9 +40,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <KeyboardShortcuts onNewEntry={() => setLogDialogOpen(true)} />
               <ScreenPulse />
               <InactivityAlarm />
+              <AdaptiveTheme />
+              <MorningIntention />
               <MandatoryProofGate />
               <StandupEnforcer />
               <WeeklyConfession />
+              <AccountabilityBuddy />
             </div>
           </MicroCheckinProvider>
         </ProofSnapshotProvider>

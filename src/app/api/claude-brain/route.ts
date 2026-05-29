@@ -28,9 +28,9 @@ export async function POST(request: Request) {
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
   const today = date ?? new Date().toISOString().split("T")[0];
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  const startDate = thirtyDaysAgo.toISOString().split("T")[0];
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const recentStart = sevenDaysAgo.toISOString().split("T")[0];
 
   // Gather ALL data (Claude gets everything)
   const [
@@ -44,17 +44,19 @@ export async function POST(request: Request) {
     { data: github },
     { data: streaks },
     { data: reactions },
+    { data: weeklySummaries },
   ] = await Promise.all([
     supabase.from("org_members").select("user_id, role, profiles(full_name, role, email)").eq("org_id", org_id),
-    supabase.from("time_entries").select("*").eq("org_id", org_id).gte("date", startDate).order("date").order("hour"),
+    supabase.from("time_entries").select("*").eq("org_id", org_id).gte("date", recentStart).order("date").order("hour"),
     supabase.from("time_entries").select("*, profiles(full_name)").eq("org_id", org_id).eq("date", today).order("hour"),
-    supabase.from("standups").select("*").eq("org_id", org_id).gte("date", startDate),
-    supabase.from("daily_closeouts").select("*").eq("org_id", org_id).gte("date", startDate),
-    supabase.from("daily_promises").select("*").eq("org_id", org_id).gte("date", startDate),
-    supabase.from("shoutouts").select("*").eq("org_id", org_id).gte("date", startDate),
-    supabase.from("github_events").select("*").eq("org_id", org_id).gte("date", startDate),
+    supabase.from("standups").select("*").eq("org_id", org_id).gte("date", recentStart),
+    supabase.from("daily_closeouts").select("*").eq("org_id", org_id).gte("date", recentStart),
+    supabase.from("daily_promises").select("*").eq("org_id", org_id).gte("date", recentStart),
+    supabase.from("shoutouts").select("*").eq("org_id", org_id).gte("date", recentStart),
+    supabase.from("github_events").select("*").eq("org_id", org_id).gte("date", recentStart),
     supabase.from("activity_streaks").select("*").eq("org_id", org_id),
     supabase.from("entry_reactions").select("entry_id, reaction, user_id"),
+    supabase.from("weekly_summaries").select("*").eq("org_id", org_id).order("week_start"),
   ]);
 
   // Build comprehensive data summary
@@ -64,8 +66,33 @@ export async function POST(request: Request) {
     memberMap.set(m.user_id, `${p?.full_name ?? "?"} (${p?.role ?? "?"})`);
   }
 
-  // Per-person 30-day summary
-  let dataSummary = "DATOS DEL EQUIPO (últimos 30 días):\n\n";
+  // LAYER 1: Historical weekly summaries (ALL-TIME memory)
+  let dataSummary = "══════ MEMORIA HISTÓRICA (resúmenes semanales comprimidos) ══════\n\n";
+
+  const summaryMap = new Map<string, Array<{ week: string; narrative: string; summary: Record<string, unknown> }>>();
+  for (const ws of weeklySummaries ?? []) {
+    const list = summaryMap.get(ws.user_id) ?? [];
+    list.push({ week: ws.week_start, narrative: ws.ai_narrative ?? "", summary: ws.summary as Record<string, unknown> });
+    summaryMap.set(ws.user_id, list);
+  }
+
+  for (const [userId, name] of memberMap) {
+    const userSummaries = summaryMap.get(userId) ?? [];
+    if (userSummaries.length > 0) {
+      dataSummary += `--- ${name} (historial de ${userSummaries.length} semanas) ---\n`;
+      for (const ws of userSummaries) {
+        const s = ws.summary;
+        dataSummary += `Semana ${ws.week}: ${s.total_hours ?? 0}h, deep_work=${s.deep_work ?? 0}, meetings=${s.meetings ?? 0}, proof=${s.proof_percent ?? 0}%, late=${s.late_percent ?? 0}%\n`;
+        if (ws.narrative) dataSummary += `  → ${ws.narrative.slice(0, 300)}\n`;
+      }
+      dataSummary += "\n";
+    }
+  }
+
+  dataSummary += "\n══════ DATOS EN VIVO (últimos 7 días — detalle completo) ══════\n\n";
+
+  // LAYER 2: Recent raw data (last 7 days)
+  
 
   for (const [userId, name] of memberMap) {
     const userEntries = (entries ?? []).filter((e) => e.user_id === userId);
