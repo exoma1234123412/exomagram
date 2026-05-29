@@ -6,7 +6,6 @@ import {
   Brain,
   Sparkles,
   ArrowRight,
-  CheckCircle2,
   Users,
   BarChart3,
   Zap,
@@ -45,7 +44,7 @@ export default function LandingPage() {
         <div className="absolute top-40 right-1/4 w-96 h-96 bg-indigo-200/20 dark:bg-indigo-900/10 rounded-full blur-3xl" />
 
         <div className="max-w-4xl mx-auto text-center relative">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 text-sm font-medium mb-8">
             <Zap className="w-4 h-4" />
             Transparencia radical para equipos
           </div>
