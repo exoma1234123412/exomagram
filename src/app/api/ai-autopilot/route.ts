@@ -159,20 +159,34 @@ Responde SOLO JSON válido:
   for (const action of parsed.actions ?? []) {
     try {
       if (action.type === "send_notification") {
-        // Find user by name
-        const targetMember = (members ?? []).find((m) => {
-          const p = m.profiles as unknown as { full_name: string } | null;
-          return p?.full_name?.toLowerCase().includes(action.target_user?.toLowerCase() ?? "");
-        });
-        if (targetMember) {
-          await supabase.from("notifications").insert({
-            user_id: targetMember.user_id,
-            org_id: orgId,
-            type: "flag_raised",
-            title: "AI Manager",
-            body: action.message,
+        if (action.target_user?.toLowerCase() === "team" || action.target_user?.toLowerCase() === "todos") {
+          // Send to everyone
+          for (const m of members ?? []) {
+            await supabase.from("notifications").insert({
+              user_id: m.user_id,
+              org_id: orgId,
+              type: "flag_raised",
+              title: "AI Manager",
+              body: action.message,
+            });
+          }
+          executed.push(`Notification → TEAM (${(members ?? []).length}): ${action.message}`);
+        } else {
+          // Find specific user by name
+          const targetMember = (members ?? []).find((m) => {
+            const p = m.profiles as unknown as { full_name: string } | null;
+            return p?.full_name?.toLowerCase().includes(action.target_user?.toLowerCase() ?? "");
           });
-          executed.push(`Notification → ${action.target_user}: ${action.message}`);
+          if (targetMember) {
+            await supabase.from("notifications").insert({
+              user_id: targetMember.user_id,
+              org_id: orgId,
+              type: "flag_raised",
+              title: "AI Manager",
+              body: action.message,
+            });
+            executed.push(`Notification → ${action.target_user}: ${action.message}`);
+          }
         }
       }
 
@@ -190,6 +204,27 @@ Responde SOLO JSON válido:
             details: `[AI Autopilot] ${action.message}`,
           });
           executed.push(`Flag → ${action.target_user}: ${action.message}`);
+        }
+      }
+
+      if (action.type === "send_email") {
+        const targetMember = (members ?? []).find((m) => {
+          const p = m.profiles as unknown as { full_name: string } | null;
+          return p?.full_name?.toLowerCase().includes(action.target_user?.toLowerCase() ?? "");
+        });
+        if (targetMember) {
+          const email = (targetMember.profiles as unknown as { email: string })?.email;
+          if (email) {
+            // Also create an in-app notification since email may not be configured
+            await supabase.from("notifications").insert({
+              user_id: targetMember.user_id,
+              org_id: orgId,
+              type: "flag_raised",
+              title: `AI Manager: ${action.urgency === "critical" ? "URGENTE" : "Aviso"}`,
+              body: action.message,
+            });
+            executed.push(`Email+Notification → ${action.target_user} (${email}): ${action.message}`);
+          }
         }
       }
 
