@@ -126,7 +126,7 @@ export function SmartNudges({ date }: { date: string }) {
             nudge.type === "info" &&
               "bg-blue-50/80 dark:bg-blue-950/15 text-blue-700 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/40 shadow-blue-500/5",
             nudge.type === "reminder" &&
-              "bg-violet-50/80 dark:bg-violet-950/15 text-violet-700 dark:text-violet-400 border border-violet-200/60 dark:border-violet-800/40 shadow-violet-500/5"
+              "bg-blue-50/80 dark:bg-blue-950/15 text-blue-700 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/40 shadow-blue-600/5"
           )}
         >
           {nudge.icon}

@@ -45,6 +45,7 @@ const mainNav = [
   { href: "/dashboard", label: "Timeline", icon: LayoutDashboard },
   { href: "/grid", label: "Equipo", icon: Grid3X3 },
   { href: "/now", label: "Ahora", icon: Radio },
+  { href: "/promises", label: "Promesas", icon: Target },
   { href: "/standup", label: "Standup", icon: MessageSquare },
   { href: "/focus", label: "Focus", icon: Brain },
 ];
@@ -148,7 +149,7 @@ export function Sidebar() {
       {/* Logo */}
       <div className="p-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/20">
+          <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20">
             <Clock className="w-[18px] h-[18px] text-white" />
           </div>
           <div>

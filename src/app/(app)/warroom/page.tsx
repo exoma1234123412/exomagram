@@ -147,7 +147,7 @@ export default function WarRoomPage() {
       {/* Top bar */}
       <div className="flex items-center justify-between px-8 py-4 border-b border-white/10">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-violet-600 rounded-xl flex items-center justify-center">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center">
             <Zap className="w-5 h-5 text-white" />
           </div>
           <div>
@@ -174,7 +174,7 @@ export default function WarRoomPage() {
           {/* Stats */}
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-white/5 rounded-xl p-4 text-center">
-              <p className="text-3xl font-bold text-violet-400">{totalHours}</p>
+              <p className="text-3xl font-bold text-blue-400">{totalHours}</p>
               <p className="text-[10px] text-white/40 uppercase">Horas hoy</p>
             </div>
             <div className="bg-white/5 rounded-xl p-4 text-center">
@@ -201,7 +201,7 @@ export default function WarRoomPage() {
                   <div key={cat} className="flex items-center gap-2">
                     <span className="text-sm">{CATEGORIES[cat].emoji}</span>
                     <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-violet-500 rounded-full" style={{ width: `${percent}%` }} />
+                      <div className="h-full bg-blue-500 rounded-full" style={{ width: `${percent}%` }} />
                     </div>
                     <span className="text-xs text-white/60 w-8 text-right">{percent}%</span>
                   </div>
@@ -253,8 +253,8 @@ export default function WarRoomPage() {
 
           {/* Flash banner for new entry */}
           {recentEntry && (
-            <div className="mb-4 animate-pulse bg-violet-600/20 border border-violet-500/30 rounded-xl p-4">
-              <p className="text-sm text-violet-300">
+            <div className="mb-4 animate-pulse bg-blue-600/20 border border-blue-500/30 rounded-xl p-4">
+              <p className="text-sm text-blue-300">
                 <span className="font-bold">{recentEntry.profiles?.full_name}</span> acaba de registrar:
               </p>
               <p className="text-lg font-medium mt-1">

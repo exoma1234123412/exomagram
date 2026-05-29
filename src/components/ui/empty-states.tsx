@@ -234,7 +234,7 @@ export function EmptyFeed(props: EmptyStateProps) {
           <Plus className="absolute -right-1.5 -top-1.5 size-5 text-primary/60" />
         </div>
       }
-      accentFrom="from-violet-500/10"
+      accentFrom="from-blue-500/10"
       accentTo="to-primary/15"
       title={props.title ?? "Tu feed esta vacio"}
       description={
@@ -260,7 +260,7 @@ export function ComingSoon(props: EmptyStateProps) {
         </div>
       }
       accentFrom="from-primary/10"
-      accentTo="to-violet-500/15"
+      accentTo="to-blue-500/15"
       title={props.title ?? "Proximamente"}
       description={
         props.description ??

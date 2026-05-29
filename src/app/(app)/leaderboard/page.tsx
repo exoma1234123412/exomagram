@@ -181,7 +181,7 @@ export default function LeaderboardPage() {
               key={p}
               variant={period === p ? "default" : "outline"}
               size="sm"
-              className={period === p ? "rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white border-0" : "rounded-xl"}
+              className={period === p ? "rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-white border-0" : "rounded-xl"}
               onClick={() => setPeriod(p)}
             >
               {p}d
@@ -192,7 +192,7 @@ export default function LeaderboardPage() {
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
           <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
         </div>
       ) : (

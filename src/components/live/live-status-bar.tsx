@@ -84,7 +84,7 @@ export function LiveStatusBar({ orgId }: { orgId: string }) {
               <div className="relative">
                 <Avatar className="w-8 h-8 ring-2 ring-background">
                   <AvatarImage src={s.profiles?.avatar_url ?? undefined} />
-                  <AvatarFallback className="text-[10px] font-semibold bg-gradient-to-br from-violet-100 to-indigo-100 dark:from-violet-900/50 dark:to-indigo-900/50">
+                  <AvatarFallback className="text-[10px] font-semibold bg-gradient-to-br from-blue-100 to-sky-100 dark:from-blue-900/40 dark:to-sky-900/30">
                     {getInitials(s.profiles?.full_name)}
                   </AvatarFallback>
                 </Avatar>

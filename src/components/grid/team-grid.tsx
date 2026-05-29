@@ -117,7 +117,7 @@ export function TeamGrid({ date, orgId }: { date: string; orgId: string }) {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" />
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
         <p className="text-sm text-muted-foreground animate-pulse">Cargando grid...</p>
       </div>
     );
@@ -152,7 +152,7 @@ export function TeamGrid({ date, orgId }: { date: string; orgId: string }) {
               <div key={member.id} className="flex flex-col items-center gap-1.5 py-2">
                 <Avatar className="w-9 h-9 ring-2 ring-background shadow-sm">
                   <AvatarImage src={member.avatar_url ?? undefined} />
-                  <AvatarFallback className="text-[10px] font-semibold bg-gradient-to-br from-violet-100 to-indigo-100 dark:from-violet-900/50 dark:to-indigo-900/50">
+                  <AvatarFallback className="text-[10px] font-semibold bg-gradient-to-br from-blue-100 to-sky-100 dark:from-blue-900/40 dark:to-sky-900/30">
                     {getInitials(member.full_name)}
                   </AvatarFallback>
                 </Avatar>

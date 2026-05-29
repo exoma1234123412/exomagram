@@ -110,7 +110,7 @@ export function PersonalStatsWidget({ orgId, date }: { orgId: string; date: stri
           {/* Progress bar */}
           <div className="mt-2 h-1 bg-muted rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-all duration-500"
+              className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500"
               style={{ width: `${hoursProgress}%` }}
             />
           </div>

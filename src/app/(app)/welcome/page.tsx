@@ -23,10 +23,10 @@ const STEPS = [
       "Cada hora de trabajo cuenta. Registra que hiciste, en que proyecto, y cuanto tiempo dedicaste. Asi de simple.",
     cta: "Registrar ahora",
     href: "/dashboard",
-    gradient: "from-violet-500 to-indigo-500",
-    glow: "shadow-violet-500/20",
-    bgLight: "bg-violet-50 dark:bg-violet-950/30",
-    borderLight: "border-violet-200/60 dark:border-violet-800/40",
+    gradient: "from-blue-500 to-blue-600",
+    glow: "shadow-blue-600/20",
+    bgLight: "bg-blue-50 dark:bg-blue-950/30",
+    borderLight: "border-blue-200/60 dark:border-blue-800/40",
   },
   {
     number: 2,
@@ -83,18 +83,18 @@ export default function WelcomePage() {
       {/* Hero */}
       <section className="relative text-center py-12 sm:py-16 mb-12">
         {/* Background blurs */}
-        <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 w-[500px] h-[400px] bg-violet-300/20 dark:bg-violet-800/10 rounded-full blur-[100px]" />
-        <div className="pointer-events-none absolute top-10 right-0 w-[300px] h-[300px] bg-indigo-300/15 dark:bg-indigo-900/10 rounded-full blur-[80px]" />
+        <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 w-[500px] h-[400px] bg-blue-300/20 dark:bg-blue-800/10 rounded-full blur-[100px]" />
+        <div className="pointer-events-none absolute top-10 right-0 w-[300px] h-[300px] bg-indigo-300/15 dark:bg-blue-900/8 rounded-full blur-[80px]" />
 
         <div className="relative">
           {/* Logo */}
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-2xl shadow-violet-500/30 mb-8">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-2xl shadow-blue-600/30 mb-8">
             <Clock className="w-9 h-9 text-white" />
           </div>
 
           {/* Badge */}
           <div className="flex justify-center mb-6">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 text-sm font-medium">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
               <Sparkles className="w-4 h-4" />
               Bienvenido a Exomagram
             </div>
@@ -102,7 +102,7 @@ export default function WelcomePage() {
 
           {/* Heading */}
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.15] mb-4">
-            <span className="bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
               Transparencia total
             </span>
             <br />
@@ -119,7 +119,7 @@ export default function WelcomePage() {
       {/* Steps */}
       <section className="mb-16">
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/20">
             <ArrowRight className="w-4 h-4 text-white" />
           </div>
           <h2 className="text-xl font-bold tracking-tight">
@@ -238,7 +238,7 @@ export default function WelcomePage() {
       <section className="text-center">
         <div className="relative rounded-2xl overflow-hidden p-10 sm:p-14">
           {/* Gradient background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-600" />
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800" />
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMSIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
 
           <div className="relative">
@@ -252,7 +252,7 @@ export default function WelcomePage() {
             <Link href="/dashboard">
               <Button
                 size="lg"
-                className="rounded-2xl px-10 py-6 text-lg font-semibold bg-white text-violet-700 hover:bg-white/90 shadow-2xl shadow-black/20 transition-all duration-300 hover:scale-105 border-0"
+                className="rounded-2xl px-10 py-6 text-lg font-semibold bg-white text-blue-700 hover:bg-white/90 shadow-2xl shadow-black/20 transition-all duration-300 hover:scale-105 border-0"
               >
                 Comenzar
                 <ArrowRight className="w-5 h-5 ml-1" />

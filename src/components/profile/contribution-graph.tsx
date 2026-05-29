@@ -75,10 +75,10 @@ export function ContributionGraph({ entries }: { entries: TimeEntry[] }) {
   function getCellColor(count: number): string {
     if (count < 0) return "bg-transparent"; // placeholder
     if (count === 0) return "bg-muted/30 dark:bg-muted/10";
-    if (count <= 2) return "bg-violet-200 dark:bg-violet-900/40";
-    if (count <= 4) return "bg-violet-300 dark:bg-violet-800/50";
-    if (count <= 6) return "bg-violet-400 dark:bg-violet-700/60";
-    return "bg-violet-600 dark:bg-violet-500";
+    if (count <= 2) return "bg-blue-200 dark:bg-blue-900/40";
+    if (count <= 4) return "bg-blue-300 dark:bg-blue-800/50";
+    if (count <= 6) return "bg-blue-400 dark:bg-blue-700/60";
+    return "bg-blue-600 dark:bg-blue-500";
   }
 
   const dayLabels = ["", "Lun", "", "Mie", "", "Vie", ""];
@@ -160,10 +160,10 @@ export function ContributionGraph({ entries }: { entries: TimeEntry[] }) {
         <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
           <span>Menos</span>
           <div className="w-[11px] h-[11px] rounded-sm bg-muted/30" />
-          <div className="w-[11px] h-[11px] rounded-sm bg-violet-200 dark:bg-violet-900/40" />
-          <div className="w-[11px] h-[11px] rounded-sm bg-violet-300 dark:bg-violet-800/50" />
-          <div className="w-[11px] h-[11px] rounded-sm bg-violet-400 dark:bg-violet-700/60" />
-          <div className="w-[11px] h-[11px] rounded-sm bg-violet-600 dark:bg-violet-500" />
+          <div className="w-[11px] h-[11px] rounded-sm bg-blue-200 dark:bg-blue-900/40" />
+          <div className="w-[11px] h-[11px] rounded-sm bg-blue-300 dark:bg-blue-800/50" />
+          <div className="w-[11px] h-[11px] rounded-sm bg-blue-400 dark:bg-blue-700/60" />
+          <div className="w-[11px] h-[11px] rounded-sm bg-blue-600 dark:bg-blue-500" />
           <span>Mas</span>
         </div>
         <div className="flex gap-3 text-[10px] text-muted-foreground">

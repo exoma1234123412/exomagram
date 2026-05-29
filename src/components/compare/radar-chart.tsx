@@ -143,7 +143,7 @@ export function RadarChart({
       {/* Legend */}
       <div className="flex justify-center gap-6 mt-2">
         <div className="flex items-center gap-1.5 text-xs">
-          <div className="w-3 h-3 rounded-sm bg-violet-500" />
+          <div className="w-3 h-3 rounded-sm bg-blue-500" />
           <span>{nameA}</span>
         </div>
         <div className="flex items-center gap-1.5 text-xs">

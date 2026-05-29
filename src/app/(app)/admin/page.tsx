@@ -121,7 +121,7 @@ export default function AdminPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" />
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
         <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
       </div>
     );
@@ -172,7 +172,7 @@ export default function AdminPage() {
                   key={m.id}
                   className={cn(
                     "flex items-center gap-3 p-3 rounded-lg border",
-                    isCurrentUser && "bg-violet-50/50 dark:bg-violet-950/10 border-violet-200 dark:border-violet-800"
+                    isCurrentUser && "bg-blue-50/50 dark:bg-blue-950/10 border-blue-200 dark:border-blue-800"
                   )}
                 >
                   <Avatar className="w-10 h-10 ring-2 ring-background shadow-sm">

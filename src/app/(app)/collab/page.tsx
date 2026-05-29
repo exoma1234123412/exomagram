@@ -144,7 +144,7 @@ export default function CollabPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" />
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
         <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
       </div>
     );
@@ -199,7 +199,7 @@ export default function CollabPage() {
                   </Avatar>
                   <span className="text-sm font-medium w-32 truncate">{m.full_name ?? m.email}</span>
                   <div className="flex-1 h-3 bg-muted/30 rounded-full overflow-hidden">
-                    <div className="h-full bg-violet-500 rounded-full transition-all" style={{ width: `${percent}%` }} />
+                    <div className="h-full bg-blue-500 rounded-full transition-all" style={{ width: `${percent}%` }} />
                   </div>
                   <span className="text-xs text-muted-foreground w-8 text-right">{score}</span>
                 </div>
@@ -244,7 +244,7 @@ export default function CollabPage() {
                     {Array.from({ length: 10 }).map((_, j) => (
                       <div key={j} className={cn(
                         "w-1.5 h-3 rounded-full",
-                        j < edge.strength ? "bg-violet-500" : "bg-muted/30"
+                        j < edge.strength ? "bg-blue-500" : "bg-muted/30"
                       )} />
                     ))}
                   </div>

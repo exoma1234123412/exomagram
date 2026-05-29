@@ -163,7 +163,7 @@ export default function HeatmapPage() {
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>
+        <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>
       ) : (
         <Card className="overflow-hidden border-border/50 shadow-sm">
           <CardContent className="p-5 overflow-x-auto">
@@ -211,10 +211,10 @@ export default function HeatmapPage() {
                                 : topCat
                                   ? cn(CATEGORY_COLORS[topCat], intensity < 0.5 ? "opacity-50" : "opacity-90")
                                   : intensity < 0.33
-                                    ? "bg-violet-200 dark:bg-violet-900/40"
+                                    ? "bg-blue-200 dark:bg-blue-900/40"
                                     : intensity < 0.66
-                                      ? "bg-violet-400 dark:bg-violet-700"
-                                      : "bg-violet-600"
+                                      ? "bg-blue-400 dark:bg-blue-700"
+                                      : "bg-blue-600"
                             )}
                             title={
                               count > 0
@@ -227,7 +227,7 @@ export default function HeatmapPage() {
                                 className={cn(
                                   count > 0 && topCat
                                     ? "text-white"
-                                    : "text-violet-700 dark:text-violet-300"
+                                    : "text-blue-700 dark:text-blue-300"
                                 )}
                               >
                                 {count}

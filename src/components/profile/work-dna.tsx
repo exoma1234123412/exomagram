@@ -34,7 +34,7 @@ export function WorkDNA({ entries }: { entries: TimeEntry[] }) {
   const days = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
   const CATEGORY_HUE: Record<string, string> = {
-    deep_work: "bg-violet-",
+    deep_work: "bg-blue-",
     meeting: "bg-blue-",
     review: "bg-amber-",
     admin: "bg-slate-",
@@ -51,7 +51,7 @@ export function WorkDNA({ entries }: { entries: TimeEntry[] }) {
 
     const intensity = count / maxCount;
     const cat = catMatrix.get(key);
-    const base = cat ? CATEGORY_HUE[cat] ?? "bg-violet-" : "bg-violet-";
+    const base = cat ? CATEGORY_HUE[cat] ?? "bg-blue-" : "bg-blue-";
 
     if (intensity < 0.25) return base + "200 dark:" + base.replace("bg-", "bg-") + "900/30";
     if (intensity < 0.5) return base + "300 dark:" + base.replace("bg-", "bg-") + "800/40";

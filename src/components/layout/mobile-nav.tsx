@@ -45,7 +45,7 @@ export function MobileNav({ onLogEntry }: { onLogEntry: () => void }) {
           onClick={onLogEntry}
           className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-[10px] font-medium text-white active:scale-95 transition-transform"
         >
-          <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-2xl flex items-center justify-center -mt-6 shadow-xl shadow-violet-500/30 ring-4 ring-background">
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center -mt-6 shadow-xl shadow-blue-600/30 ring-4 ring-background">
             <Plus className="w-5 h-5" />
           </div>
           <span className="text-foreground mt-0.5">Registrar</span>

@@ -120,7 +120,7 @@ export function PomodoroTimer() {
   return (
     <Card className={cn(
       "transition-all",
-      isRunning && "border-violet-300 dark:border-violet-700 shadow-lg",
+      isRunning && "border-blue-300 dark:border-blue-700 shadow-lg",
       completed && "border-green-300 dark:border-green-700"
     )}>
       <CardContent className="p-6">
@@ -187,7 +187,7 @@ export function PomodoroTimer() {
           {/* Controls */}
           <div className="flex items-center justify-center gap-2">
             {!isRunning && !completed && (
-              <Button onClick={startTimer} disabled={!taskTitle.trim()} className="gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25">
+              <Button onClick={startTimer} disabled={!taskTitle.trim()} className="gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg shadow-blue-600/25">
                 <Play className="w-4 h-4" /> Iniciar
               </Button>
             )}

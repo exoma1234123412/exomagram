@@ -188,7 +188,7 @@ export function EditEntryDialog({ entry, open, onOpenChange, onSaved }: EditEntr
           )}
 
           <div className="flex gap-2">
-            <Button type="submit" className="flex-1 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25 font-semibold" disabled={loading}>
+            <Button type="submit" className="flex-1 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg shadow-blue-600/25 font-semibold" disabled={loading}>
               {loading ? "Guardando..." : "Guardar cambios"}
             </Button>
             <Button

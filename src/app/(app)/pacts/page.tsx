@@ -168,14 +168,14 @@ export default function PactsPage() {
             Compromisos publicos entre companeros
           </p>
         </div>
-        <Button onClick={() => setCreateOpen(true)} className="gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300 font-semibold">
+        <Button onClick={() => setCreateOpen(true)} className="gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 transition-all duration-300 font-semibold">
           <Plus className="w-4 h-4" />
           Nuevo pacto
         </Button>
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>
+        <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>
       ) : pacts.length === 0 ? (
         <div className="text-center py-20">
           <Handshake className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
@@ -237,7 +237,7 @@ export default function PactsPage() {
                       </div>
                       <div className="h-2 bg-muted rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-all duration-500"
+                          className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500"
                           style={{ width: `${Math.min((pact.creator_progress / pact.target_value) * 100, 100)}%` }}
                         />
                       </div>
@@ -327,7 +327,7 @@ export default function PactsPage() {
                 ))}
               </div>
             </div>
-            <Button onClick={handleCreate} disabled={creating || !partnerId || !title.trim()} className="w-full rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300 font-semibold">
+            <Button onClick={handleCreate} disabled={creating || !partnerId || !title.trim()} className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 transition-all duration-300 font-semibold">
               {creating ? "Creando..." : "Crear pacto"}
             </Button>
           </div>

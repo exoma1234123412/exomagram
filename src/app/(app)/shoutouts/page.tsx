@@ -25,7 +25,7 @@ const SHOUTOUT_CATEGORIES: Record<string, { label: string; emoji: string; color:
   helped_me: { label: "Me ayudó", emoji: "🙏", color: "bg-blue-100 dark:bg-blue-900/40" },
   great_work: { label: "Gran trabajo", emoji: "🔥", color: "bg-orange-100 dark:bg-orange-900/40" },
   team_player: { label: "Team player", emoji: "🤝", color: "bg-green-100 dark:bg-green-900/40" },
-  problem_solver: { label: "Problem solver", emoji: "🧠", color: "bg-violet-100 dark:bg-violet-900/40" },
+  problem_solver: { label: "Problem solver", emoji: "🧠", color: "bg-blue-100 dark:bg-blue-900/40" },
   above_and_beyond: { label: "Más allá", emoji: "⭐", color: "bg-yellow-100 dark:bg-yellow-900/40" },
 };
 
@@ -161,7 +161,7 @@ export default function ShoutoutsPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" />
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
         <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
       </div>
     );
@@ -224,7 +224,7 @@ export default function ShoutoutsPage() {
                 rows={2}
               />
             </div>
-            <Button type="submit" disabled={submitting || !toUserId || !category} className="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25">
+            <Button type="submit" disabled={submitting || !toUserId || !category} className="rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg shadow-blue-600/25">
               {submitting ? "Enviando..." : "Dar shoutout"}
             </Button>
           </form>

@@ -122,7 +122,7 @@ export default function AuditPage() {
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>
+        <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>
       ) : entries.length === 0 ? (
         <p className="text-center text-muted-foreground py-20">No hay actividad registrada.</p>
       ) : (

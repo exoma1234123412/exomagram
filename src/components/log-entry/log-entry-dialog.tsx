@@ -366,7 +366,7 @@ export function LogEntryDialog({
                     className={cn(
                       "flex-1 py-2 rounded-lg text-xs font-semibold transition-all duration-200",
                       mood === level
-                        ? "bg-gradient-to-b from-violet-500 to-violet-600 text-white shadow-sm shadow-violet-500/25 scale-105"
+                        ? "bg-gradient-to-b from-blue-500 to-blue-600 text-white shadow-sm shadow-blue-600/25 scale-105"
                         : "bg-accent/60 hover:bg-accent text-foreground/70"
                     )}
                     title={MOOD_LABELS[level]}
@@ -407,7 +407,7 @@ export function LogEntryDialog({
 
           <Button
             type="submit"
-            className="w-full h-10 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300 font-semibold"
+            className="w-full h-10 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 transition-all duration-300 font-semibold"
             disabled={loading || !category || tooOld}
           >
             {loading ? "Guardando..." : "Guardar entrada"}

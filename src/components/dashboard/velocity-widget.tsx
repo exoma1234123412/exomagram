@@ -104,7 +104,7 @@ export function VelocityWidget({ orgId }: { orgId: string }) {
             {data.dailyHours.map((h, i) => (
               <div
                 key={i}
-                className="flex-1 bg-violet-400 dark:bg-violet-600 rounded-t transition-all duration-500"
+                className="flex-1 bg-blue-400 dark:bg-blue-600 rounded-t transition-all duration-500"
                 style={{ height: `${Math.max((h / maxDaily) * 100, 8)}%` }}
               />
             ))}

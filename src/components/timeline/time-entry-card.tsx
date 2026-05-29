@@ -24,7 +24,7 @@ interface TimeEntryCardProps {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  deep_work: "from-violet-500 to-violet-600",
+  deep_work: "from-blue-500 to-blue-600",
   meeting: "from-blue-500 to-blue-600",
   review: "from-amber-500 to-amber-600",
   admin: "from-slate-400 to-slate-500",
@@ -96,7 +96,7 @@ export function TimeEntryCard({ entry, showUser = true, currentUserId, isAdmin }
                 {showUser && entry.profiles && (
                   <Avatar className="w-7 h-7 ring-2 ring-background shadow-sm">
                     <AvatarImage src={entry.profiles.avatar_url ?? undefined} />
-                    <AvatarFallback className="text-[10px] bg-gradient-to-br from-violet-100 to-indigo-100 dark:from-violet-900/50 dark:to-indigo-900/50 font-semibold">
+                    <AvatarFallback className="text-[10px] bg-gradient-to-br from-blue-100 to-sky-100 dark:from-blue-900/40 dark:to-sky-900/30 font-semibold">
                       {getInitials(entry.profiles.full_name)}
                     </AvatarFallback>
                   </Avatar>

@@ -360,7 +360,7 @@ export default function MemberPage() {
 
       {/* 1:1 Talking Points */}
       {talkingPoints.length > 0 && (
-        <Card className="mb-8 border-violet-200 dark:border-violet-800">
+        <Card className="mb-8 border-blue-200 dark:border-blue-800">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-primary" />

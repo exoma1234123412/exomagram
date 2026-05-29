@@ -91,7 +91,7 @@ export function QuickLog({ orgId }: { orgId: string }) {
           minLength={10}
         />
 
-        <Button type="submit" size="icon" disabled={loading || !category || title.length < 10} className="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25">
+        <Button type="submit" size="icon" disabled={loading || !category || title.length < 10} className="rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg shadow-blue-600/25">
           <Send className="w-4 h-4" />
         </Button>
       </form>

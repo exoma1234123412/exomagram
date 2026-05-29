@@ -145,7 +145,7 @@ export default function ProfilePage() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
           <p className="text-sm text-muted-foreground animate-pulse">Cargando perfil...</p>
         </div>
       </div>
@@ -218,7 +218,7 @@ export default function ProfilePage() {
       <div className="flex items-center gap-5 mb-10">
         <Avatar className="w-20 h-20 ring-4 ring-primary/10 shadow-xl shadow-primary/10">
           <AvatarImage src={profile.avatar_url ?? undefined} />
-          <AvatarFallback className="text-xl font-bold bg-gradient-to-br from-violet-100 to-indigo-100 dark:from-violet-900/50 dark:to-indigo-900/50">
+          <AvatarFallback className="text-xl font-bold bg-gradient-to-br from-blue-100 to-sky-100 dark:from-blue-900/40 dark:to-sky-900/30">
             {getInitials(profile.full_name)}
           </AvatarFallback>
         </Avatar>
@@ -430,10 +430,10 @@ export default function ProfilePage() {
                       intensity === 0
                         ? "bg-muted/30 text-muted-foreground/40"
                         : intensity < 0.33
-                        ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300"
+                        ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
                         : intensity < 0.66
-                        ? "bg-violet-300 dark:bg-violet-700/60 text-violet-900 dark:text-violet-100"
-                        : "bg-gradient-to-br from-violet-500 to-indigo-600 text-white shadow-sm shadow-violet-500/20"
+                        ? "bg-blue-300 dark:bg-blue-700/60 text-blue-900 dark:text-blue-100"
+                        : "bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-sm shadow-blue-600/20"
                     )}
                   >
                     {count}

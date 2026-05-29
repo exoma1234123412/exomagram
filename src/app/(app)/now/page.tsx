@@ -127,7 +127,7 @@ export default function NowPage() {
       </p>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>
+        <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>
       ) : sorted.length === 0 ? (
         <div className="text-center py-20 text-muted-foreground">
           No hay miembros en el equipo todavia.
@@ -150,7 +150,7 @@ export default function NowPage() {
                 className={cn(
                   "transition-all duration-300 hover:shadow-lg hover:shadow-primary/5",
                   s.status === "offline" && "opacity-50",
-                  s.status === "deep_work" && "border-violet-200 dark:border-violet-800",
+                  s.status === "deep_work" && "border-blue-200 dark:border-blue-800",
                   s.status === "in_meeting" && "border-blue-200 dark:border-blue-800"
                 )}
               >

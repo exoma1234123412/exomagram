@@ -231,7 +231,7 @@ export default function InsightsPage() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
-    return <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>;
+    return <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>;
   }
 
   return (
@@ -280,8 +280,8 @@ export default function InsightsPage() {
                       className={cn(
                         "w-full rounded-t transition-all",
                         count === 0 ? "bg-muted/30" :
-                        pct >= 80 ? "bg-violet-600" :
-                        pct >= 50 ? "bg-violet-400" : "bg-violet-200 dark:bg-violet-800"
+                        pct >= 80 ? "bg-blue-600" :
+                        pct >= 50 ? "bg-blue-400" : "bg-blue-200 dark:bg-blue-800"
                       )}
                       style={{ height: `${Math.max(pct, 4)}%` }}
                       title={`${h}:00 - ${count} entradas`}

@@ -194,7 +194,7 @@ export default function ReplayPage() {
         </div>
         <div className="h-2 bg-muted rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-all duration-500"
+            className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -208,7 +208,7 @@ export default function ReplayPage() {
               <div
                 className={cn(
                   "w-1 h-1 rounded-full mx-auto",
-                  i < currentHourIdx ? "bg-violet-500" : "bg-muted"
+                  i < currentHourIdx ? "bg-blue-500" : "bg-muted"
                 )}
               />
             </div>
@@ -217,7 +217,7 @@ export default function ReplayPage() {
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>
+        <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>
       ) : entries.length === 0 ? (
         <div className="text-center py-20 text-muted-foreground">
           No hay entradas para este dia.

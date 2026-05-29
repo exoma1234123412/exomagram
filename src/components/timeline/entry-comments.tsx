@@ -144,7 +144,7 @@ export function EntryComments({ entryId }: { entryId: string }) {
           size="icon"
           onClick={handleSubmit}
           disabled={submitting || !newComment.trim()}
-          className="h-8 w-8 shrink-0 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25"
+          className="h-8 w-8 shrink-0 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg shadow-blue-600/25"
         >
           <Send className="w-3 h-3" />
         </Button>

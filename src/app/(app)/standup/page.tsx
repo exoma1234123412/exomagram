@@ -105,7 +105,7 @@ export default function StandupPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" />
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
         <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
       </div>
     );
@@ -125,7 +125,7 @@ export default function StandupPage() {
 
       {/* My standup form */}
       {!myStandup ? (
-        <Card className="mb-8 border-violet-200 dark:border-violet-800">
+        <Card className="mb-8 border-blue-200 dark:border-blue-800">
           <CardContent className="p-6">
             <h3 className="font-semibold mb-4 flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-yellow-500" />
@@ -173,7 +173,7 @@ export default function StandupPage() {
                       onClick={() => setMood(mood === level ? null : level)}
                       className={cn(
                         "flex-1 py-2 rounded-lg text-sm font-medium transition-all",
-                        mood === level ? "bg-violet-600 text-white" : "bg-muted hover:bg-muted/80"
+                        mood === level ? "bg-blue-600 text-white" : "bg-muted hover:bg-muted/80"
                       )}
                     >
                       {MOOD_LABELS[level]}

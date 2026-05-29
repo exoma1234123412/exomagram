@@ -184,7 +184,7 @@ export function ManageTemplatesDialog({ open, onOpenChange }: ManageTemplatesDia
                   onClick={() => setCategory(key)}
                   className={cn(
                     "px-2 py-1 rounded text-[10px] font-medium",
-                    category === key ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white" : "bg-muted hover:bg-muted/80"
+                    category === key ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white" : "bg-muted hover:bg-muted/80"
                   )}
                 >
                   {CATEGORIES[key].emoji} {CATEGORIES[key].label}
@@ -192,7 +192,7 @@ export function ManageTemplatesDialog({ open, onOpenChange }: ManageTemplatesDia
               ))}
             </div>
           </div>
-          <Button onClick={handleAdd} size="sm" disabled={!name.trim() || !title.trim()} className="w-full gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25">
+          <Button onClick={handleAdd} size="sm" disabled={!name.trim() || !title.trim()} className="w-full gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg shadow-blue-600/25">
             <Plus className="w-3 h-3" />
             Guardar plantilla
           </Button>

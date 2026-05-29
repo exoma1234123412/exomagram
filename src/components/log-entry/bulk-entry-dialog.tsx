@@ -318,7 +318,7 @@ export function BulkEntryDialog({ open, onOpenChange }: BulkEntryDialogProps) {
 
           <Button
             type="submit"
-            className="w-full h-10 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300 font-semibold"
+            className="w-full h-10 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 transition-all duration-300 font-semibold"
             disabled={loading || !category || hoursCount <= 0}
           >
             {loading

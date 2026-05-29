@@ -44,16 +44,16 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-violet-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-violet-950" />
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-sky-50 dark:from-gray-950 dark:via-gray-900 dark:to-blue-950" />
       <div className="absolute inset-0 bg-grid-pattern opacity-40" />
 
       {/* Decorative blobs */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-violet-200/30 dark:bg-violet-900/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-200/30 dark:bg-indigo-900/10 rounded-full blur-3xl" />
+      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-blue-200/30 dark:bg-blue-900/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-blue-300/20 dark:bg-blue-900/8 rounded-full blur-3xl" />
 
-      <Card className="w-full max-w-md relative shadow-2xl shadow-violet-500/10 border-border/50">
+      <Card className="w-full max-w-md relative shadow-2xl shadow-blue-600/10 border-border/50">
         <CardHeader className="text-center space-y-3 pb-2">
-          <div className="mx-auto w-14 h-14 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-1 shadow-xl shadow-violet-500/25">
+          <div className="mx-auto w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center mb-1 shadow-xl shadow-blue-600/25">
             <Clock className="w-7 h-7 text-white" />
           </div>
           <div className="space-y-1">
@@ -107,7 +107,7 @@ export default function SignupPage() {
             )}
             <Button
               type="submit"
-              className="w-full h-10 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300 font-semibold"
+              className="w-full h-10 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 transition-all duration-300 font-semibold"
               disabled={loading}
             >
               {loading ? "Creando cuenta..." : "Crear cuenta"}

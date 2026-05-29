@@ -44,7 +44,7 @@ export default function GridPage() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
           <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
         </div>
       </div>

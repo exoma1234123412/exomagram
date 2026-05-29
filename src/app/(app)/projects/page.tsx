@@ -160,7 +160,7 @@ export default function ProjectsPage() {
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>
+        <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>
       ) : projects.length === 0 ? (
         <div className="text-center py-20">
           <p className="text-muted-foreground">
@@ -180,7 +180,7 @@ export default function ProjectsPage() {
                   className="w-full text-left"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex items-center justify-center shrink-0">
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center shrink-0">
                       <FolderKanban className="w-5 h-5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -242,7 +242,7 @@ export default function ProjectsPage() {
                             <span className="text-xs text-muted-foreground">{c.hours}h</span>
                             <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
                               <div
-                                className="h-full bg-violet-500 rounded-full"
+                                className="h-full bg-blue-500 rounded-full"
                                 style={{ width: `${(c.hours / p.totalHours) * 100}%` }}
                               />
                             </div>

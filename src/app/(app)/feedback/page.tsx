@@ -110,7 +110,7 @@ export default function FeedbackPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" />
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
         <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
       </div>
     );
@@ -208,7 +208,7 @@ export default function FeedbackPage() {
                   className={cn(
                     "flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors",
                     anonymous
-                      ? "border-violet-300 bg-violet-50 dark:bg-violet-950/30 dark:border-violet-700"
+                      ? "border-blue-300 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-700"
                       : "border-muted"
                   )}
                 >
@@ -217,7 +217,7 @@ export default function FeedbackPage() {
                 </button>
               </div>
 
-              <Button type="submit" className="w-full rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25" disabled={submitting || !toUserId || !feedbackType}>
+              <Button type="submit" className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg shadow-blue-600/25" disabled={submitting || !toUserId || !feedbackType}>
                 {submitting ? "Enviando..." : "Enviar feedback"}
               </Button>
             </form>

@@ -15,6 +15,8 @@ import { DailyCloseoutDialog } from "@/components/closeout/daily-closeout-dialog
 import { DailyScoreWidget } from "@/components/dashboard/daily-score-widget";
 import { ActivityTicker } from "@/components/dashboard/activity-ticker";
 import { QuickLog } from "@/components/dashboard/quick-log";
+import { EmptyChair } from "@/components/accountability/empty-chair";
+import { BlockerEscalation } from "@/components/accountability/blocker-escalation";
 import { DailyChallenge } from "@/components/dashboard/daily-challenge";
 import { ScheduleOptimizer } from "@/components/dashboard/schedule-optimizer";
 import { VelocityWidget } from "@/components/dashboard/velocity-widget";
@@ -72,7 +74,7 @@ export default function DashboardPage() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
           <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
         </div>
       </div>
@@ -114,7 +116,7 @@ export default function DashboardPage() {
           </Button>
           <Button
             onClick={() => setLogOpen(true)}
-            className="gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300 border-0"
+            className="gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 transition-all duration-300 border-0"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Registrar hora</span>
@@ -179,6 +181,12 @@ export default function DashboardPage() {
 
       {/* Quick log */}
       {isToday && <QuickLog orgId={orgId} />}
+
+      {/* Empty Chair - who's NOT working */}
+      {isToday && <EmptyChair orgId={orgId} />}
+
+      {/* Blocker escalation */}
+      {isToday && <BlockerEscalation orgId={orgId} />}
 
       {/* Mood weather */}
       {isToday && <MoodWeather orgId={orgId} />}
@@ -255,7 +263,7 @@ function NoOrgView() {
   return (
     <div className="flex items-center justify-center min-h-screen px-4">
       <div className="max-w-md w-full text-center space-y-8">
-        <div className="w-20 h-20 bg-gradient-to-br from-violet-100 to-indigo-100 dark:from-violet-900/30 dark:to-indigo-900/30 rounded-3xl flex items-center justify-center mx-auto shadow-lg shadow-violet-500/10">
+        <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-sky-100 dark:from-blue-900/25 dark:to-sky-900/20 rounded-3xl flex items-center justify-center mx-auto shadow-lg shadow-blue-600/10">
           <span className="text-4xl">🏢</span>
         </div>
         <div className="space-y-2">
@@ -275,7 +283,7 @@ function NoOrgView() {
           <Button
             type="submit"
             disabled={loading}
-            className="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25"
+            className="rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg shadow-blue-600/25"
           >
             {loading ? "Creando..." : "Crear"}
           </Button>

@@ -164,7 +164,7 @@ export function ScheduleOptimizer({ orgId }: { orgId: string }) {
         {/* Recommendations */}
         <div className="flex flex-wrap gap-2 text-xs">
           {bestDeepWork && (
-            <Badge variant="outline" className="gap-1 text-primary border-violet-300">
+            <Badge variant="outline" className="gap-1 text-primary border-blue-300">
               <Brain className="w-3 h-3" />
               Deep work: {bestDeepWork}
             </Badge>

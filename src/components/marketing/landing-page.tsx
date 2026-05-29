@@ -18,7 +18,7 @@ export default function LandingPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/30 bg-background/80 glass">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-violet-500/25">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center shadow-lg shadow-blue-600/25">
               <Clock className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-lg tracking-tight">Exomagram</span>
@@ -29,7 +29,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/signup"
-              className="text-sm font-semibold px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all"
+              className="text-sm font-semibold px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 transition-all"
             >
               Empezar gratis
             </Link>
@@ -39,23 +39,23 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="pt-32 pb-20 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-violet-50/50 via-background to-background" />
-        <div className="absolute top-20 left-1/4 w-96 h-96 bg-violet-200/20 dark:bg-violet-900/10 rounded-full blur-3xl" />
-        <div className="absolute top-40 right-1/4 w-96 h-96 bg-indigo-200/20 dark:bg-indigo-900/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 via-background to-background" />
+        <div className="absolute top-20 left-1/4 w-96 h-96 bg-blue-200/20 dark:bg-blue-900/10 rounded-full blur-3xl" />
+        <div className="absolute top-40 right-1/4 w-96 h-96 bg-blue-300/15 dark:bg-blue-900/8 rounded-full blur-3xl" />
 
         <div className="max-w-4xl mx-auto text-center relative">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 text-sm font-medium mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
             <Zap className="w-4 h-4" />
             Transparencia radical para equipos
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6">
             Ve exactamente{" "}
-            <span className="bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
               que hace
             </span>{" "}
             tu equipo,{" "}
-            <span className="bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
               hora por hora
             </span>
           </h1>
@@ -69,7 +69,7 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/signup"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold text-lg shadow-xl shadow-violet-500/25 hover:shadow-violet-500/40 transition-all hover:scale-105"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold text-lg shadow-xl shadow-blue-600/25 hover:shadow-blue-600/40 transition-all hover:scale-105"
             >
               Empezar gratis <ArrowRight className="w-5 h-5" />
             </Link>
@@ -101,7 +101,7 @@ export default function LandingPage() {
                 icon: <Eye className="w-6 h-6" />,
                 title: "Timeline en vivo",
                 desc: "Ve que hace cada persona ahora mismo. Actualizaciones en tiempo real via WebSockets.",
-                color: "from-violet-500 to-violet-600",
+                color: "from-blue-500 to-blue-600",
               },
               {
                 icon: <Shield className="w-6 h-6" />,
@@ -178,7 +178,7 @@ export default function LandingPage() {
               },
             ].map((item, i) => (
               <div key={i} className="flex gap-6 items-start">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-lg shadow-violet-500/25">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-lg shadow-blue-600/25">
                   {item.step}
                 </div>
                 <div>
@@ -202,7 +202,7 @@ export default function LandingPage() {
           </p>
           <Link
             href="/signup"
-            className="inline-flex items-center gap-2 px-10 py-5 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold text-lg shadow-xl shadow-violet-500/25 hover:shadow-violet-500/40 transition-all hover:scale-105"
+            className="inline-flex items-center gap-2 px-10 py-5 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold text-lg shadow-xl shadow-blue-600/25 hover:shadow-blue-600/40 transition-all hover:scale-105"
           >
             Crear cuenta gratis <ArrowRight className="w-5 h-5" />
           </Link>
@@ -213,7 +213,7 @@ export default function LandingPage() {
       <footer className="border-t py-8 px-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-md flex items-center justify-center">
+            <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-blue-700 rounded-md flex items-center justify-center">
               <Clock className="w-3 h-3 text-white" />
             </div>
             <span className="text-sm font-semibold">Exomagram</span>

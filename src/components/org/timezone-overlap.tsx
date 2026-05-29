@@ -127,7 +127,7 @@ export function TimezoneOverlap({ orgId }: { orgId: string }) {
                       className={cn(
                         "flex-1 h-4 rounded-sm transition-colors",
                         active && isOverlap ? "bg-green-400 dark:bg-green-600" :
-                        active ? "bg-violet-300 dark:bg-violet-700" :
+                        active ? "bg-blue-300 dark:bg-blue-700" :
                         "bg-muted/20"
                       )}
                       title={`${formatHour(h)}: ${active ? "Activo" : "Inactivo"}`}
