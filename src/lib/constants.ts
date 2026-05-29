@@ -86,6 +86,8 @@ export const FLAG_TYPES: Record<
   low_detail: { label: "Bajo detalle", emoji: "..", severity: "low" },
   suspicious_pattern: { label: "Patrón sospechoso", emoji: "!!", severity: "high" },
   idle_long: { label: "Idle prolongado", emoji: "..", severity: "medium" },
+  no_health_check: { label: "Sin check de salud", emoji: "!!", severity: "medium" },
+  no_weekly_reflection: { label: "Sin reflexión semanal", emoji: "!!", severity: "medium" },
 };
 
 export const LIVE_STATUS_CONFIG: Record<

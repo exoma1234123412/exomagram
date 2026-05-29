@@ -328,7 +328,7 @@ export function CommandPalette() {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh]">
+    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[8vh] sm:pt-[15vh]">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-background/80 backdrop-blur-sm"
@@ -337,7 +337,7 @@ export function CommandPalette() {
 
       {/* Palette */}
       <div
-        className="relative w-full max-w-xl border border-border bg-background overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
+        className="relative w-full max-w-[calc(100%-2rem)] sm:max-w-xl mx-4 sm:mx-0 border border-border bg-background overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
         onKeyDown={handleKeyDown}
       >
         {/* Search input */}
@@ -357,7 +357,7 @@ export function CommandPalette() {
         </div>
 
         {/* Results list */}
-        <div ref={listRef} className="max-h-[60vh] overflow-y-auto">
+        <div ref={listRef} className="max-h-[min(60vh,400px)] sm:max-h-[60vh] overflow-y-auto">
           {filteredItems.length === 0 && query && (
             <div className="px-4 py-8 text-center">
               <p className="font-mono text-xs text-muted-foreground">

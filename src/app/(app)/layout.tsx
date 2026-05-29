@@ -54,7 +54,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
  <MorningShameRecap />
  <div className="flex min-h-screen bg-background">
  <Sidebar />
- <main className="flex-1 pb-20 md:pb-0 min-w-0 relative bg-grid-palantir">
+ <main className="flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0 min-w-0 relative bg-grid-palantir">
  {/* Top accent line */}
  <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent"/>
  <PublicCountdown />

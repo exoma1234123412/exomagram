@@ -19,7 +19,9 @@ export type FlagType =
   | "no_standup"
   | "low_detail"
   | "suspicious_pattern"
-  | "idle_long";
+  | "idle_long"
+  | "no_health_check"
+  | "no_weekly_reflection";
 
 export type MoodLevel = 1 | 2 | 3 | 4 | 5;
 export type EnergyLevel = 1 | 2 | 3 | 4 | 5;
@@ -108,6 +110,10 @@ export interface TimeEntry {
   learning_notes: string | null;
   created_at: string;
   updated_at: string;
+  // V11 — Soft deletes
+  deleted_at: string | null;
+  deleted_by: string | null;
+  deletion_reason: string | null;
 }
 
 export interface LiveStatus {
@@ -721,6 +727,15 @@ export interface AiDailyInsight {
   predictive: Record<string, unknown> | null;
   relationships: Record<string, unknown> | null;
   recommendation: string | null;
+  // V11 — Promoted fields (indexed, queryable)
+  grade: string | null;
+  score: number | null;
+  burnout_risk: number | null;
+  disengagement_risk: number | null;
+  trajectory: string | null;
+  productive_hours: number | null;
+  wasted_hours: number | null;
+  evidence_quality: number | null;
   created_at: string;
 }
 
@@ -957,4 +972,136 @@ export interface GitDailyMetrics {
   ci_failures: number;
   source: string;
   created_at: string;
+}
+
+// ============================================================
+// V11 — Data Perfection
+// ============================================================
+
+export interface AiProfileSnapshot {
+  id: string;
+  user_id: string;
+  org_id: string;
+  date: string;
+  profile_data: Record<string, unknown>;
+  work_personality: string | null;
+  chronotype: string | null;
+  consistency_score: number | null;
+  autonomy_level: string | null;
+  communication_style: string | null;
+  burnout_risk: number | null;
+  disengagement_risk: number | null;
+  trajectory: string | null;
+  created_at: string;
+}
+
+export interface DailyAggregate {
+  id: string;
+  user_id: string;
+  org_id: string;
+  date: string;
+  total_hours: number;
+  deep_work_hours: number;
+  meeting_hours: number;
+  review_hours: number;
+  admin_hours: number;
+  planning_hours: number;
+  learning_hours: number;
+  break_hours: number;
+  blocked_hours: number;
+  hours_with_proof: number;
+  late_entries: number;
+  flagged_entries: number;
+  avg_mood: number | null;
+  avg_energy: number | null;
+  avg_stress: number | null;
+  avg_focus_quality: number | null;
+  avg_difficulty: number | null;
+  avg_value_rating: number | null;
+  avg_confidence: number | null;
+  total_interruptions: number;
+  total_context_switches: number;
+  unique_collaborators: number;
+  unique_projects: number;
+  client_facing_hours: number;
+  async_possible_hours: number;
+  has_standup: boolean;
+  has_closeout: boolean;
+  has_health_check: boolean;
+  promises_made: number;
+  promises_kept: number;
+  promises_broken: number;
+  trust_score: number | null;
+  ai_grade: string | null;
+  ai_score: number | null;
+  git_commits: number;
+  git_lines_added: number;
+  git_lines_removed: number;
+  git_prs_opened: number;
+  git_prs_merged: number;
+  messages_sent: number;
+  meetings_attended: number;
+  meeting_minutes: number;
+  focus_sessions_count: number;
+  focus_sessions_completed: number;
+  focus_total_interruptions: number;
+  flow_states_achieved: number;
+  flags_raised: number;
+  flags_resolved: number;
+  reactions_verified: number;
+  reactions_suspicious: number;
+  reactions_impressive: number;
+  reactions_helped: number;
+  computed_at: string;
+}
+
+export interface WeeklyAggregate {
+  id: string;
+  user_id: string;
+  org_id: string;
+  week_start: string;
+  total_hours: number;
+  deep_work_hours: number;
+  meeting_hours: number;
+  hours_with_proof: number;
+  late_entries: number;
+  avg_daily_hours: number | null;
+  avg_mood: number | null;
+  avg_energy: number | null;
+  avg_stress: number | null;
+  avg_trust_score: number | null;
+  standups_completed: number;
+  closeouts_completed: number;
+  health_checks_completed: number;
+  days_logged: number;
+  total_promises: number;
+  promises_kept: number;
+  promises_broken: number;
+  promise_reliability: number | null;
+  total_commits: number;
+  total_lines_added: number;
+  total_prs: number;
+  avg_ai_score: number | null;
+  grades: Record<string, number> | null;
+  trajectory_trend: string | null;
+  burnout_risk_trend: string | null;
+  total_focus_sessions: number;
+  total_flow_states: number;
+  total_flags: number;
+  total_flags_resolved: number;
+  has_weekly_reflection: boolean;
+  reflection_satisfaction: number | null;
+  reflection_work_life_balance: number | null;
+  computed_at: string;
+}
+
+export interface EntryDeletionLog {
+  id: string;
+  entry_id: string;
+  user_id: string;
+  org_id: string;
+  deleted_by: string;
+  reason: string | null;
+  entry_snapshot: Record<string, unknown>;
+  deleted_at: string;
 }

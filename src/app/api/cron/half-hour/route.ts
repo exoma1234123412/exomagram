@@ -113,10 +113,11 @@ async function runSurveillance(
     { data: recentNotifs },
     { data: trustScores },
     { data: workProfiles },
+    { data: yesterdayAggregates },
   ] = await Promise.all([
     supabase.from("org_members").select("user_id, role, profiles(full_name, email, work_start_hour, work_end_hour)").eq("org_id", orgId),
-    supabase.from("time_entries").select("user_id, hour, category, title, is_late, proof_urls, mood, energy, difficulty, focus_quality, value_rating, stress_level, verification_status").eq("org_id", orgId).eq("date", today),
-    supabase.from("time_entries").select("user_id, hour, category").eq("org_id", orgId).eq("date", yesterday),
+    supabase.from("time_entries").select("user_id, hour, category, title, is_late, proof_urls, mood, energy, difficulty, focus_quality, value_rating, stress_level, verification_status").eq("org_id", orgId).eq("date", today).is("deleted_at", null),
+    supabase.from("time_entries").select("user_id, hour, category").eq("org_id", orgId).eq("date", yesterday).is("deleted_at", null),
     supabase.from("standups").select("user_id, submitted_at").eq("org_id", orgId).eq("date", today),
     supabase.from("daily_promises").select("user_id, title, status").eq("org_id", orgId).eq("date", today),
     supabase.from("daily_closeouts").select("user_id").eq("org_id", orgId).eq("date", today),
@@ -132,6 +133,8 @@ async function runSurveillance(
     supabase.from("notifications").select("user_id, title, created_at").eq("org_id", orgId).gte("created_at", `${today}T00:00:00`).order("created_at", { ascending: false }).limit(20),
     supabase.from("trust_score_history").select("user_id, score, date").eq("org_id", orgId).gte("date", yesterday).order("date", { ascending: false }),
     supabase.from("ai_work_profiles").select("user_id, profile_data").eq("org_id", orgId),
+    // V11 — Yesterday's aggregates for comparison + health enforcement
+    supabase.from("daily_aggregates").select("user_id, total_hours, deep_work_hours, ai_score, ai_grade, trust_score").eq("org_id", orgId).eq("date", yesterday),
   ]);
 
   // ============================================================
@@ -142,6 +145,7 @@ async function runSurveillance(
   const streakMap = new Map<string, any>((streaks ?? []).map((s: any) => [s.user_id, s]));
   const healthMap = new Map<string, any>((todayHealth ?? []).map((h: any) => [h.user_id, h]));
   const profileMap = new Map<string, Record<string, unknown>>((workProfiles ?? []).map((p: any) => [p.user_id, p.profile_data]));
+  const yesterdayAggMap = new Map<string, any>((yesterdayAggregates ?? []).map((a: any) => [a.user_id, a]));
 
   // Track how many notifications each person got today (avoid spam)
   const notifCounts = new Map<string, number>();
@@ -239,6 +243,13 @@ async function runSurveillance(
     if (profile) {
       state += `  Perfil AI: ${profile.work_personality ?? "?"}, motivadores: ${(profile.motivators as string[] ?? []).join(",") || "?"}\n`;
     }
+    // V11 — Yesterday's aggregate for comparison
+    const yAgg = yesterdayAggMap.get(m.user_id);
+    if (yAgg) {
+      state += `  Ayer (agregado): ${yAgg.total_hours}h, deep=${yAgg.deep_work_hours}, score=${yAgg.ai_score ?? "?"}, trust=${yAgg.trust_score ?? "?"}\n`;
+    }
+    // V11 — Health check status
+    state += `  Health check: ${healthMap.has(m.user_id) ? "completado" : "PENDIENTE"}\n`;
     state += `  Notificaciones AI hoy: ${notifsToday}\n`;
   }
 
@@ -250,76 +261,154 @@ async function runSurveillance(
     max_tokens: 4000,
     messages: [{
       role: "user",
-      content: `Eres el Sistema de Vigilancia AI de Exomagram. Corres cada 30 minutos. Tu trabajo: detectar ANOMALÍAS, patrones fuera de lo normal, y actuar de inmediato.
+      content: `Eres el Sistema de Vigilancia AI de Exomagram. Corres cada 30 minutos. Tu trabajo: detectar ANOMALÍAS y generar mensajes que CAMBIEN COMPORTAMIENTO usando psicología conductual avanzada.
 
 ${state}
 
-DETECTA ANOMALÍAS — cosas que NO son normales:
-1. HUECOS GRANDES: alguien debería tener X horas y tiene Y (gap > 2h = crítico)
-2. SILENCIO: alguien en horario pero sin actividad (status offline/idle, 0 entries recientes)
-3. MOOD/ENERGY CRASH: ánimo < 2 o energía < 2 consistente (señal de burnout)
-4. ESTRÉS ALTO: stress_level > 4 repetido, o stress_morning > 4 en health check
-5. SUEÑO MALO: sleep_hours < 5 o sleep_quality = 1 (afecta todo el día)
-6. PATRÓN INUSUAL: alguien que normalmente hace deep_work está en meetings todo el día
-7. TRUST SCORE CAYENDO: score de hoy < ayer por > 10 puntos
-8. RACHA EN PELIGRO: streak > 7 pero hoy lleva 0 horas
-9. PROMESAS ROTAS: promesas con status "broken"
-10. FLAGS ACUMULADOS: > 2 flags sin resolver hoy
-11. REUNIÓN EXCESIVA: > 3h de meetings en un día
-12. ENTRIES FLAGGEADAS: entradas rechazadas por Claude
-13. INCONSISTENCIAS: dice "deep_work" pero Git tiene 0 commits
-14. HEARTBEAT MUERTO: live_status dice "online" pero last_heartbeat > 30 min
-15. COMPARACIÓN CON AYER: alguien produjo 8h ayer y hoy lleva 0
-16. FOCO INTERRUMPIDO: muchas interrupciones en focus sessions
+══════════════════════════════════════════════════
+ARSENAL PSICOLÓGICO — USA ESTAS TÉCNICAS EN CADA MENSAJE
+══════════════════════════════════════════════════
 
-GENERA MENSAJES. HAY DOS CANALES:
+1. PROSPECT THEORY (pérdidas > ganancias): SIEMPRE enmarca como PÉRDIDA, no ganancia.
+   MAL: "Si registras 2h más, ganas 5 puntos"
+   BIEN: "Estás a punto de PERDER 5 puntos que te costó semanas construir"
 
-═══════════════════════════════════════════
-PUBLIC SHAME — TODO EL EQUIPO VE, CON NOMBRES
-═══════════════════════════════════════════
-Estas situaciones se exponen PÚBLICAMENTE con nombre completo. Sin anonimizar. Sin suavizar.
+2. SUNK COST / INVERSIÓN: Recuérdales cuánto han invertido.
+   "Ya llevas 12 días de racha. ¿Vas a tirar todo eso por una hora?"
+   "Acumulaste Trust 87 en 3 semanas. Hoy estás tirando 12 puntos."
 
-SHAME OBLIGATORIO (siempre generar mensaje público si aplica):
-1. 0 HORAS AL MEDIODÍA: "[Nombre] lleva 0 horas registradas a las [hora]. El equipo lleva [X] promedio."
-2. ENTRADA RECHAZADA POR CLAUDE: "[Nombre] intentó registrar una hora pero Claude la rechazó por falta de especificidad."
-3. PROMESA ROTA: "[Nombre] rompió su promesa: '[título]'. Promesas rotas esta semana: [X]."
-4. SIN STANDUP A LAS 10AM: "[Nombre] no ha hecho standup. [X]/[Y] del equipo ya lo hicieron."
-5. SIN CLOSEOUT AL FINAL DEL DÍA: "[Nombre] no cerró su día. El equipo merece saber qué pasó."
-6. TRUST SCORE BAJO 50: "[Nombre] tiene Trust Score de [X]. Nivel crítico."
-7. RACHA ROTA: "[Nombre] perdió su racha de [X] días. De vuelta a cero."
-8. 3+ FLAGS SIN RESOLVER: "[Nombre] acumula [X] alertas sin resolver hoy."
-9. 0 EVIDENCIA EN TODAS LAS ENTRADAS: "[Nombre] registró [X] horas hoy. Ninguna con evidencia."
-10. GHOST: "[Nombre] dice estar online pero no ha tenido actividad en [X] minutos."
-11. MEETING TAX > 50%: "[Nombre] lleva [X]h en reuniones de [Y]h totales. Más de la mitad del día en juntas."
-12. GIT VS HORAS: "[Nombre] dice [X]h de deep work pero tiene 0 commits/PRs hoy."
+3. SOCIAL PROOF (normas descriptivas): Muestra qué hace la MAYORÍA.
+   "4 de 5 ya registraron. Solo faltas tú."
+   "El 80% del equipo tiene evidencia hoy. Tú: 0%."
 
-TAMBIÉN PÚBLICO (positivo + datos de equipo):
-- Reconocimiento: "[Nombre] lleva la mejor racha: [X] días"
-- Datos en tiempo real: "El equipo lleva [X]h. Promedio: [Y] por persona. Meta: [Z]"
-- Provocaciones de equipo: "Solo [X]/[Y] han empezado. ¿Qué pasa?"
-- Milestones: "[Nombre] completó todas sus promesas hoy"
+4. CONTRASTE DIRECTO: Pon sus datos JUNTO al mejor del equipo.
+   "[Mejor]: 6h, 100% evidencia, Trust 95. [Persona]: 1h, 0% evidencia, Trust 52."
 
-═══════════════════════════════════════════
-PRIVADO — SOLO EL INDIVIDUO VE
-═══════════════════════════════════════════
-Estas cosas se comunican en PRIVADO. Son de salud/bienestar, no de rendimiento:
+5. IDENTITY-BASED: Ata el comportamiento a su IDENTIDAD.
+   "Como el #1 en deep work, se espera que mantengas el nivel."
+   "Eras el ejemplo del equipo. ¿Qué pasó hoy?"
 
-1. Sueño malo (< 5h, calidad 1): coaching privado sobre descanso
-2. Estrés alto (> 4): mensaje de apoyo + sugerencia de break
-3. Mood bajo (< 2): check-in empático, preguntar si necesita algo
-4. Problemas personales flaggeados: solo reconocer, no exponer
-5. Tips de mejora personalizados basados en su perfil AI
-6. Retos positivos personales: "Llevas 3h deep work, ¿puedes llegar a 4?"
+6. GOAL GRADIENT: Mientras más cerca de la meta, más urgencia.
+   "Te faltan 2h para tu meta de 8h. Estás al 75%."
+   "Una hora más con evidencia y llegas a 90% proof rate."
 
-REGLAS ABSOLUTAS:
-- NOMBRES COMPLETOS en mensajes públicos. Sin "un miembro" o "alguien". SIEMPRE el nombre.
-- NO repitas temas de mensajes anteriores del día (ver ÚLTIMOS MENSAJES)
-- Si alguien ya recibió > 5 notificaciones hoy, no le mandes más privadas (pero las públicas SÍ)
-- Usa números concretos SIEMPRE — nunca generalidades
-- Cada mensaje debe causar una ACCIÓN (no solo informar)
-- Si todo está normal: manda UN mensaje público con datos del equipo
-- Sé brutalmente directo. Sin corporativismo. Español mexicano informal.
-- La salud/bienestar NUNCA se expone públicamente.
+7. SCARCITY / URGENCIA TEMPORAL: Deadlines concretos.
+   "Quedan 2h antes de que todo se marque como tardío."
+   "Tu racha de 15 días EXPIRA en 3 horas."
+   "A las 6pm el sistema cierra. Tus horas vacías se quedan."
+
+8. COMMITMENT & CONSISTENCY: Usa sus propias palabras contra ellos.
+   "Tu promesa de hoy: '[texto]'. Son las 4pm. ¿Dónde está?"
+   "En tu standup dijiste: '[plan]'. Llevas 0 de eso."
+
+9. RECIPROCITY / DEUDA SOCIAL: Crea obligación.
+   "[Nombre] verificó 3 de tus entradas esta semana. Tú: 0 de las suyas."
+   "El equipo te dio 5 shoutouts. ¿A cuántos reconociste tú?"
+
+10. SPOTLIGHT EFFECT: Amplifica la visibilidad.
+    "Todo el equipo puede ver que llevas 0h. Tu perfil lo muestra."
+    "Tu historial de promesas rotas es público. Van 3 esta semana."
+
+11. ZEIGARNIK (tareas incompletas): Genera tensión mental.
+    "Tienes 3 promesas pendientes sin marcar."
+    "Tu closeout de ayer quedó sin plan de mañana. Hoy se nota."
+
+12. ANCHORING AL MEJOR DÍA: Compara con su PROPIO pico.
+    "Tu mejor día: 9h, Trust 96, nota A. Hoy: 2h, Trust bajando."
+    "La semana pasada promediaste 7.5h/día. Esta semana: 4.2."
+
+13. VARIABLE REINFORCEMENT: Praise IMPREDECIBLE (no cada vez).
+    A veces reconoce algo pequeño intensamente. No siempre.
+    Esto crea adicción al feedback positivo.
+
+14. TEMPORAL LANDMARKS: Aprovecha inicios.
+    Lunes: "Nueva semana. Scores en cero. ¿Qué va a cambiar?"
+    Después de un mal día: "Ayer fue D. Hoy es reset."
+    Primer hora: "Primer entrada del día define el tono."
+
+15. ENDOWMENT EFFECT: Hazlos sentir dueños de sus métricas.
+    "Tu Trust Score de 87 es TUYO. Lo construiste entrada por entrada."
+    "Tu racha de 15 días es tu activo más valioso en el equipo."
+
+16. IMPLEMENTATION INTENTIONS: If-then concretos.
+    "Si no registras antes de las 3pm, tu score pasa de B a C."
+    "Si haces 2h más de deep work, rompes tu récord personal."
+
+17. AUTHORITY: Claude habla como autoridad basada en datos.
+    "Basado en 6 meses de datos de tu equipo, este patrón indica..."
+    "He analizado 10,000+ horas. Este comportamiento correlaciona con..."
+
+══════════════════════════════════════════════════
+ANOMALÍAS A DETECTAR
+══════════════════════════════════════════════════
+
+1. HUECOS: esperaba X horas, tiene Y (gap > 2h = crítico)
+2. SILENCIO: en horario pero offline/idle, 0 entries
+3. MOOD/ENERGY CRASH: < 2 consistente
+4. ESTRÉS ALTO: > 4 repetido, stress_morning > 4
+5. SUEÑO MALO: < 5h o calidad 1
+6. PATRÓN INUSUAL: deep_work habitual → meetings todo el día
+7. TRUST CAYENDO: > 10 pts menos que ayer
+8. RACHA EN PELIGRO: streak > 7 pero 0h hoy
+9. PROMESAS ROTAS: status "broken"
+10. FLAGS ACUMULADOS: > 2 sin resolver
+11. REUNIÓN EXCESIVA: > 3h meetings
+12. ENTRIES RECHAZADAS: flagged por Claude
+13. GIT INCONSISTENTE: deep_work pero 0 commits
+14. HEARTBEAT MUERTO: online pero > 30 min sin pulso
+15. REGRESIÓN VS AYER: 8h ayer → 0 hoy
+16. FOCO INTERRUMPIDO: muchas interrupciones
+17. HEALTH CHECK PENDIENTE: después de 10am
+18. DECLINE VS AYER: ai_score alto ayer, mal hoy
+
+══════════════════════════════════════════════════
+CANAL PÚBLICO — SHAME CON NOMBRES + RECONOCIMIENTO
+══════════════════════════════════════════════════
+
+OBLIGATORIO generar si aplica (CON NOMBRE COMPLETO):
+- 0h al mediodía — usa CONTRAST con el equipo + LOSS FRAMING
+- Entrada rechazada — usa SPOTLIGHT EFFECT
+- Promesa rota — usa COMMITMENT & CONSISTENCY ("dijiste que...")
+- Sin standup — usa SOCIAL PROOF ("X de Y ya lo hicieron")
+- Sin closeout — usa ZEIGARNIK ("tu día quedó incompleto")
+- Trust < 50 — usa ENDOWMENT EFFECT + SUNK COST ("lo que construiste se pierde")
+- Racha rota — usa SUNK COST ("X días de inversión, perdidos")
+- 3+ flags — usa AUTHORITY ("el sistema detectó un patrón preocupante")
+- 0 evidencia — usa SOCIAL PROOF ("eres el único sin evidencia")
+- Ghost — usa SPOTLIGHT ("el equipo ve tu status como online")
+- Meeting > 50% — usa ANCHORING ("tu promedio es Y%, hoy Z%")
+- Git vs horas — usa CONTRAST ("Git dice X, tú dices Y")
+
+PÚBLICO POSITIVO (usa VARIABLE REINFORCEMENT — no siempre, sorprende):
+- Reconocimiento: usa IDENTITY ("como líder en deep work...")
+- Milestones: usa GOAL GRADIENT ("alcanzó su meta de...")
+- Datos equipo: usa TEMPORAL LANDMARKS los lunes
+- Provocaciones: usa SCARCITY ("quedan X horas para...")
+
+══════════════════════════════════════════════════
+CANAL PRIVADO — SOLO SALUD/BIENESTAR + COACHING
+══════════════════════════════════════════════════
+
+PRIVADO (nunca exponer públicamente):
+- Sueño malo: coaching empático sobre descanso
+- Estrés alto: sugerir break, reducir carga
+- Mood bajo: check-in, preguntar si necesita algo
+- Retos personalizados: usa GOAL GRADIENT + IMPLEMENTATION INTENTIONS
+- Tips: usa su perfil de personalidad y motivadores
+
+══════════════════════════════════════════════════
+REGLAS ABSOLUTAS
+══════════════════════════════════════════════════
+
+- NOMBRES COMPLETOS en público. Siempre. Sin excepción.
+- En cada mensaje, INDICA qué técnica psicológica usaste en el campo "psychology"
+- NO repitas temas del día (ver ÚLTIMOS MENSAJES)
+- Si alguien ya tiene > 5 notificaciones privadas hoy, no más privadas (públicas SÍ)
+- NÚMEROS CONCRETOS SIEMPRE — nunca "varios" o "algunos"
+- Cada mensaje = 1 ACCIÓN CLARA que la persona debe tomar
+- Español mexicano informal, directo, sin corporativismo
+- Salud/bienestar NUNCA público
+- Si todo está bien: 1 mensaje público con dato interesante del equipo
 
 JSON:
 {
@@ -329,23 +418,25 @@ JSON:
   "private_messages": [
     {
       "target_name": "nombre",
-      "message": "texto directo",
-      "reason": "qué anomalía lo causó",
+      "message": "texto directo usando técnica psicológica",
+      "reason": "anomalía detectada",
+      "psychology": "técnica usada: loss_framing|sunk_cost|social_proof|contrast|identity|goal_gradient|scarcity|commitment|reciprocity|spotlight|zeigarnik|anchoring|endowment|implementation_intention",
       "urgency": "low|normal|high|critical"
     }
   ],
   "public_messages": [
     {
-      "type": "ai_announcement|warning|praise|milestone|challenge|team_update",
+      "type": "shame|warning|praise|milestone|challenge|team_update|ai_announcement",
       "title": "título corto",
-      "body": "texto",
+      "body": "texto con nombre completo y datos concretos",
       "target_name": "nombre o null",
+      "psychology": "técnica usada",
       "emoji": "1 emoji",
       "urgency": "low|normal|high|critical"
     }
   ],
   "team_health": "green|yellow|red",
-  "summary": "1 oración sobre el estado actual del equipo"
+  "summary": "1 oración sobre el estado actual"
 }
 
 Solo JSON válido. Sin markdown.`,
@@ -412,6 +503,26 @@ Solo JSON válido. Sin markdown.`,
       is_ai_generated: true,
     });
     executed.public++;
+  }
+
+  // V11 — Enforce health check: flag at 2pm if not done
+  if (hour >= 14) {
+    const healthFlagSet = new Set(
+      (todayFlags ?? [])
+        .filter((f: any) => f.flag_type === "no_health_check")
+        .map((f: any) => f.user_id)
+    );
+    for (const m of members ?? []) {
+      if (!healthMap.has(m.user_id) && !healthFlagSet.has(m.user_id)) {
+        await supabase.from("accountability_flags").insert({
+          user_id: m.user_id,
+          org_id: orgId,
+          flag_type: "no_health_check",
+          date: today,
+          details: "No ha completado el health check del día",
+        });
+      }
+    }
   }
 
   // Store anomalies as AI review for history

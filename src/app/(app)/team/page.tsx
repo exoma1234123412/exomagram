@@ -459,7 +459,7 @@ export default function TeamPage() {
  </div>
 
  {/* Team Stats Bar */}
- <div className="grid grid-cols-5 gap-2 mb-6">
+ <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-6">
  {[
  { key:"online", label:"En l\u00ednea", dot:"bg-green-500", count: stats.online },
  { key:"deep_work", label:"Deep Work", dot:"bg-violet-500", count: stats.deep_work },

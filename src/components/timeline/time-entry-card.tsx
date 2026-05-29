@@ -78,7 +78,7 @@ export function TimeEntryCard({ entry, showUser = true, currentUserId, isAdmin }
  </AvatarFallback>
  </Avatar>
  )}
- <h4 className="font-semibold text-sm truncate leading-snug">{entry.title}</h4>
+ <h4 className="font-semibold text-sm line-clamp-2 sm:truncate leading-snug">{entry.title}</h4>
  </div>
  <div className="flex items-center gap-1.5 shrink-0">
  <Badge
@@ -99,7 +99,7 @@ export function TimeEntryCard({ entry, showUser = true, currentUserId, isAdmin }
  )}
 
  {entry.description && (
- <p className="text-[13px] text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
+ <p className="text-[13px] text-muted-foreground mt-2 line-clamp-3 sm:line-clamp-2 leading-relaxed">
  {entry.description}
  </p>
  )}

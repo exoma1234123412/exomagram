@@ -22,6 +22,7 @@ import {
   ChevronDown,
   ChevronRight,
   Shield,
+  ShieldAlert,
   UserX,
   BarChart3,
   Search,
@@ -725,7 +726,7 @@ export default function ConflictsPage() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-2.5 mb-1">
-          <Shield className="w-5 h-5 text-primary" />
+          <ShieldAlert className="w-5 h-5 text-primary" />
           <h1 className="text-xl font-mono font-bold tracking-tight uppercase">
             Detección de Conflictos
           </h1>

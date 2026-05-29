@@ -43,6 +43,7 @@ import { updateStreakOnEntry } from "@/lib/streak-utils";
 import { EntryTemplates, ManageTemplatesDialog, type EntryTemplate } from "./entry-templates";
 import { EntryValidator } from "@/components/tracking/entry-validator";
 import { PostEntryShame } from "@/components/social/post-entry-shame";
+import { ClaudeFollowup } from "@/components/ai/claude-followup";
 
 interface LogEntryDialogProps {
  open: boolean;
@@ -85,6 +86,11 @@ export function LogEntryDialog({
  proof_urls: string[];
  } | null>(null);
  const savedTitleRef = useRef("");
+ const [showFollowup, setShowFollowup] = useState(false);
+ const [followupEntryId, setFollowupEntryId] = useState<string | null>(null);
+ const [followupCategory, setFollowupCategory] = useState("");
+ const [followupTitle, setFollowupTitle] = useState("");
+ const [followupDescription, setFollowupDescription] = useState("");
 
  // Validation state
  const [validating, setValidating] = useState(false);
@@ -173,6 +179,11 @@ export function LogEntryDialog({
  setShowSuccess(false);
  setShowShame(false);
  setShameEntry(null);
+ setShowFollowup(false);
+ setFollowupEntryId(null);
+ setFollowupCategory("");
+ setFollowupTitle("");
+ setFollowupDescription("");
  setValidating(false);
  // Reset advanced fields
  setAdvancedOpen(false);
@@ -280,7 +291,7 @@ export function LogEntryDialog({
  .map((s) => s.trim())
  .filter(Boolean);
 
- const { error: insertError } = await supabase.from("time_entries").upsert(
+ const { data: upsertedEntry, error: insertError } = await supabase.from("time_entries").upsert(
  {
  user_id: user.id,
  org_id: membership.org_id,
@@ -317,13 +328,20 @@ export function LogEntryDialog({
  learning_notes: category ==="learning"? learningNotes : null,
  },
  { onConflict:"user_id,org_id,date,hour"}
- );
+ ).select("id").single();
 
  if (insertError) {
  setError(insertError.message);
  setLoading(false);
  return;
  }
+
+ // Store entry data for Claude followup
+ const savedEntryId = upsertedEntry?.id ?? null;
+ setFollowupEntryId(savedEntryId);
+ setFollowupCategory(category as string);
+ setFollowupTitle(finalTitle);
+ setFollowupDescription(finalDescription || "");
 
  // Update activity streak
  updateStreakOnEntry(user.id, membership.org_id, date);
@@ -483,6 +501,21 @@ export function LogEntryDialog({
  function handleShameClose() {
  setShowShame(false);
  setShameEntry(null);
+ // Show Claude followup if we have an entry ID and category isn't break
+ if (followupEntryId && followupCategory !== "break") {
+ setShowFollowup(true);
+ return;
+ }
+ // Otherwise go straight to success
+ finishAndClose();
+ }
+
+ function handleFollowupComplete() {
+ setShowFollowup(false);
+ finishAndClose();
+ }
+
+ function finishAndClose() {
  // Show brief success then close
  setShowSuccess(true);
  setTimeout(() => {
@@ -495,6 +528,11 @@ export function LogEntryDialog({
  setProofUrls("");
  setShowSuccess(false);
  setValidating(false);
+ setShowFollowup(false);
+ setFollowupEntryId(null);
+ setFollowupCategory("");
+ setFollowupTitle("");
+ setFollowupDescription("");
  setAdvancedOpen(false);
  setDifficulty(null);
  setFocusQuality(null);
@@ -518,7 +556,7 @@ export function LogEntryDialog({
 
  return (
  <Dialog open={open} onOpenChange={onOpenChange}>
- <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+ <DialogContent className="sm:max-w-lg max-h-[85vh] sm:max-h-[90vh] overflow-y-auto">
  <DialogHeader>
  <DialogTitle className="text-xl font-bold flex items-center gap-2.5 tracking-tight">
  Registrar hora
@@ -1015,6 +1053,17 @@ export function LogEntryDialog({
  <PostEntryShame
  entry={shameEntry}
  onClose={handleShameClose}
+ />
+ )}
+
+ {/* Claude followup interrogation — after shame, before success */}
+ {showFollowup && followupEntryId && (
+ <ClaudeFollowup
+ entryId={followupEntryId}
+ category={followupCategory}
+ title={followupTitle}
+ description={followupDescription}
+ onComplete={handleFollowupComplete}
  />
  )}
 

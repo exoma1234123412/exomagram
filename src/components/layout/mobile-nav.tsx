@@ -12,11 +12,12 @@ import {
  Pickaxe, Swords, Stethoscope, Waves, Siren, FileSignature,
  Shuffle, EyeOff, Activity, Droplets, Dna, Skull, Coins,
  Package, ShieldAlert, Zap, Award, Calendar, Users,
- MessageSquareWarning, Plus, ScanEye, Radio, Menu, X,
+ MessageSquareWarning, Plus, ScanEye, Radio, Menu, X, Search,
  Mail, Crosshair,
  ArrowDownUp, CandlestickChart, Hammer, Newspaper, Ghost, Timer, Ticket,
  UserMinus, Link2, Clock3, ShieldMinus, Lock, Handshake, Shield,
  Radar, FileText, Bone, Database, Table2, Scale, ScrollText, TrendingDown, Cross, UserX,
+ FileWarning, ShieldCheck, Bot, ScanSearch, Split, ArrowRightLeft, Bell,
 } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Logo } from "@/components/layout/logo";
@@ -30,9 +31,11 @@ const menuSections = [
  {
  label:"OPS",
  items: [
+ { href:"/alerts", label:"Alertas", icon: Bell },
  { href:"/home", label:"Inicio", icon: Home },
  { href:"/dashboard", label:"Timeline", icon: LayoutDashboard },
  { href:"/standup", label:"Standup", icon: MessageSquare },
+ { href:"/auto-standup", label:"Auto-Standup", icon: Bot },
  { href:"/promises", label:"Promesas", icon: Target },
  { href:"/contract", label:"Pacto Semanal", icon: FileSignature },
  { href:"/auto-capture", label:"Auto-Captura", icon: Radar },
@@ -43,6 +46,7 @@ const menuSections = [
  label:"INTEL",
  items: [
  { href:"/command", label:"Centro de Mando", icon: Crosshair },
+ { href:"/ask-claude", label:"Ask Claude", icon: MessageSquare },
  { href:"/brain", label:"Claude Brain", icon: Brain },
  { href:"/hotseat", label:"Hot Seat", icon: Flame },
  { href:"/one-on-one", label:"1:1 Prep", icon: MessageSquare },
@@ -55,7 +59,11 @@ const menuSections = [
  { href:"/brutal-truth", label:"Verdad Brutal", icon: Skull },
  { href:"/conflicts", label:"Conflictos AI", icon: ShieldAlert },
  { href:"/ai-predictions", label:"Predicciones AI", icon: Activity },
+ { href:"/wellbeing", label:"Bienestar", icon: Heart },
  { href:"/productivity-autopsy", label:"Autopsia Prod.", icon: Stethoscope },
+ { href:"/team-narrative", label:"Cronica Equipo", icon: Newspaper },
+ { href:"/consistency", label:"Consistencia", icon: ScanSearch },
+ { href:"/contradictions", label:"Contradicciones", icon: Split },
  ],
  },
  {
@@ -71,6 +79,9 @@ const menuSections = [
  { href:"/intervention", label:"Intervención", icon: UserX },
  { href:"/weekly-shame", label:"Informe Semanal", icon: Newspaper },
  { href:"/broken-promises", label:"Promesas Rotas", icon: ScrollText },
+ { href:"/shame-contract", label:"Contrato Verguenza", icon: FileWarning },
+ { href:"/reliability", label:"Confiabilidad", icon: ShieldCheck },
+ { href:"/reciprocity", label:"Reciprocidad", icon: ArrowRightLeft },
  { href:"/trust-debt", label:"Deuda Confianza", icon: TrendingDown },
  { href:"/peer-verdict", label:"Peer Verdict", icon: Scale },
  { href:"/graveyard", label:"Cementerio Rachas", icon: Cross },
@@ -177,7 +188,7 @@ export function MobileNav({ onLogEntry, unreadCount = 0 }: MobileNavProps) {
  return (
  <>
  {menuOpen && (
- <div className="md:hidden fixed inset-0 z-[60] bg-background bg-grid-dense">
+ <div className="md:hidden fixed inset-0 z-[60] bg-background bg-grid-dense pt-[env(safe-area-inset-top)]">
  <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/40">
  <div className="flex items-center gap-2.5">
  <div className="relative">
@@ -199,7 +210,20 @@ export function MobileNav({ onLogEntry, unreadCount = 0 }: MobileNavProps) {
  </div>
  </div>
 
- <div className="overflow-y-auto h-[calc(100vh-120px)] px-4 py-3 space-y-4">
+ {/* Search bar at top of menu */}
+ <button
+ onClick={() => {
+ setMenuOpen(false);
+ setTimeout(() => {
+ window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }));
+ }, 150);
+ }}
+ className="flex items-center gap-2.5 mx-4 mt-3 mb-2 px-3 py-2.5 border border-border/40 bg-accent/20 text-muted-foreground transition-colors active:bg-accent/40">
+ <Search className="w-4 h-4 shrink-0"/>
+ <span className="font-mono text-xs">Buscar comando...</span>
+ </button>
+
+ <div className="overflow-y-auto h-[calc(100vh-180px-env(safe-area-inset-top))] px-4 py-3 space-y-4">
  {menuSections.map((section, sectionIdx) => (
  <div key={sectionIdx}>
  {section.label && (
@@ -242,42 +266,42 @@ export function MobileNav({ onLogEntry, unreadCount = 0 }: MobileNavProps) {
  )}
 
  <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background/95 glass border-t border-border/50 z-50 pb-[env(safe-area-inset-bottom)]">
- <div className="flex items-center justify-around py-1.5 px-1">
+ <div className="flex items-center justify-around py-1 px-1">
  <Link
  href="/dashboard"className={cn(
-"relative flex flex-col items-center gap-0.5 px-3 py-1 text-[8px] font-mono font-medium tracking-wide uppercase transition-all",
+"relative flex flex-col items-center gap-0.5 px-3 py-2 min-h-[44px] justify-center text-[8px] font-mono font-medium tracking-wide uppercase transition-all",
  pathname.startsWith("/dashboard") ?"text-primary":"text-muted-foreground active:scale-95")}
  >
- <LayoutDashboard className="w-4.5 h-4.5"/>
+ <LayoutDashboard className="w-5 h-5"/>
  Timeline
  {pathname.startsWith("/dashboard") && <span className="w-4 h-[1px] bg-primary mt-0.5"/>}
  </Link>
 
  <Link
  href="/now"className={cn(
-"relative flex flex-col items-center gap-0.5 px-3 py-1 text-[8px] font-mono font-medium tracking-wide uppercase transition-all",
+"relative flex flex-col items-center gap-0.5 px-3 py-2 min-h-[44px] justify-center text-[8px] font-mono font-medium tracking-wide uppercase transition-all",
  pathname.startsWith("/now") ?"text-primary":"text-muted-foreground active:scale-95")}
  >
- <Radio className="w-4.5 h-4.5"/>
+ <Radio className="w-5 h-5"/>
  Ahora
  {pathname.startsWith("/now") && <span className="w-4 h-[1px] bg-primary mt-0.5"/>}
  </Link>
 
  <button
  onClick={onLogEntry}
- className="flex flex-col items-center gap-0.5 px-3 py-1 text-[8px] font-mono font-medium tracking-wide uppercase text-white active:scale-95 transition-transform">
- <div className="w-10 h-10 bg-primary flex items-center justify-center -mt-5 border border-primary/80 ring-2 ring-background">
- <Plus className="w-4.5 h-4.5"/>
+ className="flex flex-col items-center gap-0.5 px-3 py-2 text-[8px] font-mono font-medium tracking-wide uppercase text-white active:scale-95 transition-transform">
+ <div className="w-11 h-11 bg-primary flex items-center justify-center -mt-6 border border-primary/80 ring-2 ring-background">
+ <Plus className="w-5 h-5"/>
  </div>
  <span className="text-foreground mt-0.5">Registrar</span>
  </button>
 
  <Link
  href="/vigilance"className={cn(
-"flex flex-col items-center gap-0.5 px-3 py-1 text-[8px] font-mono font-medium tracking-wide uppercase transition-all",
+"flex flex-col items-center gap-0.5 px-3 py-2 min-h-[44px] justify-center text-[8px] font-mono font-medium tracking-wide uppercase transition-all",
  pathname.startsWith("/vigilance") ?"text-primary":"text-muted-foreground active:scale-95")}
  >
- <ScanEye className="w-4.5 h-4.5"/>
+ <ScanEye className="w-5 h-5"/>
  Vigilancia
  {pathname.startsWith("/vigilance") && <span className="w-4 h-[1px] bg-primary mt-0.5"/>}
  </Link>
@@ -285,10 +309,10 @@ export function MobileNav({ onLogEntry, unreadCount = 0 }: MobileNavProps) {
  <button
  onClick={() => setMenuOpen(true)}
  className={cn(
-"flex flex-col items-center gap-0.5 px-3 py-1 text-[8px] font-mono font-medium tracking-wide uppercase transition-all",
+"flex flex-col items-center gap-0.5 px-3 py-2 min-h-[44px] justify-center text-[8px] font-mono font-medium tracking-wide uppercase transition-all",
  menuOpen ?"text-primary":"text-muted-foreground active:scale-95")}
  >
- <Menu className="w-4.5 h-4.5"/>
+ <Menu className="w-5 h-5"/>
  Menú
  </button>
  </div>

@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
  Crosshair,
+ Target,
  Play,
  Square,
  X,
@@ -292,7 +293,8 @@ export default function FocusPage() {
  <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
  {/* Header */}
  <div className="mb-8">
- <h1 className="text-xl font-mono font-bold tracking-tight uppercase">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
+ <Target className="w-5 h-5 text-primary" />
  Sesiones de Enfoque
  </h1>
  <p className="text-xs font-mono text-muted-foreground mt-1">

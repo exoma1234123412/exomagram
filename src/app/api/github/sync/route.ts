@@ -120,9 +120,54 @@ export async function POST(request: Request) {
     if (!error) inserted++;
   }
 
+  // V11 — Aggregate synced events into git_daily_metrics
+  const todayEvents = events.filter((e) => e.date === today);
+  if (todayEvents.length > 0) {
+    const commits = todayEvents.filter((e) => e.event_type === "commit");
+    const prsOpened = todayEvents.filter((e) => e.event_type === "pr_opened");
+    const prsMerged = todayEvents.filter((e) => e.event_type === "pr_merged");
+    const prsReviewed = todayEvents.filter((e) => e.event_type === "pr_reviewed");
+
+    let totalAdded = 0;
+    let totalRemoved = 0;
+    for (const c of commits) {
+      totalAdded += (c.metadata?.additions as number) ?? 0;
+      totalRemoved += (c.metadata?.deletions as number) ?? 0;
+    }
+
+    const activeRepos = [...new Set(todayEvents.map((e) => e.repo))];
+    const largestCommitFiles = Math.max(
+      0,
+      ...commits.map((c) => (c.metadata?.files_changed as number) ?? 0)
+    );
+
+    await supabase.from("git_daily_metrics").upsert({
+      user_id: user.id,
+      org_id: orgId,
+      date: today,
+      commits_count: commits.length,
+      lines_added: totalAdded,
+      lines_removed: totalRemoved,
+      files_changed: 0, // Not available from events API without per-commit detail
+      prs_opened: prsOpened.length,
+      prs_merged: prsMerged.length,
+      prs_reviewed: prsReviewed.length,
+      review_comments: 0,
+      avg_pr_size_lines: 0,
+      repos_active: activeRepos,
+      languages: [],
+      largest_commit_files: largestCommitFiles,
+      tests_added: 0,
+      docs_changed: false,
+      ci_failures: 0,
+      source: "github_sync",
+    }, { onConflict: "user_id,org_id,date" });
+  }
+
   return NextResponse.json({
     synced: inserted,
     total_found: events.length,
     repos_checked: repos.length,
+    metrics_updated: todayEvents.length > 0,
   });
 }

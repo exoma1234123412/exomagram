@@ -871,6 +871,13 @@ export default function TimelineViewPage() {
  <SummaryBar rows={rows} />
 
  {/* Timeline chart */}
+ {/* Mobile scroll hint */}
+ <p className="text-[10px] font-mono text-muted-foreground mb-2 md:hidden flex items-center gap-1">
+ <ChevronLeft className="w-3 h-3"/>
+ Desliza horizontalmente para ver la timeline completa
+ <ChevronRight className="w-3 h-3"/>
+ </p>
+
  <Card className="border-border/50 overflow-hidden">
  <CardContent className="p-0">
  {loading ? (
@@ -890,7 +897,8 @@ export default function TimelineViewPage() {
  </p>
  </div>
  ) : (
- <div className="min-w-[700px] overflow-x-auto pt-8 pb-2">
+ <div className="overflow-x-auto -webkit-overflow-scrolling-touch pt-8 pb-2">
+ <div className="min-w-[700px]">
  {/* Hour headers */}
  <TimelineHeader dateStr={date} />
 
@@ -907,6 +915,7 @@ export default function TimelineViewPage() {
 
  {/* Legend */}
  <TimelineLegend />
+ </div>
  </div>
  )}
  </CardContent>

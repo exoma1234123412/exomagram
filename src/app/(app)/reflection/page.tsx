@@ -15,6 +15,7 @@ import {
  ChevronLeft,
  ChevronRight,
  BookOpen,
+ Brain,
  Trophy,
  AlertTriangle,
  Lightbulb,
@@ -238,7 +239,8 @@ export default function ReflectionPage() {
  <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
  {/* Header */}
  <div className="mb-8">
- <h1 className="text-xl font-mono font-bold tracking-tight uppercase">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
+ <Brain className="w-5 h-5 text-primary" />
  Reflexion Semanal
  </h1>
  <p className="text-xs font-mono text-muted-foreground mt-1">

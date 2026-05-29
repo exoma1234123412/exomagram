@@ -185,7 +185,7 @@ Responde SOLO JSON válido.`,
       continue;
     }
 
-    // Store daily insight
+    // Store daily insight with promoted queryable fields
     await supabase.from("ai_daily_insights").upsert({
       user_id: userId,
       org_id: orgId,
@@ -194,15 +194,41 @@ Responde SOLO JSON válido.`,
       predictive: parsed.predictive_signals,
       relationships: parsed.relationship_signals,
       recommendation: parsed.tomorrow_recommendation,
+      // V11 — Promoted fields (indexed, queryable without JSON extraction)
+      grade: parsed.daily_insight?.grade ?? null,
+      score: parsed.daily_insight?.score ?? null,
+      burnout_risk: parsed.predictive_signals?.burnout_risk ?? null,
+      disengagement_risk: parsed.predictive_signals?.disengagement_risk ?? null,
+      trajectory: parsed.predictive_signals?.trajectory ?? null,
+      productive_hours: parsed.daily_insight?.productive_hours ?? null,
+      wasted_hours: parsed.daily_insight?.wasted_hours ?? null,
+      evidence_quality: parsed.daily_insight?.evidence_quality ?? null,
     }, { onConflict: "user_id,org_id,date" });
 
-    // Update work profile (accumulates over time)
+    // Update current work profile (live snapshot)
     await supabase.from("ai_work_profiles").upsert({
       user_id: userId,
       org_id: orgId,
       profile_data: parsed.profile_update,
       last_updated: date,
     }, { onConflict: "user_id,org_id" });
+
+    // V11 — Snapshot profile to history (never lost, versioned by date)
+    await supabase.from("ai_profile_history").upsert({
+      user_id: userId,
+      org_id: orgId,
+      date,
+      profile_data: parsed.profile_update,
+      // Promoted fields for direct querying
+      work_personality: parsed.profile_update?.work_personality ?? null,
+      chronotype: parsed.profile_update?.chronotype ?? null,
+      consistency_score: parsed.profile_update?.consistency_score ?? null,
+      autonomy_level: parsed.profile_update?.autonomy_level ?? null,
+      communication_style: parsed.profile_update?.communication_style ?? null,
+      burnout_risk: parsed.predictive_signals?.burnout_risk ?? null,
+      disengagement_risk: parsed.predictive_signals?.disengagement_risk ?? null,
+      trajectory: parsed.predictive_signals?.trajectory ?? null,
+    }, { onConflict: "user_id,org_id,date" });
 
     results.push({
       name,
