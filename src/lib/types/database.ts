@@ -54,6 +54,20 @@ export interface OrgMember {
   joined_at: string;
 }
 
+export type OutputType =
+  | "code"
+  | "document"
+  | "design"
+  | "email"
+  | "decision"
+  | "analysis"
+  | "presentation"
+  | "communication"
+  | "review_output"
+  | "none";
+
+export type WorkLocation = "office" | "home" | "cafe" | "coworking" | "travel" | "other";
+
 export interface TimeEntry {
   id: string;
   user_id: string;
@@ -75,6 +89,23 @@ export interface TimeEntry {
   verification_note: string | null;
   verified_by: string | null;
   project: string | null;
+  // V10 — Extended data collection
+  difficulty: MoodLevel | null;
+  focus_quality: MoodLevel | null;
+  value_rating: MoodLevel | null;
+  stress_level: MoodLevel | null;
+  confidence: MoodLevel | null;
+  interruptions: number;
+  context_switches: number;
+  collaborators: string[];
+  output_type: OutputType | null;
+  tools_used: string[];
+  location: WorkLocation | null;
+  client_facing: boolean;
+  could_be_async: boolean | null;
+  blocker_detail: string | null;
+  skills_tags: string[];
+  learning_notes: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -806,5 +837,124 @@ export interface MonthlyObituary {
   month: string;
   content: string;
   ai_generated: boolean;
+  created_at: string;
+}
+
+// ============================================================
+// V10 — Insane Data Collection
+// ============================================================
+
+export interface DailyHealth {
+  id: string;
+  user_id: string;
+  org_id: string;
+  date: string;
+  sleep_hours: number | null;
+  sleep_quality: MoodLevel | null;
+  exercise_minutes: number;
+  exercise_type: string | null;
+  hydration_level: MoodLevel | null;
+  meals_count: number | null;
+  stress_morning: MoodLevel | null;
+  stress_evening: MoodLevel | null;
+  mental_clarity: MoodLevel | null;
+  motivation_level: MoodLevel | null;
+  screen_time_hours: number;
+  breaks_taken: number;
+  worked_overtime: boolean;
+  personal_issues: boolean;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface WeeklyReflection {
+  id: string;
+  user_id: string;
+  org_id: string;
+  week_start: string;
+  biggest_win: string | null;
+  biggest_struggle: string | null;
+  what_learned: string | null;
+  what_would_change: string | null;
+  next_week_priorities: string[];
+  goals_hit_percent: number | null;
+  satisfaction: MoodLevel | null;
+  work_life_balance: MoodLevel | null;
+  team_collaboration: MoodLevel | null;
+  growth_feeling: MoodLevel | null;
+  manager_support: MoodLevel | null;
+  growth_areas: string[];
+  skills_developed: string[];
+  would_recommend_week: boolean | null;
+  one_word_summary: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type InterruptionSource = "slack" | "colleague" | "phone" | "email" | "meeting" | "self";
+
+export interface FocusSession {
+  id: string;
+  user_id: string;
+  org_id: string;
+  started_at: string;
+  ended_at: string | null;
+  planned_minutes: number;
+  actual_minutes: number | null;
+  task_title: string;
+  category: string | null;
+  project: string | null;
+  was_completed: boolean;
+  interruption_count: number;
+  interruption_sources: InterruptionSource[];
+  quality_rating: MoodLevel | null;
+  flow_state_achieved: boolean;
+  deliverables: string | null;
+  entry_id: string | null;
+  created_at: string;
+}
+
+export interface CommunicationLog {
+  id: string;
+  user_id: string;
+  org_id: string;
+  date: string;
+  messages_sent: number;
+  messages_received: number;
+  meetings_attended: number;
+  meetings_organized: number;
+  emails_sent: number;
+  emails_received: number;
+  meeting_minutes: number;
+  slack_active_minutes: number;
+  response_time_avg_minutes: number | null;
+  channels_active: string[];
+  people_interacted_with: string[];
+  unread_at_eod: number;
+  source: string;
+  created_at: string;
+}
+
+export interface GitDailyMetrics {
+  id: string;
+  user_id: string;
+  org_id: string;
+  date: string;
+  commits_count: number;
+  lines_added: number;
+  lines_removed: number;
+  files_changed: number;
+  prs_opened: number;
+  prs_merged: number;
+  prs_reviewed: number;
+  review_comments: number;
+  avg_pr_size_lines: number;
+  repos_active: string[];
+  languages: string[];
+  largest_commit_files: number;
+  tests_added: number;
+  docs_changed: boolean;
+  ci_failures: number;
+  source: string;
   created_at: string;
 }

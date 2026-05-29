@@ -129,6 +129,109 @@ export const ENERGY_LABELS: Record<number, string> = {
   5: "En llamas",
 };
 
+// ============================================================
+// V10 — Extended Data Collection Constants
+// ============================================================
+
+export const OUTPUT_TYPES: Record<string, { label: string; emoji: string }> = {
+  code: { label: "Código", emoji: "💻" },
+  document: { label: "Documento", emoji: "📄" },
+  design: { label: "Diseño", emoji: "🎨" },
+  email: { label: "Email", emoji: "📧" },
+  decision: { label: "Decisión", emoji: "⚖️" },
+  analysis: { label: "Análisis", emoji: "📊" },
+  presentation: { label: "Presentación", emoji: "📽️" },
+  communication: { label: "Comunicación", emoji: "💬" },
+  review_output: { label: "Review", emoji: "🔍" },
+  none: { label: "Nada tangible", emoji: "🫥" },
+};
+
+export const TOOLS: Record<string, { label: string; emoji: string }> = {
+  vscode: { label: "VS Code", emoji: "🔧" },
+  figma: { label: "Figma", emoji: "🎨" },
+  slack: { label: "Slack", emoji: "💬" },
+  zoom: { label: "Zoom", emoji: "📹" },
+  meet: { label: "Google Meet", emoji: "📹" },
+  notion: { label: "Notion", emoji: "📝" },
+  linear: { label: "Linear", emoji: "📋" },
+  terminal: { label: "Terminal", emoji: "⬛" },
+  browser: { label: "Browser", emoji: "🌐" },
+  excel: { label: "Excel/Sheets", emoji: "📊" },
+  github: { label: "GitHub", emoji: "🐙" },
+  email_client: { label: "Email", emoji: "📧" },
+  other: { label: "Otro", emoji: "🔲" },
+};
+
+export const LOCATIONS: Record<string, { label: string; emoji: string }> = {
+  office: { label: "Oficina", emoji: "🏢" },
+  home: { label: "Casa", emoji: "🏠" },
+  cafe: { label: "Café", emoji: "☕" },
+  coworking: { label: "Coworking", emoji: "🏗️" },
+  travel: { label: "Viaje", emoji: "✈️" },
+  other: { label: "Otro", emoji: "📍" },
+};
+
+export const DIFFICULTY_LABELS: Record<number, string> = {
+  1: "Trivial",
+  2: "Fácil",
+  3: "Normal",
+  4: "Difícil",
+  5: "Extremo",
+};
+
+export const FOCUS_LABELS: Record<number, string> = {
+  1: "Disperso",
+  2: "Distraído",
+  3: "Normal",
+  4: "Enfocado",
+  5: "Flow state",
+};
+
+export const VALUE_LABELS: Record<number, string> = {
+  1: "Sin valor",
+  2: "Bajo valor",
+  3: "Valor normal",
+  4: "Alto valor",
+  5: "Valor crítico",
+};
+
+export const STRESS_LABELS: Record<number, string> = {
+  1: "Relajado",
+  2: "Tranquilo",
+  3: "Normal",
+  4: "Estresado",
+  5: "Máximo estrés",
+};
+
+export const CONFIDENCE_LABELS: Record<number, string> = {
+  1: "Invento",
+  2: "Aproximado",
+  3: "Razonable",
+  4: "Seguro",
+  5: "Exacto",
+};
+
+export const INTERRUPTION_SOURCES: Record<string, { label: string; emoji: string }> = {
+  slack: { label: "Slack", emoji: "💬" },
+  colleague: { label: "Colega", emoji: "🧑" },
+  phone: { label: "Teléfono", emoji: "📱" },
+  email: { label: "Email", emoji: "📧" },
+  meeting: { label: "Reunión", emoji: "📅" },
+  self: { label: "Auto-interrupción", emoji: "🧠" },
+};
+
+export const EXERCISE_TYPES: Record<string, string> = {
+  none: "Ninguno",
+  running: "Correr",
+  gym: "Gimnasio",
+  yoga: "Yoga",
+  walk: "Caminar",
+  cycling: "Ciclismo",
+  swimming: "Natación",
+  sports: "Deporte",
+  other: "Otro",
+};
+
 // Anti-gaming: máximo de horas hacia atrás que se puede registrar
 export const MAX_BACKFILL_HOURS = 24;
 

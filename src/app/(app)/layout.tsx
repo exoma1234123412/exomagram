@@ -20,6 +20,11 @@ import { LastPlaceCurse } from "@/components/social/last-place-curse";
 import { PerformanceWatermark } from "@/components/social/performance-watermark";
 import { ShameNotifications } from "@/components/social/shame-notifications";
 import { HerdPressure } from "@/components/social/herd-pressure";
+import { EscalationTimer } from "@/components/social/escalation-timer";
+import { ScreenTint } from "@/components/social/screen-tint";
+import { EntryVerdict } from "@/components/social/entry-verdict";
+import { MomentumKiller } from "@/components/social/momentum-killer";
+import { ProductivityPrison } from "@/components/social/productivity-prison";
 import { OrgProvider } from "@/lib/context/org-context";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -46,9 +51,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   <HerdPressure />
                   <RankingStrip />
                   <div className="relative z-[1]">
-                    <ErrorBoundary>
-                      {children}
-                    </ErrorBoundary>
+                    <ProductivityPrison>
+                      <ErrorBoundary>
+                        {children}
+                      </ErrorBoundary>
+                    </ProductivityPrison>
                   </div>
                 </main>
                 <MobileNav onLogEntry={() => setLogDialogOpen(true)} />
@@ -60,6 +67,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <LastPlaceCurse />
                 <PerformanceWatermark />
                 <ShameNotifications />
+                <EscalationTimer />
+                <EntryVerdict />
+                <MomentumKiller />
+                <ScreenTint />
                 <InstallPrompt />
               </div>
             </GhostEffect>

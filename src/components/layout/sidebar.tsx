@@ -15,7 +15,7 @@ import {
   MessageSquareWarning, ChevronDown, type LucideIcon,
   Mail, Crosshair,
   Timer, Hammer, UserMinus, Ghost, Ticket, CandlestickChart, Newspaper,
-  AlertTriangle, Link2, Clock3,
+  AlertTriangle, Link2, Clock3, Archive,
   CircleDollarSign,
   ArrowDownUp,
   ScrollText,
@@ -45,6 +45,7 @@ const sections: NavGroup[] = [
   {
     id: "intel", label: "INTEL",
     items: [
+      { href: "/command", label: "Centro de Mando", icon: Crosshair },
       { href: "/brain", label: "Claude Brain", icon: Brain },
       { href: "/hotseat", label: "Hot Seat", icon: Flame },
       { href: "/one-on-one", label: "1:1 Prep", icon: MessageSquare },
@@ -74,11 +75,14 @@ const sections: NavGroup[] = [
       { href: "/collateral", label: "Colateral", icon: Handshake },
       { href: "/transparency", label: "Transparencia", icon: Eye },
       { href: "/daily-replay", label: "Replay Diario", icon: Camera },
+      { href: "/hall-of-shame", label: "Hall of Shame", icon: Archive },
+      { href: "/shame-score", label: "Indice Verguenza", icon: Skull },
     ],
   },
   {
     id: "monitor", label: "VIGILANCIA",
     items: [
+      { href: "/radar", label: "Radar", icon: Radar },
       { href: "/pulse", label: "Pulso EKG", icon: Activity },
       { href: "/trust-decay", label: "Trust Decay", icon: Droplets },
       { href: "/entropy", label: "Entropía", icon: Waves },
@@ -108,6 +112,7 @@ const sections: NavGroup[] = [
   {
     id: "tactical", label: "TÁCTICO",
     items: [
+      { href: "/arena", label: "Competencias", icon: Swords },
       { href: "/duel", label: "Focus Duel", icon: Swords },
       { href: "/predictions", label: "Predicciones", icon: TrendingUp },
       { href: "/bets", label: "Apuestas", icon: Coins },

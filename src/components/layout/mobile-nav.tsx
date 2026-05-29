@@ -42,6 +42,7 @@ const menuSections = [
   {
     label: "INTEL",
     items: [
+      { href: "/command", label: "Centro de Mando", icon: Crosshair },
       { href: "/brain", label: "Claude Brain", icon: Brain },
       { href: "/hotseat", label: "Hot Seat", icon: Flame },
       { href: "/one-on-one", label: "1:1 Prep", icon: MessageSquare },
@@ -65,6 +66,7 @@ const menuSections = [
   {
     label: "VIGILANCIA",
     items: [
+      { href: "/radar", label: "Radar", icon: Radar },
       { href: "/pulse", label: "Pulso EKG", icon: Activity },
       { href: "/trust-decay", label: "Trust Decay", icon: Droplets },
       { href: "/entropy", label: "Entropía", icon: Waves },
@@ -94,6 +96,7 @@ const menuSections = [
   {
     label: "TÁCTICO",
     items: [
+      { href: "/arena", label: "Competencias", icon: Swords },
       { href: "/duel", label: "Focus Duel", icon: Swords },
       { href: "/predictions", label: "Predicciones", icon: TrendingUp },
       { href: "/bets", label: "Apuestas", icon: Coins },
