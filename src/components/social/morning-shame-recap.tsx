@@ -32,6 +32,7 @@ import {
   FileWarning,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { trackNotificationShown, trackNotificationDismissed } from "@/lib/notification-tracker";
 import type {
   Profile,
   TimeEntry,
@@ -165,6 +166,7 @@ export function MorningShameRecap() {
 
     // Show the overlay
     setVisible(true);
+    trackNotificationShown(`morning-recap-${today}`, "morning_recap", userId);
     fetchYesterdayData();
   }, [orgId, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -327,6 +329,7 @@ export function MorningShameRecap() {
   // Dismiss handler
   function handleDismiss() {
     const today = getTodayMTY();
+    trackNotificationDismissed(`morning-recap-${today}`);
     markAsSeen(today);
     setVisible(false);
   }

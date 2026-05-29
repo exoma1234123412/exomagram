@@ -109,11 +109,11 @@ export default function StandupPage() {
 
  {/* My standup form */}
  {!myStandup ? (
- <Card className="mb-8 border-blue-200 dark:border-blue-800">
+ <Card className="mb-8 border-border">
  <CardContent className="p-6">
- <h3 className="font-semibold mb-4 flex items-center gap-2">
+ <h3 className="font-mono text-xs font-semibold uppercase tracking-widest mb-4 flex items-center gap-2">
  <AlertTriangle className="w-4 h-4 text-yellow-500"/>
- Aún no has hecho tu standup
+ Nadie conoce tus intenciones de hoy. El silencio es sospechoso.
  </h3>
  <form onSubmit={handleSubmit} className="space-y-4">
  <div className="space-y-2">
@@ -183,9 +183,12 @@ export default function StandupPage() {
  </h2>
 
  {standups.length === 0 ? (
- <p className="text-muted-foreground text-center py-10">
- Nadie ha hecho su standup todavía.
- </p>
+ <div className="flex flex-col items-center justify-center py-16 gap-4">
+ <div className="w-16 h-16 border border-border flex items-center justify-center">
+ <AlertTriangle className="w-7 h-7 text-muted-foreground/30"/>
+ </div>
+ <p className="font-mono text-xs text-muted-foreground">Nadie ha declarado sus intenciones hoy. El silencio es sospechoso.</p>
+ </div>
  ) : (
  <div className="space-y-4">
  {standups.map((s) => (

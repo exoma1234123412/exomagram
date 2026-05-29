@@ -105,12 +105,13 @@ export async function buildTeamContext(
       .from("org_members")
       .select("user_id, role, joined_at, profiles(full_name, email, timezone, work_start_hour, work_end_hour)")
       .eq("org_id", orgId),
-    // 1: time entries
+    // 1: time entries (V11: filter soft-deleted)
     supabase
       .from("time_entries")
-      .select("user_id, date, hour, category, title, description, verification_status, proof_urls, is_late, mood, energy, project, output_type, location, quality_score")
+      .select("user_id, date, hour, category, title, description, verification_status, proof_urls, is_late, mood, energy, project, output_type, location, quality_score, entry_source, completeness_score, stress_level, focus_quality, difficulty, interruptions, context_switches")
       .eq("org_id", orgId)
       .gte("date", cutoffStr)
+      .is("deleted_at", null)
       .order("date", { ascending: false })
       .order("hour", { ascending: false })
       .limit(3000),
@@ -901,6 +902,11 @@ export async function buildCompressedTeamContext(
       m.profiles?.email?.split("@")[0] ??
       "?";
 
+    const avgQuality = _avgField(
+      userAggs.filter((a) => (a as unknown as Record<string, unknown>).avg_quality_score != null),
+      "avg_quality_score" as keyof DailyAggregate
+    );
+
     return {
       userId: m.user_id,
       name: memberName,
@@ -911,6 +917,7 @@ export async function buildCompressedTeamContext(
       standupDays,
       daysLogged,
       avgTrust,
+      avgQuality,
       deepWorkHours,
       meetingHours,
       aggregates: userAggs,
@@ -1001,6 +1008,10 @@ export async function buildCompressedTeamContext(
 
       if (u.avgTrust != null) {
         parts.push(`trust:${Math.round(u.avgTrust)}`);
+      }
+
+      if (u.avgQuality != null && u.avgQuality > 0) {
+        parts.push(`quality:${Math.round(u.avgQuality)}`);
       }
 
       if (u.totalHours > 0) {

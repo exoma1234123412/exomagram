@@ -1362,7 +1362,7 @@ function DuelosTab({
  <div className="w-16 h-16 border border-border flex items-center justify-center">
  <Swords className="w-6 h-6 text-primary/40"/>
  </div>
- <p className="font-mono text-xs text-muted-foreground">Sin duelos activos. Reta a alguien.</p>
+ <p className="font-mono text-xs text-muted-foreground">La arena está vacía. Nadie se atreve a competir.</p>
  </div>
  ) : (
  <div className="space-y-2">
@@ -1578,7 +1578,7 @@ function BountiesTab({
  <div className="w-16 h-16 border border-border flex items-center justify-center">
  <Crosshair className="w-6 h-6 text-primary/40"/>
  </div>
- <p className="font-mono text-xs text-muted-foreground">Sin subastas abiertas.</p>
+ <p className="font-mono text-xs text-muted-foreground">Sin subastas activas. El mercado está cerrado.</p>
  </div>
  ) : (
  <div className="space-y-2">
@@ -1750,7 +1750,7 @@ function MercadoTab({
  <div className="w-16 h-16 border border-border flex items-center justify-center">
  <CandlestickChart className="w-6 h-6 text-primary/40"/>
  </div>
- <p className="font-mono text-xs text-muted-foreground">Sin datos de Trust Score.</p>
+ <p className="font-mono text-xs text-muted-foreground">Sin datos de Trust Score. Nadie ha generado historial.</p>
  </div>
  ) : (
  <div className="border border-border divide-y divide-border">
@@ -1841,7 +1841,7 @@ function ApuestasTab({
  <div className="w-16 h-16 border border-border flex items-center justify-center">
  <Target className="w-6 h-6 text-primary/40"/>
  </div>
- <p className="font-mono text-xs text-muted-foreground">Sin predicciones abiertas.</p>
+ <p className="font-mono text-xs text-muted-foreground">Sin predicciones activas. Nadie se compromete con el futuro.</p>
  </div>
  ) : (
  <div className="space-y-2">

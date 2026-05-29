@@ -889,12 +889,10 @@ export default function TimelineViewPage() {
  </div>
  ) : members.length === 0 ? (
  <div className="flex flex-col items-center justify-center py-24 gap-4">
- <div className="w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
- <GanttChart className="w-7 h-7 text-primary/40"/>
+ <div className="w-16 h-16 border border-border flex items-center justify-center">
+ <GanttChart className="w-7 h-7 text-muted-foreground/30"/>
  </div>
- <p className="text-sm text-muted-foreground">
- No hay miembros en este equipo.
- </p>
+ <p className="font-mono text-xs text-muted-foreground">Día en blanco. Cada hora sin registrar es una hora perdida.</p>
  </div>
  ) : (
  <div className="overflow-x-auto -webkit-overflow-scrolling-touch pt-8 pb-2">

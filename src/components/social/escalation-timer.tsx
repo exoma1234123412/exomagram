@@ -160,6 +160,7 @@ export function EscalationTimer() {
  const fireEscalation = useCallback(async () => {
  if (!orgId || !userId || hasFiredRef.current) return;
  hasFiredRef.current = true;
+ if (escalationIdRef.current) trackNotificationActed(escalationIdRef.current, "escalation_fired");
 
  const displayName = userName ||"Alguien";
 

@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { CATEGORIES } from "@/lib/constants";
 import type { WorkCategory } from "@/lib/types/database";
 
@@ -234,6 +235,37 @@ Una entrada larga pero vaga ("Estuve trabajando en varias cosas del proyecto dur
           ? Math.max(0, Math.min(100, parsed.copycat_score))
           : 0,
     };
+
+    // V15 — Store validation result for feedback loop tracking
+    if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      const svc = createServiceClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+      svc.from("event_log").insert({
+        org_id: membership.org_id,
+        user_id: user.id,
+        event_type: "entry_validation",
+        data: {
+          approved: result.approved,
+          quality_score: result.quality_score,
+          copycat_score: result.copycat_score,
+          issues_count: result.issues.length,
+          red_flags_count: result.red_flags.length,
+          category: body.category,
+          title_length: body.title?.length ?? 0,
+          description_length: body.description?.length ?? 0,
+          has_proof: (body.proof_urls?.length ?? 0) > 0,
+          hour: body.hour,
+          date: body.date,
+        },
+        metadata: {
+          issues: result.issues,
+          suggestions: result.suggestions,
+          red_flags: result.red_flags,
+        },
+      }).then(() => {}); // fire-and-forget
+    }
 
     return NextResponse.json(result);
   } catch (err) {

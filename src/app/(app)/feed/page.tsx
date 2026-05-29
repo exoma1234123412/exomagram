@@ -1043,13 +1043,10 @@ export default function FeedPage() {
  ) : isWeekend() && entries.length === 0 ? (
  /* Weekend Empty State */
  <div className="flex flex-col items-center justify-center py-24 gap-4">
- <div className="w-16 h-16 bg-primary/10 flex items-center justify-center">
- <span className="text-3xl">--</span>
+ <div className="w-16 h-16 border border-border flex items-center justify-center">
+ <span className="font-mono text-xs text-muted-foreground/30">--</span>
  </div>
- <p className="text-lg font-semibold">Es fin de semana. Descansa.</p>
- <p className="text-sm text-muted-foreground text-center max-w-xs">
- El equipo no tiene registros activos. Disfruta tu tiempo libre.
- </p>
+ <p className="font-mono text-xs text-muted-foreground">Es fin de semana. El sistema también descansa.</p>
  </div>
  ) : (
  <>
@@ -1117,30 +1114,20 @@ export default function FeedPage() {
  {/* Empty State */}
  {filteredEntries.length === 0 ? (
  <div className="flex flex-col items-center justify-center py-24 gap-4">
- <div className="w-16 h-16 bg-primary/10 flex items-center justify-center">
- <Rss className="w-8 h-8 text-primary/60"/>
+ <div className="w-16 h-16 border border-border flex items-center justify-center">
+ <Rss className="w-7 h-7 text-muted-foreground/30"/>
  </div>
  {tab ==="siguiendo"? (
  <>
- <p className="text-lg font-semibold">
- Aún no sigues a nadie
- </p>
- <p className="text-sm text-muted-foreground text-center max-w-xs">
- Reacciona a las entradas de tus compañeros para verlos aquí.
- </p>
+ <p className="font-mono text-xs text-muted-foreground">Sin seguidos. El aislamiento no es una estrategia.</p>
  </>
  ) : (
  <>
- <p className="text-lg font-semibold">
- Sé el primero en publicar hoy
- </p>
- <p className="text-sm text-muted-foreground text-center max-w-xs">
- Tu equipo aún no ha registrado nada. Marca el ritmo.
- </p>
+ <p className="font-mono text-xs text-muted-foreground">Actividad cero. O nadie trabaja o nadie lo reporta.</p>
  <Button
  onClick={() => setLogDialogOpen(true)}
- className="bg-primary hover:from-blue-700 hover:to-blue-800 text-white border-0 mt-2">
- <Plus className="w-4 h-4 mr-2"/>
+ className="bg-primary text-primary-foreground font-mono text-xs gap-2 mt-2">
+ <Plus className="w-3 h-3"/>
  Registrar ahora
  </Button>
  </>

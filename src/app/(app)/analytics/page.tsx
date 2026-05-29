@@ -588,7 +588,7 @@ export default function AnalyticsPage() {
  );
  })}
  {data.category_distribution.length === 0 && (
- <p className="text-center font-mono text-xs text-muted-foreground py-4">Sin datos</p>
+ <p className="text-center font-mono text-xs text-muted-foreground py-4">Insuficiente data. Registra más horas para analizar patrones.</p>
  )}
  </div>
  </div>
@@ -647,7 +647,7 @@ export default function AnalyticsPage() {
  {sortedMembers.length === 0 && (
  <tr>
  <td colSpan={9} className="text-center font-mono text-xs text-muted-foreground py-6">
- Sin datos
+ Sin miembros con actividad en este período.
  </td>
  </tr>
  )}

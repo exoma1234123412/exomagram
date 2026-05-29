@@ -72,6 +72,10 @@ export async function POST(request: Request) {
     { data: weeklySummaries },
     { data: workProfiles },
     { data: dailyInsights },
+    { data: baselines },
+    { data: correlations },
+    { data: darkHours },
+    { data: nudgeHistory },
   ] = await Promise.all([
     supabase.from("org_members").select("user_id, role, profiles(full_name, email)").eq("org_id", org_id),
     supabase.from("time_entries").select("*").eq("org_id", org_id).gte("date", recentStart).order("date").order("hour"),
@@ -86,6 +90,10 @@ export async function POST(request: Request) {
     supabase.from("weekly_summaries").select("*").eq("org_id", org_id).order("week_start"),
     supabase.from("ai_work_profiles").select("*").eq("org_id", org_id),
     supabase.from("ai_daily_insights").select("*").eq("org_id", org_id).order("date", { ascending: false }).limit(35),
+    supabase.from("personal_baselines").select("user_id, avg_daily_hours, stddev_daily_hours, avg_mood, avg_energy, avg_trust_score, trust_trend, typical_grade, promise_reliability, category_distribution, data_completeness").eq("org_id", org_id).order("computed_date", { ascending: false }),
+    supabase.from("correlation_insights").select("user_id, dimension_a, dimension_b, correlation_coefficient, strength").eq("org_id", org_id).in("strength", ["strong_positive", "strong_negative"]).order("computed_date", { ascending: false }).limit(50),
+    supabase.from("unlogged_hours").select("user_id, date, hour, was_online, dominant_status").eq("org_id", org_id).gte("date", recentStart).eq("was_online", true),
+    supabase.from("nudge_outcomes").select("user_id, nudge_type, psychology_technique, behavior_changed, response_latency_seconds").eq("org_id", org_id).gte("sent_at", recentStart + "T00:00:00"),
   ]);
 
   // Build comprehensive data summary
@@ -165,8 +173,6 @@ export async function POST(request: Request) {
   dataSummary += "\n══════ DATOS EN VIVO (últimos 7 días — detalle completo) ══════\n\n";
 
   // LAYER 2: Recent raw data (last 7 days)
-  
-
   for (const [userId, name] of memberMap) {
     const userEntries = (entries ?? []).filter((e) => e.user_id === userId);
     const userToday = (todayEntries ?? []).filter((e) => e.user_id === userId);
@@ -191,6 +197,11 @@ export async function POST(request: Request) {
     const entryIds = new Set(userEntries.map((e) => e.id));
     const suspicious = (reactions ?? []).filter((r) => r.reaction === "suspicious" && entryIds.has(r.entry_id)).length;
 
+    const userBaseline = (baselines ?? []).find(b => b.user_id === userId);
+    const userCorrs = (correlations ?? []).filter(c => c.user_id === userId);
+    const userDarkHours = (darkHours ?? []).filter(d => d.user_id === userId);
+    const userNudges = (nudgeHistory ?? []).filter(n => n.user_id === userId);
+
     dataSummary += `=== ${name} ===\n`;
     dataSummary += `30 días: ${totalH}h total, ${uniqueDates.size} días activos, ${(totalH / Math.max(uniqueDates.size, 1)).toFixed(1)}h/día avg\n`;
     dataSummary += `Categorías: deep_work=${deepWork}, meetings=${meetings}, blocked=${blocked}, otros=${totalH - deepWork - meetings - blocked}\n`;
@@ -200,6 +211,21 @@ export async function POST(request: Request) {
     dataSummary += `Shoutouts: ${userShoutoutsRx.length} recibidos, ${userShoutoutsTx.length} dados\n`;
     dataSummary += `GitHub: ${userGithub.length} eventos, Racha: ${userStreak?.current_streak ?? 0} días\n`;
     dataSummary += `Marcado sospechoso: ${suspicious} veces\n`;
+
+    if (userBaseline) {
+      dataSummary += `Baseline: avg=${userBaseline.avg_daily_hours ?? "?"}h/día, trust_trend=${userBaseline.trust_trend ?? "?"}, grade=${userBaseline.typical_grade ?? "?"}, promise_reliability=${userBaseline.promise_reliability ?? "?"}%, data_completeness=${userBaseline.data_completeness ?? "?"}%\n`;
+    }
+    if (userCorrs.length > 0) {
+      dataSummary += `Correlaciones fuertes: ${userCorrs.map(c => `${c.dimension_a}<->${c.dimension_b} (${c.strength}, r=${c.correlation_coefficient})`).join("; ")}\n`;
+    }
+    if (userDarkHours.length > 0) {
+      dataSummary += `Horas oscuras (online sin registrar, 7d): ${userDarkHours.length} horas — ${userDarkHours.map(d => `${d.date} ${d.hour}:00 (${d.dominant_status})`).join("; ")}\n`;
+    }
+    if (userNudges.length > 0) {
+      const worked = userNudges.filter(n => n.behavior_changed);
+      const failed = userNudges.filter(n => !n.behavior_changed);
+      dataSummary += `Nudges (7d): ${userNudges.length} enviados, ${worked.length} funcionaron, ${failed.length} ignorados. Efectivos: ${worked.map(n => `${n.nudge_type}/${n.psychology_technique}`).join(", ") || "ninguno"}. Fallidos: ${failed.map(n => `${n.nudge_type}/${n.psychology_technique}`).join(", ") || "ninguno"}\n`;
+    }
 
     if (userToday.length > 0) {
       dataSummary += `HOY: ${userToday.length}h — ${userToday.map((e) => `${e.hour}:00 ${e.category} "${e.title}"`).join("; ")}\n`;

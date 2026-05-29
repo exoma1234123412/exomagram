@@ -211,6 +211,16 @@ export async function GET(request: Request) {
     results.nudge_outcomes_error = (e as Error).message;
   }
 
+  // 15. V15 — Verify AI prediction accuracy (was burnout predicted? did it happen?)
+  try {
+    for (const org of orgList) {
+      await verifyPredictionAccuracy(supabase, org.id, date);
+    }
+    results.prediction_accuracy = "verified";
+  } catch (e) {
+    results.prediction_accuracy_error = (e as Error).message;
+  }
+
   return NextResponse.json({ success: true, ...results });
 }
 
@@ -233,6 +243,9 @@ async function generateDailyAggregates(supabase: any, orgId: string, date: strin
     { data: focusSessions },
     { data: flags },
     { data: reactions },
+    { data: darkHours },
+    { data: closeoutStress },
+    { data: morningStress },
   ] = await Promise.all([
     supabase.from("org_members").select("user_id").eq("org_id", orgId),
     supabase.from("time_entries").select("*").eq("org_id", orgId).eq("date", date).is("deleted_at", null),
@@ -247,6 +260,10 @@ async function generateDailyAggregates(supabase: any, orgId: string, date: strin
     supabase.from("focus_sessions").select("*").eq("org_id", orgId).gte("started_at", `${date}T00:00:00`).lte("started_at", `${date}T23:59:59`),
     supabase.from("accountability_flags").select("user_id, resolved").eq("org_id", orgId).eq("date", date),
     supabase.from("entry_reactions").select("entry_id, reaction"),
+    // V15 — Dark hours and closeout stress for aggregation
+    supabase.from("unlogged_hours").select("user_id, was_online").eq("org_id", orgId).eq("date", date),
+    supabase.from("daily_closeouts").select("user_id, stress_evening").eq("org_id", orgId).eq("date", date),
+    supabase.from("daily_health").select("user_id, stress_morning").eq("org_id", orgId).eq("date", date),
   ]);
 
   const standupSet = new Set((standups ?? []).map((s: { user_id: string }) => s.user_id));
@@ -309,6 +326,7 @@ async function generateDailyAggregates(supabase: any, orgId: string, date: strin
       avg_difficulty: avg("difficulty"),
       avg_value_rating: avg("value_rating"),
       avg_confidence: avg("confidence"),
+      avg_quality_score: avg("quality_score"),
       total_interruptions: ue.reduce((s: number, e: { interruptions: number }) => s + (e.interruptions ?? 0), 0),
       total_context_switches: ue.reduce((s: number, e: { context_switches: number }) => s + (e.context_switches ?? 0), 0),
       unique_collaborators: allCollabs.size,
@@ -507,6 +525,16 @@ async function computePersonalBaselines(supabase: any, orgId: string, date: stri
     .gte("date", windowStartStr)
     .lte("date", date);
 
+  // Fetch raw entries for hourly analysis (peak hours, typical start/end)
+  const { data: rawEntries } = await supabase
+    .from("time_entries")
+    .select("user_id, hour, category, date")
+    .eq("org_id", orgId)
+    .gte("date", windowStartStr)
+    .lte("date", date)
+    .order("hour")
+    .limit(5000);
+
   for (const member of members ?? []) {
     const userId = member.user_id;
     const days = (aggregates ?? []).filter((d: { user_id: string }) => d.user_id === userId);
@@ -548,14 +576,34 @@ async function computePersonalBaselines(supabase: any, orgId: string, date: stri
       return total > 0 ? Math.round((trueCount / total) * 10000) / 100 : null;
     };
 
-    // Peak productivity: hours with most deep_work across all days
-    // Simplified: use entries data from aggregates
-    const hourCounts: Record<number, number> = {};
-    // We don't have hourly breakdown in aggregates, so track from entry-level data
-    // For now, use the typical_start as first hour with data, typical_end as last
-    const startHours = daysWithData.map(() => 8); // Default
-    const typicalStart = startHours.length > 0 ? Math.min(...startHours) : null;
-    const typicalEnd = 18; // Default
+    // Peak productivity: analyze hourly entry distribution from raw entries
+    const userRawEntries = (rawEntries ?? []).filter((e: { user_id: string }) => e.user_id === userId);
+    const deepWorkByHour: Record<number, number> = {};
+    const entryByHour: Record<number, number> = {};
+    const meetingByDay: Record<string, number> = {};
+
+    for (const e of userRawEntries) {
+      const h = (e as { hour: number }).hour;
+      const cat = (e as { category: string }).category;
+      const d = (e as { date: string }).date;
+      entryByHour[h] = (entryByHour[h] ?? 0) + 1;
+      if (cat === "deep_work") deepWorkByHour[h] = (deepWorkByHour[h] ?? 0) + 1;
+      if (cat === "meeting") meetingByDay[d] = (meetingByDay[d] ?? 0) + 1;
+    }
+
+    // Peak hours: top 3 hours by deep_work count
+    const peakHours = Object.entries(deepWorkByHour)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([h]) => parseInt(h));
+
+    // Meeting-heavy days: days with 3+ meeting hours
+    const meetingHeavyDayCount = Object.values(meetingByDay).filter((c) => c >= 3).length;
+
+    // Typical start/end from actual entry distribution
+    const allHours = Object.keys(entryByHour).map(Number).sort((a, b) => a - b);
+    const typicalStart = allHours.length > 0 ? allHours[0] : null;
+    const typicalEnd = allHours.length > 0 ? allHours[allHours.length - 1] : null;
 
     // Trust trend
     const trustScores = days.filter((d: { trust_score: number | null }) => d.trust_score != null).map((d: { trust_score: number }) => d.trust_score);
@@ -606,7 +654,7 @@ async function computePersonalBaselines(supabase: any, orgId: string, date: stri
       stddev_daily_hours: stddevHours ? Math.round(stddevHours * 10) / 10 : null,
       median_daily_hours: medianHours,
       category_distribution: Object.keys(catDist).length > 0 ? catDist : null,
-      avg_quality_score: avgOf("ai_score"),
+      avg_quality_score: avgOf("avg_quality_score") ?? avgOf("ai_score"),
       avg_proof_rate: totalHours > 0 ? Math.round((days.reduce((s: number, d: { hours_with_proof: number }) => s + (d.hours_with_proof ?? 0), 0) / totalHours) * 10000) / 100 : null,
       avg_late_rate: totalHours > 0 ? Math.round((days.reduce((s: number, d: { late_entries: number }) => s + (d.late_entries ?? 0), 0) / totalHours) * 10000) / 100 : null,
       avg_mood: avgOf("avg_mood"),
@@ -617,8 +665,8 @@ async function computePersonalBaselines(supabase: any, orgId: string, date: stri
       avg_confidence: avgOf("avg_confidence"),
       typical_start_hour: typicalStart,
       typical_end_hour: typicalEnd,
-      peak_productivity_hours: null,
-      meeting_heavy_days: null,
+      peak_productivity_hours: peakHours.length > 0 ? peakHours : null,
+      meeting_heavy_days: meetingHeavyDayCount > 0 ? meetingHeavyDayCount : null,
       avg_interruptions_per_hour: totalHours > 0 ? Math.round((days.reduce((s: number, d: { total_interruptions: number }) => s + (d.total_interruptions ?? 0), 0) / totalHours) * 10) / 10 : null,
       avg_context_switches_per_hour: totalHours > 0 ? Math.round((days.reduce((s: number, d: { total_context_switches: number }) => s + (d.total_context_switches ?? 0), 0) / totalHours) * 10) / 10 : null,
       avg_daily_collaborators: avgOf("unique_collaborators"),
@@ -980,5 +1028,75 @@ async function computeNudgeOutcomes(supabase: any, orgId: string, date: string) 
         outcome_computed_at: new Date().toISOString(),
       })
       .eq("id", nudge.id);
+  }
+}
+
+// ============================================================
+// V15 — Verify AI prediction accuracy
+// Compare predictions from 7 days ago with actual outcomes
+// ============================================================
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function verifyPredictionAccuracy(supabase: any, orgId: string, date: string) {
+  // Get insights from 7 days ago (enough time for predictions to play out)
+  const checkDate = new Date(date + "T12:00:00");
+  checkDate.setDate(checkDate.getDate() - 7);
+  const predictionDate = checkDate.toISOString().split("T")[0];
+
+  const [
+    { data: oldInsights },
+    { data: currentInsights },
+    { data: oldProfiles },
+    { data: currentProfiles },
+  ] = await Promise.all([
+    supabase.from("ai_daily_insights").select("user_id, burnout_risk, disengagement_risk, trajectory, score")
+      .eq("org_id", orgId).eq("date", predictionDate),
+    supabase.from("ai_daily_insights").select("user_id, burnout_risk, disengagement_risk, trajectory, score")
+      .eq("org_id", orgId).eq("date", date),
+    supabase.from("ai_profile_history").select("user_id, burnout_risk, trajectory")
+      .eq("org_id", orgId).eq("date", predictionDate),
+    supabase.from("ai_profile_history").select("user_id, burnout_risk, trajectory")
+      .eq("org_id", orgId).eq("date", date),
+  ]);
+
+  if (!oldInsights || oldInsights.length === 0) return;
+
+  for (const old of oldInsights) {
+    const current = (currentInsights ?? []).find((c: { user_id: string }) => c.user_id === old.user_id);
+    if (!current) continue;
+
+    // Check burnout prediction accuracy
+    const predictedBurnout = (old.burnout_risk ?? 0) > 60;
+    const actualScoreDrop = (current.score ?? 50) < (old.score ?? 50) - 15;
+    const burnoutAccurate = predictedBurnout === actualScoreDrop;
+
+    // Check trajectory prediction accuracy
+    const predictedTrajectory = old.trajectory;
+    let actualTrajectory = "stable";
+    if ((current.score ?? 50) - (old.score ?? 50) > 10) actualTrajectory = "improving";
+    else if ((old.score ?? 50) - (current.score ?? 50) > 10) actualTrajectory = "declining";
+    const trajectoryAccurate = predictedTrajectory === actualTrajectory;
+
+    // Store accuracy result in event_log
+    await supabase.from("event_log").insert({
+      org_id: orgId,
+      user_id: old.user_id,
+      event_type: "prediction_accuracy",
+      data: {
+        prediction_date: predictionDate,
+        verification_date: date,
+        predicted_burnout_risk: old.burnout_risk,
+        predicted_trajectory: old.trajectory,
+        predicted_score: old.score,
+        actual_score: current.score,
+        actual_trajectory: actualTrajectory,
+        burnout_prediction_accurate: burnoutAccurate,
+        trajectory_prediction_accurate: trajectoryAccurate,
+        score_delta: (current.score ?? 50) - (old.score ?? 50),
+      },
+      metadata: {
+        days_ahead: 7,
+        model: "nightly_processor",
+      },
+    });
   }
 }

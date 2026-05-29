@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useOrg } from "@/lib/context/org-context";
+import { useAudio } from "@/components/audio/audio-provider";
 import type { Profile } from "@/lib/types/database";
 import { CATEGORIES, EXPECTED_DAILY_HOURS } from "@/lib/constants";
 import type { WorkCategory } from "@/lib/types/database";
@@ -34,11 +35,14 @@ interface MemberRank {
 }
 
 export default function LeaderboardPage() {
- const { orgId, loading: orgLoading } = useOrg();
+ const { orgId, userId, loading: orgLoading } = useOrg();
  const supabase = createClient();
  const [rankings, setRankings] = useState<MemberRank[]>([]);
  const [loading, setLoading] = useState(true);
  const [period, setPeriod] = useState<7 | 14 | 30>(7);
+ const { play } = useAudio();
+ // Track previous rank to detect changes (-1 = not yet loaded)
+ const prevRankRef = useRef<number>(-1);
 
  useEffect(() => {
  if (!orgId) return;
@@ -141,6 +145,23 @@ export default function LeaderboardPage() {
  }
  load();
  }, [orgId, period]); // eslint-disable-line react-hooks/exhaustive-deps
+
+ // Play rank-up or rank-down sound when user's position changes
+ useEffect(() => {
+ if (!userId || rankings.length === 0) return;
+ const currentRank = rankings.findIndex((r) => r.profile.id === userId);
+ if (currentRank === -1) return;
+ // Skip the very first load (prevRankRef initialized to -1)
+ if (prevRankRef.current >= 0 && currentRank !== prevRankRef.current) {
+ // Lower index = higher rank
+ if (currentRank < prevRankRef.current) {
+ play("rank-up");
+ } else {
+ play("rank-down");
+ }
+ }
+ prevRankRef.current = currentRank;
+ }, [rankings, userId, play]);
 
  const medalIcons = [
  <Trophy key="1"className="w-5 h-5 text-yellow-500"/>,
@@ -260,10 +281,10 @@ export default function LeaderboardPage() {
 
  {rankings.length === 0 && (
  <div className="flex flex-col items-center justify-center py-24 gap-4">
- <div className="w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
- <Trophy className="w-7 h-7 text-primary/40"/>
+ <div className="w-16 h-16 border border-border flex items-center justify-center">
+ <Trophy className="w-7 h-7 text-muted-foreground/30"/>
  </div>
- <p className="text-sm text-muted-foreground">No hay datos para este período.</p>
+ <p className="font-mono text-xs text-muted-foreground">Sin registros, sin ranking. El primer lugar está vacante.</p>
  </div>
  )}
  </div>

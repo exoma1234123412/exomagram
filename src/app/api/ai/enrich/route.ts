@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
   let query = supabase
     .from("time_entries")
     .select(
-      "id, user_id, date, hour, category, title, description, proof_urls, output_type, difficulty, value_rating, skills_tags, could_be_async"
+      "id, user_id, date, hour, category, title, description, proof_urls, output_type, difficulty, value_rating, skills_tags, could_be_async, entry_version"
     )
     .eq("org_id", orgId)
     .eq("date", targetDate)
@@ -292,6 +292,22 @@ Solo JSON valido (el array), sin texto adicional.`;
       if (!updateError) {
         enrichedCount++;
         enrichedIds.push(original.id);
+
+        // V15 — Track AI enrichment as a revision
+        await supabase.from("entry_revisions").insert({
+          entry_id: original.id,
+          user_id: original.user_id,
+          org_id: orgId,
+          version: (original as any).entry_version ?? 1,
+          old_data: Object.fromEntries(
+            Object.keys(updates).filter(k => k !== "updated_at").map(k => [k, (original as any)[k] ?? null])
+          ),
+          new_data: Object.fromEntries(
+            Object.keys(updates).filter(k => k !== "updated_at").map(k => [k, updates[k]])
+          ),
+          changed_fields: Object.keys(updates).filter(k => k !== "updated_at"),
+          change_source: "ai_enrich",
+        });
       }
     }
 

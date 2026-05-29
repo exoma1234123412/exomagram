@@ -95,7 +95,7 @@ const CONFLICT_META: Record<
   ghost_work: {
     label: "Trabajo fantasma",
     icon: Ghost,
-    color: "text-violet-500",
+    color: "text-primary",
   },
   time_travel: {
     label: "Viaje en el tiempo",

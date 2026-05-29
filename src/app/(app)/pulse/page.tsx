@@ -881,13 +881,11 @@ export default function PulseEKGPage() {
  })}
 
  {memberPulses.length === 0 && (
- <div className="flex flex-col items-center justify-center py-12">
- <div className="w-16 h-16 bg-primary/10 flex items-center justify-center mb-4">
- <Activity className="w-8 h-8 text-primary"/>
+ <div className="flex flex-col items-center justify-center py-12 gap-4">
+ <div className="w-16 h-16 border border-border flex items-center justify-center">
+ <Activity className="w-7 h-7 text-muted-foreground/30"/>
  </div>
- <p className="text-muted-foreground text-sm">
- No hay miembros en el equipo.
- </p>
+ <p className="font-mono text-xs text-muted-foreground">Sin pulso detectado. ¿El equipo sigue con vida?</p>
  </div>
  )}
  </div>

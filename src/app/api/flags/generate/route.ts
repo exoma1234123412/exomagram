@@ -53,6 +53,7 @@ export async function POST(request: Request) {
       { data: allRecentTrustScores },
       { data: allStreaks },
       { data: allExistingFlags },
+      { data: allStandups },
     ] = await Promise.all([
       // Today's entries for this org
       supabase.from("time_entries").select("*").eq("org_id", org.id).eq("date", date),
@@ -70,6 +71,8 @@ export async function POST(request: Request) {
       supabase.from("activity_streaks").select("*").eq("org_id", org.id),
       // Existing flags for today (for dedup)
       supabase.from("accountability_flags").select("user_id, flag_type").eq("org_id", org.id).eq("date", date),
+      // Today's standups
+      supabase.from("standups").select("user_id").eq("org_id", org.id).eq("date", date),
     ]);
 
     // Batch fetch reactions: get all entry IDs for this org, then fetch all reactions
@@ -282,13 +285,36 @@ export async function POST(request: Request) {
       const closeoutBonus = hasCloseout ? 0.1 : 0;
       const latePenalty =
         userEntries.length > 0
-          ? (lateCount / userEntries.length) * 0.2
+          ? (lateCount / userEntries.length) * 0.15
           : 0;
-      const suspiciousPenalty = suspiciousCount * 0.1;
+      const suspiciousPenalty = Math.min(suspiciousCount * 0.05, 0.2);
+
+      // Quality factor: average quality_score across entries (0-1)
+      const qualityScores = userEntries
+        .map((e) => (e as Record<string, unknown>).quality_score as number | null)
+        .filter((q): q is number => q != null);
+      const avgQuality = qualityScores.length > 0
+        ? qualityScores.reduce((a, b) => a + b, 0) / qualityScores.length / 100
+        : 0.5; // default 50% if no quality scores
+
+      // Velocity factor: reward on-time logging (not-late entries / total)
+      const onTimeRatio = userEntries.length > 0
+        ? (userEntries.length - lateCount) / userEntries.length
+        : 0;
+
+      // Has standup bonus
+      const hasStandup = (allStandups ?? []).some(
+        (s: { user_id: string }) => s.user_id === member.user_id
+      );
+      const standupBonus = hasStandup ? 0.05 : 0;
+
       const rawScore =
-        hoursRatio * 0.4 +
-        proofRatio * 0.4 +
-        closeoutBonus -
+        hoursRatio * 0.25 +        // 25% — did you log enough hours?
+        proofRatio * 0.25 +         // 25% — did you provide evidence?
+        avgQuality * 0.20 +         // 20% — how good are your entries?
+        onTimeRatio * 0.10 +        // 10% — did you log on time?
+        closeoutBonus +             // 10% — daily closeout
+        standupBonus -              // 5%  — standup
         latePenalty -
         suspiciousPenalty;
       const trustScore = Math.max(

@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { Flame, Skull, Trophy, Shield, Clock } from "lucide-react";
+import { useAudio } from "@/components/audio/audio-provider";
 
 const MILESTONES = [3, 7, 14, 21, 30, 50, 75, 100, 150, 200, 365];
 
@@ -35,6 +36,8 @@ export function StreakDanger({ orgId }: { orgId: string }) {
  const [countdown, setCountdown] = useState(getTimeToMidnight());
  const supabase = createClient();
  const today = new Date().toISOString().split("T")[0];
+ const { play } = useAudio();
+ const streakWarningPlayedRef = useRef(false);
 
  useEffect(() => {
  async function load() {
@@ -72,6 +75,15 @@ export function StreakDanger({ orgId }: { orgId: string }) {
  }, 1000);
  return () => clearInterval(interval);
  }, []);
+
+ // Play streak-warning sound once when countdown enters critical zone (< 2 hours)
+ useEffect(() => {
+ if (!data || data.hasLoggedToday || data.currentStreak === 0) return;
+ if (countdown.totalMinutes < 120 && !streakWarningPlayedRef.current) {
+ streakWarningPlayedRef.current = true;
+ play("streak-warning");
+ }
+ }, [countdown.totalMinutes, data, play]);
 
  if (!data || data.currentStreak === 0) return null;
 

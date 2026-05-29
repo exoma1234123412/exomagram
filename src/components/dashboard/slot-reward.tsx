@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { Sparkles, X } from "lucide-react";
+import { useAudio } from "@/components/audio/audio-provider";
 
 const REEL_SYMBOLS = ["--","--","--","--","--","--","--","--"];
 
@@ -63,12 +64,15 @@ export function SlotReward({ show, onClose }: SlotRewardProps) {
  const [settled, setSettled] = useState([false, false, false]);
  const [result, setResult] = useState<ReturnType<typeof generateResult> | null>(null);
  const [confettiPieces, setConfettiPieces] = useState<{ id: number; x: number; y: number; color: string; delay: number }[]>([]);
+ const { play } = useAudio();
+ const tickPlayedRef = useRef([false, false, false]);
 
  const startSpin = useCallback(() => {
  const res = generateResult();
  setResult(res);
  setPhase("spinning");
  setSettled([false, false, false]);
+ tickPlayedRef.current = [false, false, false];
 
  // Simulate rapid symbol changes
  let tick = 0;
@@ -80,6 +84,10 @@ export function SlotReward({ show, onClose }: SlotRewardProps) {
  tick < 30 ? getRandomSymbol() : res.symbols[2],
  ]);
 
+ // Play tick sound when each reel settles
+ if (tick >= 15 && !tickPlayedRef.current[0]) { tickPlayedRef.current[0] = true; play("tick"); }
+ if (tick >= 22 && !tickPlayedRef.current[1]) { tickPlayedRef.current[1] = true; play("tick"); }
+
  if (tick >= 15 && !settled[0]) setSettled((p) => [true, p[1], p[2]]);
  if (tick >= 22 && !settled[1]) setSettled((p) => [p[0], true, p[2]]);
 
@@ -87,9 +95,12 @@ export function SlotReward({ show, onClose }: SlotRewardProps) {
  clearInterval(spinInterval);
  setSettled([true, true, true]);
  setPhase("result");
+ // Final reel tick
+ if (!tickPlayedRef.current[2]) { tickPlayedRef.current[2] = true; play("tick"); }
 
- // Confetti for jackpot
+ // Confetti + reward sound for jackpot
  if (res.rarity ==="legendary"|| res.rarity ==="epic") {
+ play("reward");
  const colors = ["#f59e0b","#3b82f6","#ef4444","#10b981","#8b5cf6","#f97316"];
  const pieces = Array.from({ length: 30 }, (_, i) => ({
  id: i,
@@ -104,7 +115,7 @@ export function SlotReward({ show, onClose }: SlotRewardProps) {
  }, 50);
 
  return () => clearInterval(spinInterval);
- }, []); // eslint-disable-line react-hooks/exhaustive-deps
+ }, [play]); // eslint-disable-line react-hooks/exhaustive-deps
 
  useEffect(() => {
  if (show && phase ==="closed") {

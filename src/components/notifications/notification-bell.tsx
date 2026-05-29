@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useAudio } from "@/components/audio/audio-provider";
 import {
  DropdownMenu,
  DropdownMenuContent,
@@ -40,6 +41,9 @@ export function NotificationBell() {
  const [notifications, setNotifications] = useState<Notification[]>([]);
  const [unreadCount, setUnreadCount] = useState(0);
  const supabase = createClient();
+ const { play } = useAudio();
+ // Initialize to -1 so the first load doesn't trigger a sound
+ const prevUnreadCountRef = useRef<number>(-1);
 
  useEffect(() => {
  async function load() {
@@ -76,6 +80,14 @@ export function NotificationBell() {
  }
  load();
  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+ // Play notification sound when unread count increases (skip initial load)
+ useEffect(() => {
+ if (prevUnreadCountRef.current >= 0 && unreadCount > prevUnreadCountRef.current) {
+ play("notification");
+ }
+ prevUnreadCountRef.current = unreadCount;
+ }, [unreadCount, play]);
 
  async function markAllRead() {
  const { data: { user } } = await supabase.auth.getUser();

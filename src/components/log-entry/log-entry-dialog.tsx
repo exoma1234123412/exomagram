@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { computeCompleteness, detectDeviceType } from "@/lib/entry-metadata";
+import { computeCompleteness, computeQualityScore, detectDeviceType } from "@/lib/entry-metadata";
+import { useAudio } from "@/components/audio/audio-provider";
 import {
  CATEGORIES,
  WORK_HOURS,
@@ -48,6 +49,7 @@ import { EntryTemplates, ManageTemplatesDialog, type EntryTemplate } from "./ent
 import { EntryValidator } from "@/components/tracking/entry-validator";
 import { PostEntryShame } from "@/components/social/post-entry-shame";
 import { ClaudeFollowup } from "@/components/ai/claude-followup";
+import { SlotReward } from "@/components/shame/slot-reward";
 
 interface LogEntryDialogProps {
  open: boolean;
@@ -85,6 +87,7 @@ export function LogEntryDialog({
  const touchedRef = useRef(false);
  const submittedRef = useRef(false);
  const { userId, orgId } = useOrg();
+ const { play } = useAudio();
  const [showSuccess, setShowSuccess] = useState(false);
  const [showShame, setShowShame] = useState(false);
  const [shameEntry, setShameEntry] = useState<{
@@ -101,6 +104,7 @@ export function LogEntryDialog({
  const [followupCategory, setFollowupCategory] = useState("");
  const [followupTitle, setFollowupTitle] = useState("");
  const [followupDescription, setFollowupDescription] = useState("");
+ const [slotTrigger, setSlotTrigger] = useState(false);
 
  // Validation state
  const [validating, setValidating] = useState(false);
@@ -228,6 +232,7 @@ export function LogEntryDialog({
  setFollowupTitle("");
  setFollowupDescription("");
  setValidating(false);
+ setSlotTrigger(false);
  // Reset advanced fields
  setAdvancedOpen(false);
  setDifficulty(null);
@@ -432,6 +437,14 @@ export function LogEntryDialog({
    skills_tags: skillsArray, learning_notes: category === "learning" ? learningNotes : null,
  }).completenessScore,
  device_type: detectDeviceType(),
+ quality_score: computeQualityScore({
+   title: finalTitle, description: finalDescription,
+   proof_urls: proofArray.length > 0 ? proofArray : null,
+   mood, energy, project: project.trim() || null, project_id: projectId,
+   difficulty, focus_quality: focusQuality, value_rating: valueRating,
+   output_type: outputType, location, tools_used: toolsUsed,
+   skills_tags: skillsArray, collaborators,
+ }),
  },
  { onConflict:"user_id,org_id,date,hour"}
  ).select("id").single();
@@ -441,6 +454,9 @@ export function LogEntryDialog({
  setLoading(false);
  return;
  }
+
+ // Play log-entry confirmation sound on successful save
+ play("log-entry");
 
  // V12 — Save revision if this was an edit (existing entry had data)
  const savedEntryId = upsertedEntry?.id ?? null;
@@ -676,6 +692,7 @@ export function LogEntryDialog({
  function finishAndClose() {
  // Show brief success then close
  setShowSuccess(true);
+ setSlotTrigger(true);
  setTimeout(() => {
  setCategory("");
  setTitle("");
@@ -1266,6 +1283,9 @@ export function LogEntryDialog({
  </div>
  </div>
  )}
+
+ {/* Slot reward — fires once after successful entry */}
+ <SlotReward trigger={slotTrigger} onComplete={() => setSlotTrigger(false)} />
  </DialogContent>
  </Dialog>
  );

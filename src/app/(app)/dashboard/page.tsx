@@ -126,6 +126,9 @@ export default function DashboardPage() {
  )}
  </div>
 
+ {/* Daily checklist — personal daily status overview */}
+ {isToday && <DailyChecklist />}
+
  {/* Spotlight — constant surveillance reminder */}
  {isToday && <SpotlightIndicator orgId={orgId} />}
 

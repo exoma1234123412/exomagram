@@ -124,8 +124,11 @@ export default function ProfilePage() {
 
  if (!profile) {
  return (
- <div className="flex items-center justify-center h-screen">
- <p className="text-muted-foreground">No se encontró el perfil.</p>
+ <div className="flex flex-col items-center justify-center h-screen gap-4">
+ <div className="w-16 h-16 border border-border flex items-center justify-center">
+ <span className="font-mono text-xs text-muted-foreground/30">--</span>
+ </div>
+ <p className="font-mono text-xs text-muted-foreground">Perfil no encontrado. Sin datos, sin Trust Score, sin identidad.</p>
  </div>
  );
  }
@@ -344,8 +347,8 @@ export default function ProfilePage() {
  </CardHeader>
  <CardContent>
  {categoryBreakdown.length === 0 ? (
- <p className="text-muted-foreground text-sm">
- Aún no hay datos. Empieza a registrar horas.
+ <p className="font-mono text-xs text-muted-foreground">
+ Cero horas registradas. Registra tu primera hora para construir este perfil.
  </p>
  ) : (
  <div className="space-y-3">

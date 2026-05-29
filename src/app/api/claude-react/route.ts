@@ -1,6 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
+import { createClient as createServerSupabase } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { checkAIRateLimit } from "@/lib/ai-rate-limit";
 
 // POST /api/claude-react
 //
@@ -121,6 +123,17 @@ Solo JSON válido. Sin markdown. Sin explicaciones.`;
 }
 
 export async function POST(request: Request) {
+  // AI rate limiting — also authenticates the user via Supabase session cookie
+  const rateLimitResponse = await checkAIRateLimit(request);
+  if (rateLimitResponse) return rateLimitResponse;
+
+  // Verify user is logged in
+  const serverClient = await createServerSupabase();
+  const { data: { user } } = await serverClient.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+
   const body = await request.json();
   const { org_id, event_type, event_data } = body as {
     org_id?: string;
@@ -140,6 +153,17 @@ export async function POST(request: Request) {
       { error: "event_data must include user_id and user_name" },
       { status: 400 },
     );
+  }
+
+  // Verify the authenticated user belongs to the given org
+  const { data: membership } = await serverClient
+    .from("org_members")
+    .select("role")
+    .eq("user_id", user.id)
+    .eq("org_id", org_id)
+    .single();
+  if (!membership) {
+    return NextResponse.json({ error: "No perteneces a esta organización" }, { status: 403 });
   }
 
   if (!process.env.ANTHROPIC_API_KEY) {
