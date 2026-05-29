@@ -122,7 +122,7 @@ export default function OrgStatsPage() {
     load();
   }, [orgId, days]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (loading) {
+  if (orgLoading || loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />

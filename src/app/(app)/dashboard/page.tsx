@@ -21,8 +21,8 @@ import { es } from "date-fns/locale";
 import { getTodayMTY } from "@/lib/utils";
 
 export default function DashboardPage() {
+  const { orgId, userId, loading: orgLoading } = useOrg();
   const [date, setDate] = useState(getTodayMTY());
-  const [orgId, setOrgId] = useState<string | null>(null);
   const [logOpen, setLogOpen] = useState(false);
   const [closeoutOpen, setCloseoutOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -35,34 +35,32 @@ export default function DashboardPage() {
   const router = useRouter();
 
   useEffect(() => {
-    async function loadOrg() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: membership } = await supabase
-        .from("org_members").select("org_id").eq("user_id", user.id).limit(1).single();
-      if (membership) {
-        setOrgId(membership.org_id);
+    if (orgLoading) return;
+    if (!orgId || !userId) {
+      setLoading(false);
+      return;
+    }
 
-        // Redirect to welcome if user has zero time entries
-        const { count } = await supabase
-          .from("time_entries")
-          .select("id", { count: "exact", head: true })
-          .eq("user_id", user.id)
-          .eq("org_id", membership.org_id);
-        if (count === 0) {
-          router.replace("/welcome");
-          return;
-        }
+    async function checkWelcome() {
+      // Redirect to welcome if user has zero time entries
+      const { count } = await supabase
+        .from("time_entries")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId!)
+        .eq("org_id", orgId!);
+      if (count === 0) {
+        router.replace("/welcome");
+        return;
       }
       setLoading(false);
     }
-    loadOrg();
-  }, []);
+    checkWelcome();
+  }, [orgId, userId, orgLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const displayDate = format(new Date(date + "T12:00:00"), "EEEE, d MMMM yyyy", { locale: es });
   const isToday = date === getTodayMTY();
 
-  if (loading) {
+  if (loading || orgLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="animate-pulse text-muted-foreground">Cargando...</div>
