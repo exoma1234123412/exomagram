@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,22 +66,11 @@ const GRADE_STYLE: Record<string, { color: string; bg: string; emoji: string }> 
 };
 
 export default function ClaudeAuditPage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [data, setData] = useState<AuditData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [orgId, setOrgId] = useState<string | null>(null);
-  const supabase = createClient();
-
-  useEffect(() => {
-    async function loadOrg() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: m } = await supabase.from("org_members").select("org_id").eq("user_id", user.id).limit(1).single();
-      if (m) setOrgId(m.org_id);
-    }
-    loadOrg();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function runAudit() {
     if (!orgId) return;
@@ -133,7 +122,7 @@ export default function ClaudeAuditPage() {
         </Button>
       </div>
 
-      {loading && (
+      {(loading || orgLoading) && (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <div className="relative">
             <Brain className="w-12 h-12 text-primary animate-pulse" />

@@ -715,8 +715,7 @@ function FeedPost({
 // ---------------------------------------------------------------------------
 
 export default function FeedPage() {
-  const [orgId, setOrgId] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
+  const { orgId, userId, loading: orgLoading } = useOrg();
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState<EntryWithProfile[]>([]);
   const [hasMore, setHasMore] = useState(true);
@@ -748,33 +747,6 @@ export default function FeedPage() {
   const [refreshing, setRefreshing] = useState(false);
 
   const supabase = createClient();
-
-  // -----------------------------------------------------------------------
-  // Load org membership
-  // -----------------------------------------------------------------------
-  useEffect(() => {
-    async function loadOrg() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
-      setUserId(user.id);
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (membership) {
-        setOrgId(membership.org_id);
-      } else {
-        setLoading(false);
-      }
-    }
-    loadOrg();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // -----------------------------------------------------------------------
   // Load feed data when orgId is available
@@ -1098,7 +1070,7 @@ export default function FeedPage() {
       </div>
 
       {/* Loading */}
-      {loading ? (
+      {orgLoading || loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
           <p className="text-sm text-muted-foreground animate-pulse">

@@ -88,8 +88,8 @@ function getUtilizationLabel(pct: number): string {
 }
 
 export default function CapacityPage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [loading, setLoading] = useState(true);
-  const [orgId, setOrgId] = useState<string | null>(null);
   const [memberCount, setMemberCount] = useState(0);
   const [members, setMembers] = useState<MemberCapacity[]>([]);
   const [totalCapacity, setTotalCapacity] = useState(0);
@@ -102,22 +102,14 @@ export default function CapacityPage() {
   const supabase = createClient();
 
   useEffect(() => {
+    if (!orgId) {
+      if (!orgLoading) setLoading(false);
+      return;
+    }
+
     async function load() {
       setLoading(true);
-
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (!membership) { setLoading(false); return; }
-      const oid = membership.org_id;
-      setOrgId(oid);
+      const oid = orgId!;
 
       // Semana actual (lunes a viernes)
       const now = new Date();
@@ -254,7 +246,7 @@ export default function CapacityPage() {
       setLoading(false);
     }
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgId, orgLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // -- Calculos derivados --
 
@@ -272,10 +264,10 @@ export default function CapacityPage() {
   const mostBlocked = [...members].sort((a, b) => b.blockedHours - a.blockedHours).slice(0, 3).filter((m) => m.blockedHours > 0);
   const notLoggedToday = members.filter((m) => !m.loggedToday);
 
-  if (loading) {
+  if (loading || orgLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 animate-pulse" />
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
         <p className="text-sm text-muted-foreground animate-pulse">Cargando capacidad...</p>
       </div>
     );

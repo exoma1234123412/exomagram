@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import type { Profile } from "@/lib/types/database";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,27 +26,23 @@ interface OneOnOneData {
 }
 
 export default function OneOnOnePage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [members, setMembers] = useState<Profile[]>([]);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [selectedName, setSelectedName] = useState("");
   const [data, setData] = useState<OneOnOneData | null>(null);
   const [loading, setLoading] = useState(false);
-  const [orgId, setOrgId] = useState<string | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
+    if (!orgId) return;
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: m } = await supabase.from("org_members").select("org_id").eq("user_id", user.id).limit(1).single();
-      if (!m) return;
-      setOrgId(m.org_id);
-      const { data: memberData } = await supabase.from("org_members").select("user_id, profiles(*)").eq("org_id", m.org_id)
+      const { data: memberData } = await supabase.from("org_members").select("user_id, profiles(*)").eq("org_id", orgId!)
         ;
       setMembers(memberData?.map((md) => md.profiles) ?? []);
     }
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function generateAgenda(userId: string, name: string) {
     if (!orgId) return;

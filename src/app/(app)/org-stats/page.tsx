@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import { CATEGORIES, EXPECTED_DAILY_HOURS, WORK_HOURS, CATEGORY_COLORS } from "@/lib/constants";
 import type { WorkCategory } from "@/lib/types/database";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,9 +26,9 @@ import { AntiPatterns } from "@/components/org/anti-patterns";
 import { TimezoneOverlap } from "@/components/org/timezone-overlap";
 
 export default function OrgStatsPage() {
+  const { orgId, orgName: contextOrgName, loading: orgLoading } = useOrg();
   const [days, setDays] = useState(7);
   const [loading, setLoading] = useState(true);
-  const [orgId, setOrgId] = useState<string | null>(null);
   const [orgName, setOrgName] = useState("");
   const [memberCount, setMemberCount] = useState(0);
   const [totalHours, setTotalHours] = useState(0);
@@ -42,21 +43,10 @@ export default function OrgStatsPage() {
   const supabase = createClient();
 
   useEffect(() => {
+    if (!orgId) return;
+
     async function load() {
       setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (!membership) { setLoading(false); return; }
-      const orgId = membership.org_id;
-      setOrgId(orgId);
 
       const startDate = subDays(new Date(), days).toISOString().split("T")[0];
 
@@ -130,7 +120,7 @@ export default function OrgStatsPage() {
       setLoading(false);
     }
     load();
-  }, [days]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgId, days]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
     return (

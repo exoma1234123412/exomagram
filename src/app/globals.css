@@ -255,3 +255,63 @@
     letter-spacing: 0.02em;
   }
 }
+
+/* Print styles for reports and recaps */
+@media print {
+  /* Hide navigation, sidebars, floating elements */
+  aside, nav, .fixed, .sticky, [role="alertdialog"],
+  button:not(.print-visible), .no-print {
+    display: none !important;
+  }
+
+  /* Reset dark theme for printing */
+  body, html, main, .dark {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Cards should have borders for print */
+  [class*="card"] {
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  /* Badges readable in print */
+  [class*="badge"] {
+    border: 1px solid #999 !important;
+    color: black !important;
+    background: #f5f5f5 !important;
+  }
+
+  /* Progress bars visible */
+  [class*="bg-green"], [class*="bg-blue"], [class*="bg-violet"],
+  [class*="bg-red"], [class*="bg-yellow"], [class*="bg-orange"] {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Proper page margins */
+  @page {
+    margin: 1.5cm;
+    size: A4;
+  }
+
+  /* Remove animations */
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Readable links */
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  /* Don't break these elements across pages */
+  h1, h2, h3, h4, table, .break-inside-avoid {
+    break-inside: avoid;
+  }
+}

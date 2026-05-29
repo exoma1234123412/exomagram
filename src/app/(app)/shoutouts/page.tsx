@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useOrg } from "@/lib/context/org-context";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types/database";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ interface Shoutout {
 }
 
 export default function ShoutoutsPage() {
+  const { orgId, userId, loading: orgLoading } = useOrg();
   const [shoutouts, setShoutouts] = useState<Shoutout[]>([]);
   const [members, setMembers] = useState<Profile[]>([]);
   const [toUserId, setToUserId] = useState("");
@@ -49,40 +51,29 @@ export default function ShoutoutsPage() {
   const [category, setCategory] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [orgId, setOrgId] = useState<string | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
+    if (orgLoading) return;
+    if (!orgId || !userId) { setLoading(false); return; }
+
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setLoading(false); return; }
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (!membership) { setLoading(false); return; }
-      setOrgId(membership.org_id);
-
       const [{ data: memberData }, { data: shoutoutData }] = await Promise.all([
         supabase
           .from("org_members")
           .select("user_id, profiles(*)")
-          .eq("org_id", membership.org_id)
+          .eq("org_id", orgId!)
           ,
         supabase
           .from("shoutouts")
           .select("*")
-          .eq("org_id", membership.org_id)
+          .eq("org_id", orgId!)
           .order("created_at", { ascending: false })
           .limit(50),
       ]);
 
       if (memberData) {
-        setMembers(memberData.map((m) => m.profiles).filter((p) => p.id !== user.id));
+        setMembers(memberData.map((m) => m.profiles).filter((p) => p.id !== userId));
       }
 
       // Manually attach profiles to shoutouts
@@ -101,18 +92,15 @@ export default function ShoutoutsPage() {
       setLoading(false);
     }
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgLoading, orgId, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!toUserId || !category || !orgId) return;
+    if (!toUserId || !category || !orgId || !userId) return;
     setSubmitting(true);
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
     await supabase.from("shoutouts").insert({
-      from_user_id: user.id,
+      from_user_id: userId,
       to_user_id: toUserId,
       org_id: orgId,
       message,

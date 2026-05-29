@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import {
   Card,
   CardContent,
@@ -193,9 +194,8 @@ function Toggle({
 // ---------------------------------------------------------------------------
 
 export default function OrgSettingsPage() {
+  const { orgId, role, loading: orgLoading } = useOrg();
   const [loading, setLoading] = useState(true);
-  const [orgId, setOrgId] = useState<string | null>(null);
-  const [currentRole, setCurrentRole] = useState<string>("member");
   const [settings, setSettings] = useState<OrgSettings>(DEFAULT_SETTINGS);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -204,40 +204,19 @@ export default function OrgSettingsPage() {
   const [activeTab, setActiveTab] = useState("general");
   const supabase = createClient();
 
-  // Load org membership + saved settings
+  // Load org settings once orgId is available
   useEffect(() => {
+    if (!orgId) return;
+
     async function load() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id, role")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (!membership) {
-        setLoading(false);
-        return;
-      }
-
-      setOrgId(membership.org_id);
-      setCurrentRole(membership.role);
-
       // Load org info for defaults
       const { data: org } = await supabase
         .from("organizations")
         .select("name, slug, logo_url")
-        .eq("id", membership.org_id)
+        .eq("id", orgId!)
         .single();
 
-      const stored = loadSettings(membership.org_id);
+      const stored = loadSettings(orgId!);
       if (org) {
         stored.orgName = stored.orgName || (org as { name: string }).name || "";
         stored.slug = stored.slug || (org as { slug: string }).slug || "";
@@ -248,9 +227,9 @@ export default function OrgSettingsPage() {
       setLoading(false);
     }
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const isOwnerOrAdmin = currentRole === "owner" || currentRole === "admin";
+  const isOwnerOrAdmin = role === "owner" || role === "admin";
 
   // Updater helper
   const update = useCallback(
@@ -310,7 +289,7 @@ export default function OrgSettingsPage() {
     settings.trustWeightSuspiciousPenalty;
 
   // Loading state
-  if (loading) {
+  if (orgLoading || loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
@@ -351,7 +330,7 @@ export default function OrgSettingsPage() {
             <p className="text-sm text-muted-foreground mt-0.5">
               {settings.orgName || "Sin nombre"}{" "}
               <Badge variant="secondary" className="text-xs ml-1">
-                {currentRole}
+                {role}
               </Badge>
             </p>
           </div>

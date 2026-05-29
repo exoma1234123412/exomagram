@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import type { Profile } from "@/lib/types/database";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -46,26 +47,23 @@ const GRADE_STYLE: Record<string, { color: string; bg: string; emoji: string }> 
 };
 
 export default function HotSeatPage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [members, setMembers] = useState<Profile[]>([]);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [data, setData] = useState<HotSeatData | null>(null);
   const [loading, setLoading] = useState(false);
-  const [orgId, setOrgId] = useState<string | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
-    async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: m } = await supabase.from("org_members").select("org_id").eq("user_id", user.id).limit(1).single();
-      if (!m) return;
-      setOrgId(m.org_id);
-      const { data: memberData } = await supabase.from("org_members").select("user_id, profiles(*)").eq("org_id", m.org_id)
-        ;
-      setMembers(memberData?.map((md) => md.profiles) ?? []);
+    if (!orgId) return;
+    async function loadMembers() {
+      const { data: memberData } = await supabase.from("org_members").select("user_id, profiles(*)").eq("org_id", orgId!);
+      setMembers(
+        (memberData ?? []).map((md) => md.profiles).filter((p): p is Profile => p !== null)
+      );
     }
-    load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    loadMembers();
+  }, [orgId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function runHotSeat(userId: string) {
     if (!orgId) return;

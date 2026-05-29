@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import type { Profile } from "@/lib/types/database";
 import { CATEGORIES, EXPECTED_DAILY_HOURS } from "@/lib/constants";
 import type { WorkCategory } from "@/lib/types/database";
@@ -71,36 +72,28 @@ function CompareBar({ label, valueA, valueB, suffix, higherIsBetter }: {
 }
 
 export default function ComparePage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [members, setMembers] = useState<Profile[]>([]);
   const [userA, setUserA] = useState<string>("");
   const [userB, setUserB] = useState<string>("");
   const [statsA, setStatsA] = useState<UserStats | null>(null);
   const [statsB, setStatsB] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [orgId, setOrgId] = useState<string | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
+    if (!orgId) {
+      if (!orgLoading) setLoading(false);
+      return;
+    }
+
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setLoading(false); return; }
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-      if (!membership) { setLoading(false); return; }
-      setOrgId(membership.org_id);
-
       const { data: memberData } = await supabase
         .from("org_members")
         .select("user_id, profiles(*)")
-        .eq("org_id", membership.org_id)
-        ;
+        .eq("org_id", orgId!);
 
-      const profiles = memberData?.map((m) => m.profiles) ?? [];
+      const profiles = memberData?.map((m: any) => m.profiles) ?? [];
       setMembers(profiles);
       if (profiles.length >= 2) {
         setUserA(profiles[0].id);
@@ -109,7 +102,7 @@ export default function ComparePage() {
       setLoading(false);
     }
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgId, orgLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!orgId || !userA || !userB) return;
@@ -169,7 +162,7 @@ export default function ComparePage() {
     loadBoth();
   }, [userA, userB, orgId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (loading) {
+  if (loading || orgLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />

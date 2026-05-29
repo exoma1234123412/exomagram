@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useOrg } from "@/lib/context/org-context";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types/database";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ interface Standup {
 }
 
 export default function StandupPage() {
+  const { orgId, userId, loading: orgLoading } = useOrg();
   const [standups, setStandups] = useState<Standup[]>([]);
   const [myStandup, setMyStandup] = useState<Standup | null>(null);
   const [yesterday, setYesterday] = useState("");
@@ -35,50 +37,37 @@ export default function StandupPage() {
   const [mood, setMood] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [orgId, setOrgId] = useState<string | null>(null);
   const supabase = createClient();
   const today = getTodayMTY();
 
   useEffect(() => {
+    if (orgLoading) return;
+    if (!orgId || !userId) { setLoading(false); return; }
+
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setLoading(false); return; }
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (!membership) { setLoading(false); return; }
-      setOrgId(membership.org_id);
-
       const { data } = await supabase
         .from("standups")
         .select("*, profiles(*)")
-        .eq("org_id", membership.org_id)
+        .eq("org_id", orgId!)
         .eq("date", today)
         .order("submitted_at", { ascending: true })
         ;
 
       setStandups(data ?? []);
-      const mine = data?.find((s) => s.user_id === user.id);
+      const mine = data?.find((s) => s.user_id === userId);
       if (mine) setMyStandup(mine);
       setLoading(false);
     }
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgLoading, orgId, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!userId || !orgId) return;
     setSubmitting(true);
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user || !orgId) return;
-
     const { data } = await supabase.from("standups").upsert({
-      user_id: user.id,
+      user_id: userId,
       org_id: orgId,
       date: today,
       yesterday,
@@ -90,7 +79,7 @@ export default function StandupPage() {
     if (data) {
       setMyStandup(data as unknown as Standup);
       setStandups((prev) => {
-        const filtered = prev.filter((s) => s.user_id !== user.id);
+        const filtered = prev.filter((s) => s.user_id !== userId);
         return [...filtered, data as unknown as Standup];
       });
     }

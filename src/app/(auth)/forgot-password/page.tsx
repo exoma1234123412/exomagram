@@ -6,14 +6,20 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Clock, Mail, ArrowLeft, Check } from "lucide-react";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
   const supabase = createClient();
 
   async function handleSubmit(e: React.FormEvent) {
@@ -29,7 +35,7 @@ export default function ForgotPasswordPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      setSuccess(true);
+      setSent(true);
       setLoading(false);
     }
   }
@@ -42,44 +48,61 @@ export default function ForgotPasswordPage() {
             <Clock className="w-5 h-5 text-primary-foreground" />
           </div>
           <div className="space-y-1">
-            <CardTitle className="text-xl font-medium tracking-tight">Recuperar contraseña</CardTitle>
+            <CardTitle className="text-xl font-medium tracking-tight">
+              Recuperar contraseña
+            </CardTitle>
             <CardDescription className="text-muted-foreground">
-              Ingresa tu email y te enviaremos un link para restablecer tu contraseña
+              Ingresa tu correo para recibir un enlace de recuperación
             </CardDescription>
           </div>
         </CardHeader>
         <CardContent className="pt-2">
-          {success ? (
+          {sent ? (
             <div className="space-y-4">
-              <div className="bg-green-500/5 border border-green-500/20 rounded-xl px-3 py-3">
-                <p className="text-sm text-green-700 dark:text-green-400 font-medium">
-                  Revisa tu correo. Te enviamos un link para restablecer tu contraseña.
+              <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl px-3 py-4 text-center space-y-2">
+                <div className="mx-auto w-8 h-8 bg-emerald-500/10 rounded-full flex items-center justify-center">
+                  <Check className="w-4 h-4 text-emerald-600" />
+                </div>
+                <p className="text-sm text-emerald-700 dark:text-emerald-400 font-medium">
+                  Revisa tu correo. Te enviamos un enlace para restablecer tu
+                  contraseña.
                 </p>
               </div>
-              <p className="text-center text-sm text-muted-foreground">
-                <Link href="/login" className="text-foreground hover:underline font-medium transition-colors">
-                  Volver a iniciar sesión
-                </Link>
-              </p>
+              <Link href="/login">
+                <Button
+                  variant="outline"
+                  className="w-full h-10 rounded-xl font-medium mt-2"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Volver al inicio de sesión
+                </Button>
+              </Link>
             </div>
           ) : (
             <>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="tu@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="h-10 rounded-xl"
-                  />
+                  <Label htmlFor="email" className="text-sm font-medium">
+                    Email
+                  </Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="tu@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="h-10 rounded-xl pl-9"
+                    />
+                  </div>
                 </div>
                 {error && (
                   <div className="bg-destructive/5 border border-destructive/20 rounded-xl px-3 py-2">
-                    <p className="text-sm text-destructive font-medium">{error}</p>
+                    <p className="text-sm text-destructive font-medium">
+                      {error}
+                    </p>
                   </div>
                 )}
                 <Button
@@ -87,12 +110,18 @@ export default function ForgotPasswordPage() {
                   className="w-full h-10 rounded-xl font-medium"
                   disabled={loading}
                 >
-                  {loading ? "Enviando..." : "Enviar link de recuperación"}
+                  {loading
+                    ? "Enviando..."
+                    : "Enviar enlace de recuperación"}
                 </Button>
               </form>
-              <p className="text-center text-sm text-muted-foreground mt-6">
-                <Link href="/login" className="text-foreground hover:underline font-medium transition-colors">
-                  Volver a iniciar sesión
+              <p className="text-center text-sm text-muted-foreground mt-4">
+                <Link
+                  href="/login"
+                  className="text-foreground hover:underline font-medium transition-colors inline-flex items-center gap-1"
+                >
+                  <ArrowLeft className="w-3 h-3" />
+                  Volver al inicio de sesión
                 </Link>
               </p>
             </>

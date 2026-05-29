@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import {
   CATEGORIES,
   EXPECTED_DAILY_HOURS,
@@ -209,6 +210,7 @@ const REACTION_EMOJI: Record<ReactionType, string> = {
 // MAIN PAGE
 // ═══════════════════════════════════════════════════════════════
 export default function HomePage() {
+  const { orgId, userId, loading: orgLoading } = useOrg();
   const [state, setState] = useState<HomeState | null>(null);
   const [loading, setLoading] = useState(true);
   const [closeoutOpen, setCloseoutOpen] = useState(false);
@@ -217,28 +219,12 @@ export default function HomePage() {
   const today = getTodayMTY();
 
   useEffect(() => {
+    if (!orgId || !userId) {
+      setLoading(false);
+      return;
+    }
+
     async function load() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (!membership) {
-        setLoading(false);
-        return;
-      }
-
-      const orgId = membership.org_id;
 
       // Parallel fetches
       const [
@@ -255,31 +241,31 @@ export default function HomePage() {
         supabase
           .from("profiles")
           .select("full_name, avatar_url")
-          .eq("id", user.id)
+          .eq("id", userId!)
           .single(),
         supabase
           .from("time_entries")
           .select("id, title, category, hour, proof_urls, logged_at")
-          .eq("user_id", user.id)
+          .eq("user_id", userId!)
           .eq("date", today)
           .order("hour", { ascending: true }),
         supabase
           .from("activity_streaks")
           .select("current_streak")
-          .eq("user_id", user.id)
+          .eq("user_id", userId!)
           .eq("org_id", orgId)
           .maybeSingle(),
         supabase
           .from("trust_score_history")
           .select("score")
-          .eq("user_id", user.id)
+          .eq("user_id", userId!)
           .eq("org_id", orgId)
           .order("date", { ascending: false })
           .limit(1),
         supabase
           .from("notifications")
           .select("id, type, title, body, link, read, created_at")
-          .eq("user_id", user.id)
+          .eq("user_id", userId!)
           .eq("read", false)
           .order("created_at", { ascending: false })
           .limit(3),
@@ -295,14 +281,14 @@ export default function HomePage() {
         supabase
           .from("standups")
           .select("today_plan")
-          .eq("user_id", user.id)
+          .eq("user_id", userId!)
           .eq("date", today)
           .maybeSingle(),
         supabase
           .from("buddy_pairs")
           .select("user_a, user_b")
           .eq("org_id", orgId)
-          .or(`user_a.eq.${user.id},user_b.eq.${user.id}`)
+          .or(`user_a.eq.${userId!},user_b.eq.${userId!}`)
           .eq("active", true)
           .limit(1)
           .maybeSingle(),
@@ -396,7 +382,7 @@ export default function HomePage() {
           }
         }
 
-        if (maxHours > 0 && maxUser !== user.id) {
+        if (maxHours > 0 && maxUser !== userId!) {
           const tp = (allProfiles ?? []).find((p) => p.id === maxUser);
           if (tp) {
             topPerformer = {
@@ -411,7 +397,7 @@ export default function HomePage() {
       let buddy: BuddyInfo | null = null;
       if (buddyPairs) {
         const buddyId =
-          (buddyPairs as { user_a: string; user_b: string }).user_a === user.id
+          (buddyPairs as { user_a: string; user_b: string }).user_a === userId!
             ? (buddyPairs as { user_a: string; user_b: string }).user_b
             : (buddyPairs as { user_a: string; user_b: string }).user_a;
 
@@ -477,8 +463,8 @@ export default function HomePage() {
       }
 
       setState({
-        userId: user.id,
-        orgId,
+        userId: userId!,
+        orgId: orgId!,
         name:
           (profile as { full_name: string | null })?.full_name ?? "Usuario",
         avatarUrl:
@@ -508,10 +494,10 @@ export default function HomePage() {
     }
 
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgId, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── LOADING ──────────────────────────────────────────────
-  if (loading) {
+  if (orgLoading || loading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="flex flex-col items-center gap-3">

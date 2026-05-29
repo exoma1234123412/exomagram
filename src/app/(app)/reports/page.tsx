@@ -147,6 +147,7 @@ function persistSavedReports(configs: ReportConfig[]) {
 // ---------------------------------------------------------------------------
 
 export default function ReportsPage() {
+  const { orgId, userId, orgName: ctxOrgName, loading: orgLoading } = useOrg();
   const supabase = createClient();
 
   // Filters
@@ -170,8 +171,6 @@ export default function ReportsPage() {
   // State
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [orgId, setOrgId] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
   const [orgName, setOrgName] = useState("");
   const [members, setMembers] = useState<
     Pick<Profile, "id" | "full_name" | "email">[]
@@ -191,43 +190,23 @@ export default function ReportsPage() {
   const reportRef = useRef<HTMLDivElement>(null);
 
   // -----------------------------------------------------------------------
-  // Initial load: org, members, projects
+  // Initial load: members, projects
   // -----------------------------------------------------------------------
   useEffect(() => {
+    if (orgLoading) return;
+    if (!orgId || !userId) {
+      setInitialLoading(false);
+      return;
+    }
+
+    setOrgName(ctxOrgName ?? "");
+
     async function init() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        setInitialLoading(false);
-        return;
-      }
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-      if (!membership) {
-        setInitialLoading(false);
-        return;
-      }
-      setOrgId(membership.org_id);
-      setUserId(user.id);
-
-      const { data: org } = await supabase
-        .from("organizations")
-        .select("name")
-        .eq("id", membership.org_id)
-        .single();
-      if (org) setOrgName(org.name);
-
       // Members
       const { data: mems } = await supabase
         .from("org_members")
         .select("user_id, profiles(id, full_name, email)")
-        .eq("org_id", membership.org_id);
+        .eq("org_id", orgId!);
 
       if (mems) {
         const profileList = mems
@@ -240,7 +219,7 @@ export default function ReportsPage() {
       const { data: projData } = await supabase
         .from("time_entries")
         .select("project")
-        .eq("org_id", membership.org_id)
+        .eq("org_id", orgId!)
         .not("project", "is", null);
 
       if (projData) {
@@ -259,7 +238,7 @@ export default function ReportsPage() {
       setInitialLoading(false);
     }
     init();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgLoading, orgId, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // -----------------------------------------------------------------------
   // Generate report

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useOrg } from "@/lib/context/org-context";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types/database";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ import {
 } from "lucide-react";
 
 export default function SettingsPage() {
+  const { orgId, userId, orgName: ctxOrgName, loading: orgLoading } = useOrg();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState("");
@@ -32,7 +34,6 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [orgId, setOrgId] = useState<string | null>(null);
   const [orgName, setOrgName] = useState("");
   const [copied, setCopied] = useState(false);
   const [joinCode, setJoinCode] = useState("");
@@ -44,21 +45,12 @@ export default function SettingsPage() {
   const supabase = createClient();
 
   useEffect(() => {
-    async function load() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) { setLoading(false); return; }
+    if (orgLoading) return;
+    if (!userId) { setLoading(false); return; }
 
-      const [{ data: profileData }, { data: membership }] = await Promise.all([
-        supabase.from("profiles").select("*").eq("id", user.id).single(),
-        supabase
-          .from("org_members")
-          .select("org_id")
-          .eq("user_id", user.id)
-          .limit(1)
-          .single(),
-      ]);
+    async function load() {
+      const { data: profileData } = await supabase
+        .from("profiles").select("*").eq("id", userId!).single();
 
       if (profileData) {
         setProfile(profileData as Profile);
@@ -66,19 +58,14 @@ export default function SettingsPage() {
         setRole((profileData as Profile).role ?? "");
         setTimezone((profileData as Profile).timezone);
       }
-      if (membership) {
-        setOrgId(membership.org_id);
-        const { data: org } = await supabase
-          .from("organizations")
-          .select("name")
-          .eq("id", membership.org_id)
-          .single();
-        if (org) setOrgName((org as { name: string }).name);
+
+      if (orgId) {
+        setOrgName(ctxOrgName ?? "");
 
         const { count } = await supabase
           .from("org_members")
           .select("id", { count: "exact", head: true })
-          .eq("org_id", membership.org_id);
+          .eq("org_id", orgId);
         setMemberCount(count ?? 0);
       }
 
@@ -92,7 +79,7 @@ export default function SettingsPage() {
       setLoading(false);
     }
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgLoading, orgId, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();

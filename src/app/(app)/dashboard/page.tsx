@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import { TimelineFeed } from "@/components/timeline/timeline-feed";
 import { TimelineFiltersBar, type TimelineFilters } from "@/components/timeline/timeline-filters";
 import { LogEntryDialog } from "@/components/log-entry/log-entry-dialog";

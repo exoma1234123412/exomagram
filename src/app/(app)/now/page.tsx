@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import type { LiveStatus, Profile, TimeEntry } from "@/lib/types/database";
 import { LIVE_STATUS_CONFIG, CATEGORIES } from "@/lib/constants";
 import type { WorkCategory } from "@/lib/types/database";
@@ -15,26 +16,11 @@ import Link from "next/link";
 type StatusWithProfile = LiveStatus & { profiles: Profile };
 
 export default function NowPage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [statuses, setStatuses] = useState<StatusWithProfile[]>([]);
   const [latestEntries, setLatestEntries] = useState<Map<string, TimeEntry>>(new Map());
   const [loading, setLoading] = useState(true);
-  const [orgId, setOrgId] = useState<string | null>(null);
   const supabase = createClient();
-
-  useEffect(() => {
-    async function loadOrg() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-      if (membership) setOrgId(membership.org_id);
-    }
-    loadOrg();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!orgId) return;
@@ -113,7 +99,7 @@ export default function NowPage() {
         {onlineCount} persona{onlineCount !== 1 ? "s" : ""} activa{onlineCount !== 1 ? "s" : ""} ahora mismo
       </p>
 
-      {loading ? (
+      {orgLoading || loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>
       ) : sorted.length === 0 ? (
         <div className="text-center py-20 text-muted-foreground">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -66,24 +66,21 @@ const GRADE_STYLE: Record<string, { color: string; bg: string; emoji: string }> 
 };
 
 export default function RetroPage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [data, setData] = useState<RetroData | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
 
   useEffect(() => {
-    async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: membership } = await supabase
-        .from("org_members").select("org_id").eq("user_id", user.id).limit(1).single();
-      if (!membership) return;
+    if (orgLoading) return;
+    if (!orgId) { setLoading(false); return; }
 
-      const res = await fetch(`/api/ai-weekly-retro?org_id=${membership.org_id}`, { method: "POST" });
+    async function load() {
+      const res = await fetch(`/api/ai-weekly-retro?org_id=${orgId}`, { method: "POST" });
       setData(await res.json());
       setLoading(false);
     }
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgLoading, orgId]);
 
   if (loading) {
     return (

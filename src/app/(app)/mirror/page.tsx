@@ -462,38 +462,25 @@ function DebtBars({
 // ─── MAIN PAGE ──────────────────────────────────────────────
 
 export default function MirrorPage() {
+  const { orgId, userId, loading: orgLoading } = useOrg();
   const [data, setData] = useState<MirrorData | null>(null);
   const [loading, setLoading] = useState(true);
   const [hourlyRate, setHourlyRate] = useState(25);
   const supabase = createClient();
 
   useEffect(() => {
+    if (!orgId || !userId) return;
+
     async function load() {
       setLoading(true);
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
 
       // Get profile
       const { data: profile } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", user.id)
+        .eq("id", userId!)
         .single();
       if (!profile) return;
-
-      // Get org
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-      if (!membership) return;
-
-      const orgId = membership.org_id;
       const today = new Date();
       const thirtyDaysAgo = subDays(today, 30);
       const twelveWeeksAgo = subWeeks(today, 12);
@@ -514,7 +501,7 @@ export default function MirrorPage() {
         supabase
           .from("time_entries")
           .select("*")
-          .eq("user_id", user.id)
+          .eq("user_id", userId!)
           .eq("org_id", orgId)
           .gte("date", thirtyDaysAgoStr)
           .lte("date", todayStr)
@@ -523,7 +510,7 @@ export default function MirrorPage() {
         supabase
           .from("trust_score_history")
           .select("*")
-          .eq("user_id", user.id)
+          .eq("user_id", userId!)
           .eq("org_id", orgId)
           .gte("date", thirtyDaysAgoStr)
           .lte("date", todayStr)
@@ -532,7 +519,7 @@ export default function MirrorPage() {
         supabase
           .from("trust_score_history")
           .select("*")
-          .eq("user_id", user.id)
+          .eq("user_id", userId!)
           .eq("org_id", orgId)
           .gte("date", twelveWeeksAgoStr)
           .lte("date", todayStr)
@@ -541,7 +528,7 @@ export default function MirrorPage() {
         supabase
           .from("accountability_flags")
           .select("*")
-          .eq("user_id", user.id)
+          .eq("user_id", userId!)
           .eq("org_id", orgId)
           .gte("date", thirtyDaysAgoStr)
           .order("date", { ascending: false })
@@ -549,13 +536,13 @@ export default function MirrorPage() {
         supabase
           .from("activity_streaks")
           .select("current_streak")
-          .eq("user_id", user.id)
+          .eq("user_id", userId!)
           .eq("org_id", orgId)
           .single(),
         supabase
           .from("daily_closeouts")
           .select("id")
-          .eq("user_id", user.id)
+          .eq("user_id", userId!)
           .eq("org_id", orgId)
           .gte("date", thirtyDaysAgoStr)
           .lte("date", todayStr),
@@ -626,10 +613,10 @@ export default function MirrorPage() {
           for (const s of allScores) {
             scoreMap.set(s.user_id, s.score);
           }
-          const myScore = scoreMap.get(user.id) ?? 0;
+          const myScore = scoreMap.get(userId!) ?? 0;
           let rank = 1;
           for (const [uid, sc] of scoreMap) {
-            if (uid !== user.id && sc > myScore) rank++;
+            if (uid !== userId && sc > myScore) rank++;
           }
           rankPosition = rank;
         }
@@ -645,7 +632,7 @@ export default function MirrorPage() {
 
       setData({
         profile,
-        orgId,
+        orgId: orgId!,
         trustScore: latestTrust,
         trustHistory30d: trustHistory30d ?? [],
         trustHistory12w: trustHistory12w ?? [],
@@ -664,7 +651,7 @@ export default function MirrorPage() {
     }
 
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgId, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── COMPUTED DATA ──────────────────────────────────────────
 
@@ -797,7 +784,7 @@ export default function MirrorPage() {
 
   // ─── RENDER ─────────────────────────────────────────────────
 
-  if (loading || !data || !computed) {
+  if (orgLoading || loading || !data || !computed) {
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex flex-col items-center justify-center py-24 gap-3">

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import type { Profile } from "@/lib/types/database";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,25 +18,19 @@ interface CollabEdge {
 }
 
 export default function CollabPage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [edges, setEdges] = useState<CollabEdge[]>([]);
   const [members, setMembers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
   useEffect(() => {
+    if (!orgId) {
+      if (!orgLoading) setLoading(false);
+      return;
+    }
+
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setLoading(false); return; }
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-      if (!membership) { setLoading(false); return; }
-
-      const orgId = membership.org_id;
 
       // Get members
       const { data: memberData } = await supabase
@@ -46,7 +41,7 @@ export default function CollabPage() {
 
       if (!memberData) { setLoading(false); return; }
 
-      const profiles = memberData.map((m) => m.profiles as unknown as Profile);
+      const profiles = memberData.map((m) => m.profiles as Profile);
       setMembers(profiles);
       const profileMap = new Map<string, Profile>(profiles.map((p) => [p.id, p]));
 
@@ -134,9 +129,9 @@ export default function CollabPage() {
       setLoading(false);
     }
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgId, orgLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (loading) {
+  if (loading || orgLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />

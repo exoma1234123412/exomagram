@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import type { Profile } from "@/lib/types/database";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,43 +21,37 @@ interface PairData {
 }
 
 export default function CompatibilityPage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [pairs, setPairs] = useState<PairData[]>([]);
   const [loading, setLoading] = useState(true);
   const [memberProfiles, setMemberProfiles] = useState<Map<string, Profile>>(new Map());
   const supabase = createClient();
 
   useEffect(() => {
+    if (!orgId) {
+      if (!orgLoading) setLoading(false);
+      return;
+    }
+
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (!membership) { setLoading(false); return; }
-
       const startDate = subDays(new Date(), 30).toISOString().split("T")[0];
 
       const [{ data: members }, { data: entries }] = await Promise.all([
         supabase
           .from("org_members")
           .select("user_id, profiles(*)")
-          .eq("org_id", membership.org_id)
+          .eq("org_id", orgId!)
           ,
         supabase
           .from("time_entries")
           .select("user_id, date, hour, project, category")
-          .eq("org_id", membership.org_id)
+          .eq("org_id", orgId!)
           .gte("date", startDate),
       ]);
 
       if (!members || !entries || members.length < 2) { setLoading(false); return; }
 
-      const profileMap = new Map<string, Profile>(members.map((m) => [m.user_id, m.profiles as unknown as Profile]));
+      const profileMap = new Map<string, Profile>(members.map((m) => [m.user_id, m.profiles as Profile]));
       setMemberProfiles(profileMap);
 
       // Build per-user data structures
@@ -130,7 +125,7 @@ export default function CompatibilityPage() {
       setLoading(false);
     }
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgId, orgLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
@@ -142,7 +137,7 @@ export default function CompatibilityPage() {
         Patrones de colaboracion entre miembros (30 dias)
       </p>
 
-      {loading ? (
+      {loading || orgLoading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
           <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>

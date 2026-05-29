@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { useOrg } from "@/lib/context/org-context";
 import { createClient } from "@/lib/supabase/client";
 import { CATEGORIES } from "@/lib/constants";
 import type { WorkCategory, Profile } from "@/lib/types/database";
@@ -104,8 +105,8 @@ function parseCategoryFocus(focus: string): { category: WorkCategory; percent: n
 /* ─── Component ─────────────────────────────────────────────── */
 
 export default function SprintsPage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [sprints, setSprints] = useState<Sprint[]>([]);
-  const [orgId, setOrgId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -158,35 +159,15 @@ export default function SprintsPage() {
     return { totalDays, elapsed, remaining, percent };
   }, [activeSprint]);
 
-  /* ─── Load org + sprints ────────────────────────────────── */
+  /* ─── Load sprints from localStorage ────────────────────── */
 
   useEffect(() => {
-    async function init() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
+    if (orgLoading) return;
+    if (!orgId) { setLoading(false); return; }
 
-      if (!membership) {
-        setLoading(false);
-        return;
-      }
-
-      setOrgId(membership.org_id);
-      setSprints(loadSprints(membership.org_id));
-      setLoading(false);
-    }
-    init();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    setSprints(loadSprints(orgId));
+    setLoading(false);
+  }, [orgLoading, orgId]);
 
   /* ─── Load board data for active sprint ─────────────────── */
 
