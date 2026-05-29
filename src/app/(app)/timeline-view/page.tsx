@@ -206,7 +206,7 @@ function TimelineBlock({
               {cat.emoji} {entry.title}
             </p>
             <p className="text-xs opacity-80">
-              {cat.label} &middot; {formatHourShort(hour)}
+              {cat.label} · {formatHourShort(hour)}
             </p>
             <div className="flex flex-wrap gap-1 mt-1">
               {hasProof ? (

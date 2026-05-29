@@ -48,76 +48,75 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Light mode — clean, quiet, professional */
 :root {
-  --background: oklch(0.985 0.002 280);
-  --foreground: oklch(0.17 0.015 280);
+  --background: oklch(0.99 0 0);
+  --foreground: oklch(0.14 0.005 260);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.17 0.015 280);
+  --card-foreground: oklch(0.14 0.005 260);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.17 0.015 280);
-  --primary: oklch(0.488 0.22 258);
-  --primary-foreground: oklch(0.985 0.005 280);
-  --secondary: oklch(0.955 0.015 280);
-  --secondary-foreground: oklch(0.25 0.015 280);
-  --muted: oklch(0.96 0.008 280);
-  --muted-foreground: oklch(0.50 0.01 280);
-  --accent: oklch(0.955 0.025 280);
-  --accent-foreground: oklch(0.25 0.015 280);
+  --popover-foreground: oklch(0.14 0.005 260);
+  --primary: oklch(0.35 0.015 260);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.96 0.003 260);
+  --secondary-foreground: oklch(0.25 0.01 260);
+  --muted: oklch(0.965 0.003 260);
+  --muted-foreground: oklch(0.50 0.008 260);
+  --accent: oklch(0.96 0.003 260);
+  --accent-foreground: oklch(0.25 0.01 260);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.915 0.008 280);
-  --input: oklch(0.915 0.008 280);
-  --ring: oklch(0.488 0.22 258);
-  --chart-1: oklch(0.488 0.22 258);
-  --chart-2: oklch(0.62 0.18 268);
-  --chart-3: oklch(0.55 0.15 250);
-  --chart-4: oklch(0.65 0.12 160);
-  --chart-5: oklch(0.58 0.15 30);
+  --border: oklch(0.925 0.004 260);
+  --input: oklch(0.925 0.004 260);
+  --ring: oklch(0.35 0.015 260);
+  --chart-1: oklch(0.45 0.03 260);
+  --chart-2: oklch(0.55 0.025 250);
+  --chart-3: oklch(0.50 0.02 240);
+  --chart-4: oklch(0.55 0.02 160);
+  --chart-5: oklch(0.50 0.02 30);
   --radius: 0.75rem;
-  --sidebar: oklch(0.975 0.008 280);
-  --sidebar-foreground: oklch(0.17 0.015 280);
-  --sidebar-primary: oklch(0.488 0.22 258);
-  --sidebar-primary-foreground: oklch(0.985 0.005 280);
-  --sidebar-accent: oklch(0.95 0.025 258);
-  --sidebar-accent-foreground: oklch(0.25 0.015 280);
-  --sidebar-border: oklch(0.915 0.01 280);
-  --sidebar-ring: oklch(0.488 0.22 258);
+  --sidebar: oklch(0.985 0.002 260);
+  --sidebar-foreground: oklch(0.14 0.005 260);
+  --sidebar-primary: oklch(0.35 0.015 260);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.955 0.004 260);
+  --sidebar-accent-foreground: oklch(0.25 0.01 260);
+  --sidebar-border: oklch(0.93 0.004 260);
+  --sidebar-ring: oklch(0.35 0.015 260);
 }
 
-/* ═══════════════════════════════════════════════════════
-   PALANTIR DARK THEME — Omniscient. Oppressive. Inescapable.
-   ═══════════════════════════════════════════════════════ */
+/* Dark mode — near black, clean contrast */
 .dark {
-  --background: oklch(0.08 0.01 250);
-  --foreground: oklch(0.88 0.01 250);
-  --card: oklch(0.11 0.012 250);
-  --card-foreground: oklch(0.88 0.01 250);
-  --popover: oklch(0.10 0.012 250);
-  --popover-foreground: oklch(0.88 0.01 250);
-  --primary: oklch(0.62 0.18 250);
-  --primary-foreground: oklch(0.08 0.01 250);
-  --secondary: oklch(0.15 0.015 250);
-  --secondary-foreground: oklch(0.88 0.01 250);
-  --muted: oklch(0.16 0.012 250);
-  --muted-foreground: oklch(0.55 0.01 250);
-  --accent: oklch(0.18 0.02 250);
-  --accent-foreground: oklch(0.88 0.01 250);
+  --background: oklch(0.10 0.005 260);
+  --foreground: oklch(0.90 0.005 260);
+  --card: oklch(0.13 0.006 260);
+  --card-foreground: oklch(0.90 0.005 260);
+  --popover: oklch(0.12 0.006 260);
+  --popover-foreground: oklch(0.90 0.005 260);
+  --primary: oklch(0.75 0.01 260);
+  --primary-foreground: oklch(0.10 0.005 260);
+  --secondary: oklch(0.17 0.008 260);
+  --secondary-foreground: oklch(0.90 0.005 260);
+  --muted: oklch(0.18 0.006 260);
+  --muted-foreground: oklch(0.55 0.008 260);
+  --accent: oklch(0.18 0.008 260);
+  --accent-foreground: oklch(0.90 0.005 260);
   --destructive: oklch(0.65 0.22 25);
-  --border: oklch(0.20 0.015 250);
-  --input: oklch(0.18 0.015 250);
-  --ring: oklch(0.62 0.18 250);
-  --chart-1: oklch(0.62 0.18 250);
-  --chart-2: oklch(0.55 0.15 230);
-  --chart-3: oklch(0.50 0.12 210);
-  --chart-4: oklch(0.60 0.10 160);
-  --chart-5: oklch(0.55 0.15 30);
-  --sidebar: oklch(0.06 0.01 250);
-  --sidebar-foreground: oklch(0.82 0.01 250);
-  --sidebar-primary: oklch(0.62 0.18 250);
-  --sidebar-primary-foreground: oklch(0.88 0.01 250);
-  --sidebar-accent: oklch(0.14 0.02 250);
-  --sidebar-accent-foreground: oklch(0.82 0.01 250);
-  --sidebar-border: oklch(0.16 0.015 250);
-  --sidebar-ring: oklch(0.62 0.18 250);
+  --border: oklch(0.22 0.008 260);
+  --input: oklch(0.20 0.008 260);
+  --ring: oklch(0.75 0.01 260);
+  --chart-1: oklch(0.65 0.02 260);
+  --chart-2: oklch(0.55 0.02 250);
+  --chart-3: oklch(0.50 0.015 240);
+  --chart-4: oklch(0.55 0.02 160);
+  --chart-5: oklch(0.50 0.02 30);
+  --sidebar: oklch(0.08 0.005 260);
+  --sidebar-foreground: oklch(0.85 0.005 260);
+  --sidebar-primary: oklch(0.75 0.01 260);
+  --sidebar-primary-foreground: oklch(0.90 0.005 260);
+  --sidebar-accent: oklch(0.16 0.008 260);
+  --sidebar-accent-foreground: oklch(0.85 0.005 260);
+  --sidebar-border: oklch(0.20 0.008 260);
+  --sidebar-ring: oklch(0.75 0.01 260);
 }
 
 @layer base {
@@ -125,17 +124,20 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
   html {
     @apply font-sans scroll-smooth;
   }
 }
 
-/* Smooth global transitions */
+/* Smooth transitions for interactive elements */
 @layer base {
   button, a, input, textarea, select {
-    @apply transition-all duration-200 ease-out;
+    @apply transition-colors duration-150 ease-out;
   }
 }
 
@@ -143,27 +145,15 @@
 @layer base {
   * {
     scrollbar-width: thin;
-    scrollbar-color: oklch(0.75 0.01 280) transparent;
+    scrollbar-color: oklch(0.80 0 0) transparent;
   }
 
   .dark * {
-    scrollbar-color: oklch(0.35 0.02 280) transparent;
+    scrollbar-color: oklch(0.30 0 0) transparent;
   }
 }
 
-/* Subtle page background pattern */
-@layer utilities {
-  .bg-grid-pattern {
-    background-image: radial-gradient(circle at 1px 1px, oklch(0.85 0.01 280) 1px, transparent 0);
-    background-size: 24px 24px;
-  }
-
-  .dark .bg-grid-pattern {
-    background-image: radial-gradient(circle at 1px 1px, oklch(0.25 0.015 280) 1px, transparent 0);
-  }
-}
-
-/* Glass effect utility */
+/* Glass effect utility — used by mobile-nav and keyboard-shortcuts */
 @layer utilities {
   .glass {
     backdrop-filter: blur(16px) saturate(180%);
@@ -173,23 +163,6 @@
   .glass-subtle {
     backdrop-filter: blur(8px) saturate(140%);
     -webkit-backdrop-filter: blur(8px) saturate(140%);
-  }
-}
-
-/* Gradient text utility */
-@layer utilities {
-  .text-gradient {
-    background: linear-gradient(135deg, oklch(0.488 0.22 258), oklch(0.55 0.22 270));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .dark .text-gradient {
-    background: linear-gradient(135deg, oklch(0.65 0.2 258), oklch(0.7 0.18 268));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
   }
 }
 
@@ -203,9 +176,9 @@
   .animate-shimmer {
     background: linear-gradient(
       90deg,
-      oklch(0.95 0.005 280) 0%,
-      oklch(0.92 0.01 258) 50%,
-      oklch(0.95 0.005 280) 100%
+      oklch(0.96 0 0) 0%,
+      oklch(0.93 0 0) 50%,
+      oklch(0.96 0 0) 100%
     );
     background-size: 200% 100%;
     animation: shimmer 1.5s ease-in-out infinite;
@@ -214,72 +187,23 @@
   .dark .animate-shimmer {
     background: linear-gradient(
       90deg,
-      oklch(0.22 0.015 280) 0%,
-      oklch(0.28 0.02 258) 50%,
-      oklch(0.22 0.015 280) 100%
+      oklch(0.20 0 0) 0%,
+      oklch(0.25 0 0) 50%,
+      oklch(0.20 0 0) 100%
     );
     background-size: 200% 100%;
   }
 }
 
-/* Pulse glow for live indicators */
+/* Pulse for live indicators */
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 oklch(0.55 0.2 150 / 40%); }
-  50% { box-shadow: 0 0 0 6px oklch(0.55 0.2 150 / 0%); }
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.55 0.12 150 / 40%); }
+  50% { box-shadow: 0 0 0 6px oklch(0.55 0.12 150 / 0%); }
 }
 
 @layer utilities {
   .animate-pulse-glow {
     animation: pulse-glow 2s ease-in-out infinite;
-  }
-}
-
-/* Ambient glow behind key elements */
-@layer utilities {
-  .glow-blue {
-    box-shadow:
-      0 0 0 1px oklch(0.488 0.22 258 / 8%),
-      0 4px 24px -4px oklch(0.488 0.22 258 / 12%),
-      0 12px 48px -8px oklch(0.488 0.22 258 / 6%);
-  }
-
-  .dark .glow-blue {
-    box-shadow:
-      0 0 0 1px oklch(0.65 0.2 258 / 12%),
-      0 4px 24px -4px oklch(0.65 0.2 258 / 8%),
-      0 12px 48px -8px oklch(0.65 0.2 258 / 4%);
-  }
-}
-
-/* Floating card animation */
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-
-@layer utilities {
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-}
-
-/* Noise texture overlay */
-@layer utilities {
-  .noise {
-    position: relative;
-  }
-  .noise::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    opacity: 0.025;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-    pointer-events: none;
-    border-radius: inherit;
-    z-index: 1;
-  }
-  .dark .noise::before {
-    opacity: 0.04;
   }
 }
 
@@ -290,24 +214,6 @@
   }
 }
 
-/* Smooth page transitions */
-@layer base {
-  main > * {
-    animation: page-enter 0.3s ease-out;
-  }
-}
-
-@keyframes page-enter {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* Number styling */
 @layer utilities {
   .tabular-nums {
@@ -315,162 +221,29 @@
   }
 }
 
-/* Focus ring improvements */
+/* Focus ring */
 @layer base {
   *:focus-visible {
-    outline: 2px solid oklch(0.488 0.22 258 / 50%);
+    outline: 2px solid oklch(0.35 0.015 260 / 40%);
     outline-offset: 2px;
     border-radius: var(--radius);
   }
 
   .dark *:focus-visible {
-    outline-color: oklch(0.65 0.2 258 / 50%);
+    outline-color: oklch(0.75 0.01 260 / 40%);
   }
 }
 
 /* Selection styling */
 @layer base {
   ::selection {
-    background-color: oklch(0.488 0.22 258 / 20%);
-    color: oklch(0.25 0.03 258);
+    background-color: oklch(0.35 0.015 260 / 15%);
+    color: oklch(0.14 0.005 260);
   }
 
   .dark ::selection {
-    background-color: oklch(0.62 0.18 250 / 30%);
-    color: oklch(0.95 0.01 250);
-  }
-}
-
-/* ═══════════════════════════════════════════════════════
-   PALANTIR EFFECTS — Surveillance aesthetic
-   ═══════════════════════════════════════════════════════ */
-
-/* Scan lines overlay — subtle CRT monitor effect */
-@layer utilities {
-  .scanlines::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 100;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      oklch(0 0 0 / 3%) 2px,
-      oklch(0 0 0 / 3%) 4px
-    );
-    mix-blend-mode: multiply;
-  }
-}
-
-/* Data grid background — tactical operations feel */
-@layer utilities {
-  .dark .bg-grid-pattern {
-    background-image:
-      linear-gradient(oklch(0.62 0.18 250 / 3%) 1px, transparent 1px),
-      linear-gradient(90deg, oklch(0.62 0.18 250 / 3%) 1px, transparent 1px);
-    background-size: 32px 32px;
-  }
-}
-
-/* Surveillance vignette — darker edges */
-@layer utilities {
-  .vignette::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 99;
-    background: radial-gradient(
-      ellipse at center,
-      transparent 50%,
-      oklch(0 0 0 / 25%) 100%
-    );
-  }
-}
-
-/* Cold glow for primary elements */
-@layer utilities {
-  .dark .glow-blue {
-    box-shadow:
-      0 0 0 1px oklch(0.62 0.18 250 / 15%),
-      0 0 20px -4px oklch(0.62 0.18 250 / 20%),
-      0 0 40px -8px oklch(0.62 0.18 250 / 10%);
-  }
-}
-
-/* Terminal cursor blink */
-@keyframes terminal-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-@layer utilities {
-  .terminal-cursor::after {
-    content: "▊";
-    animation: terminal-blink 1s step-end infinite;
-    color: oklch(0.62 0.18 250);
-    margin-left: 2px;
-  }
-}
-
-/* Surveillance pulse — concentric rings */
-@keyframes surveillance-pulse {
-  0% { box-shadow: 0 0 0 0 oklch(0.62 0.18 250 / 30%), 0 0 0 0 oklch(0.62 0.18 250 / 15%); }
-  50% { box-shadow: 0 0 0 8px oklch(0.62 0.18 250 / 0%), 0 0 0 16px oklch(0.62 0.18 250 / 0%); }
-  100% { box-shadow: 0 0 0 0 oklch(0.62 0.18 250 / 30%), 0 0 0 0 oklch(0.62 0.18 250 / 15%); }
-}
-
-@layer utilities {
-  .animate-surveillance {
-    animation: surveillance-pulse 3s ease-in-out infinite;
-  }
-}
-
-/* Data stream animation — falling matrix-like vertical lines */
-@keyframes data-stream {
-  0% { background-position: 0 0; }
-  100% { background-position: 0 200px; }
-}
-
-@layer utilities {
-  .data-stream::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.015;
-    background: repeating-linear-gradient(
-      180deg,
-      oklch(0.62 0.18 250) 0px,
-      transparent 1px,
-      transparent 8px
-    );
-    background-size: 4px 200px;
-    animation: data-stream 10s linear infinite;
-    z-index: 0;
-  }
-}
-
-/* Threat level borders */
-@layer utilities {
-  .threat-none { border-left: 3px solid oklch(0.55 0.15 150); }
-  .threat-low { border-left: 3px solid oklch(0.70 0.15 90); }
-  .threat-medium { border-left: 3px solid oklch(0.65 0.20 60); }
-  .threat-high { border-left: 3px solid oklch(0.60 0.22 30); }
-  .threat-critical { border-left: 3px solid oklch(0.55 0.25 15); animation: threat-pulse 1.5s ease-in-out infinite; }
-}
-
-@keyframes threat-pulse {
-  0%, 100% { border-left-color: oklch(0.55 0.25 15); }
-  50% { border-left-color: oklch(0.70 0.25 15); }
-}
-
-/* Dark scrollbar — Palantir style */
-@layer base {
-  .dark * {
-    scrollbar-color: oklch(0.25 0.015 250) oklch(0.08 0.01 250);
+    background-color: oklch(0.75 0.01 260 / 20%);
+    color: oklch(0.95 0.005 260);
   }
 }
 

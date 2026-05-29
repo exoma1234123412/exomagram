@@ -44,14 +44,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full dark`}
     >
-      <body className="min-h-full flex flex-col scanlines vignette">
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `document.documentElement.classList.add('dark');localStorage.setItem('theme','dark');`,
-          }}
-        />
+      <body className="min-h-full flex flex-col">
         {children}
       </body>
     </html>

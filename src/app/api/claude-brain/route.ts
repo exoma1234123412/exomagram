@@ -274,7 +274,7 @@ Responde JSON: { "roast": "el roast principal (3-4 líneas, gracioso y con datos
   }
 
   const message = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model: "claude-sonnet-4-6",
     max_tokens: 4000,
     system: systemPrompt,
     messages: [{ role: "user", content: userPrompt }],
@@ -294,7 +294,7 @@ Responde JSON: { "roast": "el roast principal (3-4 líneas, gracioso y con datos
   return NextResponse.json({
     mode,
     date: today,
-    model: "claude-sonnet-4",
+    model: "claude-sonnet-4-6",
     response: parsed ?? text,
     raw: parsed ? undefined : text,
   });

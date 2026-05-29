@@ -29,7 +29,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 
-// ─── DÍA A DÍA ─────────────────────────────────────────
+// --- DIA A DIA ---
 const dailyNav = [
   { href: "/home", label: "Inicio", icon: Home },
   { href: "/dashboard", label: "Timeline", icon: LayoutDashboard },
@@ -38,7 +38,7 @@ const dailyNav = [
   { href: "/promises", label: "Promesas", icon: Target },
 ];
 
-// ─── AI ─────────────────────────────────────────────────
+// --- AI ---
 const aiNav = [
   { href: "/brain", label: "Claude Brain", icon: Brain },
   { href: "/claude-audit", label: "Auditoría AI", icon: Eye },
@@ -47,7 +47,7 @@ const aiNav = [
   { href: "/narrative", label: "Narrativa", icon: BookOpen },
 ];
 
-// ─── MÉTRICAS ───────────────────────────────────────────
+// --- METRICAS ---
 const metricsNav = [
   { href: "/accountability", label: "Accountability", icon: Eye },
   { href: "/efficiency", label: "Eficiencia", icon: Gauge },
@@ -57,7 +57,7 @@ const metricsNav = [
   { href: "/retro", label: "Retro", icon: BarChart3 },
 ];
 
-// ─── MÁS ────────────────────────────────────────────────
+// --- MAS ---
 const moreNav = [
   { href: "/shoutouts", label: "Shoutouts", icon: Sparkles },
   { href: "/goals", label: "Objetivos", icon: Target },
@@ -65,7 +65,7 @@ const moreNav = [
   { href: "/reports", label: "Reportes", icon: FileText },
 ];
 
-// ─── CONFIG ─────────────────────────────────────────────
+// --- CONFIG ---
 const configNav = [
   { href: "/profile", label: "Mi Perfil", icon: User },
   { href: "/settings", label: "Ajustes", icon: Settings },
@@ -76,7 +76,7 @@ function NavSection({ items, label }: { items: typeof dailyNav; label?: string }
   return (
     <div>
       {label && (
-        <p className="px-3 text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest mb-1.5 mt-1">
+        <p className="px-3 text-[10px] font-medium text-muted-foreground/50 uppercase tracking-wider mb-1.5 mt-1">
           {label}
         </p>
       )}
@@ -88,10 +88,10 @@ function NavSection({ items, label }: { items: typeof dailyNav; label?: string }
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all",
+                "flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-normal transition-colors",
                 isActive
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  ? "bg-accent text-foreground font-medium"
+                  : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
               )}
             >
               <item.icon className="w-4 h-4" />
@@ -115,14 +115,14 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="hidden md:flex w-56 flex-col border-r border-border bg-card/50 h-screen sticky top-0">
+    <aside className="hidden md:flex w-56 flex-col border-r border-border/50 bg-sidebar h-screen sticky top-0">
       {/* Logo */}
       <div className="p-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <Clock className="w-4 h-4 text-primary-foreground" />
+          <div className="w-7 h-7 bg-foreground rounded-md flex items-center justify-center">
+            <Clock className="w-3.5 h-3.5 text-background" />
           </div>
-          <span className="font-bold text-base tracking-tight">Exomagram</span>
+          <span className="font-medium text-sm tracking-tight">Exomagram</span>
         </div>
         <NotificationBell />
       </div>
@@ -137,7 +137,7 @@ export function Sidebar() {
       </nav>
 
       {/* Logout */}
-      <div className="p-3 border-t">
+      <div className="p-3 border-t border-border/50">
         <Button
           variant="ghost"
           size="sm"

@@ -1036,7 +1036,7 @@ export default function PerformancePage() {
 
                 <div className="p-3 bg-accent/40 rounded-xl">
                   <div className="flex items-center gap-2 mb-1">
-                    <Target className="w-3.5 h-3.5 text-violet-500" />
+                    <Target className="w-3.5 h-3.5 text-primary" />
                     <span className="text-[10px] text-muted-foreground">
                       Categoria principal
                     </span>

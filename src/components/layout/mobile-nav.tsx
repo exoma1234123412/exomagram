@@ -3,13 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Grid3X3, User, Plus, Eye, BarChart3 } from "lucide-react";
+import { Home, LayoutDashboard, Plus, Brain, User } from "lucide-react";
 
-const navItems = [
+const leftTabs = [
+  { href: "/home", label: "Inicio", icon: Home },
   { href: "/dashboard", label: "Timeline", icon: LayoutDashboard },
-  { href: "/grid", label: "Equipo", icon: Grid3X3 },
-  { href: "/accountability", label: "Control", icon: Eye },
-  { href: "/weekly", label: "Semanal", icon: BarChart3 },
+];
+
+const rightTabs = [
+  { href: "/brain", label: "AI", icon: Brain },
   { href: "/profile", label: "Perfil", icon: User },
 ];
 
@@ -19,7 +21,7 @@ export function MobileNav({ onLogEntry }: { onLogEntry: () => void }) {
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background/80 glass border-t border-border/50 z-50 safe-area-pb">
       <div className="flex items-center justify-around py-2 px-1">
-        {navItems.slice(0, 2).map((item) => {
+        {leftTabs.map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (
             <Link
@@ -51,7 +53,7 @@ export function MobileNav({ onLogEntry }: { onLogEntry: () => void }) {
           <span className="text-foreground mt-0.5">Registrar</span>
         </button>
 
-        {navItems.slice(2).map((item) => {
+        {rightTabs.map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (
             <Link

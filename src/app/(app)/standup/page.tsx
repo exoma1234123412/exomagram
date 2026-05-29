@@ -14,7 +14,7 @@ import { cn, getInitials } from "@/lib/utils";
 import { MOOD_LABELS } from "@/lib/constants";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { MessageSquare, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react";
+import { MessageSquare, CheckCircle2, AlertTriangle } from "lucide-react";
 
 interface Standup {
   id: string;

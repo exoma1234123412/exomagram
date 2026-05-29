@@ -122,7 +122,7 @@ export async function POST(request: Request) {
   ctx += `- Esta persona: ${totalEntries}h (${totalEntries > teamAvgHours ? "arriba" : "abajo"} del promedio)\n`;
 
   const message = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model: "claude-sonnet-4-6",
     max_tokens: 6000,
     messages: [{
       role: "user",
@@ -177,5 +177,5 @@ Responde SOLO JSON:
 
   if (!parsed) return NextResponse.json({ error: "Parse failed", raw: text }, { status: 500 });
 
-  return NextResponse.json({ user_id: targetUserId, model: "claude-sonnet-4", ...parsed });
+  return NextResponse.json({ user_id: targetUserId, model: "claude-sonnet-4-6", ...parsed });
 }

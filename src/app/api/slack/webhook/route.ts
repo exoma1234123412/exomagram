@@ -7,6 +7,12 @@ import type { WorkCategory } from "@/lib/types/database";
 // Sends daily digest to a Slack webhook URL
 // Body: { webhook_url, org_id, date? }
 export async function POST(request: Request) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+
   const body = await request.json();
   const { webhook_url, org_id, date: dateParam } = body;
 
@@ -14,7 +20,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "webhook_url and org_id required" }, { status: 400 });
   }
 
-  const supabase = await createClient();
   const date = dateParam ?? new Date().toISOString().split("T")[0];
 
   // Get org name

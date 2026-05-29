@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn, getInitials } from "@/lib/utils";
-import { Loader2, Clock, Flame, TrendingUp, Calendar, Shield, Award, Dna, Zap, GitGraph } from "lucide-react";
+import { Clock, Flame, TrendingUp, Calendar, Shield, Award, Dna, Zap, GitGraph } from "lucide-react";
 import { ACHIEVEMENTS } from "@/lib/constants";
 import { WorkDNA } from "@/components/profile/work-dna";
 import { EnergyForecast } from "@/components/profile/energy-forecast";

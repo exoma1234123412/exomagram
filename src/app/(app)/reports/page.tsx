@@ -1129,7 +1129,7 @@ export default function ReportsPage() {
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
-                <Users className="w-5 h-5 mx-auto text-violet-500 mb-1" />
+                <Users className="w-5 h-5 mx-auto text-primary mb-1" />
                 <p className="text-2xl font-bold">
                   {reportData.perPerson.length}
                 </p>

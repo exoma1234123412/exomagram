@@ -373,13 +373,13 @@ export default function CapacityPage() {
             </div>
             <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-green-500" /> &ge;80% Optimo
+                <div className="w-2 h-2 rounded-full bg-green-500" /> ≥80% Optimo
               </span>
               <span className="flex items-center gap-1">
                 <div className="w-2 h-2 rounded-full bg-yellow-500" /> 50-79%
               </span>
               <span className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-red-500" /> &lt;50% o &gt;100%
+                <div className="w-2 h-2 rounded-full bg-red-500" /> {"<50% o >100%"}
               </span>
             </div>
           </CardContent>

@@ -690,7 +690,7 @@ export default function FocusPage() {
                           {session.task || cat.label}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {hours}:{mins} &middot; {session.duration_minutes}min
+                          {hours}:{mins} · {session.duration_minutes}min
                         </p>
                       </div>
                     </div>
@@ -772,7 +772,7 @@ export default function FocusPage() {
                           {config.label}
                         </span>
                         <span className="text-[10px] text-muted-foreground">
-                          &middot; {timeAgo(s.started_at)}
+                          · {timeAgo(s.started_at)}
                         </span>
                       </div>
                     </div>

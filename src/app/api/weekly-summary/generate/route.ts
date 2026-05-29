@@ -13,6 +13,11 @@ import { NextResponse } from "next/server";
 // - Result: Claude sees ALL history in ~50K tokens regardless of time span
 
 export async function POST(request: Request) {
+  const authHeader = request.headers.get("authorization");
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const orgId = searchParams.get("org_id");
   const weekStartParam = searchParams.get("week_start");

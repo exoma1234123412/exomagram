@@ -60,7 +60,7 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Timeline</h1>
+          <h1 className="text-2xl font-medium tracking-tight">Timeline</h1>
           <p className="text-muted-foreground text-sm capitalize mt-0.5">{displayDate}</p>
         </div>
         <div className="flex items-center gap-2">

@@ -20,6 +20,11 @@ export async function POST(request: Request) {
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+
   const today = new Date().toISOString().split("T")[0];
   const currentHour = new Date().getHours();
   const sevenDaysAgo = new Date();
@@ -155,7 +160,7 @@ Responde JSON: {
   }
 
   const message = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model: "claude-sonnet-4-6",
     max_tokens: 2000,
     messages: [{ role: "user", content: promptText }],
   });

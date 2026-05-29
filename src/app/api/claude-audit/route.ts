@@ -22,6 +22,11 @@ export async function POST(request: Request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+
   // Gather all data
   const [
     { data: entries },
@@ -100,7 +105,7 @@ export async function POST(request: Request) {
 
   // Call Claude with the RUTHLESS prompt
   const message = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model: "claude-sonnet-4-6",
     max_tokens: 8000,
     messages: [
       {
@@ -205,7 +210,7 @@ Responde SOLO con el JSON válido, sin markdown, sin backticks, sin explicación
 
   return NextResponse.json({
     date,
-    model: "claude-sonnet-4-20250514",
+    model: "claude-sonnet-4-6",
     ...parsed,
   });
 }

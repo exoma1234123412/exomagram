@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { cn, getInitials } from "@/lib/utils";
-import { Brain, Loader2, MessageSquare, AlertTriangle, Sparkles, Target, CheckCircle2 } from "lucide-react";
+import { Brain, MessageSquare, AlertTriangle, Sparkles, Target, CheckCircle2 } from "lucide-react";
 
 interface OneOnOneData {
   agenda_items: Array<{

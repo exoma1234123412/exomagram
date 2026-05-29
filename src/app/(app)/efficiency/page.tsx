@@ -173,7 +173,7 @@ export default function EfficiencyPage() {
                   {/* Metric bars */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                     <div className="p-2.5 bg-accent/40 rounded-xl text-center">
-                      <Flame className="w-3.5 h-3.5 mx-auto text-violet-500 mb-0.5" />
+                      <Flame className="w-3.5 h-3.5 mx-auto text-primary mb-0.5" />
                       <p className={cn("text-lg font-bold", a.deep_work_ratio >= 50 ? "text-green-600" : a.deep_work_ratio >= 30 ? "text-yellow-600" : "text-red-600")}>
                         {a.deep_work_ratio}%
                       </p>

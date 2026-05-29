@@ -82,7 +82,7 @@ const EVENT_TYPE_CONFIG: Record<
   closeout: {
     label: "Cierre",
     icon: Shield,
-    color: "text-violet-600 dark:text-violet-400",
+    color: "text-primary",
     bgColor: "bg-violet-100 dark:bg-violet-900/40",
   },
   flag: {
