@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
   // Build user name lookup
   const nameMap: Record<string, string> = {};
   for (const m of allMembers) {
-    const profile = m.profiles as Record<string, unknown> | null;
+    const profile = m.profiles as unknown as Record<string, unknown> | null;
     nameMap[m.user_id] = (profile?.full_name as string) ?? (profile?.email as string) ?? m.user_id;
   }
 

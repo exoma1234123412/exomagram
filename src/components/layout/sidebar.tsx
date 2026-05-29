@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard, Home, Grid3X3, User, Settings, LogOut, Clock,
+  LayoutDashboard, Home, Grid3X3, User, Settings, LogOut,
   Eye, BarChart3, Trophy, MessageSquare, Brain, Heart, History,
   Flame, Target, Sparkles, Gauge, Monitor, Gavel, TrendingUp,
   Pickaxe, Swords, Stethoscope, Waves, Siren, FileSignature,
@@ -15,12 +15,10 @@ import {
   MessageSquareWarning, ChevronDown, type LucideIcon,
   Mail, Crosshair,
   Timer, Hammer, UserMinus, Ghost, Ticket, CandlestickChart, Newspaper,
-  AlertTriangle, Link2, Gauge as Speedo, Clock3, PersonStanding,
-  CircleDollarSign,
-  ArrowDownUp,
-  ScrollText,
+  AlertTriangle, Link2, Clock3,
+  CircleDollarSign, ArrowDownUp, ScrollText, FileText,
   ShieldMinus, ScanSearch, Camera, BookOpen, FileWarning,
-  Lock, Play, Handshake, Scale,
+  Lock, Play, Handshake, Scale, Shield, Radar,
 } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Logo } from "@/components/layout/logo";
@@ -37,6 +35,7 @@ const sections: NavGroup[] = [
       { href: "/standup", label: "Standup", icon: MessageSquare },
       { href: "/promises", label: "Promesas", icon: Target },
       { href: "/contract", label: "Pacto Semanal", icon: FileSignature },
+      { href: "/auto-capture", label: "Auto-Captura", icon: Radar },
       { href: "/grid", label: "Equipo", icon: Grid3X3 },
     ],
   },
@@ -94,6 +93,7 @@ const sections: NavGroup[] = [
   {
     id: "data", label: "RENDIMIENTO",
     items: [
+      { href: "/analytics", label: "Centro Comando", icon: Activity },
       { href: "/efficiency", label: "Eficiencia", icon: Gauge },
       { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
       { href: "/dna-evolution", label: "DNA Evolución", icon: Dna },
@@ -139,6 +139,8 @@ const sections: NavGroup[] = [
       { href: "/capsule", label: "Time Capsule", icon: Package },
       { href: "/retention", label: "Retención", icon: ShieldAlert },
       { href: "/inheritance", label: "Herencia Digital", icon: ScrollText },
+      { href: "/insurance", label: "Seguro Trust Score", icon: Shield },
+      { href: "/reports", label: "Reportes", icon: FileText },
     ],
   },
 ];
