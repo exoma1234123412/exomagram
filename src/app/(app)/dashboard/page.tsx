@@ -21,6 +21,12 @@ import { ForcedComparison } from "@/components/social/forced-comparison";
 import { HealthCheckin } from "@/components/dashboard/health-checkin";
 import { TeamDebt } from "@/components/accountability/team-debt";
 import { WorstOfToday } from "@/components/social/worst-of-today";
+import { SunkCostCounter } from "@/components/psychology/sunk-cost-counter";
+import { CompetitiveWidget } from "@/components/psychology/competitive-widget";
+import { ScarcityTimer } from "@/components/psychology/scarcity-timer";
+import { GoalGradient } from "@/components/psychology/goal-gradient";
+import { SocialProofBar } from "@/components/psychology/social-proof-bar";
+import { SpotlightIndicator } from "@/components/psychology/spotlight-indicator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, ChevronLeft, ChevronRight, FileCheck, Calendar } from "lucide-react";
@@ -119,6 +125,9 @@ export default function DashboardPage() {
  )}
  </div>
 
+ {/* Spotlight — constant surveillance reminder */}
+ {isToday && <SpotlightIndicator orgId={orgId} />}
+
  {/* Worst of today — the single worst metric */}
  {isToday && <WorstOfToday />}
 
@@ -142,6 +151,17 @@ export default function DashboardPage() {
 
  {/* Daily score — your personal scorecard */}
  {isToday && <DailyScoreWidget orgId={orgId} />}
+
+ {/* Psychology: goal progress + scarcity timer */}
+ {isToday && <GoalGradient orgId={orgId} />}
+ {isToday && <ScarcityTimer orgId={orgId} />}
+
+ {/* Psychology: sunk cost investment + competitive head-to-head */}
+ {isToday && <SunkCostCounter orgId={orgId} />}
+ {isToday && <CompetitiveWidget orgId={orgId} />}
+
+ {/* Psychology: social proof — team completion rates */}
+ {isToday && <SocialProofBar orgId={orgId} />}
 
  {/* Health check-in — daily wellness */}
  {isToday && <HealthCheckin orgId={orgId} />}
@@ -187,6 +207,16 @@ function NoOrgView() {
  const { data: org } = await supabase.from("organizations").insert({ name, slug }).select().single();
  if (org) {
  await supabase.from("org_members").insert({ org_id: org.id, user_id: user.id, role:"owner"});
+ // Seed default org settings
+ await supabase.from("org_settings").insert({
+ org_id: org.id,
+ proof_required: false,
+ min_hours_per_day: 8,
+ trust_weight_punctuality: 20,
+ trust_weight_proof: 30,
+ trust_weight_consistency: 25,
+ trust_weight_detail: 25,
+ });
  window.location.reload();
  }
  setLoading(false);

@@ -191,6 +191,26 @@ export async function GET(request: Request) {
     results.meeting_validation_error = (e as Error).message;
   }
 
+  // 13. V15 — Compute dark hours (unlogged hours with heartbeat context)
+  try {
+    for (const org of orgList) {
+      await computeUnloggedHours(supabase, org.id, date);
+    }
+    results.dark_hours = "computed";
+  } catch (e) {
+    results.dark_hours_error = (e as Error).message;
+  }
+
+  // 14. V15 — Compute nudge outcomes (measure notification effectiveness)
+  try {
+    for (const org of orgList) {
+      await computeNudgeOutcomes(supabase, org.id, date);
+    }
+    results.nudge_outcomes = "computed";
+  } catch (e) {
+    results.nudge_outcomes_error = (e as Error).message;
+  }
+
   return NextResponse.json({ success: true, ...results });
 }
 
@@ -828,5 +848,137 @@ async function crossValidateMeetings(supabase: any, orgId: string, date: string)
         }
       }
     }
+  }
+}
+
+// ============================================================
+// V15 — Compute unlogged (dark) hours
+// ============================================================
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function computeUnloggedHours(supabase: any, orgId: string, date: string) {
+  const [
+    { data: members },
+    { data: entries },
+    { data: heartbeats },
+  ] = await Promise.all([
+    supabase.from("org_members").select("user_id, profiles(work_start_hour, work_end_hour)").eq("org_id", orgId),
+    supabase.from("time_entries").select("user_id, hour").eq("org_id", orgId).eq("date", date).is("deleted_at", null),
+    supabase.from("heartbeat_history").select("user_id, old_status, new_status, changed_at")
+      .eq("org_id", orgId)
+      .gte("changed_at", `${date}T00:00:00`)
+      .lte("changed_at", `${date}T23:59:59`),
+  ]);
+
+  // Existing unlogged hours for dedup
+  const { data: existing } = await supabase
+    .from("unlogged_hours")
+    .select("user_id, hour")
+    .eq("org_id", orgId)
+    .eq("date", date);
+  const existingSet = new Set((existing ?? []).map((e: { user_id: string; hour: number }) => `${e.user_id}:${e.hour}`));
+
+  for (const member of members ?? []) {
+    const userId = member.user_id;
+    const profile = member.profiles as { work_start_hour: number; work_end_hour: number } | null;
+    const workStart = profile?.work_start_hour ?? 8;
+    const workEnd = profile?.work_end_hour ?? 18;
+
+    const loggedHours = new Set(
+      (entries ?? []).filter((e: { user_id: string }) => e.user_id === userId).map((e: { hour: number }) => e.hour)
+    );
+
+    const userHeartbeats = (heartbeats ?? []).filter((h: { user_id: string }) => h.user_id === userId);
+
+    for (let h = workStart; h < workEnd; h++) {
+      if (loggedHours.has(h)) continue; // Hour is logged, not dark
+      if (existingSet.has(`${userId}:${h}`)) continue; // Already recorded
+
+      // Check heartbeat activity during this hour
+      const hourStart = new Date(`${date}T${String(h).padStart(2, "0")}:00:00`);
+      const hourEnd = new Date(`${date}T${String(h + 1).padStart(2, "0")}:00:00`);
+      const hourBeats = userHeartbeats.filter((hb: { changed_at: string }) => {
+        const t = new Date(hb.changed_at);
+        return t >= hourStart && t < hourEnd;
+      });
+
+      const wasOnline = hourBeats.some((hb: { new_status: string }) =>
+        hb.new_status === "online" || hb.new_status === "deep_work" || hb.new_status === "in_meeting"
+      );
+
+      // Dominant status: most common new_status in this hour
+      const statusCounts: Record<string, number> = {};
+      for (const hb of hourBeats) {
+        statusCounts[hb.new_status] = (statusCounts[hb.new_status] ?? 0) + 1;
+      }
+      const dominantStatus = Object.entries(statusCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+
+      await supabase.from("unlogged_hours").insert({
+        user_id: userId,
+        org_id: orgId,
+        date,
+        hour: h,
+        was_online: wasOnline,
+        dominant_status: dominantStatus,
+        heartbeat_count: hourBeats.length,
+        within_work_hours: true,
+      });
+    }
+  }
+}
+
+// ============================================================
+// V15 — Compute nudge outcomes (did nudges change behavior?)
+// ============================================================
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function computeNudgeOutcomes(supabase: any, orgId: string, date: string) {
+  // Find nudges from yesterday that haven't been computed yet
+  const { data: pendingNudges } = await supabase
+    .from("nudge_outcomes")
+    .select("id, user_id, sent_at")
+    .eq("org_id", orgId)
+    .is("outcome_computed_at", null)
+    .gte("sent_at", `${date}T00:00:00`)
+    .lte("sent_at", `${date}T23:59:59`);
+
+  if (!pendingNudges || pendingNudges.length === 0) return;
+
+  // Get all entries for the date to compute response times
+  const { data: entries } = await supabase
+    .from("time_entries")
+    .select("user_id, logged_at, hour")
+    .eq("org_id", orgId)
+    .eq("date", date)
+    .is("deleted_at", null)
+    .order("logged_at");
+
+  for (const nudge of pendingNudges) {
+    const sentAt = new Date(nudge.sent_at);
+    const userEntries = (entries ?? []).filter((e: { user_id: string }) => e.user_id === nudge.user_id);
+
+    // Find first entry logged AFTER the nudge
+    const nextEntry = userEntries.find((e: { logged_at: string }) => new Date(e.logged_at) > sentAt);
+    const nextEntryAt = nextEntry ? new Date(nextEntry.logged_at) : null;
+    const latencySeconds = nextEntryAt ? Math.round((nextEntryAt.getTime() - sentAt.getTime()) / 1000) : null;
+
+    // Count entries in the hour after nudge
+    const oneHourAfter = new Date(sentAt.getTime() + 3600000);
+    const entriesInNextHour = userEntries.filter((e: { logged_at: string }) => {
+      const t = new Date(e.logged_at);
+      return t > sentAt && t <= oneHourAfter;
+    }).length;
+
+    // Behavior changed = they logged at least 1 entry within 1 hour
+    const behaviorChanged = entriesInNextHour > 0;
+
+    await supabase
+      .from("nudge_outcomes")
+      .update({
+        next_entry_at: nextEntryAt?.toISOString() ?? null,
+        response_latency_seconds: latencySeconds,
+        entries_in_next_hour: entriesInNextHour,
+        behavior_changed: behaviorChanged,
+        outcome_computed_at: new Date().toISOString(),
+      })
+      .eq("id", nudge.id);
   }
 }

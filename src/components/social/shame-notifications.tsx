@@ -7,6 +7,7 @@ import { getTodayMTY } from "@/lib/utils";
 import type { TimeEntry, Profile, ActivityStreak } from "@/lib/types/database";
 import { AlertTriangle, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { trackNotificationShown, trackNotificationDismissed } from "@/lib/notification-tracker";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -197,6 +198,7 @@ export function ShameNotifications() {
 
  // Remove a notification by id
  const dismiss = useCallback((id: string) => {
+ trackNotificationDismissed(id);
  setNotifications((prev) => prev.filter((n) => n.id !== id));
  const timeout = timeoutsRef.current.get(id);
  if (timeout) {
@@ -216,9 +218,10 @@ export function ShameNotifications() {
  const toAdd = newOnes.filter((n) => !existingIds.has(n.id));
  if (toAdd.length === 0) return prev;
 
- // Mark all as seen for dedup
+ // Mark all as seen for dedup + track shown
  for (const n of toAdd) {
  markSeen(n.id);
+ if (userId) trackNotificationShown(n.id, "shame", userId);
  }
 
  const merged = [...toAdd, ...prev];

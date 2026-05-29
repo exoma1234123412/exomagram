@@ -30,6 +30,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn, formatHour } from "@/lib/utils";
 import { Layers, Shield } from "lucide-react";
 import { updateStreakOnEntry } from "@/lib/streak-utils";
+import { computeCompleteness, detectDeviceType } from "@/lib/entry-metadata";
 
 interface BulkEntryDialogProps {
  open: boolean;
@@ -125,6 +126,11 @@ export function BulkEntryDialog({ open, onOpenChange }: BulkEntryDialogProps) {
  const isLate = diff > 60;
  const minutesLate = Math.max(0, Math.round(diff - 60));
 
+ const { fieldsFilled, completenessScore } = computeCompleteness({
+   category, title, description: description || null,
+   proof_urls: proofArray.length > 0 ? proofArray : null,
+   project: project.trim() || null,
+ });
  entries.push({
  user_id: user.id,
  org_id: membership.org_id,
@@ -142,6 +148,11 @@ export function BulkEntryDialog({ open, onOpenChange }: BulkEntryDialogProps) {
  minutes_late: minutesLate,
  logged_at: new Date().toISOString(),
  verification_status:"unverified",
+ // V15 — Entry metadata
+ entry_source: "bulk" as const,
+ fields_filled: fieldsFilled,
+ completeness_score: completenessScore,
+ device_type: detectDeviceType(),
  });
  }
 
@@ -153,6 +164,12 @@ export function BulkEntryDialog({ open, onOpenChange }: BulkEntryDialogProps) {
  setError(insertError.message);
  } else {
  updateStreakOnEntry(user.id, membership.org_id, date);
+ // V15 — Auto-enrich bulk entries (fire-and-forget)
+ fetch("/api/ai/enrich", {
+   method: "POST",
+   headers: { "Content-Type": "application/json" },
+   body: JSON.stringify({ org_id: membership.org_id, date, user_id: user.id }),
+ }).catch(() => {});
  setResult(`${hoursCount} horas registradas (${formatHour(start)} - ${formatHour(end)})`);
  setCategory("");
  setTitle("");

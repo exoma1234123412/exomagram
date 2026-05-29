@@ -6,6 +6,7 @@ import { useOrg } from "@/lib/context/org-context";
 import { cn, getTodayMTY } from "@/lib/utils";
 import { LogEntryDialog } from "@/components/log-entry/log-entry-dialog";
 import { AlertTriangle, ShieldAlert, CheckCircle2 } from "lucide-react";
+import { trackNotificationShown, trackNotificationActed } from "@/lib/notification-tracker";
 
 // ═══════════════════════════════════════════════════════════════════════
 // ESCALATION TIMER

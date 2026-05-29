@@ -582,8 +582,8 @@ Solo JSON válido. Sin markdown.`,
   const text = message.content[0].type === "text" ? message.content[0].text : "";
   let parsed: {
     anomalies_detected?: { person: string; anomaly: string; severity: string; data: string }[];
-    private_messages?: { target_name: string; message: string; reason: string; urgency: string }[];
-    public_messages?: { type: string; title: string; body: string; target_name: string | null; emoji: string; urgency: string }[];
+    private_messages?: { target_name: string; message: string; reason: string; psychology?: string; urgency: string }[];
+    public_messages?: { type: string; title: string; body: string; target_name: string | null; emoji: string; psychology?: string; urgency: string }[];
     team_health?: string;
     summary?: string;
   } | null = null;
@@ -608,13 +608,26 @@ Solo JSON válido. Sin markdown.`,
       return p?.full_name?.toLowerCase().includes(msg.target_name?.toLowerCase() ?? "");
     });
     if (targetMember) {
-      await supabase.from("notifications").insert({
+      const { data: notif } = await supabase.from("notifications").insert({
         user_id: targetMember.user_id,
         org_id: orgId,
         type: msg.urgency === "critical" ? "flag_raised" : "entry_logged",
         title: `AI: ${msg.reason}`,
         body: msg.message,
+      }).select("id").single();
+
+      // V15 — Track nudge outcome
+      await supabase.from("nudge_outcomes").insert({
+        user_id: targetMember.user_id,
+        org_id: orgId,
+        nudge_type: "private_notification",
+        nudge_channel: "in_app",
+        message_preview: (msg.message ?? "").slice(0, 200),
+        psychology_technique: msg.psychology ?? null,
+        urgency: msg.urgency ?? "normal",
+        notification_id: notif?.id ?? null,
       });
+
       executed.private++;
     }
   }
@@ -628,7 +641,7 @@ Solo JSON válido. Sin markdown.`,
         })
       : null;
 
-    await supabase.from("public_feed").insert({
+    const { data: feedItem } = await supabase.from("public_feed").insert({
       org_id: orgId,
       type: msg.type || "ai_announcement",
       title: msg.title,
@@ -637,7 +650,23 @@ Solo JSON válido. Sin markdown.`,
       urgency: msg.urgency || "normal",
       emoji: msg.emoji || null,
       is_ai_generated: true,
-    });
+    }).select("id").single();
+
+    // V15 — Track nudge outcome for targeted public messages
+    if (targetMember) {
+      const isShame = msg.type === "shame" || msg.type === "warning";
+      await supabase.from("nudge_outcomes").insert({
+        user_id: targetMember.user_id,
+        org_id: orgId,
+        nudge_type: isShame ? "public_shame" : "public_praise",
+        nudge_channel: "public_feed",
+        message_preview: (msg.body ?? "").slice(0, 200),
+        psychology_technique: msg.psychology ?? null,
+        urgency: msg.urgency ?? "normal",
+        feed_item_id: feedItem?.id ?? null,
+      });
+    }
+
     executed.public++;
   }
 

@@ -14,6 +14,7 @@ import {
  AlertTriangle,
  Users,
 } from "lucide-react";
+import { trackNotificationShown, trackNotificationActed } from "@/lib/notification-tracker";
 
 // ====================================================================
 // HERD PRESSURE
@@ -181,6 +182,7 @@ export function HerdPressure() {
  setShowOverlay(true);
  setShowBanner(false);
  markShown();
+ if (userId) trackNotificationShown(`herd-overlay-${today}`, "herd_pressure", userId);
  return;
  }
 
@@ -288,6 +290,7 @@ export function HerdPressure() {
  }
 
  function handleRegister() {
+ trackNotificationActed(`herd-overlay-${getTodayMTY()}`, "logged_entry");
  setLogDialogOpen(true);
  }
 

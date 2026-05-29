@@ -25,6 +25,7 @@ export function DailyCloseoutDialog({ open, onOpenChange }: DailyCloseoutDialogP
  const [blockers, setBlockers] = useState("");
  const [tomorrowPlan, setTomorrowPlan] = useState("");
  const [mood, setMood] = useState<number | null>(null);
+ const [stressEvening, setStressEvening] = useState<number | null>(null);
  const [hoursLogged, setHoursLogged] = useState(0);
  const [hoursWithProof, setHoursWithProof] = useState(0);
  const [loading, setLoading] = useState(false);
@@ -87,6 +88,7 @@ export function DailyCloseoutDialog({ open, onOpenChange }: DailyCloseoutDialogP
  blockers: blockers || null,
  tomorrow_plan: tomorrowPlan || null,
  mood: mood as 1 | 2 | 3 | 4 | 5 | null,
+ stress_evening: stressEvening as 1 | 2 | 3 | 4 | 5 | null,
  hours_logged: hoursLogged,
  hours_with_proof: hoursWithProof,
  }, { onConflict:"user_id,org_id,date"});
@@ -184,6 +186,30 @@ export function DailyCloseoutDialog({ open, onOpenChange }: DailyCloseoutDialogP
  ?"bg-gradient-to-b from-blue-500 to-blue-600 text-white shadow-blue-600/25 scale-105":"bg-accent/60 hover:bg-accent text-foreground/70")}
  >
  {MOOD_LABELS[level]}
+ </button>
+ ))}
+ </div>
+ </div>
+
+ <div className="space-y-2">
+ <Label>Nivel de estrés al cerrar el día</Label>
+ <div className="flex gap-2">
+ {([
+   [1, "Relajado"],
+   [2, "Leve"],
+   [3, "Moderado"],
+   [4, "Alto"],
+   [5, "Extremo"],
+ ] as const).map(([level, label]) => (
+ <button
+ key={level}
+ type="button"onClick={() => setStressEvening(stressEvening === level ? null : level)}
+ className={cn(
+"flex-1 py-2.5 text-sm font-semibold transition-all duration-200",
+ stressEvening === level
+ ?"bg-primary text-white scale-105":"bg-accent/60 hover:bg-accent text-foreground/70")}
+ >
+ {label}
  </button>
  ))}
  </div>

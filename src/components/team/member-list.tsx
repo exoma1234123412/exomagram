@@ -197,13 +197,7 @@ export function MemberList({
  setChangingRole(null);
  }
 
- // Remove member handler
- async function handleRemoveMember(memberId: string, userId: string) {
- if (!isAdmin || userId === currentUserId) return;
-
- await supabase.from("org_members").delete().eq("id", memberId);
- setMembers((prev) => prev.filter((m) => m.id !== memberId));
- }
+ // Members cannot be removed — all data must be preserved
 
  // Stats
  const totalMembers = members.length;
@@ -428,12 +422,6 @@ export function MemberList({
  </SelectContent>
  </Select>
 
- {/* Remove button */}
- <Button
- variant="ghost"size="icon-xs"onClick={() => handleRemoveMember(member.id, member.user_id)}
- className="text-destructive hover:text-destructive hover:bg-destructive/10"title="Eliminar miembro">
- <X className="w-3 h-3"/>
- </Button>
  </div>
  )}
  </div>

@@ -1,17 +1,38 @@
 import { SupabaseClient } from "@supabase/supabase-js";
+import type {
+  DailyAggregate,
+  TimeEntry,
+  AccountabilityFlag,
+  ActivityStreak,
+  Profile,
+  TrustScoreHistory,
+} from "@/lib/types/database";
 
 // ============================================================
 // AI Context Builder
 // ============================================================
-// Builds a compressed, token-efficient text summary of all team
-// data for use in Claude prompts. Replaces the ad-hoc manual
-// data assembly that was duplicated across ask-claude, claude-brain,
-// and other AI routes.
+// Two modes:
+//
+// 1. VERBOSE (buildTeamContext) — Full-detail context for complex AI analysis.
+//    ~2000+ tokens. Used by ask-claude, claude-brain, and similar routes.
+//
+// 2. COMPRESSED (buildCompressedUserContext, buildCompressedTeamContext) —
+//    Ultra-token-efficient context for high-frequency AI calls.
+//    ~500 tokens/user. Pipe-delimited, abbreviation-heavy, skips zeros.
 //
 // Usage:
+//   // Verbose (existing):
 //   const ctx = await buildTeamContext(supabase, orgId, { days: 30 });
-//   // ctx.text  — ready-to-inject prompt text
-//   // ctx.members — Map<userId, name> for lookups
+//
+//   // Compressed (new):
+//   const ctx = await buildCompressedUserContext(supabase, userId, orgId);
+//   // ctx.text  -> ready-to-inject prompt text (~500 tokens)
+//   // ctx.tokenEstimate -> rough token count
+//   // ctx.dataPoints -> how many data points included
+
+// ---------------------------------------------------------------------------
+// Shared types
+// ---------------------------------------------------------------------------
 
 interface BuildOptions {
   /** Number of days of data to fetch. Default 30. */
@@ -31,6 +52,32 @@ export interface TeamContext {
   members: Map<string, string>;
   /** Today's date string (YYYY-MM-DD). */
   today: string;
+}
+
+/** Compressed context output for token-efficient prompts */
+export interface AIContext {
+  /** The formatted context string for the prompt */
+  text: string;
+  /** Rough token count (chars / 4) */
+  tokenEstimate: number;
+  /** How many data points were included */
+  dataPoints: number;
+}
+
+export interface CompressedUserOptions {
+  /** Number of days to look back (default: 7) */
+  days?: number;
+  /** Include compressed team ranking context (default: false) */
+  includeTeam?: boolean;
+  /** Number of recent entries to include (default: 3) */
+  recentEntries?: number;
+}
+
+export interface CompressedTeamOptions {
+  /** Number of days to look back (default: 7) */
+  days?: number;
+  /** Include per-user detail blocks (default: true) */
+  includeUserDetails?: boolean;
 }
 
 export async function buildTeamContext(
@@ -383,4 +430,902 @@ export async function buildTeamContext(
     members: memberMap,
     today,
   };
+}
+
+// ============================================================
+// COMPRESSED CONTEXT BUILDERS
+// ============================================================
+// Ultra-token-efficient output for high-frequency AI calls.
+// ~500 tokens per user, ~300 extra for team overview.
+// Pipe-delimited, abbreviation-heavy, skips zero values.
+
+// ---------------------------------------------------------------------------
+// buildCompressedUserContext
+// ---------------------------------------------------------------------------
+
+export async function buildCompressedUserContext(
+  supabase: SupabaseClient,
+  userId: string,
+  orgId: string,
+  options?: CompressedUserOptions
+): Promise<AIContext> {
+  const days = options?.days ?? 7;
+  const recentCount = options?.recentEntries ?? 3;
+  const since = _daysAgo(days);
+
+  // Parallel queries -- fetch everything at once
+  const [
+    profileRes,
+    streakRes,
+    trustRes,
+    aggregatesRes,
+    flagsRes,
+    recentRes,
+    closeoutsRes,
+    standupsRes,
+  ] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("full_name, email, timezone, work_start_hour, work_end_hour")
+      .eq("id", userId)
+      .single(),
+    supabase
+      .from("activity_streaks")
+      .select("current_streak, longest_streak, total_days_logged")
+      .eq("user_id", userId)
+      .eq("org_id", orgId)
+      .single(),
+    supabase
+      .from("trust_score_history")
+      .select("score, date")
+      .eq("user_id", userId)
+      .eq("org_id", orgId)
+      .gte("date", since)
+      .order("date", { ascending: false })
+      .limit(days),
+    supabase
+      .from("daily_aggregates")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("org_id", orgId)
+      .gte("date", since)
+      .order("date", { ascending: false })
+      .limit(days),
+    supabase
+      .from("accountability_flags")
+      .select("flag_type, date, resolved")
+      .eq("user_id", userId)
+      .eq("org_id", orgId)
+      .gte("date", since)
+      .order("date", { ascending: false }),
+    supabase
+      .from("time_entries")
+      .select("title, hour, category, proof_urls, date, mood, energy")
+      .eq("user_id", userId)
+      .eq("org_id", orgId)
+      .is("deleted_at", null)
+      .order("date", { ascending: false })
+      .order("hour", { ascending: false })
+      .limit(recentCount),
+    supabase
+      .from("daily_closeouts")
+      .select("date")
+      .eq("user_id", userId)
+      .eq("org_id", orgId)
+      .gte("date", since),
+    supabase
+      .from("standups")
+      .select("date")
+      .eq("user_id", userId)
+      .eq("org_id", orgId)
+      .gte("date", since),
+  ]);
+
+  const profile = profileRes.data as Pick<
+    Profile,
+    "full_name" | "email" | "timezone" | "work_start_hour" | "work_end_hour"
+  > | null;
+  const streak = streakRes.data as Pick<
+    ActivityStreak,
+    "current_streak" | "longest_streak" | "total_days_logged"
+  > | null;
+  const trustHistory = (trustRes.data ?? []) as Pick<
+    TrustScoreHistory,
+    "score" | "date"
+  >[];
+  const aggregates = (aggregatesRes.data ?? []) as DailyAggregate[];
+  const flagsList = (flagsRes.data ?? []) as Pick<
+    AccountabilityFlag,
+    "flag_type" | "date" | "resolved"
+  >[];
+  const recentEntries = (recentRes.data ?? []) as Pick<
+    TimeEntry,
+    "title" | "hour" | "category" | "proof_urls" | "date" | "mood" | "energy"
+  >[];
+  const closeouts = (closeoutsRes.data ?? []) as { date: string }[];
+  const standups = (standupsRes.data ?? []) as { date: string }[];
+
+  let dataPoints = 0;
+  const cLines: string[] = [];
+
+  // -- USER line --
+  const name =
+    profile?.full_name ?? profile?.email?.split("@")[0] ?? "Unknown";
+  const currentTrust = trustHistory[0]?.score ?? null;
+  const prevTrust = trustHistory[1]?.score ?? null;
+  const trustTrend =
+    currentTrust != null && prevTrust != null
+      ? currentTrust > prevTrust
+        ? "^"
+        : currentTrust < prevTrust
+          ? "v"
+          : "="
+      : "";
+
+  const userParts = [`USER: ${name}`];
+  if (streak) {
+    userParts.push(`streak:${streak.current_streak}`);
+    dataPoints++;
+  }
+  if (currentTrust != null) {
+    userParts.push(`trust:${currentTrust}${trustTrend}`);
+    dataPoints++;
+  }
+  if (profile?.timezone) {
+    userParts.push(`tz:${profile.timezone}`);
+  }
+  cLines.push(userParts.join(" | "));
+
+  // -- LAST Nd summary --
+  if (aggregates.length > 0) {
+    const totalHours = _sumField(aggregates, "total_hours");
+    const avgDaily =
+      aggregates.length > 0 ? _round1(totalHours / aggregates.length) : 0;
+    const totalProof = _sumField(aggregates, "hours_with_proof");
+    const proofPct =
+      totalHours > 0 ? Math.round((totalProof / totalHours) * 100) : 0;
+    const totalLate = _sumField(aggregates, "late_entries");
+    const latePct =
+      totalHours > 0 ? Math.round((totalLate / totalHours) * 100) : 0;
+    const closeoutCount = closeouts.length;
+    const standupCount = standups.length;
+
+    cLines.push(
+      `LAST ${days}D: ${_round1(totalHours)}h total | ${avgDaily}h/d avg | proof:${proofPct}% | late:${latePct}% | closeout:${closeoutCount}/${days} | standup:${standupCount}/${days}`
+    );
+    dataPoints += 6;
+  }
+
+  // -- BY DAY --
+  if (aggregates.length > 0) {
+    const dayNames = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
+    const byDay = aggregates
+      .slice()
+      .reverse()
+      .map((a) => {
+        const d = new Date(a.date + "T12:00:00");
+        return `${dayNames[d.getDay()]}:${_round1(a.total_hours)}h`;
+      })
+      .join(" ");
+    cLines.push(`BY DAY: ${byDay}`);
+    dataPoints += aggregates.length;
+  }
+
+  // -- CATEGORIES --
+  if (aggregates.length > 0) {
+    const totalHours = _sumField(aggregates, "total_hours");
+    if (totalHours > 0) {
+      const cats: Record<string, number> = {
+        deep_work: _sumField(aggregates, "deep_work_hours"),
+        meeting: _sumField(aggregates, "meeting_hours"),
+        review: _sumField(aggregates, "review_hours"),
+        admin: _sumField(aggregates, "admin_hours"),
+        planning: _sumField(aggregates, "planning_hours"),
+        learning: _sumField(aggregates, "learning_hours"),
+        break: _sumField(aggregates, "break_hours"),
+        blocked: _sumField(aggregates, "blocked_hours"),
+      };
+      const catParts = Object.entries(cats)
+        .filter(([, h]) => h > 0)
+        .sort(([, a], [, b]) => b - a)
+        .map(([cat, h]) => `${cat}:${Math.round((h / totalHours) * 100)}%`)
+        .join(" ");
+      if (catParts) {
+        cLines.push(`CATEGORIES: ${catParts}`);
+        dataPoints += Object.keys(cats).length;
+      }
+    }
+  }
+
+  // -- FLAGS --
+  if (flagsList.length > 0) {
+    const unresolvedFlags = flagsList.filter((f) => !f.resolved);
+    const flagCounts: Record<string, number> = {};
+    for (const f of unresolvedFlags) {
+      flagCounts[f.flag_type] = (flagCounts[f.flag_type] || 0) + 1;
+    }
+    const flagParts = Object.entries(flagCounts)
+      .map(([type, count]) => `${type}:${count}`)
+      .join(" ");
+    if (flagParts) {
+      cLines.push(`FLAGS(${days}d): ${flagParts}`);
+      dataPoints += unresolvedFlags.length;
+    }
+  }
+
+  // -- RECENT entries --
+  if (recentEntries.length > 0) {
+    const recentParts = recentEntries.map((e) => {
+      const hasProof = e.proof_urls && e.proof_urls.length > 0;
+      const title = _truncate(e.title, 40);
+      return `"${title}"(${e.hour}h,${e.category}${hasProof ? ",proof+" : ""})`;
+    });
+    cLines.push(`RECENT(${recentEntries.length}): ${recentParts.join(" | ")}`);
+    dataPoints += recentEntries.length;
+  }
+
+  // -- PATTERNS (computed from aggregates) --
+  if (aggregates.length >= 3) {
+    const patternParts: string[] = [];
+
+    // Weakest day (lowest hours, non-zero)
+    const nonZeroDays = aggregates.filter((a) => a.total_hours > 0);
+    if (nonZeroDays.length > 0) {
+      const weakest = nonZeroDays.reduce((min, a) =>
+        a.total_hours < min.total_hours ? a : min
+      );
+      const dayNames = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
+      const weakDay =
+        dayNames[new Date(weakest.date + "T12:00:00").getDay()];
+      patternParts.push(`weak_day=${weakDay}`);
+    }
+
+    // Average description word count
+    if (recentEntries.length > 0) {
+      const avgWords = Math.round(
+        recentEntries.reduce((s, e) => s + e.title.split(/\s+/).length, 0) /
+          recentEntries.length
+      );
+      patternParts.push(`desc_avg=${avgWords}words`);
+    }
+
+    // Proof rate
+    const totalHours = _sumField(aggregates, "total_hours");
+    const proofHours = _sumField(aggregates, "hours_with_proof");
+    if (totalHours > 0) {
+      patternParts.push(
+        `proof_rate=${Math.round((proofHours / totalHours) * 100)}%`
+      );
+    }
+
+    // Avg interruptions
+    const avgInterruptions = _round1(
+      _sumField(aggregates, "total_interruptions") / aggregates.length
+    );
+    if (avgInterruptions > 0) {
+      patternParts.push(`interruptions/d=${avgInterruptions}`);
+    }
+
+    if (patternParts.length > 0) {
+      cLines.push(`PATTERNS: ${patternParts.join(" ")}`);
+      dataPoints += patternParts.length;
+    }
+  }
+
+  // -- MOOD & ENERGY --
+  const moodAggs = aggregates.filter((a) => a.avg_mood != null);
+  const energyAggs = aggregates.filter((a) => a.avg_energy != null);
+  const stressAggs = aggregates.filter((a) => a.avg_stress != null);
+
+  if (moodAggs.length > 0 || energyAggs.length > 0) {
+    const parts: string[] = [];
+    if (moodAggs.length > 0) {
+      const avgMood = _round1(
+        moodAggs.reduce((s, a) => s + (a.avg_mood ?? 0), 0) / moodAggs.length
+      );
+      const moodTrend =
+        moodAggs.length >= 2
+          ? (moodAggs[0].avg_mood ?? 0) > (moodAggs[1].avg_mood ?? 0)
+            ? "^"
+            : (moodAggs[0].avg_mood ?? 0) < (moodAggs[1].avg_mood ?? 0)
+              ? "v"
+              : "="
+          : "";
+      parts.push(`MOOD:${avgMood}avg${moodTrend}`);
+      dataPoints++;
+    }
+    if (energyAggs.length > 0) {
+      const avgEnergy = _round1(
+        energyAggs.reduce((s, a) => s + (a.avg_energy ?? 0), 0) /
+          energyAggs.length
+      );
+      const energyTrend =
+        energyAggs.length >= 2
+          ? (energyAggs[0].avg_energy ?? 0) > (energyAggs[1].avg_energy ?? 0)
+            ? "^"
+            : (energyAggs[0].avg_energy ?? 0) <
+                (energyAggs[1].avg_energy ?? 0)
+              ? "v"
+              : "="
+          : "";
+      parts.push(`ENERGY:${avgEnergy}avg${energyTrend}`);
+      dataPoints++;
+    }
+    if (stressAggs.length > 0) {
+      const avgStress = _round1(
+        stressAggs.reduce((s, a) => s + (a.avg_stress ?? 0), 0) /
+          stressAggs.length
+      );
+      parts.push(`STRESS:${avgStress}avg`);
+      dataPoints++;
+    }
+    cLines.push(parts.join(" "));
+  }
+
+  // -- AI SCORES --
+  const scoredDays = aggregates.filter((a) => a.ai_grade != null);
+  if (scoredDays.length > 0) {
+    const grades = scoredDays.map((a) => a.ai_grade).join(",");
+    const avgScore = _round1(
+      scoredDays.reduce((s, a) => s + (a.ai_score ?? 0), 0) /
+        scoredDays.length
+    );
+    cLines.push(
+      `AI_GRADES(${scoredDays.length}d): ${grades} | avg_score:${avgScore}`
+    );
+    dataPoints += scoredDays.length;
+  }
+
+  // -- GIT (if any commits) --
+  const totalCommits = _sumField(aggregates, "git_commits");
+  if (totalCommits > 0) {
+    const totalGitLines =
+      _sumField(aggregates, "git_lines_added") +
+      _sumField(aggregates, "git_lines_removed");
+    const totalPRs =
+      _sumField(aggregates, "git_prs_opened") +
+      _sumField(aggregates, "git_prs_merged");
+    cLines.push(
+      `GIT(${days}d): ${totalCommits}commits | ${totalGitLines}lines | ${totalPRs}prs`
+    );
+    dataPoints += 3;
+  }
+
+  // -- PROMISES --
+  const promisesMade = _sumField(aggregates, "promises_made");
+  if (promisesMade > 0) {
+    const kept = _sumField(aggregates, "promises_kept");
+    const broken = _sumField(aggregates, "promises_broken");
+    cLines.push(`PROMISES: ${kept}/${promisesMade}kept | ${broken}broken`);
+    dataPoints += 2;
+  }
+
+  // -- Include team context if requested --
+  if (options?.includeTeam) {
+    const teamCtx = await buildCompressedTeamContext(supabase, orgId, {
+      days,
+      includeUserDetails: false,
+    });
+    cLines.push("");
+    cLines.push(teamCtx.text);
+    dataPoints += teamCtx.dataPoints;
+  }
+
+  const text = cLines.join("\n");
+  return {
+    text,
+    tokenEstimate: Math.ceil(text.length / 4),
+    dataPoints,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// buildCompressedTeamContext
+// ---------------------------------------------------------------------------
+
+export async function buildCompressedTeamContext(
+  supabase: SupabaseClient,
+  orgId: string,
+  options?: CompressedTeamOptions
+): Promise<AIContext> {
+  const days = options?.days ?? 7;
+  const includeDetails = options?.includeUserDetails ?? true;
+  const since = _daysAgo(days);
+
+  // Fetch org info + members
+  const [orgRes, membersRes] = await Promise.all([
+    supabase
+      .from("organizations")
+      .select("name")
+      .eq("id", orgId)
+      .single(),
+    supabase
+      .from("org_members")
+      .select("user_id, profiles(full_name, email)")
+      .eq("org_id", orgId),
+  ]);
+
+  const orgName =
+    (orgRes.data as { name: string } | null)?.name ?? "Unknown";
+  const teamMembers = ((membersRes.data ?? []) as unknown as {
+    user_id: string;
+    profiles: { full_name: string | null; email: string } | { full_name: string | null; email: string }[] | null;
+  }[]).map(m => ({
+    user_id: m.user_id,
+    profiles: Array.isArray(m.profiles) ? m.profiles[0] ?? null : m.profiles,
+  }));
+
+  if (teamMembers.length === 0) {
+    return {
+      text: `TEAM: ${orgName} | 0 members`,
+      tokenEstimate: 10,
+      dataPoints: 0,
+    };
+  }
+
+  // Fetch all aggregates for the org in the window
+  const { data: allAggregates } = await supabase
+    .from("daily_aggregates")
+    .select("*")
+    .eq("org_id", orgId)
+    .gte("date", since)
+    .order("date", { ascending: false });
+
+  const orgAggregates = (allAggregates ?? []) as DailyAggregate[];
+
+  // Group aggregates by user
+  const byUser = new Map<string, DailyAggregate[]>();
+  for (const a of orgAggregates) {
+    const existing = byUser.get(a.user_id) ?? [];
+    existing.push(a);
+    byUser.set(a.user_id, existing);
+  }
+
+  // Compute per-user totals
+  const userStats = teamMembers.map((m) => {
+    const userAggs = byUser.get(m.user_id) ?? [];
+    const totalHours = _sumField(userAggs, "total_hours");
+    const proofHours = _sumField(userAggs, "hours_with_proof");
+    const lateEntries = _sumField(userAggs, "late_entries");
+    const closeoutDays = userAggs.filter((a) => a.has_closeout).length;
+    const standupDays = userAggs.filter((a) => a.has_standup).length;
+    const daysLogged = userAggs.filter((a) => a.total_hours > 0).length;
+    const avgTrust = _avgField(
+      userAggs.filter((a) => a.trust_score != null),
+      "trust_score"
+    );
+    const deepWorkHours = _sumField(userAggs, "deep_work_hours");
+    const meetingHours = _sumField(userAggs, "meeting_hours");
+    const memberName =
+      m.profiles?.full_name ??
+      m.profiles?.email?.split("@")[0] ??
+      "?";
+
+    return {
+      userId: m.user_id,
+      name: memberName,
+      totalHours,
+      proofHours,
+      lateEntries,
+      closeoutDays,
+      standupDays,
+      daysLogged,
+      avgTrust,
+      deepWorkHours,
+      meetingHours,
+      aggregates: userAggs,
+    };
+  });
+
+  // Sort by total hours descending
+  userStats.sort((a, b) => b.totalHours - a.totalHours);
+
+  // Compute week label
+  const now = new Date();
+  const weekNum = _getISOWeekNumber(now);
+  const year = now.getFullYear();
+
+  let dataPoints = 0;
+  const cLines: string[] = [];
+
+  // -- TEAM header --
+  cLines.push(
+    `TEAM: ${orgName} | ${teamMembers.length} members | week:${year}-W${String(weekNum).padStart(2, "0")}`
+  );
+  dataPoints++;
+
+  // -- RANKING --
+  const rankingParts = userStats.map(
+    (u, i) => `#${i + 1} ${u.name}(${_round1(u.totalHours)}h)`
+  );
+  cLines.push(`RANKING: ${rankingParts.join(" ")}`);
+  dataPoints += userStats.length;
+
+  // -- TEAM AVG --
+  const teamTotalHours = userStats.reduce((s, u) => s + u.totalHours, 0);
+  const teamCount = userStats.length;
+  const teamAvgHours =
+    teamCount > 0 ? _round1(teamTotalHours / teamCount) : 0;
+  const teamProofHours = userStats.reduce((s, u) => s + u.proofHours, 0);
+  const teamProofPct =
+    teamTotalHours > 0
+      ? Math.round((teamProofHours / teamTotalHours) * 100)
+      : 0;
+  const teamLatePct =
+    teamTotalHours > 0
+      ? Math.round(
+          (userStats.reduce((s, u) => s + u.lateEntries, 0) /
+            teamTotalHours) *
+            100
+        )
+      : 0;
+  const teamCloseoutPct =
+    teamCount > 0
+      ? Math.round(
+          (userStats.reduce((s, u) => s + u.closeoutDays, 0) /
+            (teamCount * days)) *
+            100
+        )
+      : 0;
+  const teamStandupPct =
+    teamCount > 0
+      ? Math.round(
+          (userStats.reduce((s, u) => s + u.standupDays, 0) /
+            (teamCount * days)) *
+            100
+        )
+      : 0;
+
+  cLines.push(
+    `TEAM AVG: ${teamAvgHours}h/wk | proof:${teamProofPct}% | late:${teamLatePct}% | closeout:${teamCloseoutPct}% | standup:${teamStandupPct}%`
+  );
+  dataPoints += 5;
+
+  // -- Per-user detail blocks --
+  if (includeDetails) {
+    cLines.push("");
+    for (const u of userStats) {
+      const parts: string[] = [`[${u.name}]`];
+
+      parts.push(`${_round1(u.totalHours)}h/${days}d`);
+
+      if (u.daysLogged > 0) {
+        parts.push(`${_round1(u.totalHours / u.daysLogged)}h/d`);
+      }
+
+      if (u.totalHours > 0) {
+        parts.push(
+          `proof:${Math.round((u.proofHours / u.totalHours) * 100)}%`
+        );
+      }
+
+      if (u.avgTrust != null) {
+        parts.push(`trust:${Math.round(u.avgTrust)}`);
+      }
+
+      if (u.totalHours > 0) {
+        const catSplit: [string, number][] = [
+          ["dw", u.deepWorkHours],
+          ["mtg", u.meetingHours],
+        ];
+        const catStr = catSplit
+          .filter(([, h]) => h > 0)
+          .map(
+            ([c, h]) =>
+              `${c}:${Math.round((h / u.totalHours) * 100)}%`
+          )
+          .join(",");
+        if (catStr) parts.push(catStr);
+      }
+
+      parts.push(`co:${u.closeoutDays}/${days}`);
+      parts.push(`su:${u.standupDays}/${days}`);
+
+      const moodDays = u.aggregates.filter((a) => a.avg_mood != null);
+      if (moodDays.length > 0) {
+        const moodAvg = _round1(
+          moodDays.reduce((s, a) => s + (a.avg_mood ?? 0), 0) /
+            moodDays.length
+        );
+        parts.push(`mood:${moodAvg}`);
+      }
+
+      const energyDays = u.aggregates.filter(
+        (a) => a.avg_energy != null
+      );
+      if (energyDays.length > 0) {
+        const energyAvg = _round1(
+          energyDays.reduce((s, a) => s + (a.avg_energy ?? 0), 0) /
+            energyDays.length
+        );
+        parts.push(`nrg:${energyAvg}`);
+      }
+
+      const flagCount = _sumField(u.aggregates, "flags_raised");
+      if (flagCount > 0) {
+        parts.push(`flags:${flagCount}`);
+      }
+
+      const gradedDays = u.aggregates.filter(
+        (a) => a.ai_grade != null
+      );
+      if (gradedDays.length > 0) {
+        const gradesList = gradedDays.map((a) => a.ai_grade).join(",");
+        parts.push(`grades:${gradesList}`);
+      }
+
+      cLines.push(parts.join(" | "));
+      dataPoints += parts.length;
+    }
+  }
+
+  const text = cLines.join("\n");
+  return {
+    text,
+    tokenEstimate: Math.ceil(text.length / 4),
+    dataPoints,
+  };
+}
+
+// ============================================================
+// SPECIALIZED CONTEXT BUILDERS
+// ============================================================
+
+/**
+ * Builds minimal context for real-time entry validation.
+ * ~100 tokens. Just enough for Claude to sanity-check an entry.
+ */
+export async function buildValidationContext(
+  supabase: SupabaseClient,
+  userId: string,
+  orgId: string
+): Promise<AIContext> {
+  const since = _daysAgo(3);
+
+  const [recentRes, streakRes] = await Promise.all([
+    supabase
+      .from("time_entries")
+      .select("title, hour, category, date")
+      .eq("user_id", userId)
+      .eq("org_id", orgId)
+      .is("deleted_at", null)
+      .gte("date", since)
+      .order("date", { ascending: false })
+      .order("hour", { ascending: false })
+      .limit(5),
+    supabase
+      .from("activity_streaks")
+      .select("current_streak")
+      .eq("user_id", userId)
+      .eq("org_id", orgId)
+      .single(),
+  ]);
+
+  const recent = (recentRes.data ?? []) as Pick<
+    TimeEntry,
+    "title" | "hour" | "category" | "date"
+  >[];
+  const currentStreak =
+    (streakRes.data as { current_streak: number } | null)
+      ?.current_streak ?? 0;
+
+  const recentStr = recent
+    .map(
+      (e) =>
+        `${e.date}@${e.hour}h:${e.category}:"${_truncate(e.title, 30)}"`
+    )
+    .join("; ");
+
+  const text = `VALIDATION_CTX: streak:${currentStreak} | recent:[${recentStr}]`;
+  return {
+    text,
+    tokenEstimate: Math.ceil(text.length / 4),
+    dataPoints: recent.length + 1,
+  };
+}
+
+/**
+ * Builds context for burnout/disengagement risk assessment.
+ * Focuses on mood, energy, stress, and work patterns over 14 days.
+ */
+export async function buildWellbeingContext(
+  supabase: SupabaseClient,
+  userId: string,
+  orgId: string
+): Promise<AIContext> {
+  const since = _daysAgo(14);
+
+  const [aggregatesRes, healthRes, profileSnapshotRes] = await Promise.all([
+    supabase
+      .from("daily_aggregates")
+      .select(
+        "date, total_hours, avg_mood, avg_energy, avg_stress, avg_focus_quality, total_interruptions, flags_raised, has_closeout, has_standup"
+      )
+      .eq("user_id", userId)
+      .eq("org_id", orgId)
+      .gte("date", since)
+      .order("date", { ascending: true }),
+    supabase
+      .from("daily_health")
+      .select(
+        "date, sleep_hours, sleep_quality, exercise_minutes, mental_clarity, motivation_level, stress_morning, stress_evening"
+      )
+      .eq("user_id", userId)
+      .eq("org_id", orgId)
+      .gte("date", since)
+      .order("date", { ascending: true }),
+    supabase
+      .from("ai_profile_snapshots")
+      .select("burnout_risk, disengagement_risk, trajectory")
+      .eq("user_id", userId)
+      .eq("org_id", orgId)
+      .order("date", { ascending: false })
+      .limit(1)
+      .single(),
+  ]);
+
+  type AggSubset = {
+    date: string;
+    total_hours: number;
+    avg_mood: number | null;
+    avg_energy: number | null;
+    avg_stress: number | null;
+    avg_focus_quality: number | null;
+    total_interruptions: number;
+    flags_raised: number;
+    has_closeout: boolean;
+    has_standup: boolean;
+  };
+
+  const aggs = (aggregatesRes.data ?? []) as AggSubset[];
+  const healthData = (healthRes.data ?? []) as {
+    date: string;
+    sleep_hours: number | null;
+    sleep_quality: number | null;
+    exercise_minutes: number;
+    mental_clarity: number | null;
+    motivation_level: number | null;
+    stress_morning: number | null;
+    stress_evening: number | null;
+  }[];
+  const snapshot = profileSnapshotRes.data as {
+    burnout_risk: number | null;
+    disengagement_risk: number | null;
+    trajectory: string | null;
+  } | null;
+
+  let dataPoints = 0;
+  const cLines: string[] = ["WELLBEING(14d):"];
+
+  // Daily timeline: date|hours|mood|energy|stress
+  if (aggs.length > 0) {
+    const timeline = aggs.map((a) => {
+      const parts = [a.date.slice(5)]; // MM-DD
+      parts.push(`${_round1(a.total_hours)}h`);
+      if (a.avg_mood != null) parts.push(`m${_round1(a.avg_mood)}`);
+      if (a.avg_energy != null) parts.push(`e${_round1(a.avg_energy)}`);
+      if (a.avg_stress != null) parts.push(`s${_round1(a.avg_stress)}`);
+      return parts.join(",");
+    });
+    cLines.push(`TIMELINE: ${timeline.join(" | ")}`);
+    dataPoints += aggs.length * 4;
+  }
+
+  // Health data
+  if (healthData.length > 0) {
+    const avgSleep = _avgNonNull(healthData.map((h) => h.sleep_hours));
+    const avgSleepQ = _avgNonNull(healthData.map((h) => h.sleep_quality));
+    const avgExercise = Math.round(
+      healthData.reduce((s, h) => s + h.exercise_minutes, 0) / healthData.length
+    );
+    const avgClarity = _avgNonNull(healthData.map((h) => h.mental_clarity));
+    const avgMotivation = _avgNonNull(
+      healthData.map((h) => h.motivation_level)
+    );
+
+    const healthParts: string[] = [];
+    if (avgSleep != null) healthParts.push(`sleep:${avgSleep}h`);
+    if (avgSleepQ != null) healthParts.push(`sleepQ:${avgSleepQ}`);
+    if (avgExercise > 0)
+      healthParts.push(`exercise:${avgExercise}min/d`);
+    if (avgClarity != null) healthParts.push(`clarity:${avgClarity}`);
+    if (avgMotivation != null)
+      healthParts.push(`motivation:${avgMotivation}`);
+
+    if (healthParts.length > 0) {
+      cLines.push(`HEALTH: ${healthParts.join(" | ")}`);
+      dataPoints += healthParts.length;
+    }
+  }
+
+  // AI snapshot
+  if (snapshot) {
+    const snapParts: string[] = [];
+    if (snapshot.burnout_risk != null)
+      snapParts.push(
+        `burnout_risk:${Math.round(snapshot.burnout_risk * 100)}%`
+      );
+    if (snapshot.disengagement_risk != null)
+      snapParts.push(
+        `disengage_risk:${Math.round(snapshot.disengagement_risk * 100)}%`
+      );
+    if (snapshot.trajectory)
+      snapParts.push(`trajectory:${snapshot.trajectory}`);
+    if (snapParts.length > 0) {
+      cLines.push(`AI_SNAPSHOT: ${snapParts.join(" | ")}`);
+      dataPoints += snapParts.length;
+    }
+  }
+
+  const text = cLines.join("\n");
+  return {
+    text,
+    tokenEstimate: Math.ceil(text.length / 4),
+    dataPoints,
+  };
+}
+
+// ============================================================
+// Private helpers (prefixed with _ to avoid collision with
+// the verbose builder's inline calculations)
+// ============================================================
+
+function _daysAgo(n: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString().slice(0, 10);
+}
+
+function _round1(n: number): number {
+  return Math.round(n * 10) / 10;
+}
+
+function _truncate(s: string, max: number): string {
+  return s.length > max ? s.slice(0, max - 1) + "..." : s;
+}
+
+function _sumField<T>(
+  arr: T[],
+  key: keyof T
+): number {
+  return arr.reduce(
+    (s, item) => {
+      const v = item[key];
+      return s + (typeof v === "number" ? v : 0);
+    },
+    0
+  );
+}
+
+function _avgField<T>(
+  arr: T[],
+  key: keyof T
+): number | null {
+  const valid = arr.filter(
+    (item) => typeof item[key] === "number" && item[key] != null
+  );
+  if (valid.length === 0) return null;
+  return _round1(
+    valid.reduce((s, item) => s + (item[key] as number), 0) / valid.length
+  );
+}
+
+function _avgNonNull(
+  values: (number | null | undefined)[]
+): number | null {
+  const valid = values.filter((v): v is number => v != null);
+  if (valid.length === 0) return null;
+  return _round1(valid.reduce((s, v) => s + v, 0) / valid.length);
+}
+
+function _getISOWeekNumber(date: Date): number {
+  const d = new Date(
+    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+  );
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil(
+    ((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7
+  );
 }

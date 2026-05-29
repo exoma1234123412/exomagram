@@ -68,6 +68,8 @@ export type EventType =
   | "shame_shown"
   | "prison_triggered"
   | "escalation_fired"
+  // Form tracking
+  | "form_abandoned"
   // Misc
   | "pomodoro_started"
   | "pomodoro_completed"

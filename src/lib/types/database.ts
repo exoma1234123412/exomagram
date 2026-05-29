@@ -25,6 +25,8 @@ export type FlagType =
 
 export type MoodLevel = 1 | 2 | 3 | 4 | 5;
 export type EnergyLevel = 1 | 2 | 3 | 4 | 5;
+export type EntrySource = "manual" | "quick" | "bulk" | "auto_capture" | "template" | "api";
+export type DeviceType = "desktop" | "mobile" | "tablet";
 
 export interface Profile {
   id: string;
@@ -127,6 +129,12 @@ export interface TimeEntry {
   // V12 — Quality + versioning
   quality_score: number | null;
   entry_version: number;
+  // V15 — Entry metadata
+  entry_source: EntrySource;
+  fill_duration_ms: number | null;
+  fields_filled: number;
+  completeness_score: number;
+  device_type: DeviceType | null;
   created_at: string;
   updated_at: string;
   // V11 — Soft deletes
@@ -155,6 +163,8 @@ export interface DailyCloseout {
   mood: MoodLevel | null;
   hours_logged: number;
   hours_with_proof: number;
+  // V15 — Evening stress
+  stress_evening: MoodLevel | null;
   submitted_at: string;
 }
 
@@ -1244,5 +1254,57 @@ export interface AIMemory {
   content: Record<string, unknown>;
   summary: string | null;
   expires_at: string | null;
+  created_at: string;
+}
+
+// ============================================================
+// V15 — Maximum Data Capture
+// ============================================================
+
+export interface HeartbeatTransition {
+  id: string;
+  user_id: string;
+  org_id: string;
+  old_status: string;
+  new_status: string;
+  duration_seconds: number | null;
+  changed_at: string;
+}
+
+export interface UnloggedHour {
+  id: string;
+  user_id: string;
+  org_id: string;
+  date: string;
+  hour: number;
+  was_online: boolean;
+  dominant_status: string | null;
+  heartbeat_count: number;
+  within_work_hours: boolean;
+  filled_later: boolean;
+  filled_at: string | null;
+  created_at: string;
+}
+
+export type NudgeType = "private_notification" | "public_shame" | "public_praise" | "flag";
+export type NudgeChannel = "in_app" | "email" | "slack" | "public_feed";
+
+export interface NudgeOutcome {
+  id: string;
+  user_id: string;
+  org_id: string;
+  nudge_type: NudgeType;
+  nudge_channel: NudgeChannel;
+  message_preview: string | null;
+  psychology_technique: string | null;
+  urgency: string | null;
+  sent_at: string;
+  notification_id: string | null;
+  feed_item_id: string | null;
+  next_entry_at: string | null;
+  response_latency_seconds: number | null;
+  entries_in_next_hour: number | null;
+  behavior_changed: boolean | null;
+  outcome_computed_at: string | null;
   created_at: string;
 }

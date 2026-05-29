@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { computeCompleteness, detectDeviceType } from "@/lib/entry-metadata";
 import {
  CATEGORIES,
  WORK_HOURS,
@@ -40,6 +41,8 @@ import { Badge } from "@/components/ui/badge";
 import { cn, formatHour } from "@/lib/utils";
 import { AlertTriangle, Shield, Clock, BookTemplate, CheckCircle2, ChevronDown } from "lucide-react";
 import { updateStreakOnEntry } from "@/lib/streak-utils";
+import { eventLogger } from "@/lib/event-logger";
+import { useOrg } from "@/lib/hooks/use-org";
 import { EntryTemplates, ManageTemplatesDialog, type EntryTemplate } from "./entry-templates";
 import { EntryValidator } from "@/components/tracking/entry-validator";
 import { PostEntryShame } from "@/components/social/post-entry-shame";
@@ -75,6 +78,12 @@ export function LogEntryDialog({
  const [loading, setLoading] = useState(false);
  const [error, setError] = useState<string | null>(null);
  const [templatesOpen, setTemplatesOpen] = useState(false);
+ // V15 — Track fill duration
+ const formOpenedAt = useRef<number>(Date.now());
+ // Abandonment tracking
+ const touchedRef = useRef(false);
+ const submittedRef = useRef(false);
+ const { userId, orgId } = useOrg();
  const [showSuccess, setShowSuccess] = useState(false);
  const [showShame, setShowShame] = useState(false);
  const [shameEntry, setShameEntry] = useState<{
@@ -173,8 +182,30 @@ export function LogEntryDialog({
  loadRecentEntries();
  }, [open]);
 
- // Reset form state when dialog closes
+ // Reset form state when dialog closes / opens
  useEffect(() => {
+ if (open) {
+ formOpenedAt.current = Date.now();
+ touchedRef.current = false;
+ submittedRef.current = false;
+ }
+ if (!open && touchedRef.current && !submittedRef.current) {
+ // Form was abandoned with unsaved changes
+ eventLogger.log({
+ type: "form_abandoned",
+ userId: userId ?? undefined,
+ orgId: orgId ?? undefined,
+ data: {
+ category,
+ title,
+ description,
+ hour,
+ date,
+ timeSpentMs: Date.now() - formOpenedAt.current,
+ fieldsFilledCount: [category, title, description, project, proofUrls].filter(Boolean).length,
+ },
+ });
+ }
  if (!open) {
  setCategory("");
  setTitle("");
@@ -352,6 +383,32 @@ export function LogEntryDialog({
  learning_notes: category ==="learning"? learningNotes : null,
  // V12 — Version tracking
  entry_version: currentVersion + 1,
+ // V15 — Entry metadata
+ entry_source: "manual" as const,
+ fill_duration_ms: Date.now() - formOpenedAt.current,
+ fields_filled: computeCompleteness({
+   category, title: finalTitle, description: finalDescription,
+   mood, energy, proof_urls: proofArray.length > 0 ? proofArray : null,
+   project: project.trim() || null, difficulty, focus_quality: focusQuality,
+   value_rating: valueRating, stress_level: stressLevel, confidence,
+   interruptions, context_switches: contextSwitches, output_type: outputType,
+   location, tools_used: toolsUsed, collaborators, client_facing: clientFacing,
+   could_be_async: category === "meeting" ? couldBeAsync : null,
+   blocker_detail: category === "blocked" ? blockerDetail : null,
+   skills_tags: skillsArray, learning_notes: category === "learning" ? learningNotes : null,
+ }).fieldsFilled,
+ completeness_score: computeCompleteness({
+   category, title: finalTitle, description: finalDescription,
+   mood, energy, proof_urls: proofArray.length > 0 ? proofArray : null,
+   project: project.trim() || null, difficulty, focus_quality: focusQuality,
+   value_rating: valueRating, stress_level: stressLevel, confidence,
+   interruptions, context_switches: contextSwitches, output_type: outputType,
+   location, tools_used: toolsUsed, collaborators, client_facing: clientFacing,
+   could_be_async: category === "meeting" ? couldBeAsync : null,
+   blocker_detail: category === "blocked" ? blockerDetail : null,
+   skills_tags: skillsArray, learning_notes: category === "learning" ? learningNotes : null,
+ }).completenessScore,
+ device_type: detectDeviceType(),
  },
  { onConflict:"user_id,org_id,date,hour"}
  ).select("id").single();
@@ -401,6 +458,24 @@ export function LogEntryDialog({
 
  // Update activity streak
  updateStreakOnEntry(user.id, membership.org_id, date);
+
+ // Mark as submitted so abandonment tracking doesn't fire
+ submittedRef.current = true;
+
+ // Log successful submission
+ eventLogger.log({
+ type: "entry_created",
+ userId: user.id,
+ orgId: membership.org_id,
+ data: {
+ category,
+ hour: parseInt(hour),
+ date,
+ hasProof: proofArray.length > 0,
+ isLate: lateness.isLate,
+ timeSpentMs: Date.now() - formOpenedAt.current,
+ },
+ });
 
  // Show shame comparison overlay, then success
  savedTitleRef.current = title;
@@ -460,6 +535,9 @@ export function LogEntryDialog({
    .limit(1)
    .single();
   if (!membership) { setError("Sin organización"); setLoading(false); return; }
+
+  // Mark as submitted so abandonment tracking doesn't fire
+  submittedRef.current = true;
 
   // Save entry as flagged with original (rejected) content
   const { error: insertError } = await supabase.from("time_entries").upsert(
@@ -682,7 +760,7 @@ export function LogEntryDialog({
  return (
  <button
  key={key}
- type="button"onClick={() => setCategory(key)}
+ type="button"onClick={() => { setCategory(key); touchedRef.current = true; }}
  className={cn(
 "flex flex-col items-center gap-1.5 p-3 border-2 text-xs font-semibold transition-all duration-200",
  category === key
@@ -708,7 +786,7 @@ export function LogEntryDialog({
  </Label>
  <Input
  id="title"placeholder="Sé específico: 'Implementé validación de formulario de registro con Zod'"value={title}
- onChange={(e) => setTitle(e.target.value)}
+ onChange={(e) => { setTitle(e.target.value); if (e.target.value) touchedRef.current = true; }}
  required
  minLength={MIN_TITLE_LENGTH}
  className={cn("", titleTooShort &&"border-yellow-500 focus-visible:ring-yellow-500/30")}
@@ -725,7 +803,7 @@ export function LogEntryDialog({
  <Label htmlFor="desc"className="text-sm font-medium">Detalles</Label>
  <Textarea
  id="desc"placeholder="Explica qué hiciste, qué decisiones tomaste, qué problemas encontraste..."value={description}
- onChange={(e) => setDescription(e.target.value)}
+ onChange={(e) => { setDescription(e.target.value); if (e.target.value) touchedRef.current = true; }}
  rows={3}
  className=""/>
  </div>
@@ -745,6 +823,7 @@ export function LogEntryDialog({
  setProjectId(v);
  const found = orgProjects.find((p) => p.id === v);
  setProject(found?.name ?? "");
+ touchedRef.current = true;
  }
  }}>
  <SelectTrigger>
@@ -760,7 +839,7 @@ export function LogEntryDialog({
  ) : (
  <Input
  id="project" placeholder="ej: landing-page, api-v2, onboarding" value={project}
- onChange={(e) => setProject(e.target.value)}
+ onChange={(e) => { setProject(e.target.value); if (e.target.value) touchedRef.current = true; }}
  className=""/>
  )}
  </div>
@@ -782,7 +861,7 @@ export function LogEntryDialog({
  <Textarea
  id="proof"placeholder={"Links a commits, PRs, documentos, screenshots...\nhttps://github.com/org/repo/pull/123\nhttps://linear.app/team/issue/EX-45"}
  value={proofUrls}
- onChange={(e) => setProofUrls(e.target.value)}
+ onChange={(e) => { setProofUrls(e.target.value); if (e.target.value) touchedRef.current = true; }}
  rows={2}
  className={cn(
 "",
@@ -802,7 +881,7 @@ export function LogEntryDialog({
  {[1, 2, 3, 4, 5].map((level) => (
  <button
  key={level}
- type="button"onClick={() => setMood(mood === level ? null : level)}
+ type="button"onClick={() => { setMood(mood === level ? null : level); touchedRef.current = true; }}
  className={cn(
 "flex-1 py-2 text-xs font-semibold transition-all duration-200",
  mood === level
@@ -820,7 +899,7 @@ export function LogEntryDialog({
  {[1, 2, 3, 4, 5].map((level) => (
  <button
  key={level}
- type="button"onClick={() => setEnergy(energy === level ? null : level)}
+ type="button"onClick={() => { setEnergy(energy === level ? null : level); touchedRef.current = true; }}
  className={cn(
 "flex-1 py-2 text-xs font-semibold transition-all duration-200",
  energy === level

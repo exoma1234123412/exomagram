@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { CATEGORIES } from "@/lib/constants";
+import { computeCompleteness, detectDeviceType } from "@/lib/entry-metadata";
 import type { WorkCategory } from "@/lib/types/database";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,8 @@ export function QuickLog({ orgId }: { orgId: string }) {
  if (!user) { setLoading(false); return; }
 
  const now = new Date();
- const { error } = await supabase.from("time_entries").upsert({
+ const { fieldsFilled, completenessScore } = computeCompleteness({ category, title });
+ const { data: upserted, error } = await supabase.from("time_entries").upsert({
  user_id: user.id,
  org_id: orgId,
  date: now.toISOString().split("T")[0],
@@ -39,9 +41,23 @@ export function QuickLog({ orgId }: { orgId: string }) {
  is_late: false,
  minutes_late: 0,
  verification_status:"unverified",
- }, { onConflict:"user_id,org_id,date,hour"});
+ // V15 — Entry metadata
+ entry_source: "quick" as const,
+ fields_filled: fieldsFilled,
+ completeness_score: completenessScore,
+ device_type: detectDeviceType(),
+ }, { onConflict:"user_id,org_id,date,hour"}).select("id").single();
 
  if (!error) {
+ // V15 — Auto-enrich quick entries (fire-and-forget)
+ if (upserted?.id) {
+   fetch("/api/ai-analyze-entry", {
+     method: "POST",
+     headers: { "Content-Type": "application/json" },
+     body: JSON.stringify({ entry_id: upserted.id, org_id: orgId }),
+   }).catch(() => {});
+ }
+
  // Capture values before resetting state
  const savedTitle = title;
  const savedCategory = category;

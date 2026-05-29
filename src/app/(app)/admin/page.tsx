@@ -85,16 +85,7 @@ export default function AdminPage() {
  setUpdating(null);
  }
 
- async function removeMember(memberId: string, userId: string) {
- if (!isOwnerOrAdmin) return;
- if (userId === currentUserId) return;
- if (!confirm("Seguro que quieres eliminar a este miembro?")) return;
-
- setUpdating(memberId);
- await supabase.from("org_members").delete().eq("id", memberId);
- setMembers((prev) => prev.filter((m) => m.id !== memberId));
- setUpdating(null);
- }
+ // Members cannot be removed — all data must be preserved
 
  if (loading || orgLoading) {
  return (

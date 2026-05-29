@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 export function HeartbeatProvider({ children }: { children: React.ReactNode }) {
  const lastActivity = useRef(Date.now());
  const statusRef = useRef<string>("online");
+ const statusChangedAt = useRef(Date.now());
  const supabase = createClient();
 
  const updateStatus = useCallback(async (status: string, task?: string) => {
@@ -22,14 +23,30 @@ export function HeartbeatProvider({ children }: { children: React.ReactNode }) {
 
  if (!membership) return;
 
+ const oldStatus = statusRef.current;
+ const isTransition = status !== oldStatus;
+
  await supabase.from("live_status").upsert({
  user_id: user.id,
  org_id: membership.org_id,
  status,
  current_task: task ?? null,
  last_heartbeat: new Date().toISOString(),
- ...(status !== statusRef.current ? { started_at: new Date().toISOString() } : {}),
+ ...(isTransition ? { started_at: new Date().toISOString() } : {}),
  });
+
+ // V15 — Log status transitions to heartbeat_history
+ if (isTransition) {
+   const durationSeconds = Math.round((Date.now() - statusChangedAt.current) / 1000);
+   supabase.from("heartbeat_history").insert({
+     user_id: user.id,
+     org_id: membership.org_id,
+     old_status: oldStatus,
+     new_status: status,
+     duration_seconds: durationSeconds > 0 ? durationSeconds : null,
+   }).then(() => {});
+   statusChangedAt.current = Date.now();
+ }
 
  statusRef.current = status;
  }, []); // eslint-disable-line react-hooks/exhaustive-deps

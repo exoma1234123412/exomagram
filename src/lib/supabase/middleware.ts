@@ -68,6 +68,22 @@ export async function updateSession(request: NextRequest) {
       url.pathname = "/setup";
       return NextResponse.redirect(url);
     }
+
+    // Check org membership — redirect to dashboard if no org (dashboard handles org creation)
+    if (pathname !== "/dashboard" && pathname !== "/settings" && pathname !== "/home") {
+      const { data: membership } = await supabase
+        .from("org_members")
+        .select("org_id")
+        .eq("user_id", user.id)
+        .limit(1)
+        .maybeSingle();
+
+      if (!membership) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/dashboard";
+        return NextResponse.redirect(url);
+      }
+    }
   }
 
   return supabaseResponse;

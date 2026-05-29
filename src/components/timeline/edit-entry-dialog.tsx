@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Pencil, Shield, Trash2 } from "lucide-react";
+import { Pencil, Shield } from "lucide-react";
 
 interface EditEntryDialogProps {
  entry: TimeEntry;
@@ -32,7 +32,6 @@ export function EditEntryDialog({ entry, open, onOpenChange, onSaved }: EditEntr
  const [project, setProject] = useState(entry.project ??"");
  const [proofUrls, setProofUrls] = useState(entry.proof_urls?.join("\n") ??"");
  const [loading, setLoading] = useState(false);
- const [deleting, setDeleting] = useState(false);
  const [error, setError] = useState<string | null>(null);
 
  const hasProof = proofUrls.trim().length > 0;
@@ -68,25 +67,6 @@ export function EditEntryDialog({ entry, open, onOpenChange, onSaved }: EditEntr
  onSaved?.();
  }
  setLoading(false);
- }
-
- async function handleDelete() {
- if (!confirm("Seguro que quieres eliminar esta entrada? Esta accion no se puede deshacer.")) return;
- setDeleting(true);
-
- const supabase = createClient();
- const { error: deleteError } = await supabase
- .from("time_entries")
- .delete()
- .eq("id", entry.id);
-
- if (deleteError) {
- setError(deleteError.message);
- } else {
- onOpenChange(false);
- onSaved?.();
- }
- setDeleting(false);
  }
 
  return (
@@ -178,17 +158,9 @@ export function EditEntryDialog({ entry, open, onOpenChange, onSaved }: EditEntr
  </div>
  )}
 
- <div className="flex gap-2">
- <Button type="submit"className="flex-1 bg-primary hover:from-blue-700 hover:to-blue-800 text-white border-0 font-semibold"disabled={loading}>
+ <Button type="submit"className="w-full bg-primary text-white border-0 font-semibold"disabled={loading}>
  {loading ?"Guardando...":"Guardar cambios"}
  </Button>
- <Button
- type="button"variant="destructive"size="icon"onClick={handleDelete}
- disabled={deleting}
- title="Eliminar entrada">
- <Trash2 className="w-4 h-4"/>
- </Button>
- </div>
  </form>
  </DialogContent>
  </Dialog>
