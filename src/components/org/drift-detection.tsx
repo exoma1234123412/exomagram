@@ -8,7 +8,7 @@ import { CATEGORIES } from "@/lib/constants";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { subDays } from "date-fns";
 import { Activity, TrendingDown, TrendingUp, ArrowRight } from "lucide-react";
 
@@ -18,11 +18,6 @@ interface Drift {
   shifts: { category: WorkCategory; before: number; after: number; delta: number }[];
   hoursChange: number;
   proofChange: number;
-}
-
-function getInitials(name: string | null) {
-  if (!name) return "?";
-  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 }
 
 export function DriftDetection({ orgId }: { orgId: string }) {
@@ -41,7 +36,7 @@ export function DriftDetection({ orgId }: { orgId: string }) {
         .from("org_members")
         .select("user_id, profiles(*)")
         .eq("org_id", orgId)
-        .returns<{ user_id: string; profiles: Profile }[]>();
+        ;
 
       if (!members) { setLoading(false); return; }
 

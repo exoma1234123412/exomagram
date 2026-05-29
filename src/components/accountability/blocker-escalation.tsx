@@ -6,7 +6,7 @@ import type { Profile, TimeEntry } from "@/lib/types/database";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { AlertTriangle, Clock, Siren } from "lucide-react";
 
 // PSYCHOLOGY: Blocker Escalation
@@ -20,11 +20,6 @@ interface BlockedPerson {
   blockedHours: number;
   entries: TimeEntry[];
   firstBlockedHour: number;
-}
-
-function getInitials(name: string | null) {
-  if (!name) return "?";
-  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 }
 
 export function BlockerEscalation({ orgId }: { orgId: string }) {
@@ -41,7 +36,7 @@ export function BlockerEscalation({ orgId }: { orgId: string }) {
         .eq("date", today)
         .eq("category", "blocked")
         .order("hour")
-        .returns<(TimeEntry & { profiles: Profile })[]>();
+        ;
 
       if (!entries || entries.length === 0) return;
 

@@ -7,22 +7,13 @@ import { WORK_HOURS } from "@/lib/constants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, getInitials, formatHourShort } from "@/lib/utils";
 import { subDays } from "date-fns";
 import { Globe } from "lucide-react";
 
 interface MemberSchedule {
   profile: Profile;
   activeHours: Set<number>;
-}
-
-function getInitials(name: string | null) {
-  if (!name) return "?";
-  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-}
-
-function formatHour(h: number) {
-  return `${h > 12 ? h - 12 : h}${h >= 12 ? "p" : "a"}`;
 }
 
 export function TimezoneOverlap({ orgId }: { orgId: string }) {
@@ -39,7 +30,7 @@ export function TimezoneOverlap({ orgId }: { orgId: string }) {
           .from("org_members")
           .select("user_id, profiles(*)")
           .eq("org_id", orgId)
-          .returns<{ user_id: string; profiles: Profile }[]>(),
+          ,
         supabase
           .from("time_entries")
           .select("user_id, hour")
@@ -130,7 +121,7 @@ export function TimezoneOverlap({ orgId }: { orgId: string }) {
                         active ? "bg-blue-300 dark:bg-blue-700" :
                         "bg-muted/20"
                       )}
-                      title={`${formatHour(h)}: ${active ? "Activo" : "Inactivo"}`}
+                      title={`${formatHourShort(h)}: ${active ? "Activo" : "Inactivo"}`}
                     />
                   );
                 })}
@@ -156,7 +147,7 @@ export function TimezoneOverlap({ orgId }: { orgId: string }) {
                       pct >= 30 ? "bg-yellow-300 dark:bg-yellow-700" :
                       density > 0 ? "bg-muted" : "bg-muted/20"
                     )}
-                    title={`${formatHour(h)}: ${density}/${maxDensity} activos`}
+                    title={`${formatHourShort(h)}: ${density}/${maxDensity} activos`}
                   />
                   <span className="text-[7px] text-muted-foreground">
                     {h > 12 ? h - 12 : h}
@@ -186,7 +177,7 @@ export function TimezoneOverlap({ orgId }: { orgId: string }) {
               blocks.push(block);
               return blocks.map((b, i) => (
                 <Badge key={i} variant="outline" className="text-[10px] text-green-600 border-green-300">
-                  {formatHour(b[0])} - {formatHour(b[b.length - 1] + 1)}
+                  {formatHourShort(b[0])} - {formatHourShort(b[b.length - 1] + 1)}
                 </Badge>
               ));
             })()}

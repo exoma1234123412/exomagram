@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { TimeEntry, Profile } from "@/lib/types/database";
-import { CATEGORIES, WORK_HOURS } from "@/lib/constants";
-import { cn } from "@/lib/utils";
+import { CATEGORIES, WORK_HOURS, CATEGORY_COLORS } from "@/lib/constants";
+import { cn, formatHourShort, getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Tooltip,
@@ -15,33 +15,6 @@ import {
 import { Grid3X3 } from "lucide-react";
 
 type EntryWithProfile = TimeEntry & { profiles: Profile };
-
-function formatHour(h: number) {
-  const suffix = h >= 12 ? "PM" : "AM";
-  const display = h > 12 ? h - 12 : h === 0 ? 12 : h;
-  return `${display}${suffix}`;
-}
-
-function getInitials(name: string | null) {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
-
-const CATEGORY_COLORS: Record<string, string> = {
-  deep_work: "bg-violet-500",
-  meeting: "bg-blue-500",
-  review: "bg-amber-500",
-  admin: "bg-slate-400",
-  planning: "bg-emerald-500",
-  learning: "bg-pink-500",
-  break: "bg-green-400",
-  blocked: "bg-red-500",
-};
 
 const CATEGORY_GRADIENTS: Record<string, string> = {
   deep_work: "from-violet-400 to-violet-600",
@@ -68,7 +41,7 @@ export function TeamGrid({ date, orgId }: { date: string; orgId: string }) {
         .from("org_members")
         .select("user_id, profiles(*)")
         .eq("org_id", orgId)
-        .returns<{ user_id: string; profiles: Profile }[]>();
+        ;
 
       if (memberData) {
         setMembers(memberData.map((m) => m.profiles));
@@ -79,7 +52,7 @@ export function TeamGrid({ date, orgId }: { date: string; orgId: string }) {
         .select("*, profiles(*)")
         .eq("org_id", orgId)
         .eq("date", date)
-        .returns<EntryWithProfile[]>();
+        ;
 
       setEntries(entryData ?? []);
       setLoading(false);
@@ -103,7 +76,7 @@ export function TeamGrid({ date, orgId }: { date: string; orgId: string }) {
             .select("*, profiles(*)")
             .eq("org_id", orgId)
             .eq("date", date)
-            .returns<EntryWithProfile[]>();
+            ;
           setEntries(data ?? []);
         }
       )
@@ -172,7 +145,7 @@ export function TeamGrid({ date, orgId }: { date: string; orgId: string }) {
             >
               {/* Hour label */}
               <div className="flex items-center justify-end pr-3 text-[11px] text-muted-foreground/60 font-semibold tabular-nums">
-                {formatHour(hour)}
+                {formatHourShort(hour)}
               </div>
 
               {/* Cells */}

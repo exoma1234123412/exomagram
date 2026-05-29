@@ -184,13 +184,13 @@ export function BetterThanYou({ metric, yourValue, orgId }: BetterThanYouProps) 
         .from("org_members")
         .select("user_id, profiles(*)")
         .eq("org_id", orgId)
-        .returns<{ user_id: string; profiles: Profile }[]>(),
+        ,
       supabase
         .from("time_entries")
         .select("user_id, hour")
         .eq("org_id", orgId)
         .eq("date", today)
-        .returns<Pick<TimeEntry, "user_id" | "hour">[]>(),
+,
     ]);
 
     const members = membersRes.data ?? [];
@@ -383,13 +383,13 @@ export function LiveComparison({ orgId }: LiveComparisonProps) {
         .from("org_members")
         .select("user_id, profiles(*)")
         .eq("org_id", orgId)
-        .returns<{ user_id: string; profiles: Profile }[]>(),
+        ,
       supabase
         .from("time_entries")
         .select("user_id, hour")
         .eq("org_id", orgId)
         .eq("date", today)
-        .returns<Pick<TimeEntry, "user_id" | "hour">[]>(),
+,
     ]);
 
     const members = membersRes.data ?? [];
@@ -645,13 +645,13 @@ export function AmbientComparison({ orgId }: AmbientComparisonProps) {
         .from("org_members")
         .select("user_id")
         .eq("org_id", orgId)
-        .returns<{ user_id: string }[]>(),
+        ,
       supabase
         .from("time_entries")
         .select("user_id, hour")
         .eq("org_id", orgId)
         .eq("date", today)
-        .returns<Pick<TimeEntry, "user_id" | "hour">[]>(),
+,
     ]);
 
     const members = membersRes.data ?? [];

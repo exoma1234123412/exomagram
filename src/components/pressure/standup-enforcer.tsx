@@ -29,7 +29,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import {
   ClipboardCheck,
   AlertTriangle,
@@ -93,16 +93,6 @@ const CHECK_INTERVAL_MS = 60 * 1000;
 const MIN_FIELD_LENGTH = 10;
 
 // ─── Helpers ────────────────────────────────────────────────────────
-
-function getInitials(name: string | null): string {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
 
 function todayISO(): string {
   return new Date().toISOString().split("T")[0];
@@ -256,7 +246,7 @@ export function StandupEnforcer() {
       .select("org_id")
       .eq("user_id", user.id)
       .limit(1)
-      .single<{ org_id: string }>();
+      .single();
 
     if (!membership) {
       setLoading(false);

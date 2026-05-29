@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, formatHour } from "@/lib/utils";
 import { AlertTriangle, Shield, Clock, BookTemplate } from "lucide-react";
 import { updateStreakOnEntry } from "@/lib/streak-utils";
 import { EntryTemplates, ManageTemplatesDialog, type EntryTemplate } from "./entry-templates";
@@ -117,7 +117,7 @@ export function LogEntryDialog({
       .select("org_id")
       .eq("user_id", user.id)
       .limit(1)
-      .single<{ org_id: string }>();
+      .single();
 
     if (!membership) {
       setError("No perteneces a ninguna organización");
@@ -168,12 +168,6 @@ export function LogEntryDialog({
       onOpenChange(false);
     }
     setLoading(false);
-  }
-
-  function formatHour(h: number) {
-    const suffix = h >= 12 ? "PM" : "AM";
-    const display = h > 12 ? h - 12 : h === 0 ? 12 : h;
-    return `${display}:00 ${suffix}`;
   }
 
   return (

@@ -14,7 +14,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, formatHourShort } from "@/lib/utils";
 import {
   ShieldBan,
   AlertTriangle,
@@ -72,13 +72,6 @@ function getPreviousWorkday(): { date: string; isWeekendSkip: boolean } {
   const yesterday = new Date(now);
   yesterday.setDate(yesterday.getDate() - 1);
   return { date: yesterday.toISOString().slice(0, 10), isWeekendSkip: false };
-}
-
-function formatHour(h: number): string {
-  if (h === 0) return "12am";
-  if (h < 12) return `${h}am`;
-  if (h === 12) return "12pm";
-  return `${h - 12}pm`;
 }
 
 function todayISO(): string {
@@ -189,8 +182,8 @@ export function MandatoryProofGate({
     }
 
     // Resolve user if not passed
-    let resolvedUserId = userId;
-    let resolvedOrgId = orgId;
+    let resolvedUserId: string | undefined = userId;
+    let resolvedOrgId: string | undefined = orgId;
 
     if (!resolvedUserId) {
       const { data: { user } } = await supabase.auth.getUser();
@@ -207,7 +200,7 @@ export function MandatoryProofGate({
         .select("org_id, joined_at")
         .eq("user_id", resolvedUserId)
         .limit(1)
-        .single<{ org_id: string; joined_at: string }>();
+        .single();
 
       if (!membership) {
         setChecking(false);
@@ -291,7 +284,7 @@ export function MandatoryProofGate({
         notifyAdmins(
           supabase,
           resolvedOrgId,
-          resolvedUserId,
+          resolvedUserId as string,
           userName ?? "Un miembro",
           previousDate,
           hoursLogged
@@ -397,7 +390,7 @@ export function MandatoryProofGate({
           .select("org_id")
           .eq("user_id", resolvedUserId)
           .limit(1)
-          .single<{ org_id: string }>();
+          .single();
         if (!membership) return;
         resolvedOrgId = membership.org_id;
       }
@@ -621,7 +614,7 @@ export function MandatoryProofGate({
                 >
                   <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
                   <span className="text-xs font-semibold text-green-700 dark:text-green-400 tabular-nums">
-                    {formatHour(slot.hour)}
+                    {formatHourShort(slot.hour)}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {slot.category
@@ -653,7 +646,7 @@ export function MandatoryProofGate({
                       <div className="flex items-center gap-2">
                         <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                         <span className="text-sm font-semibold tabular-nums">
-                          {formatHour(slot.hour)}
+                          {formatHourShort(slot.hour)}
                         </span>
                         <Badge
                           variant="secondary"

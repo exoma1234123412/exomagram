@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types/database";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { Trophy, TrendingDown, Flame } from "lucide-react";
 
 // ═══════════════════════════════════════════════════════════════
@@ -21,11 +21,6 @@ import { Trophy, TrendingDown, Flame } from "lucide-react";
 // - Who's ahead of you TODAY (makes you want to catch up)
 // - Who's behind you (makes you not want to fall there)
 // - Your rank changes in real-time (dopamine from climbing, cortisol from falling)
-
-function getInitials(name: string | null) {
-  if (!name) return "?";
-  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-}
 
 interface MemberRank {
   profile: Profile;
@@ -50,7 +45,7 @@ export function SocialPressureWidget({ orgId }: { orgId: string }) {
         .from("org_members")
         .select("user_id, profiles(*)")
         .eq("org_id", orgId)
-        .returns<{ user_id: string; profiles: Profile }[]>();
+        ;
 
       const { data: entries } = await supabase
         .from("time_entries")

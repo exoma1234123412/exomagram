@@ -5,21 +5,9 @@ import { createClient } from "@/lib/supabase/client";
 import type { LiveStatus, Profile } from "@/lib/types/database";
 import { LIVE_STATUS_CONFIG } from "@/lib/constants";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import { cn, getInitials, timeAgo } from "@/lib/utils";
 
 type StatusWithProfile = LiveStatus & { profiles: Profile };
-
-function getInitials(name: string | null) {
-  if (!name) return "?";
-  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-}
-
-function timeAgo(dateStr: string) {
-  const diff = (Date.now() - new Date(dateStr).getTime()) / 1000 / 60;
-  if (diff < 1) return "ahora";
-  if (diff < 60) return `${Math.round(diff)}m`;
-  return `${Math.round(diff / 60)}h`;
-}
 
 export function LiveStatusBar({ orgId }: { orgId: string }) {
   const [statuses, setStatuses] = useState<StatusWithProfile[]>([]);
@@ -31,7 +19,7 @@ export function LiveStatusBar({ orgId }: { orgId: string }) {
         .from("live_status")
         .select("*, profiles(*)")
         .eq("org_id", orgId)
-        .returns<StatusWithProfile[]>();
+        ;
       setStatuses(data ?? []);
     }
     fetch();

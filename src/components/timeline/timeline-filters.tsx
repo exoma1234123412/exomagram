@@ -34,7 +34,7 @@ export function TimelineFiltersBar({ orgId, filters, onChange }: TimelineFilters
         .from("org_members")
         .select("user_id, profiles(full_name)")
         .eq("org_id", orgId)
-        .returns<{ user_id: string; profiles: { full_name: string | null } }[]>();
+        ;
 
       setMembers(
         data?.map((m) => ({ user_id: m.user_id, full_name: m.profiles?.full_name })) ?? []

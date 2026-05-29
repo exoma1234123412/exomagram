@@ -6,7 +6,7 @@ import type { Profile } from "@/lib/types/database";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { AlertTriangle, Shield, XCircle, Clock, Ghost } from "lucide-react";
 
 // ═══════════════════════════════════════════════════════════════
@@ -26,11 +26,6 @@ import { AlertTriangle, Shield, XCircle, Clock, Ghost } from "lucide-react";
 // - Shows specific, undeniable facts (not opinions)
 // - Updates in real-time
 // - Cannot be hidden or dismissed
-
-function getInitials(name: string | null) {
-  if (!name) return "?";
-  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-}
 
 interface ShameEntry {
   profile: Profile;
@@ -52,7 +47,7 @@ export function PublicAccountabilityBoard({ orgId }: { orgId: string }) {
         .from("org_members")
         .select("user_id, profiles(*)")
         .eq("org_id", orgId)
-        .returns<{ user_id: string; profiles: Profile }[]>();
+        ;
 
       const { data: allEntries } = await supabase
         .from("time_entries")

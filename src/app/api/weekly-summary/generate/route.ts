@@ -36,7 +36,7 @@ export async function POST(request: Request) {
   const { data: members } = await supabase.from("org_members")
     .select("user_id, profiles(full_name, role)").eq("org_id", orgId);
 
-  const results = [];
+  const results = [] as { name: string; week: string; hours: number; narrative: string }[];
 
   for (const member of members ?? []) {
     const profile = member.profiles as unknown as { full_name: string; role: string } | null;

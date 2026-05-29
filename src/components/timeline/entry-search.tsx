@@ -7,21 +7,10 @@ import { CATEGORIES } from "@/lib/constants";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import { cn, getInitials, formatHour } from "@/lib/utils";
 import { Search, X, Loader2 } from "lucide-react";
 
 type EntryWithProfile = TimeEntry & { profiles: Profile };
-
-function getInitials(name: string | null) {
-  if (!name) return "?";
-  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-}
-
-function formatHour(h: number) {
-  const suffix = h >= 12 ? "PM" : "AM";
-  const display = h > 12 ? h - 12 : h === 0 ? 12 : h;
-  return `${display}:00 ${suffix}`;
-}
 
 export function EntrySearch({ orgId }: { orgId: string }) {
   const [query, setQuery] = useState("");
@@ -49,7 +38,7 @@ export function EntrySearch({ orgId }: { orgId: string }) {
         .order("date", { ascending: false })
         .order("hour", { ascending: false })
         .limit(20)
-        .returns<EntryWithProfile[]>();
+        ;
 
       setResults(data ?? []);
       setSearching(false);

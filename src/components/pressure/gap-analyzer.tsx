@@ -13,7 +13,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, formatHourShort } from "@/lib/utils";
 import {
   Clock,
   Ghost,
@@ -61,13 +61,6 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function formatHour(h: number): string {
-  if (h === 0) return "12am";
-  if (h < 12) return `${h}am`;
-  if (h === 12) return "12pm";
-  return `${h - 12}pm`;
-}
-
 function pastNDaysISO(n: number): string[] {
   const days: string[] = [];
   for (let i = 1; i <= n; i++) {
@@ -101,7 +94,7 @@ function detectHabitPattern(history: GapDay[]): string | null {
   if (hourStreaks.size === 0) return null;
 
   const worst = [...hourStreaks.entries()].sort((a, b) => b[1] - a[1])[0];
-  return `Has tenido gaps a las ${formatHour(worst[0])} por ${worst[1]} dias seguidos`;
+  return `Has tenido gaps a las ${formatHourShort(worst[0])} por ${worst[1]} dias seguidos`;
 }
 
 // ---------------------------------------------------------------------------
@@ -138,7 +131,7 @@ export function GapAnalyzer({ orgId }: { orgId: string }) {
         .eq("user_id", user.id)
         .eq("org_id", orgId)
         .eq("date", today)
-        .returns<TimeEntry[]>(),
+        ,
       supabase
         .from("time_entries")
         .select("date, hour")
@@ -151,14 +144,14 @@ export function GapAnalyzer({ orgId }: { orgId: string }) {
         .eq("user_id", user.id)
         .eq("org_id", orgId)
         .limit(1)
-        .single<LiveStatus>(),
+        .single(),
       supabase
         .from("activity_streaks")
         .select("current_streak")
         .eq("user_id", user.id)
         .eq("org_id", orgId)
         .limit(1)
-        .single<{ current_streak: number }>(),
+        .single(),
       supabase
         .from("trust_score_history")
         .select("score")
@@ -166,7 +159,7 @@ export function GapAnalyzer({ orgId }: { orgId: string }) {
         .eq("org_id", orgId)
         .order("date", { ascending: false })
         .limit(1)
-        .single<{ score: number }>(),
+        .single(),
     ]);
 
     const entries = todayEntries ?? [];
@@ -331,8 +324,8 @@ export function GapAnalyzer({ orgId }: { orgId: string }) {
         {/* ---- 1. Today's Hour Grid ---- */}
         <div>
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-            Mapa del dia — {formatHour(WORK_HOURS[0])} a{" "}
-            {formatHour(WORK_HOURS[WORK_HOURS.length - 1] + 1)}
+            Mapa del dia — {formatHourShort(WORK_HOURS[0])} a{" "}
+            {formatHourShort(WORK_HOURS[WORK_HOURS.length - 1] + 1)}
           </h3>
           <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-12 gap-2">
             {data.slots.map((slot) => (
@@ -435,7 +428,7 @@ export function GapAnalyzer({ orgId }: { orgId: string }) {
                 <span className="text-sm">Hora mas productiva</span>
               </div>
               <span className="text-sm font-bold tabular-nums">
-                {formatHour(data.mostProductiveHour)}
+                {formatHourShort(data.mostProductiveHour)}
               </span>
             </div>
           )}
@@ -590,8 +583,8 @@ function HourSquare({ slot }: { slot: HourSlot }) {
       )}
       title={
         slot.entry
-          ? `${formatHour(slot.hour)}: ${slot.entry.title}`
-          : `${formatHour(slot.hour)}: ${slot.status === "gap" || slot.status === "ghost" ? "Sin registro" : slot.status === "current" ? "Hora actual" : "Futuro"}`
+          ? `${formatHourShort(slot.hour)}: ${slot.entry.title}`
+          : `${formatHourShort(slot.hour)}: ${slot.status === "gap" || slot.status === "ghost" ? "Sin registro" : slot.status === "current" ? "Hora actual" : "Futuro"}`
       }
     >
       {/* Hour label */}
@@ -605,7 +598,7 @@ function HourSquare({ slot }: { slot: HourSlot }) {
           slot.status === "future" && "text-muted-foreground",
         )}
       >
-        {formatHour(slot.hour)}
+        {formatHourShort(slot.hour)}
       </span>
 
       {/* Content per status */}

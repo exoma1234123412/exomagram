@@ -55,7 +55,7 @@ export function PomodoroTimer() {
       .select("org_id")
       .eq("user_id", user.id)
       .limit(1)
-      .single<{ org_id: string }>();
+      .single();
     if (!membership) return;
 
     const { data } = await supabase.from("pomodoro_sessions").insert({

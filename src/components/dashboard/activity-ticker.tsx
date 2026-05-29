@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { CATEGORIES } from "@/lib/constants";
 import type { TimeEntry, Profile, WorkCategory } from "@/lib/types/database";
-import { cn } from "@/lib/utils";
+import { cn, timeAgo } from "@/lib/utils";
 
 type EntryWithProfile = TimeEntry & { profiles: Profile };
 
@@ -23,7 +23,7 @@ export function ActivityTicker({ orgId }: { orgId: string }) {
         .eq("date", today)
         .order("created_at", { ascending: false })
         .limit(20)
-        .returns<EntryWithProfile[]>();
+        ;
       setEntries(data ?? []);
     }
     load();
@@ -52,13 +52,6 @@ export function ActivityTicker({ orgId }: { orgId: string }) {
   }, [orgId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (entries.length === 0) return null;
-
-  function timeAgo(dateStr: string) {
-    const diff = (Date.now() - new Date(dateStr).getTime()) / 1000 / 60;
-    if (diff < 1) return "ahora";
-    if (diff < 60) return `${Math.round(diff)}m`;
-    return `${Math.round(diff / 60)}h`;
-  }
 
   // Double the items for seamless scrolling
   const doubled = [...entries, ...entries];

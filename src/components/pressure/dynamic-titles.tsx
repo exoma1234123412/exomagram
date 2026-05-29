@@ -358,7 +358,7 @@ function useTitleData(userId: string) {
       .select("org_id, joined_at")
       .eq("user_id", userId)
       .limit(1)
-      .single<{ org_id: string; joined_at: string }>();
+      .single();
 
     if (!membership) {
       setLoading(false);

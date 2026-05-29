@@ -6,7 +6,7 @@ import type { Profile } from "@/lib/types/database";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { Flame, Trophy, Zap, Crown } from "lucide-react";
 
 interface StreakEntry {
@@ -14,11 +14,6 @@ interface StreakEntry {
   currentStreak: number;
   longestStreak: number;
   totalDays: number;
-}
-
-function getInitials(name: string | null) {
-  if (!name) return "?";
-  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 }
 
 function getStreakTitle(streak: number): { title: string; emoji: string; color: string } {
@@ -42,7 +37,7 @@ export function StreakLeaderboard({ orgId }: { orgId: string }) {
         .from("org_members")
         .select("user_id, profiles(*)")
         .eq("org_id", orgId)
-        .returns<{ user_id: string; profiles: Profile }[]>();
+        ;
 
       const { data: streaks } = await supabase
         .from("activity_streaks")
@@ -51,15 +46,15 @@ export function StreakLeaderboard({ orgId }: { orgId: string }) {
 
       if (!members) { setLoading(false); return; }
 
-      const streakMap = new Map(
-        streaks?.map((s) => [s.user_id, s]) ?? []
+      const streakMap = new Map<string, { current_streak: number; longest_streak: number; total_days_logged: number }>(
+        streaks?.map((s) => [s.user_id, s as { current_streak: number; longest_streak: number; total_days_logged: number }]) ?? []
       );
 
       const result: StreakEntry[] = members
         .map((m) => {
           const s = streakMap.get(m.user_id);
           return {
-            profile: m.profiles,
+            profile: m.profiles as unknown as Profile,
             currentStreak: s?.current_streak ?? 0,
             longestStreak: s?.longest_streak ?? 0,
             totalDays: s?.total_days_logged ?? 0,

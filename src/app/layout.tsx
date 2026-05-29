@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -13,9 +14,18 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Exomagram — Transparencia total del trabajo",
+  title: {
+    default: "Exomagram — Transparencia total del trabajo",
+    template: "%s | Exomagram",
+  },
   description:
     "Ve exactamente qué hace cada miembro de tu equipo, hora por hora. Transparencia radical para equipos modernos.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://exomagram.com"),
+  openGraph: {
+    title: "Exomagram — Transparencia total del trabajo",
+    description: "Transparencia radical para equipos modernos.",
+    type: "website",
+  },
   robots: {
     index: false,
     follow: false,

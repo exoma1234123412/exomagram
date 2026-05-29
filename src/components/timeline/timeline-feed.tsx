@@ -32,7 +32,7 @@ export function TimelineFeed({
         .eq("org_id", orgId)
         .eq("date", date)
         .order("hour", { ascending: false })
-        .returns<EntryWithProfile[]>();
+        ;
 
       setEntries(data ?? []);
       setLoading(false);
@@ -59,7 +59,7 @@ export function TimelineFeed({
             .eq("org_id", orgId)
             .eq("date", date)
             .order("hour", { ascending: false })
-            .returns<EntryWithProfile[]>();
+            ;
           setEntries(data ?? []);
         }
       )

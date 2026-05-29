@@ -27,19 +27,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, formatHour } from "@/lib/utils";
 import { Layers, Shield } from "lucide-react";
 import { updateStreakOnEntry } from "@/lib/streak-utils";
 
 interface BulkEntryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}
-
-function formatHour(h: number) {
-  const suffix = h >= 12 ? "PM" : "AM";
-  const display = h > 12 ? h - 12 : h === 0 ? 12 : h;
-  return `${display}:00 ${suffix}`;
 }
 
 export function BulkEntryDialog({ open, onOpenChange }: BulkEntryDialogProps) {
@@ -93,7 +87,7 @@ export function BulkEntryDialog({ open, onOpenChange }: BulkEntryDialogProps) {
       .select("org_id")
       .eq("user_id", user.id)
       .limit(1)
-      .single<{ org_id: string }>();
+      .single();
 
     if (!membership) {
       setError("No perteneces a ninguna organizacion");
@@ -106,7 +100,7 @@ export function BulkEntryDialog({ open, onOpenChange }: BulkEntryDialogProps) {
       .map((l) => l.trim())
       .filter(Boolean);
 
-    const entries = [];
+    const entries = [] as Array<Record<string, unknown>>;
     for (let h = start; h <= end; h++) {
       const entryDate = new Date(
         `${date}T${String(h + 1).padStart(2, "0")}:00:00`

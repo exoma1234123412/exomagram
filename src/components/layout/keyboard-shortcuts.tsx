@@ -8,15 +8,10 @@ import { CATEGORIES } from "@/lib/constants";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { Search, Command } from "lucide-react";
 
 type EntryWithProfile = TimeEntry & { profiles: Profile };
-
-function getInitials(name: string | null) {
-  if (!name) return "?";
-  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-}
 
 const QUICK_LINKS = [
   { label: "Timeline", href: "/dashboard", shortcut: "d" },
@@ -73,7 +68,7 @@ export function KeyboardShortcuts({ onNewEntry }: KeyboardShortcutsProps) {
       .select("org_id")
       .eq("user_id", user.id)
       .limit(1)
-      .single<{ org_id: string }>();
+      .single();
 
     if (!membership) { setSearching(false); return; }
 
@@ -84,7 +79,7 @@ export function KeyboardShortcuts({ onNewEntry }: KeyboardShortcutsProps) {
       .or(`title.ilike.%${q}%,description.ilike.%${q}%,project.ilike.%${q}%`)
       .order("date", { ascending: false })
       .limit(8)
-      .returns<EntryWithProfile[]>();
+      ;
 
     setResults(data ?? []);
     setSearching(false);

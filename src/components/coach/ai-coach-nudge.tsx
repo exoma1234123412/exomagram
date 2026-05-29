@@ -27,7 +27,7 @@ export function AICoachNudge() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       setUserId(user.id);
-      const { data: m } = await supabase.from("org_members").select("org_id").eq("user_id", user.id).limit(1).single<{ org_id: string }>();
+      const { data: m } = await supabase.from("org_members").select("org_id").eq("user_id", user.id).limit(1).single();
       if (m) setOrgId(m.org_id);
     }
     init();

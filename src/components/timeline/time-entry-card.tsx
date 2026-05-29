@@ -1,11 +1,11 @@
 "use client";
 
-import { CATEGORIES, VERIFICATION_STATUS } from "@/lib/constants";
+import { CATEGORIES, VERIFICATION_STATUS, CATEGORY_COLORS } from "@/lib/constants";
 import type { TimeEntry, Profile } from "@/lib/types/database";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import { cn, formatHour, getInitials } from "@/lib/utils";
 import { ExternalLink, Clock, Shield, AlertTriangle, Pencil, ShieldCheck, FolderKanban, Bookmark, UserCheck, History } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { EntryReactions } from "@/components/reactions/entry-reactions";
@@ -21,28 +21,6 @@ interface TimeEntryCardProps {
   showUser?: boolean;
   currentUserId?: string;
   isAdmin?: boolean;
-}
-
-const CATEGORY_COLORS: Record<string, string> = {
-  deep_work: "from-blue-500 to-blue-600",
-  meeting: "from-blue-500 to-blue-600",
-  review: "from-amber-500 to-amber-600",
-  admin: "from-slate-400 to-slate-500",
-  planning: "from-emerald-500 to-emerald-600",
-  learning: "from-pink-500 to-pink-600",
-  break: "from-green-500 to-green-600",
-  blocked: "from-red-500 to-red-600",
-};
-
-function formatHour(h: number) {
-  const suffix = h >= 12 ? "PM" : "AM";
-  const display = h > 12 ? h - 12 : h === 0 ? 12 : h;
-  return `${display}:00 ${suffix}`;
-}
-
-function getInitials(name: string | null) {
-  if (!name) return "?";
-  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 }
 
 export function TimeEntryCard({ entry, showUser = true, currentUserId, isAdmin }: TimeEntryCardProps) {

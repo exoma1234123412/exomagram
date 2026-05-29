@@ -71,7 +71,7 @@ export function ProofSnapshotProvider({ children }: { children: React.ReactNode 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     const { data: membership } = await supabase
-      .from("org_members").select("org_id").eq("user_id", user.id).limit(1).single<{ org_id: string }>();
+      .from("org_members").select("org_id").eq("user_id", user.id).limit(1).single();
     if (!membership) return;
 
     await supabase.from("audit_log").insert({

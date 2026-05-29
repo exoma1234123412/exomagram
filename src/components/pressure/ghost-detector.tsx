@@ -7,7 +7,7 @@ import { LIVE_STATUS_CONFIG } from "@/lib/constants";
 import { Card, CardHeader, CardTitle, CardContent, CardAction } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { Ghost, Wifi, WifiOff, AlertTriangle, Eye } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -33,16 +33,6 @@ interface GhostRecord {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-function getInitials(name: string | null) {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
 
 function minutesSince(dateStr: string) {
   return (Date.now() - new Date(dateStr).getTime()) / 1000 / 60;
@@ -87,7 +77,7 @@ export function GhostDetector({ orgId }: { orgId: string }) {
       .from("live_status")
       .select("*, profiles(*)")
       .eq("org_id", orgId)
-      .returns<StatusWithProfile[]>();
+      ;
     setStatuses(data ?? []);
   }, [orgId]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -97,7 +87,7 @@ export function GhostDetector({ orgId }: { orgId: string }) {
       .select("*")
       .eq("org_id", orgId)
       .eq("date", todayISO())
-      .returns<TimeEntry[]>();
+      ;
     setEntries(data ?? []);
   }, [orgId]); // eslint-disable-line react-hooks/exhaustive-deps
 

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile, OrgMember, LiveStatus } from "@/lib/types/database";
-import { cn } from "@/lib/utils";
+import { cn, getInitials, timeAgo } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -43,30 +43,12 @@ interface MemberListProps {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function getInitials(name: string | null) {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
-
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("es-ES", {
     day: "numeric",
     month: "short",
     year: "numeric",
   });
-}
-
-function timeAgo(dateStr: string): string {
-  const diff = (Date.now() - new Date(dateStr).getTime()) / 1000 / 60;
-  if (diff < 1) return "ahora";
-  if (diff < 60) return `hace ${Math.round(diff)}m`;
-  if (diff < 1440) return `hace ${Math.round(diff / 60)}h`;
-  return `hace ${Math.round(diff / 1440)}d`;
 }
 
 const ROLE_CONFIG = {
@@ -132,12 +114,12 @@ export function MemberList({
           .from("org_members")
           .select("*, profiles(*)")
           .eq("org_id", orgId)
-          .returns<MemberWithProfile[]>(),
+          ,
         supabase
           .from("live_status")
           .select("*")
           .eq("org_id", orgId)
-          .returns<LiveStatus[]>(),
+          ,
       ]);
 
       setMembers(membersResult.data ?? []);
@@ -164,7 +146,7 @@ export function MemberList({
             .from("live_status")
             .select("*")
             .eq("org_id", orgId)
-            .returns<LiveStatus[]>();
+            ;
           setLiveStatuses(data ?? []);
         }
       )
@@ -181,7 +163,7 @@ export function MemberList({
             .from("org_members")
             .select("*, profiles(*)")
             .eq("org_id", orgId)
-            .returns<MemberWithProfile[]>();
+            ;
           setMembers(data ?? []);
         }
       )

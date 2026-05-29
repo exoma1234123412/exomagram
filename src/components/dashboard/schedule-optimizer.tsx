@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { WORK_HOURS, CATEGORIES } from "@/lib/constants";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, formatHour, formatHourShort } from "@/lib/utils";
 import { subDays } from "date-fns";
 import { Sparkles, Brain, Users, Coffee, Zap } from "lucide-react";
 
@@ -16,10 +16,6 @@ interface HourProfile {
   deepWorkSuccess: number; // % of deep work entries at this hour
   meetingFrequency: number;
   recommendation: "deep_work" | "meeting" | "admin" | "break" | "flexible";
-}
-
-function formatHour(h: number) {
-  return `${h > 12 ? h - 12 : h}${h >= 12 ? "PM" : "AM"}`;
 }
 
 export function ScheduleOptimizer({ orgId }: { orgId: string }) {
@@ -109,7 +105,7 @@ export function ScheduleOptimizer({ orgId }: { orgId: string }) {
         }
         blocks.push(block);
         const longest = blocks.sort((a, b) => b.length - a.length)[0];
-        setBestDeepWork(`${formatHour(longest[0])} - ${formatHour(longest[longest.length - 1] + 1)}`);
+        setBestDeepWork(`${formatHourShort(longest[0])} - ${formatHourShort(longest[longest.length - 1] + 1)}`);
       }
 
       if (meetHours.length > 0) {
@@ -148,7 +144,7 @@ export function ScheduleOptimizer({ orgId }: { orgId: string }) {
               <div
                 key={p.hour}
                 className="flex-1 flex flex-col items-center gap-1"
-                title={`${formatHour(p.hour)}: ${rec.label} (Energia: ${p.avgEnergy}, Animo: ${p.avgMood})`}
+                title={`${formatHourShort(p.hour)}: ${rec.label} (Energia: ${p.avgEnergy}, Animo: ${p.avgMood})`}
               >
                 <div className={cn("w-full h-8 rounded-sm flex items-center justify-center", rec.color)}>
                   <span className="text-white">{rec.icon}</span>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { cn } from "@/lib/utils";
+import { cn, timeAgo } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -85,14 +85,6 @@ function generateToken(): string {
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function timeAgo(dateStr: string): string {
-  const diff = (Date.now() - new Date(dateStr).getTime()) / 1000 / 60;
-  if (diff < 1) return "ahora";
-  if (diff < 60) return `hace ${Math.round(diff)}m`;
-  if (diff < 1440) return `hace ${Math.round(diff / 60)}h`;
-  return `hace ${Math.round(diff / 1440)}d`;
 }
 
 const ROLE_CONFIG = {

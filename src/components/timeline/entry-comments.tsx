@@ -6,7 +6,7 @@ import type { Profile } from "@/lib/types/database";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { MessageCircle, Send } from "lucide-react";
@@ -18,11 +18,6 @@ interface Comment {
   content: string;
   created_at: string;
   profiles: Profile;
-}
-
-function getInitials(name: string | null) {
-  if (!name) return "?";
-  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 }
 
 export function EntryComments({ entryId }: { entryId: string }) {
@@ -41,7 +36,7 @@ export function EntryComments({ entryId }: { entryId: string }) {
         .select("*, profiles(*)")
         .eq("entry_id", entryId)
         .order("created_at", { ascending: true })
-        .returns<Comment[]>();
+        ;
 
       setComments(data ?? []);
     }
@@ -63,7 +58,7 @@ export function EntryComments({ entryId }: { entryId: string }) {
             .select("*, profiles(*)")
             .eq("entry_id", entryId)
             .order("created_at", { ascending: true })
-            .returns<Comment[]>();
+            ;
           setComments(data ?? []);
         }
       )

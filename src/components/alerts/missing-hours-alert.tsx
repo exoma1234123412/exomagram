@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { WORK_HOURS, EXPECTED_DAILY_HOURS } from "@/lib/constants";
+import { formatHour, formatHourShort } from "@/lib/utils";
 import { AlertTriangle } from "lucide-react";
 
 export function MissingHoursAlert({ date }: { date: string }) {
@@ -40,10 +41,6 @@ export function MissingHoursAlert({ date }: { date: string }) {
 
   if (missingHours.length === 0) return null;
 
-  function formatHour(h: number) {
-    return `${h > 12 ? h - 12 : h}${h >= 12 ? "pm" : "am"}`;
-  }
-
   return (
     <div className="bg-yellow-50/80 dark:bg-yellow-950/15 border border-yellow-200/60 dark:border-yellow-800/40 rounded-2xl p-4 mb-8 shadow-sm shadow-yellow-500/5">
       <div className="flex items-start gap-3">
@@ -55,7 +52,7 @@ export function MissingHoursAlert({ date }: { date: string }) {
             {missingHours.length} horas sin registrar
           </p>
           <p className="text-xs text-yellow-700/70 dark:text-yellow-400/70 mt-0.5">
-            Faltan: {missingHours.map(formatHour).join(", ")}
+            Faltan: {missingHours.map(formatHourShort).join(", ")}
           </p>
           {totalLogged < EXPECTED_DAILY_HOURS && (
             <p className="text-xs text-yellow-700/70 dark:text-yellow-400/70 mt-1">

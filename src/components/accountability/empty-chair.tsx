@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types/database";
 import { WORK_HOURS } from "@/lib/constants";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { Ghost } from "lucide-react";
 
 // PSYCHOLOGY: The Empty Chair
@@ -19,11 +19,6 @@ interface AbsentMember {
   hoursLogged: number;
   lastActiveHour: number | null;
   gapHours: number; // hours since last entry
-}
-
-function getInitials(name: string | null) {
-  if (!name) return "?";
-  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 }
 
 export function EmptyChair({ orgId }: { orgId: string }) {
@@ -41,7 +36,7 @@ export function EmptyChair({ orgId }: { orgId: string }) {
         .from("org_members")
         .select("user_id, profiles(*)")
         .eq("org_id", orgId)
-        .returns<{ user_id: string; profiles: Profile }[]>();
+        ;
 
       if (!members) return;
 

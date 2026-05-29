@@ -7,7 +7,7 @@ import { EXPECTED_DAILY_HOURS } from "@/lib/constants";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import {
   Trophy,
   Medal,
@@ -50,16 +50,6 @@ interface MemberRow {
 }
 
 // ─── Helpers ─────────────────────────────────────────────────
-
-function getInitials(name: string | null) {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
 
 function firstName(name: string | null) {
   if (!name) return "?";
@@ -120,18 +110,18 @@ export function DailyScoreboard({ orgId }: { orgId: string }) {
         .from("org_members")
         .select("user_id, profiles(*)")
         .eq("org_id", orgId)
-        .returns<{ user_id: string; profiles: Profile }[]>(),
+        ,
       supabase
         .from("time_entries")
         .select("user_id, hour, proof_urls")
         .eq("org_id", orgId)
         .eq("date", today)
-        .returns<Pick<TimeEntry, "user_id" | "hour" | "proof_urls">[]>(),
+,
       supabase
         .from("live_status")
         .select("*")
         .eq("org_id", orgId)
-        .returns<LiveStatus[]>(),
+        ,
     ]);
 
     const members = membersRes.data ?? [];

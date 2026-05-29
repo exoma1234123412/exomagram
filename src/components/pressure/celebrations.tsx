@@ -1160,7 +1160,7 @@ export function CelebrationProvider({ children }: { children: ReactNode }) {
         .select("org_id")
         .eq("user_id", user.id)
         .limit(1)
-        .single<{ org_id: string }>();
+        .single();
 
       if (!membership) return;
       orgIdRef.current = membership.org_id;
@@ -1171,7 +1171,7 @@ export function CelebrationProvider({ children }: { children: ReactNode }) {
         .select("current_streak")
         .eq("user_id", user.id)
         .eq("org_id", membership.org_id)
-        .single<{ current_streak: number }>();
+        .single();
 
       if (streak) {
         prevStreakRef.current = streak.current_streak;
@@ -1183,7 +1183,7 @@ export function CelebrationProvider({ children }: { children: ReactNode }) {
         .select("tier")
         .eq("user_id", user.id)
         .eq("org_id", membership.org_id)
-        .single<{ tier: TitleTier }>();
+        .single();
 
       if (titleData) {
         prevTierRef.current = titleData.tier;
@@ -1268,7 +1268,7 @@ export function CelebrationProvider({ children }: { children: ReactNode }) {
       .select("buddy_user_id")
       .eq("user_id", userId)
       .eq("org_id", orgId)
-      .single<{ buddy_user_id: string }>();
+      .single();
 
     if (!pairing) return;
 
@@ -1299,13 +1299,13 @@ export function CelebrationProvider({ children }: { children: ReactNode }) {
       .from("profiles")
       .select("full_name")
       .eq("id", userId)
-      .single<{ full_name: string | null }>();
+      .single();
 
     const { data: buddyProfile } = await supabase
       .from("profiles")
       .select("full_name")
       .eq("id", pairing.buddy_user_id)
-      .single<{ full_name: string | null }>();
+      .single();
 
     trigger("buddy_duo_complete", {
       myName: myProfile?.full_name ?? "Tú",
@@ -1325,7 +1325,7 @@ export function CelebrationProvider({ children }: { children: ReactNode }) {
       .select("current_streak")
       .eq("user_id", userId)
       .eq("org_id", orgId)
-      .single<{ current_streak: number }>();
+      .single();
 
     if (!streak) return;
 
@@ -1355,7 +1355,7 @@ export function CelebrationProvider({ children }: { children: ReactNode }) {
       .select("tier")
       .eq("user_id", userId)
       .eq("org_id", orgId)
-      .single<{ tier: TitleTier }>();
+      .single();
 
     if (!titleData) return;
 

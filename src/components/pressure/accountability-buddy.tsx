@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type {
   Profile,
@@ -20,7 +20,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import {
   Users,
   Heart,
@@ -81,16 +81,6 @@ const QUICK_MESSAGES: Record<QuickMessage, string> = {
 };
 
 // ─── Helpers ─────────────────────────────────────────────────
-
-function getInitials(name: string | null) {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
 
 function firstName(name: string | null) {
   if (!name) return "?";
@@ -209,6 +199,7 @@ function daysUntilChange(pairing: BuddyPairing | null): number {
 export function AccountabilityBuddy({ orgId: orgIdProp }: { orgId?: string } = {}) {
   const supabase = createClient();
 
+  const orgIdRef = useRef<string>(orgIdProp ?? "");
   const [orgId, setOrgId] = useState<string>(orgIdProp ?? "");
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [myData, setMyData] = useState<BuddyData | null>(null);
@@ -287,16 +278,17 @@ export function AccountabilityBuddy({ orgId: orgIdProp }: { orgId?: string } = {
     setCurrentUserId(user.id);
 
     // Auto-fetch orgId if not provided
-    let resolvedOrgId = orgId;
+    let resolvedOrgId = orgIdRef.current;
     if (!resolvedOrgId) {
       const { data: membership } = await supabase
         .from("org_members")
         .select("org_id")
         .eq("user_id", user.id)
         .limit(1)
-        .single<{ org_id: string }>();
+        .single();
       if (!membership) { setLoading(false); return; }
-      resolvedOrgId = membership.org_id;
+      resolvedOrgId = membership.org_id as string;
+      orgIdRef.current = resolvedOrgId;
       setOrgId(resolvedOrgId);
     }
 
@@ -306,31 +298,29 @@ export function AccountabilityBuddy({ orgId: orgIdProp }: { orgId?: string } = {
         supabase
           .from("org_members")
           .select("user_id, profiles(*)")
-          .eq("org_id", orgId)
-          .returns<{ user_id: string; profiles: Profile }[]>(),
+          .eq("org_id", resolvedOrgId)
+          ,
         supabase
           .from("time_entries")
           .select("user_id, hour, proof_urls")
-          .eq("org_id", orgId)
-          .eq("date", today)
-          .returns<Pick<TimeEntry, "user_id" | "hour" | "proof_urls">[]>(),
+          .eq("org_id", resolvedOrgId)
+          .eq("date", today),
         supabase
           .from("time_entries")
           .select("user_id, hour, proof_urls")
-          .eq("org_id", orgId)
-          .eq("date", yesterday)
-          .returns<Pick<TimeEntry, "user_id" | "hour" | "proof_urls">[]>(),
+          .eq("org_id", resolvedOrgId)
+          .eq("date", yesterday),
         supabase
           .from("live_status")
           .select("*")
-          .eq("org_id", orgId)
-          .returns<LiveStatus[]>(),
+          .eq("org_id", resolvedOrgId)
+          ,
         supabase
           .from("trust_score_history")
           .select("*")
-          .eq("org_id", orgId)
+          .eq("org_id", resolvedOrgId)
           .order("date", { ascending: false })
-          .returns<TrustScoreHistory[]>(),
+          ,
       ]);
 
     const members = membersRes.data ?? [];
@@ -511,7 +501,7 @@ export function AccountabilityBuddy({ orgId: orgIdProp }: { orgId?: string } = {
     setAllPairs(pairsArr);
 
     setLoading(false);
-  }, [orgId, today, yesterday, findBestBuddy]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [today, yesterday]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Initial load + realtime ─────────────────────────────
 
@@ -545,7 +535,7 @@ export function AccountabilityBuddy({ orgId: orgIdProp }: { orgId?: string } = {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [orgId, loadData]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [loadData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Derived values ──────────────────────────────────────
 

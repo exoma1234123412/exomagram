@@ -12,18 +12,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { UserCheck, Send, CheckCircle2, XCircle, Clock } from "lucide-react";
 
 interface CrossVerifyProps {
   entry: TimeEntry & { profiles?: Profile };
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}
-
-function getInitials(name: string | null) {
-  if (!name) return "?";
-  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 }
 
 export function CrossVerifyDialog({ entry, open, onOpenChange }: CrossVerifyProps) {
@@ -43,7 +38,7 @@ export function CrossVerifyDialog({ entry, open, onOpenChange }: CrossVerifyProp
         .select("user_id, profiles(full_name, avatar_url)")
         .eq("org_id", entry.org_id)
         .neq("user_id", entry.user_id)
-        .returns<{ user_id: string; profiles: { full_name: string | null; avatar_url: string | null } }[]>();
+        ;
 
       setMembers(
         memberData?.map((m) => ({

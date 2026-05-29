@@ -99,6 +99,17 @@ export const LIVE_STATUS_CONFIG: Record<
   offline: { label: "Desconectado", color: "text-gray-400", dotColor: "bg-gray-400" },
 };
 
+export const CATEGORY_COLORS: Record<string, string> = {
+  deep_work: "bg-violet-500",
+  meeting: "bg-blue-500",
+  review: "bg-amber-500",
+  admin: "bg-slate-400",
+  planning: "bg-emerald-500",
+  learning: "bg-pink-500",
+  break: "bg-green-400",
+  blocked: "bg-red-500",
+};
+
 export const WORK_HOURS = Array.from({ length: 12 }, (_, i) => i + 7); // 7am - 6pm
 
 export const MOOD_LABELS: Record<number, string> = {

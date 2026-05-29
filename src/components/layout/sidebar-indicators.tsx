@@ -228,7 +228,7 @@ export function SidebarIndicators({ children }: { children: ReactNode }) {
         .select("org_id")
         .eq("user_id", userId)
         .limit(1)
-        .single<{ org_id: string }>();
+        .single();
 
       if (!membership) return;
 

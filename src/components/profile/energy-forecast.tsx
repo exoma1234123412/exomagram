@@ -2,7 +2,7 @@
 
 import { WORK_HOURS, MOOD_LABELS, ENERGY_LABELS } from "@/lib/constants";
 import type { TimeEntry } from "@/lib/types/database";
-import { cn } from "@/lib/utils";
+import { cn, formatHour } from "@/lib/utils";
 import { Zap, Heart, TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 // Predicts energy and mood patterns based on historical data
@@ -77,10 +77,6 @@ export function EnergyForecast({ entries }: { entries: TimeEntry[] }) {
     const a = avg(moods);
     if (a > bestDayMood) { bestDay = dow; bestDayMood = a; }
     if (a < worstDayMood) { worstDay = dow; worstDayMood = a; }
-  }
-
-  function formatHour(h: number) {
-    return `${h > 12 ? h - 12 : h}:00 ${h >= 12 ? "PM" : "AM"}`;
   }
 
   return (
