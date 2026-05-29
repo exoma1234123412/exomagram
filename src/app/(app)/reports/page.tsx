@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useOrg } from "@/lib/context/org-context";
 import { createClient } from "@/lib/supabase/client";
 import { CATEGORIES, MOOD_LABELS, CATEGORY_COLORS } from "@/lib/constants";
 import type { WorkCategory, Profile } from "@/lib/types/database";

@@ -17,6 +17,7 @@ import { Play, Pause, SkipForward, RotateCcw, Film, Clock } from "lucide-react";
 type EntryWithProfile = TimeEntry & { profiles: Profile };
 
 export default function ReplayPage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [entries, setEntries] = useState<EntryWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,24 +29,16 @@ export default function ReplayPage() {
   const supabase = createClient();
 
   useEffect(() => {
+    if (orgLoading) return;
+    if (!orgId) { setLoading(false); return; }
+
     async function load() {
       setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (!membership) { setLoading(false); return; }
 
       const { data } = await supabase
         .from("time_entries")
         .select("*, profiles(*)")
-        .eq("org_id", membership.org_id)
+        .eq("org_id", orgId!)
         .eq("date", date)
         .order("hour", { ascending: true })
         ;
@@ -57,7 +50,7 @@ export default function ReplayPage() {
       setLoading(false);
     }
     load();
-  }, [date]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgLoading, orgId, date]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Playback logic
   useEffect(() => {

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import { CATEGORIES, EXPECTED_DAILY_HOURS, CATEGORY_COLORS } from "@/lib/constants";
 import type { WorkCategory } from "@/lib/types/database";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,6 +40,7 @@ function saveBudgets(budgets: Budget[]) {
 }
 
 export default function BudgetsPage() {
+  const { orgId, userId, loading: orgLoading } = useOrg();
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [statuses, setStatuses] = useState<BudgetStatus[]>([]);
   const [editing, setEditing] = useState(false);
@@ -55,18 +57,10 @@ export default function BudgetsPage() {
   useEffect(() => {
     async function loadActual() {
       if (budgets.length === 0) { setLoading(false); return; }
-
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (!membership) { setLoading(false); return; }
+      if (!orgId || !userId) {
+        if (!orgLoading) setLoading(false);
+        return;
+      }
 
       const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 }).toISOString().split("T")[0];
       const weekEnd = endOfWeek(new Date(), { weekStartsOn: 1 }).toISOString().split("T")[0];
@@ -74,8 +68,8 @@ export default function BudgetsPage() {
       const { data: entries } = await supabase
         .from("time_entries")
         .select("category")
-        .eq("user_id", user.id)
-        .eq("org_id", membership.org_id)
+        .eq("user_id", userId)
+        .eq("org_id", orgId)
         .gte("date", weekStart)
         .lte("date", weekEnd);
 
@@ -94,7 +88,7 @@ export default function BudgetsPage() {
       setLoading(false);
     }
     loadActual();
-  }, [budgets]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [budgets, orgId, userId, orgLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleSave() {
     const newBudgets: Budget[] = [];

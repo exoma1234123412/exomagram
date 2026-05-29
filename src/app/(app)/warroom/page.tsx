@@ -17,10 +17,9 @@ type EntryWithProfile = TimeEntry & { profiles: Profile };
 type StatusWithProfile = LiveStatus & { profiles: Profile };
 
 export default function WarRoomPage() {
+  const { orgId, orgName: contextOrgName, loading: orgLoading } = useOrg();
   const [entries, setEntries] = useState<EntryWithProfile[]>([]);
   const [statuses, setStatuses] = useState<StatusWithProfile[]>([]);
-  const [orgId, setOrgId] = useState<string | null>(null);
-  const [orgName, setOrgName] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date());
   const [recentEntry, setRecentEntry] = useState<EntryWithProfile | null>(null);
   const supabase = createClient();
@@ -41,34 +40,17 @@ export default function WarRoomPage() {
   }, [recentEntry]);
 
   useEffect(() => {
+    if (!orgId) return;
+
     let entriesChannel: ReturnType<typeof supabase.channel>;
     let statusChannel: ReturnType<typeof supabase.channel>;
 
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-      if (!membership) return;
-      setOrgId(membership.org_id);
-
-      const { data: org } = await supabase
-        .from("organizations")
-        .select("name")
-        .eq("id", membership.org_id)
-        .single();
-      if (org) setOrgName((org as { name: string }).name);
-
       // Fetch entries
       const { data: entryData } = await supabase
         .from("time_entries")
         .select("*, profiles(*)")
-        .eq("org_id", membership.org_id)
+        .eq("org_id", orgId!)
         .eq("date", today)
         .order("created_at", { ascending: false })
         ;
@@ -78,7 +60,7 @@ export default function WarRoomPage() {
       const { data: statusData } = await supabase
         .from("live_status")
         .select("*, profiles(*)")
-        .eq("org_id", membership.org_id)
+        .eq("org_id", orgId!)
         ;
       setStatuses(statusData ?? []);
 
@@ -89,7 +71,7 @@ export default function WarRoomPage() {
           event: "INSERT",
           schema: "public",
           table: "time_entries",
-          filter: `org_id=eq.${membership.org_id}`,
+          filter: `org_id=eq.${orgId}`,
         }, async (payload) => {
           const { data } = await supabase
             .from("time_entries")
@@ -97,7 +79,7 @@ export default function WarRoomPage() {
             .eq("id", payload.new.id)
             .single();
           if (data) {
-            const typed = data as unknown as EntryWithProfile;
+            const typed = data as EntryWithProfile;
             setEntries((prev) => [typed, ...prev]);
             setRecentEntry(typed);
           }
@@ -110,12 +92,12 @@ export default function WarRoomPage() {
           event: "*",
           schema: "public",
           table: "live_status",
-          filter: `org_id=eq.${membership.org_id}`,
+          filter: `org_id=eq.${orgId}`,
         }, async () => {
           const { data } = await supabase
             .from("live_status")
             .select("*, profiles(*)")
-            .eq("org_id", membership.org_id)
+            .eq("org_id", orgId!)
             ;
           setStatuses(data ?? []);
         })
@@ -127,7 +109,7 @@ export default function WarRoomPage() {
       if (entriesChannel) supabase.removeChannel(entriesChannel);
       if (statusChannel) supabase.removeChannel(statusChannel);
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Stats
   const totalHours = entries.length;
@@ -155,7 +137,7 @@ export default function WarRoomPage() {
             <Zap className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold">{orgName || "Exomagram"}</h1>
+            <h1 className="text-xl font-bold">{contextOrgName || "Exomagram"}</h1>
             <p className="text-xs text-white/40">War Room — Transparencia en vivo</p>
           </div>
         </div>

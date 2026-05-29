@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import { WORK_HOURS, CATEGORIES, CATEGORY_COLORS } from "@/lib/constants";
 import type { WorkCategory } from "@/lib/types/database";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,10 +14,10 @@ import { es } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Grid3X3 } from "lucide-react";
 
 export default function HeatmapPage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [weekStart, setWeekStart] = useState(() =>
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
-  const [orgId, setOrgId] = useState<string | null>(null);
   const [heatData, setHeatData] = useState<
     Map<string, { count: number; topCategory: WorkCategory | null }>
   >(new Map());
@@ -26,23 +27,6 @@ export default function HeatmapPage() {
   const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
   const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
   const datesStr = days.map((d) => d.toISOString().split("T")[0]);
-
-  useEffect(() => {
-    async function loadOrg() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-      if (membership) setOrgId(membership.org_id);
-    }
-    loadOrg();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!orgId) return;
@@ -145,7 +129,7 @@ export default function HeatmapPage() {
         </Button>
       </div>
 
-      {loading ? (
+      {orgLoading || loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>
       ) : (
         <Card className="overflow-hidden border-border/50 shadow-sm">

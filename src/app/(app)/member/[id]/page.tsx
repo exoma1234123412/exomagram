@@ -40,8 +40,8 @@ interface MoodPoint {
 export default function MemberPage() {
   const params = useParams();
   const memberId = params.id as string;
+  const { orgId, loading: orgLoading } = useOrg();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [orgId, setOrgId] = useState<string | null>(null);
   const [scoreTrend, setScoreTrend] = useState<ScorePoint[]>([]);
   const [moodTrend, setMoodTrend] = useState<MoodPoint[]>([]);
   const [flags, setFlags] = useState<AccountabilityFlag[]>([]);
@@ -58,26 +58,9 @@ export default function MemberPage() {
   const supabase = createClient();
 
   useEffect(() => {
+    if (!orgId) return;
+
     async function load() {
-      // Get current user's org
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (!membership) {
-        setLoading(false);
-        return;
-      }
-      setOrgId(membership.org_id);
-
       const twoWeeksAgo = subDays(new Date(), 14).toISOString().split("T")[0];
       const today = new Date().toISOString().split("T")[0];
 
@@ -95,7 +78,7 @@ export default function MemberPage() {
           .from("time_entries")
           .select("*")
           .eq("user_id", memberId)
-          .eq("org_id", membership.org_id)
+          .eq("org_id", orgId!)
           .gte("date", twoWeeksAgo)
           .lte("date", today)
           .order("date", { ascending: true })
@@ -104,14 +87,14 @@ export default function MemberPage() {
           .from("trust_score_history")
           .select("date, score")
           .eq("user_id", memberId)
-          .eq("org_id", membership.org_id)
+          .eq("org_id", orgId!)
           .gte("date", twoWeeksAgo)
           .order("date", { ascending: true }),
         supabase
           .from("accountability_flags")
           .select("*")
           .eq("user_id", memberId)
-          .eq("org_id", membership.org_id)
+          .eq("org_id", orgId!)
           .eq("resolved", false)
           .order("date", { ascending: false })
           .limit(20)
@@ -120,7 +103,7 @@ export default function MemberPage() {
           .from("daily_closeouts")
           .select("*")
           .eq("user_id", memberId)
-          .eq("org_id", membership.org_id)
+          .eq("org_id", orgId!)
           .gte("date", twoWeeksAgo)
           .order("date", { ascending: false })
           .limit(10)
@@ -129,7 +112,7 @@ export default function MemberPage() {
           .from("activity_streaks")
           .select("current_streak")
           .eq("user_id", memberId)
-          .eq("org_id", membership.org_id)
+          .eq("org_id", orgId!)
           .limit(1)
           .single(),
       ]);
@@ -230,9 +213,9 @@ export default function MemberPage() {
       setLoading(false);
     }
     load();
-  }, [memberId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgId, memberId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (loading) {
+  if (orgLoading || loading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-primary to-primary/40 animate-pulse" />
