@@ -34,12 +34,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col scanlines vignette">
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark')}catch(e){}`,
+            __html: `document.documentElement.classList.add('dark');localStorage.setItem('theme','dark');`,
           }}
         />
         {children}

@@ -83,38 +83,41 @@
   --sidebar-ring: oklch(0.488 0.22 258);
 }
 
+/* ═══════════════════════════════════════════════════════
+   PALANTIR DARK THEME — Omniscient. Oppressive. Inescapable.
+   ═══════════════════════════════════════════════════════ */
 .dark {
-  --background: oklch(0.13 0.015 280);
-  --foreground: oklch(0.94 0.008 280);
-  --card: oklch(0.18 0.015 280);
-  --card-foreground: oklch(0.94 0.008 280);
-  --popover: oklch(0.18 0.015 280);
-  --popover-foreground: oklch(0.94 0.008 280);
-  --primary: oklch(0.65 0.2 258);
-  --primary-foreground: oklch(0.15 0.015 280);
-  --secondary: oklch(0.22 0.02 280);
-  --secondary-foreground: oklch(0.94 0.008 280);
-  --muted: oklch(0.22 0.015 280);
-  --muted-foreground: oklch(0.65 0.01 280);
-  --accent: oklch(0.25 0.03 258);
-  --accent-foreground: oklch(0.94 0.008 280);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(0.28 0.015 280);
-  --input: oklch(0.28 0.02 280);
-  --ring: oklch(0.65 0.2 258);
-  --chart-1: oklch(0.65 0.2 258);
-  --chart-2: oklch(0.62 0.18 268);
-  --chart-3: oklch(0.55 0.15 250);
-  --chart-4: oklch(0.65 0.12 160);
-  --chart-5: oklch(0.58 0.15 30);
-  --sidebar: oklch(0.155 0.018 280);
-  --sidebar-foreground: oklch(0.94 0.008 280);
-  --sidebar-primary: oklch(0.65 0.2 258);
-  --sidebar-primary-foreground: oklch(0.94 0.008 280);
-  --sidebar-accent: oklch(0.25 0.03 258);
-  --sidebar-accent-foreground: oklch(0.94 0.008 280);
-  --sidebar-border: oklch(0.28 0.02 280);
-  --sidebar-ring: oklch(0.65 0.2 258);
+  --background: oklch(0.08 0.01 250);
+  --foreground: oklch(0.88 0.01 250);
+  --card: oklch(0.11 0.012 250);
+  --card-foreground: oklch(0.88 0.01 250);
+  --popover: oklch(0.10 0.012 250);
+  --popover-foreground: oklch(0.88 0.01 250);
+  --primary: oklch(0.62 0.18 250);
+  --primary-foreground: oklch(0.08 0.01 250);
+  --secondary: oklch(0.15 0.015 250);
+  --secondary-foreground: oklch(0.88 0.01 250);
+  --muted: oklch(0.16 0.012 250);
+  --muted-foreground: oklch(0.55 0.01 250);
+  --accent: oklch(0.18 0.02 250);
+  --accent-foreground: oklch(0.88 0.01 250);
+  --destructive: oklch(0.65 0.22 25);
+  --border: oklch(0.20 0.015 250);
+  --input: oklch(0.18 0.015 250);
+  --ring: oklch(0.62 0.18 250);
+  --chart-1: oklch(0.62 0.18 250);
+  --chart-2: oklch(0.55 0.15 230);
+  --chart-3: oklch(0.50 0.12 210);
+  --chart-4: oklch(0.60 0.10 160);
+  --chart-5: oklch(0.55 0.15 30);
+  --sidebar: oklch(0.06 0.01 250);
+  --sidebar-foreground: oklch(0.82 0.01 250);
+  --sidebar-primary: oklch(0.62 0.18 250);
+  --sidebar-primary-foreground: oklch(0.88 0.01 250);
+  --sidebar-accent: oklch(0.14 0.02 250);
+  --sidebar-accent-foreground: oklch(0.82 0.01 250);
+  --sidebar-border: oklch(0.16 0.015 250);
+  --sidebar-ring: oklch(0.62 0.18 250);
 }
 
 @layer base {
@@ -333,7 +336,149 @@
   }
 
   .dark ::selection {
-    background-color: oklch(0.65 0.2 258 / 25%);
-    color: oklch(0.95 0.01 280);
+    background-color: oklch(0.62 0.18 250 / 30%);
+    color: oklch(0.95 0.01 250);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   PALANTIR EFFECTS — Surveillance aesthetic
+   ═══════════════════════════════════════════════════════ */
+
+/* Scan lines overlay — subtle CRT monitor effect */
+@layer utilities {
+  .scanlines::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      oklch(0 0 0 / 3%) 2px,
+      oklch(0 0 0 / 3%) 4px
+    );
+    mix-blend-mode: multiply;
+  }
+}
+
+/* Data grid background — tactical operations feel */
+@layer utilities {
+  .dark .bg-grid-pattern {
+    background-image:
+      linear-gradient(oklch(0.62 0.18 250 / 3%) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(0.62 0.18 250 / 3%) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+}
+
+/* Surveillance vignette — darker edges */
+@layer utilities {
+  .vignette::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 99;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 50%,
+      oklch(0 0 0 / 25%) 100%
+    );
+  }
+}
+
+/* Cold glow for primary elements */
+@layer utilities {
+  .dark .glow-blue {
+    box-shadow:
+      0 0 0 1px oklch(0.62 0.18 250 / 15%),
+      0 0 20px -4px oklch(0.62 0.18 250 / 20%),
+      0 0 40px -8px oklch(0.62 0.18 250 / 10%);
+  }
+}
+
+/* Terminal cursor blink */
+@keyframes terminal-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@layer utilities {
+  .terminal-cursor::after {
+    content: "▊";
+    animation: terminal-blink 1s step-end infinite;
+    color: oklch(0.62 0.18 250);
+    margin-left: 2px;
+  }
+}
+
+/* Surveillance pulse — concentric rings */
+@keyframes surveillance-pulse {
+  0% { box-shadow: 0 0 0 0 oklch(0.62 0.18 250 / 30%), 0 0 0 0 oklch(0.62 0.18 250 / 15%); }
+  50% { box-shadow: 0 0 0 8px oklch(0.62 0.18 250 / 0%), 0 0 0 16px oklch(0.62 0.18 250 / 0%); }
+  100% { box-shadow: 0 0 0 0 oklch(0.62 0.18 250 / 30%), 0 0 0 0 oklch(0.62 0.18 250 / 15%); }
+}
+
+@layer utilities {
+  .animate-surveillance {
+    animation: surveillance-pulse 3s ease-in-out infinite;
+  }
+}
+
+/* Data stream animation — falling matrix-like vertical lines */
+@keyframes data-stream {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 200px; }
+}
+
+@layer utilities {
+  .data-stream::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.015;
+    background: repeating-linear-gradient(
+      180deg,
+      oklch(0.62 0.18 250) 0px,
+      transparent 1px,
+      transparent 8px
+    );
+    background-size: 4px 200px;
+    animation: data-stream 10s linear infinite;
+    z-index: 0;
+  }
+}
+
+/* Threat level borders */
+@layer utilities {
+  .threat-none { border-left: 3px solid oklch(0.55 0.15 150); }
+  .threat-low { border-left: 3px solid oklch(0.70 0.15 90); }
+  .threat-medium { border-left: 3px solid oklch(0.65 0.20 60); }
+  .threat-high { border-left: 3px solid oklch(0.60 0.22 30); }
+  .threat-critical { border-left: 3px solid oklch(0.55 0.25 15); animation: threat-pulse 1.5s ease-in-out infinite; }
+}
+
+@keyframes threat-pulse {
+  0%, 100% { border-left-color: oklch(0.55 0.25 15); }
+  50% { border-left-color: oklch(0.70 0.25 15); }
+}
+
+/* Dark scrollbar — Palantir style */
+@layer base {
+  .dark * {
+    scrollbar-color: oklch(0.25 0.015 250) oklch(0.08 0.01 250);
+  }
+}
+
+/* Monospace data display */
+@layer utilities {
+  .font-data {
+    font-family: var(--font-geist-mono), "SF Mono", "Fira Code", monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
   }
 }

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
+  Home,
   Grid3X3,
   User,
   Settings,
@@ -52,6 +53,7 @@ import { ThemeToggle } from "./theme-toggle";
 
 // ─── TRABAJO DIARIO ─────────────────────────────────────
 const dailyNav = [
+  { href: "/home", label: "Inicio", icon: Home },
   { href: "/dashboard", label: "Timeline", icon: LayoutDashboard },
   { href: "/now", label: "Ahora", icon: Radio },
   { href: "/standup", label: "Standup", icon: MessageSquare },
@@ -139,8 +141,10 @@ function NavSection({ items, label }: { items: typeof dailyNav; label?: string }
   return (
     <div>
       {label && (
-        <p className="px-3 text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-widest mb-2 mt-1">
+        <p className="px-3 text-[9px] font-bold text-primary/40 uppercase tracking-[0.25em] mb-2 mt-1 font-data flex items-center gap-2">
+          <span className="w-2 h-px bg-primary/20" />
           {label}
+          <span className="flex-1 h-px bg-primary/10" />
         </p>
       )}
       <div className="space-y-0.5">
@@ -192,16 +196,16 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="hidden md:flex w-[260px] flex-col border-r border-border/60 bg-sidebar h-screen sticky top-0">
-      {/* Logo */}
+    <aside className="hidden md:flex w-[260px] flex-col border-r border-primary/10 bg-sidebar h-screen sticky top-0">
+      {/* Logo — Palantir command header */}
       <div className="p-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20">
-            <Clock className="w-[18px] h-[18px] text-white" />
+          <div className="w-9 h-9 bg-gradient-to-br from-primary/80 to-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20 animate-surveillance">
+            <Eye className="w-[18px] h-[18px] text-primary-foreground" />
           </div>
           <div>
-            <span className="font-bold text-[15px] tracking-tight">Exomagram</span>
-            <p className="text-[10px] text-muted-foreground/60 -mt-0.5 tracking-wide">Transparencia total</p>
+            <span className="font-bold text-[15px] tracking-widest uppercase font-data">Exomagram</span>
+            <p className="text-[9px] text-primary/50 -mt-0.5 tracking-[0.2em] uppercase">Sistema de vigilancia</p>
           </div>
         </div>
         <div className="flex items-center gap-1">
@@ -210,7 +214,7 @@ export function Sidebar() {
         </div>
       </div>
 
-      <div className="mx-4 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+      <div className="mx-4 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
       <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto">
         <NavSection items={dailyNav} />
@@ -224,13 +228,13 @@ export function Sidebar() {
         <NavSection items={configNav} label="Configuración" />
       </nav>
 
-      <div className="mx-4 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+      <div className="mx-4 h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />
 
       <div className="p-3">
         <Button
           variant="ghost"
           size="sm"
-          className="w-full justify-start gap-3 text-muted-foreground/70 hover:text-destructive hover:bg-destructive/5 rounded-xl"
+          className="w-full justify-start gap-3 text-muted-foreground/50 hover:text-destructive hover:bg-destructive/5 rounded-xl text-[12px] tracking-wider uppercase"
           onClick={handleLogout}
         >
           <LogOut className="w-4 h-4" />
