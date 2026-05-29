@@ -50,7 +50,7 @@ export async function POST(request: Request) {
   ] = await Promise.all([
     supabase.from("time_entries").select("*").eq("org_id", orgId).gte("date", start).lte("date", end),
     supabase.from("time_entries").select("user_id, category, proof_urls, is_late").eq("org_id", orgId).gte("date", prevStartStr).lt("date", start),
-    supabase.from("org_members").select("user_id, profiles(full_name, role)").eq("org_id", orgId),
+    supabase.from("org_members").select("user_id, profiles(full_name)").eq("org_id", orgId),
     supabase.from("daily_closeouts").select("user_id, date").eq("org_id", orgId).gte("date", start),
     supabase.from("standups").select("user_id, date").eq("org_id", orgId).gte("date", start),
     supabase.from("ai_reviews").select("user_id, findings").eq("org_id", orgId).eq("review_type", "daily_individual").gte("date", start),

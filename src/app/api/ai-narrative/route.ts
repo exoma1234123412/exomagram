@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 
   let query = supabase
     .from("time_entries")
-    .select("*, profiles(full_name, role)")
+    .select("*, profiles(full_name)")
     .eq("org_id", orgId)
     .eq("date", date)
     .order("hour", { ascending: true });

@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 
   const [{ data: entries }, { data: members }, { data: closeouts }, { data: standups }] = await Promise.all([
     supabase.from("time_entries").select("user_id, date, hour, category, proof_urls, is_late").eq("org_id", orgId).gte("date", startDate).order("date"),
-    supabase.from("org_members").select("user_id, profiles(full_name, role)").eq("org_id", orgId),
+    supabase.from("org_members").select("user_id, profiles(full_name)").eq("org_id", orgId),
     supabase.from("daily_closeouts").select("user_id, date").eq("org_id", orgId).gte("date", startDate),
     supabase.from("standups").select("user_id, date").eq("org_id", orgId).gte("date", startDate),
   ]);
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     const closeoutDates = new Set((closeouts ?? []).filter((c) => c.user_id === m.user_id).map((c) => c.date));
     const standupDates = new Set((standups ?? []).filter((s) => s.user_id === m.user_id).map((s) => s.date));
 
-    historyBlock += `\n=== ${name} (${profile?.role ?? "?"}) ===\n`;
+    historyBlock += `\n=== ${name} ===\n`;
 
     for (const [date, dayEntries] of Array.from(byDate.entries()).slice(-10)) {
       const dow = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"][new Date(date + "T12:00:00").getDay()];

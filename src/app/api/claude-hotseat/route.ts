@@ -51,7 +51,7 @@ export async function POST(request: Request) {
   const role = (profile as { role: string } | null)?.role ?? "?";
 
   // Build massive context
-  let ctx = `PERSONA EN EL HOT SEAT: ${name} (${role})\n\n`;
+  let ctx = `PERSONA EN EL HOT SEAT: ${name}\n\n`;
 
   // Entry stats
   const totalEntries = entries?.length ?? 0;

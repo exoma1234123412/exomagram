@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     { data: workProfiles },
     { data: dailyInsights },
   ] = await Promise.all([
-    supabase.from("org_members").select("user_id, role, profiles(full_name, role, email)").eq("org_id", org_id),
+    supabase.from("org_members").select("user_id, role, profiles(full_name, email)").eq("org_id", org_id),
     supabase.from("time_entries").select("*").eq("org_id", org_id).gte("date", recentStart).order("date").order("hour"),
     supabase.from("time_entries").select("*, profiles(full_name)").eq("org_id", org_id).eq("date", today).order("hour"),
     supabase.from("standups").select("*").eq("org_id", org_id).gte("date", recentStart),
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
   const memberMap = new Map<string, string>();
   for (const m of members ?? []) {
     const p = m.profiles as unknown as { full_name: string; role: string } | null;
-    memberMap.set(m.user_id, `${p?.full_name ?? "?"} (${p?.role ?? "?"})`);
+    memberMap.set(m.user_id, `${p?.full_name ?? "?"}`);
   }
 
   // LAYER 0: AI Work Profiles (persistent personality/pattern data per person)

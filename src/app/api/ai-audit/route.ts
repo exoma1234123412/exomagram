@@ -65,7 +65,7 @@ export async function POST(request: Request) {
     { data: promises },
   ] = await Promise.all([
     supabase.from("time_entries").select("*, profiles(full_name)").eq("org_id", orgId).eq("date", date),
-    supabase.from("org_members").select("user_id, profiles(full_name, role)").eq("org_id", orgId),
+    supabase.from("org_members").select("user_id, profiles(full_name)").eq("org_id", orgId),
     supabase.from("daily_closeouts").select("user_id").eq("org_id", orgId).eq("date", date),
     supabase.from("standups").select("user_id").eq("org_id", orgId).eq("date", date),
     supabase.from("daily_promises").select("user_id, status").eq("org_id", orgId).eq("date", date),

@@ -41,8 +41,8 @@ export async function POST(request: Request) {
     { data: githubEvents },
     { data: reactions },
   ] = await Promise.all([
-    supabase.from("time_entries").select("*, profiles(full_name, role)").eq("org_id", orgId).eq("date", date).order("user_id").order("hour"),
-    supabase.from("org_members").select("user_id, profiles(full_name, role)").eq("org_id", orgId),
+    supabase.from("time_entries").select("*, profiles(full_name)").eq("org_id", orgId).eq("date", date).order("user_id").order("hour"),
+    supabase.from("org_members").select("user_id, profiles(full_name)").eq("org_id", orgId),
     supabase.from("daily_closeouts").select("user_id, summary").eq("org_id", orgId).eq("date", date),
     supabase.from("standups").select("user_id, yesterday, today_plan, blockers").eq("org_id", orgId).eq("date", date),
     supabase.from("daily_promises").select("user_id, title, status").eq("org_id", orgId).eq("date", date),
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
   const memberMap = new Map<string, string>();
   for (const m of members ?? []) {
     const p = m.profiles as unknown as { full_name: string; role: string } | null;
-    memberMap.set(m.user_id, `${p?.full_name ?? "?"} (${p?.role ?? "?"})`);
+    memberMap.set(m.user_id, `${p?.full_name ?? "?"}`);
   }
 
   const suspiciousIds = new Set((reactions ?? []).map((r) => r.entry_id));
