@@ -115,8 +115,8 @@ export function EntryChangelog({ entryId }: { entryId: string }) {
  <div className="mt-0.5 space-y-0.5">
  {diffs.slice(0, 3).map((d) => (
  <p key={d.field} className="text-muted-foreground">
- <span className="font-medium text-foreground">{d.field}</span>:{""}
- <span className="line-through text-red-500/70">{d.from}</span>{""}
+ <span className="font-medium text-foreground">{d.field}</span>:{" "}
+ <span className="line-through text-red-500/70">{d.from}</span>{" "}
  → <span className="text-green-600">{d.to}</span>
  </p>
  ))}

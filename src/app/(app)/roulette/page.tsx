@@ -483,7 +483,7 @@ export default function RoulettePage() {
  <div className="mb-8">
  <div className="flex items-center gap-3 mb-1">
  <Shuffle className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">Ruleta de Accountability</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Ruleta de Accountability</h1>
  </div>
  <p className="text-muted-foreground text-sm">
  Empareja a dos miembros al azar para que verifiquen el trabajo del otro en 30 minutos
@@ -658,7 +658,7 @@ export default function RoulettePage() {
  CATEGORIES[activePairing.entry_a.category]?.color
  )}
  >
- {CATEGORIES[activePairing.entry_a.category]?.emoji}{""}
+ {CATEGORIES[activePairing.entry_a.category]?.emoji}{" "}
  {CATEGORIES[activePairing.entry_a.category]?.label}
  </Badge>
  </div>
@@ -669,7 +669,7 @@ export default function RoulettePage() {
  </p>
  )}
  <p className="text-[10px] text-muted-foreground">
- {activePairing.entry_a.date} &middot;{""}
+ {activePairing.entry_a.date} &middot;{" "}
  {activePairing.entry_a.hour}:00
  </p>
  </div>
@@ -750,7 +750,7 @@ export default function RoulettePage() {
  CATEGORIES[activePairing.entry_b.category]?.color
  )}
  >
- {CATEGORIES[activePairing.entry_b.category]?.emoji}{""}
+ {CATEGORIES[activePairing.entry_b.category]?.emoji}{" "}
  {CATEGORIES[activePairing.entry_b.category]?.label}
  </Badge>
  </div>
@@ -761,7 +761,7 @@ export default function RoulettePage() {
  </p>
  )}
  <p className="text-[10px] text-muted-foreground">
- {activePairing.entry_b.date} &middot;{""}
+ {activePairing.entry_b.date} &middot;{" "}
  {activePairing.entry_b.hour}:00
  </p>
  </div>

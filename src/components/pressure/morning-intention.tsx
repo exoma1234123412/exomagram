@@ -369,11 +369,11 @@ if (hour >= INTENTION_WINDOW_END) {
  <div className="bg-accent/40 p-3.5 flex items-center gap-3 text-sm">
  <Clock className="w-4 h-4 text-muted-foreground shrink-0"/>
  <span>
- Ayer registraste{""}
+ Ayer registraste{" "}
  <span className="font-semibold tabular-nums">
  {yesterdaySummary.hoursLogged} horas
  </span>
- ,{""}
+ ,{" "}
  <span
  className={cn(
 "font-semibold tabular-nums",
@@ -688,7 +688,7 @@ function IntentionAccountabilityCard({
  <div className="flex-1 min-w-0">
  <span className="text-foreground">Tu plan del día</span>
  <p className="text-[11px] text-muted-foreground font-normal mt-0.5 truncate">
- {intention.plannedHours}h, principalmente{""}
+ {intention.plannedHours}h, principalmente{" "}
  {categoryInfo.emoji} {categoryInfo.label}
  </p>
  </div>
@@ -703,7 +703,7 @@ function IntentionAccountabilityCard({
  <CardContent className="space-y-3">
  {/* Goal text */}
  <div className="text-sm text-foreground/80 leading-relaxed">
- <span className="font-medium text-foreground">Meta:</span>{""}
+ <span className="font-medium text-foreground">Meta:</span>{" "}
  {intention.goal}
  </div>
 

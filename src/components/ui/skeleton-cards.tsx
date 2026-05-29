@@ -10,7 +10,7 @@ function Pulse({
 }: {
   className?: string;
 }) {
-  return <div className={`animate-pulse rounded-2xl bg-muted ${className}`} />;
+  return <div className={`animate-pulse bg-muted ${className}`} />;
 }
 
 // ---------------------------------------------------------------------------
@@ -39,18 +39,18 @@ export function DashboardSkeleton() {
           <Pulse className="h-7 w-40" />
           <Pulse className="h-4 w-56" />
         </div>
-        <Pulse className="h-10 w-36 rounded-xl" />
+        <Pulse className="h-10 w-36" />
       </div>
 
       {/* Date navigation */}
-      <Pulse className="h-10 w-64 rounded-2xl" />
+      <Pulse className="h-10 w-64" />
 
       {/* Stat cards - 4 across */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {Array.from({ length: 4 }).map((_, i) => (
           <Card key={i} className="overflow-hidden">
             <CardContent className="p-4 flex flex-col items-center gap-2">
-              <Pulse className="w-8 h-8 rounded-xl" />
+              <Pulse className="w-8 h-8" />
               <Pulse className="h-7 w-12" />
               <Pulse className="h-3 w-16" />
             </CardContent>
@@ -59,7 +59,7 @@ export function DashboardSkeleton() {
       </div>
 
       {/* Search bar */}
-      <Pulse className="h-11 w-full rounded-xl" />
+      <Pulse className="h-11 w-full" />
 
       {/* Entry cards */}
       {Array.from({ length: 3 }).map((_, i) => (
@@ -81,8 +81,8 @@ export function DashboardSkeleton() {
                 <Pulse className="h-3 w-32" />
                 <Pulse className={`h-3 ${i === 0 ? "w-72" : i === 1 ? "w-64" : "w-52"}`} />
                 <div className="flex gap-2">
-                  <Pulse className="h-5 w-24 rounded-md" />
-                  <Pulse className="h-5 w-20 rounded-md" />
+                  <Pulse className="h-5 w-24" />
+                  <Pulse className="h-5 w-20" />
                 </div>
               </div>
             </div>
@@ -115,7 +115,7 @@ export function ProfileSkeleton() {
         {Array.from({ length: 4 }).map((_, i) => (
           <Card key={i} className="overflow-hidden">
             <CardContent className="p-4 flex flex-col items-center gap-2">
-              <Pulse className="w-9 h-9 rounded-xl" />
+              <Pulse className="w-9 h-9" />
               <Pulse className="h-7 w-14" />
               <Pulse className="h-3 w-20" />
             </CardContent>
@@ -133,7 +133,7 @@ export function ProfileSkeleton() {
                 <Pulse className={`h-3.5 ${i === 0 ? "w-32" : i === 1 ? "w-24" : i === 2 ? "w-28" : i === 3 ? "w-20" : "w-36"}`} />
                 <Pulse className="h-3.5 w-14" />
               </div>
-              <Pulse className="h-1.5 w-full rounded-full" />
+              <Pulse className="h-1.5 w-full" />
             </div>
           ))}
         </CardContent>
@@ -146,7 +146,7 @@ export function ProfileSkeleton() {
           <div className="flex gap-1.5 flex-wrap">
             {Array.from({ length: 12 }).map((_, i) => (
               <div key={i} className="flex flex-col items-center gap-1.5">
-                <Pulse className="w-11 h-11 rounded-xl" />
+                <Pulse className="w-11 h-11" />
                 <Pulse className="h-2.5 w-5" />
               </div>
             ))}
@@ -172,7 +172,7 @@ export function LeaderboardSkeleton() {
         </div>
         <div className="flex gap-1">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Pulse key={i} className="h-8 w-12 rounded-xl" />
+            <Pulse key={i} className="h-8 w-12" />
           ))}
         </div>
       </div>
@@ -184,7 +184,7 @@ export function LeaderboardSkeleton() {
             <CardContent className="p-4">
               <div className="flex items-center gap-4">
                 {/* Rank */}
-                <Pulse className="w-5 h-5 rounded-md" />
+                <Pulse className="w-5 h-5" />
 
                 {/* Avatar */}
                 <Pulse className="w-10 h-10 rounded-full" />
@@ -193,7 +193,7 @@ export function LeaderboardSkeleton() {
                 <div className="flex-1 min-w-0 space-y-2">
                   <div className="flex items-center gap-2">
                     <Pulse className={`h-4 ${i === 0 ? "w-32" : i === 1 ? "w-28" : i === 2 ? "w-36" : i === 3 ? "w-24" : "w-30"}`} />
-                    {i < 2 && <Pulse className="h-4 w-16 rounded-md" />}
+                    {i < 2 && <Pulse className="h-4 w-16" />}
                   </div>
                   <div className="flex items-center gap-3">
                     <Pulse className="h-3 w-20" />
@@ -232,10 +232,10 @@ export function GridSkeleton() {
       </div>
 
       {/* Date navigation */}
-      <Pulse className="h-10 w-64 rounded-2xl" />
+      <Pulse className="h-10 w-64" />
 
       {/* Grid container */}
-      <div className="bg-card border border-border/50 rounded-2xl p-5">
+      <div className="bg-card border border-border/50 p-5">
         {/* Header row - member avatars */}
         <div
           className="grid gap-1.5 mb-2"
@@ -264,7 +264,7 @@ export function GridSkeleton() {
 
             {/* Cells */}
             {Array.from({ length: columns }).map((_, col) => (
-              <Pulse key={col} className="h-11 rounded-xl" />
+              <Pulse key={col} className="h-11" />
             ))}
           </div>
         ))}
@@ -273,7 +273,7 @@ export function GridSkeleton() {
         <div className="flex flex-wrap gap-4 mt-6 pt-5 border-t border-border/30">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="flex items-center gap-2">
-              <Pulse className="w-3 h-3 rounded-md" />
+              <Pulse className="w-3 h-3" />
               <Pulse className={`h-3 ${i % 2 === 0 ? "w-14" : "w-10"}`} />
             </div>
           ))}

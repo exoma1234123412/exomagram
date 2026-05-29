@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { cn } from "@/lib/utils";
+import { cn, getTodayMTY } from "@/lib/utils";
 import { Brain, Trophy, AlertTriangle, Sparkles, Target, Users, Zap, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -14,6 +14,8 @@ interface FeedItem {
  body: string;
  emoji: string | null;
  urgency: string;
+ target_user_id: string | null;
+ is_ai_generated: boolean;
  created_at: string;
 }
 
@@ -31,7 +33,7 @@ const TYPE_CONFIG: Record<string, { icon: typeof Brain; color: string }> = {
 export function PublicFeed({ orgId }: { orgId: string }) {
  const [items, setItems] = useState<FeedItem[]>([]);
  const supabase = createClient();
- const today = new Date().toISOString().split("T")[0];
+ const today = getTodayMTY();
 
  useEffect(() => {
  async function load() {

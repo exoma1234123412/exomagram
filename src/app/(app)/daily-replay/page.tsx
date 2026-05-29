@@ -611,7 +611,7 @@ export default function DailyReplayPage() {
  {/* Timestamp */}
  <div className="shrink-0 pt-0.5">
  <span className="font-mono text-[10px] tabular-nums tracking-tight text-muted-foreground">
- {entry.hour > 12 ? entry.hour - 12 : entry.hour}:00{""}
+ {entry.hour > 12 ? entry.hour - 12 : entry.hour}:00{" "}
  {entry.hour >= 12 ?"PM":"AM"}
  </span>
  </div>
@@ -725,7 +725,7 @@ export default function DailyReplayPage() {
  {summary.first.profile?.full_name?.split("")[0] ||"?"}
  </span>
  <span className="font-mono text-[10px] tabular-nums text-muted-foreground">
- {summary.first.hour > 12 ? summary.first.hour - 12 : summary.first.hour}:00{""}
+ {summary.first.hour > 12 ? summary.first.hour - 12 : summary.first.hour}:00{" "}
  {summary.first.hour >= 12 ?"PM":"AM"}
  </span>
  </div>
@@ -739,7 +739,7 @@ export default function DailyReplayPage() {
  {summary.last.profile?.full_name?.split("")[0] ||"?"}
  </span>
  <span className="font-mono text-[10px] tabular-nums text-muted-foreground">
- {summary.last.hour > 12 ? summary.last.hour - 12 : summary.last.hour}:00{""}
+ {summary.last.hour > 12 ? summary.last.hour - 12 : summary.last.hour}:00{" "}
  {summary.last.hour >= 12 ?"PM":"AM"}
  </span>
  </div>
@@ -786,7 +786,7 @@ export default function DailyReplayPage() {
  </span>
  </div>
  <p className="font-mono text-[10px] text-red-500/80">
- Registraron 0 horas:{""}
+ Registraron 0 horas:{" "}
  {summary.ghosts
  .map((id) => profiles[id]?.full_name ||"Desconocido")
  .join(",")}

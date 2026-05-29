@@ -166,7 +166,7 @@ export function TeamGrid({ date, orgId }: { date: string; orgId: string }) {
  {entry && (
  <TooltipContent side="top"className="max-w-[220px]">
  <p className="font-semibold text-sm">
- {CATEGORIES[entry.category].emoji}{""}
+ {CATEGORIES[entry.category].emoji}{" "}
  {entry.title}
  </p>
  <p className="text-xs text-muted-foreground mt-0.5">

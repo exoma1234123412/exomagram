@@ -190,7 +190,7 @@ export default function RatePage() {
  {/* Header */}
  <div className="flex items-center gap-3 mb-2">
  <Star className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">Rate My Day</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Rate My Day</h1>
  </div>
  <p className="text-muted-foreground text-sm mb-8">
  Evalúa el día de un compañero de forma anónima. Ellos ven su promedio
@@ -225,7 +225,7 @@ export default function RatePage() {
  ))}
  </div>
  <p className="text-xs text-muted-foreground">
- ({myRatingCount}{""}
+ ({myRatingCount}{" "}
  {myRatingCount === 1 ?"evaluación":"evaluaciones"})
  </p>
  </div>

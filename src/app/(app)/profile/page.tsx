@@ -196,7 +196,7 @@ export default function ProfilePage() {
  </AvatarFallback>
  </Avatar>
  <div>
- <h1 className="text-2xl font-bold tracking-tight">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">
  {profile.full_name ?? profile.email}
  </h1>
  {profile.role && (

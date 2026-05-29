@@ -661,7 +661,7 @@ export function InactivityAlarm({
  {totalIdleMin > 0 && (
  <div className="mt-8 border-t border-red-800/40 pt-4">
  <p className="text-xs text-red-400/50">
- Tiempo inactivo acumulado hoy:{""}
+ Tiempo inactivo acumulado hoy:{" "}
  <span className="font-bold text-red-300/70 tabular-nums">
  {formatMinutesLong(totalIdleMin + idleMinutes)}
  </span>

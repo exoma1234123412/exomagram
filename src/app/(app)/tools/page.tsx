@@ -194,7 +194,7 @@ function MeetingCostSection() {
  ${totalCost.toLocaleString("en-US", { minimumFractionDigits: 0 })}
  </p>
  <p className="text-sm text-muted-foreground mt-1">
- {personHours.toFixed(1)} persona-horas ={""}
+ {personHours.toFixed(1)} persona-horas ={" "}
  {equivalentDays.toFixed(1)} dias laborales equivalentes
  </p>
  </div>
@@ -406,7 +406,7 @@ function TimeEstimatorSection() {
 
  <div className="space-y-1.5">
  <Label className="text-xs">
- Categoria{""}
+ Categoria{" "}
  {detectedCategory && !selectedCategory && (
  <span className="text-muted-foreground ml-1">(auto-detectada)</span>
  )}
@@ -836,7 +836,7 @@ export default function ToolsPage() {
  <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
  {/* Header */}
  <div className="mb-8">
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <Wrench className="w-6 h-6 text-primary"/>
  Herramientas
  </h1>

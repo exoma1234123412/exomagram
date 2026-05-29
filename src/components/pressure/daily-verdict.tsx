@@ -635,7 +635,7 @@ export function DailyVerdict({ onOpenCloseout }: DailyVerdictProps) {
  </p>
  ) : teamComparison.membersAhead > 0 ? (
  <p className="text-sm font-semibold text-red-700 dark:text-red-400">
- Hoy registraste menos que {teamComparison.membersAhead} de{""}
+ Hoy registraste menos que {teamComparison.membersAhead} de{" "}
  {teamComparison.totalMembers - 1} compañeros
  </p>
  ) : (
@@ -668,7 +668,7 @@ export function DailyVerdict({ onOpenCloseout }: DailyVerdictProps) {
  {stats.hoursLogged < teamComparison.teamAvgHours && (
  <p className="text-[10px] text-red-500/80 mt-2 flex items-center gap-1">
  <TrendingDown className="w-3 h-3"/>
- Estás{""}
+ Estás{" "}
  {(teamComparison.teamAvgHours - stats.hoursLogged).toFixed(1)}
  h por debajo del promedio
  </p>
@@ -699,29 +699,29 @@ export function DailyVerdict({ onOpenCloseout }: DailyVerdictProps) {
 
  {trustProjection.direction ==="down"? (
  <p className="text-sm font-semibold text-red-700 dark:text-red-400">
- Tu trust score bajará de{""}
+ Tu trust score bajará de{" "}
  <span className="tabular-nums">
  {trustProjection.currentScore}
- </span>{""}
- a{""}
+ </span>{" "}
+ a{" "}
  <span className="tabular-nums">
  ~{trustProjection.projectedScore}
  </span>
  </p>
  ) : trustProjection.direction ==="up"? (
  <p className="text-sm font-semibold text-green-700 dark:text-green-400">
- Tu trust score subirá de{""}
+ Tu trust score subirá de{" "}
  <span className="tabular-nums">
  {trustProjection.currentScore}
- </span>{""}
- a{""}
+ </span>{" "}
+ a{" "}
  <span className="tabular-nums">
  ~{trustProjection.projectedScore}
  </span>
  </p>
  ) : (
  <p className="text-sm font-semibold text-foreground">
- Tu trust score se mantendrá en{""}
+ Tu trust score se mantendrá en{" "}
  <span className="tabular-nums">
  {trustProjection.currentScore}
  </span>
@@ -826,7 +826,7 @@ export function DailyVerdict({ onOpenCloseout }: DailyVerdictProps) {
  Mañana
  </h3>
  <p className="text-sm text-foreground">
- Mañana necesitas registrar al menos{""}
+ Mañana necesitas registrar al menos{" "}
  <span
  className={cn(
 "font-bold tabular-nums",
@@ -834,8 +834,8 @@ export function DailyVerdict({ onOpenCloseout }: DailyVerdictProps) {
  ?"text-red-600 dark:text-red-400":"text-foreground")}
  >
  {requiredTomorrow} horas
- </span>{""}
- para{""}
+ </span>{" "}
+ para{" "}
  {trustProjection && trustProjection.direction ==="down"?"recuperar tu trust score":"mantener tu trust score"}
  .
  </p>

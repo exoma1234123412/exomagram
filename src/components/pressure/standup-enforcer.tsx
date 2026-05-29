@@ -509,7 +509,7 @@ export function StandupEnforcer() {
  ?"Standup enviado (tardío)":"Standup completado"}
  </p>
  <p className="text-[10px] text-muted-foreground">
- Enviado a las{""}
+ Enviado a las{" "}
  {format(new Date(myStandup.submitted_at),"h:mm a")}
  {isMyStandupLate &&"— marcado como tardío"}
  </p>

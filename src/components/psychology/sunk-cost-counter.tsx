@@ -72,7 +72,7 @@ export function SunkCostCounter({ orgId }: { orgId: string }) {
     >
       {/* Section label */}
       <div className="palantir-divider text-muted-foreground mb-3">
-        Tu inversion
+        Tu inversión
       </div>
 
       {/* Stats grid */}

@@ -187,13 +187,13 @@ export function RankingStrip() {
  {/* Team stats — always visible, right side */}
  <div className="flex items-center gap-3 px-3 py-1.5 shrink-0 border-l border-border/30 text-muted-foreground/60">
  <span>
- TOTAL{""}
+ TOTAL{" "}
  <span className="font-bold tabular-nums text-foreground/80">
  {totalHours}h
  </span>
  </span>
  <span>
- PROM{""}
+ PROM{" "}
  <span className="font-bold tabular-nums text-foreground/80">
  {avgHours.toFixed(1)}h
  </span>

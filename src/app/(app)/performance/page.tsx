@@ -773,7 +773,7 @@ export default function PerformancePage() {
  <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
  {/* Header */}
  <div className="mb-8">
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <ClipboardCheck className="w-6 h-6 text-primary"/>
  Performance Review
  </h1>
@@ -875,7 +875,7 @@ export default function PerformancePage() {
  <div key={comp.label}>
  <div className="flex justify-between text-xs mb-1">
  <span className="text-muted-foreground">
- {comp.label}{""}
+ {comp.label}{" "}
  <span className="text-muted-foreground/60">
  ({comp.weight}%)
  </span>

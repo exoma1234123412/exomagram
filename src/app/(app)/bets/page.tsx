@@ -237,7 +237,7 @@ export default function BetsPage() {
  <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
  {/* Header */}
  <div className="mb-8">
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <Coins className="w-6 h-6 text-primary"/>
  Apuestas de productividad
  </h1>
@@ -336,25 +336,25 @@ export default function BetsPage() {
  {selectedOpponent && (
  <div className="bg-accent/40 p-3 text-sm">
  <p>
- Apuesto{""}
+ Apuesto{" "}
  <span className="font-bold tabular-nums tracking-tight">
  {selectedPoints} puntos
- </span>{""}
- a que hago más{""}
+ </span>{" "}
+ a que hago más{" "}
  <span className="font-bold">
  {
  METRICS.find((m) => m.value === selectedMetric)
  ?.label
  }
- </span>{""}
- que{""}
+ </span>{" "}
+ que{" "}
  <span className="font-bold">
  {
  teamMembers.find(
  (m) => m.user_id === selectedOpponent
  )?.profile.full_name
  }
- </span>{""}
+ </span>{" "}
  hoy.
  </p>
  </div>
@@ -575,7 +575,7 @@ export default function BetsPage() {
  METRICS.find(
  (m) => m.value === nd.metric
  )?.label
- }{""}
+ }{" "}
  &middot; {nd.points} pts &middot; {nd.date}
  </p>
  </div>

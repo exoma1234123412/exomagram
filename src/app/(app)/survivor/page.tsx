@@ -300,10 +300,10 @@ export default function SurvivorPage() {
  {survivor.profile?.full_name ??"?"}
  </p>
  <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
- Ultimo en pie con{""}
+ Ultimo en pie con{" "}
  <span className="font-bold tabular-nums">
  {Math.round(cumulativeScores.get(survivor.userId) ?? 0)}
- </span>{""}
+ </span>{" "}
  puntos acumulados
  </p>
  </div>
@@ -519,13 +519,13 @@ export default function SurvivorPage() {
  return (
  <div className="mt-2 flex items-center gap-2 px-3 py-1.5 bg-red-50 dark:bg-red-950/20 text-[10px] text-red-600 dark:text-red-400">
  <AlertTriangle className="w-3 h-3 shrink-0"/>
- Eliminado el {dayNames[elimEvent.day - 1]} con{""}
+ Eliminado el {dayNames[elimEvent.day - 1]} con{" "}
  <span className="font-bold tabular-nums">
  {Math.round(
  elimEvent.scores.find((sc) => sc.userId === s.userId)
  ?.combined ?? 0
  )}
- </span>{""}
+ </span>{" "}
  pts ese dia
  </div>
  );
@@ -654,7 +654,7 @@ export default function SurvivorPage() {
  <p className="text-xs text-muted-foreground leading-relaxed">
  Puntos = (Horas registradas x 10) + Trust Score + (Entradas verificadas / Total entradas x 20).
  Cada dia a medianoche, el participante con la menor puntuacion del dia es eliminado.
- El viernes, el ultimo en pie es coronado campeon de la semana.
+ El viernes, el ultimo en pie es coronado campeón de la semana.
  </p>
  </CardContent>
  </Card>

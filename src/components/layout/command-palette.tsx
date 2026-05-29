@@ -306,10 +306,12 @@ export function CommandPalette() {
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
+        if (filteredItems.length === 0) return;
         setActiveIndex((prev) => (prev + 1) % filteredItems.length);
         break;
       case "ArrowUp":
         e.preventDefault();
+        if (filteredItems.length === 0) return;
         setActiveIndex((prev) => (prev - 1 + filteredItems.length) % filteredItems.length);
         break;
       case "Enter":
@@ -371,7 +373,7 @@ export function CommandPalette() {
 
             return (
               <div key={`${section.label}-${section.startIndex}`} className="py-1.5">
-                <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 px-4 py-1">
+                <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/60 px-4 py-1">
                   {SECTION_LABELS[section.label] ?? section.label}
                 </p>
                 {sectionItems.map((item, i) => {
@@ -404,7 +406,7 @@ export function CommandPalette() {
                       )}>
                         <HighlightMatch text={item.label} query={query} />
                       </span>
-                      <span className="font-mono text-[9px] text-muted-foreground/40 ml-auto shrink-0">
+                      <span className="font-mono text-[9px] text-muted-foreground/60 ml-auto shrink-0">
                         {item.href}
                       </span>
                     </button>

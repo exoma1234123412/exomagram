@@ -375,7 +375,7 @@ export default function AutoCapturePage() {
  <p className="font-mono text-2xl tabular-nums tracking-tight">
  {gaps?.missing_hours.length ?? 0}
  <span className="text-sm text-muted-foreground">
- {""}
+ {" "}
  / {gaps?.expected_today ?? 8}
  </span>
  </p>
@@ -400,7 +400,7 @@ export default function AutoCapturePage() {
  Horario típico
  </span>
  <span className="font-mono tabular-nums tracking-tight text-sm">
- {formatHour(patterns.typical_start_hour)} —{""}
+ {formatHour(patterns.typical_start_hour)} —{" "}
  {formatHour(patterns.typical_end_hour)}
  </span>
  </div>
@@ -510,11 +510,11 @@ export default function AutoCapturePage() {
  <span className="tabular-nums tracking-tight font-bold text-foreground">
  {gaps.logged_today}
  </span>
- {""}registradas /{""}
+ {" "}registradas /{" "}
  <span className="tabular-nums tracking-tight">
  {gaps.expected_today}
  </span>
- {""}esperadas
+ {" "}esperadas
  </span>
  <div className="flex-1 h-1.5 bg-muted border border-border overflow-hidden">
  <div

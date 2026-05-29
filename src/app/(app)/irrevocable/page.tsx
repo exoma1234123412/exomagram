@@ -890,22 +890,22 @@ function ActiveBetCard({
  <TrendingUp className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5"/>
  <div className="text-xs font-mono text-muted-foreground leading-relaxed">
  <p>
- A este ritmo, llegaras a{""}
+ A este ritmo, llegaras a{" "}
  <span className={cn(
 "font-bold tabular-nums",
  projectedHours >= bet.hours_committed ?"text-green-600 dark:text-green-400":"text-red-600 dark:text-red-400")}>
  {projectedHours} hrs
  </span>
- {""}(necesitas {bet.hours_committed}).
+ {" "}(necesitas {bet.hours_committed}).
  </p>
  <p className="mt-0.5">
- Evidencia proyectada:{""}
+ Evidencia proyectada:{" "}
  <span className={cn(
 "font-bold tabular-nums",
  projectedProof >= bet.hours_with_proof ?"text-green-600 dark:text-green-400":"text-red-600 dark:text-red-400")}>
  {projectedProof} hrs
  </span>
- {""}(necesitas {bet.hours_with_proof}).
+ {" "}(necesitas {bet.hours_with_proof}).
  </p>
  </div>
  </div>

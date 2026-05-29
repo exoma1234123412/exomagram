@@ -156,7 +156,7 @@ export default function JournalPage() {
  <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
  <div className="flex items-center gap-3 mb-2">
  <BookOpen className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">Work Journal</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Work Journal</h1>
  </div>
  <p className="text-muted-foreground text-sm mb-8 capitalize">{weekLabel}</p>
 

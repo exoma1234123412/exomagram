@@ -560,7 +560,7 @@ function FeedPost({
  </>
  )}
  <span>
- hace{""}
+ hace{" "}
  {formatDistanceToNow(new Date(entry.created_at), {
  locale: es,
  addSuffix: false,
@@ -1001,7 +1001,7 @@ export default function FeedPage() {
  <div className="flex items-center justify-between mb-2">
  <div className="flex items-center gap-3">
  <Rss className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">Feed</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Feed</h1>
  </div>
  <button
  onClick={handleRefresh}

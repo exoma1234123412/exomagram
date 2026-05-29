@@ -580,7 +580,7 @@ export default function NotificationsPage() {
  <div className="flex items-center justify-between mb-2">
  <div className="flex items-center gap-3">
  <Bell className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">Notificaciones</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Notificaciones</h1>
  {unreadCount > 0 && (
  <Badge className="h-6 min-w-[24px] px-2 flex items-center justify-center text-xs font-bold bg-primary text-primary-foreground rounded-full">
  {unreadCount}

@@ -559,18 +559,18 @@ export function ScreenPulse() {
  </p>
  <div className="space-y-0.5 text-[10px] opacity-80">
  <p>
- Nivel:{""}
+ Nivel:{" "}
  <span className="font-medium">{config.label}</span> (
  {eventsPerMinute} eventos/min)
  </p>
  <p>
- Tab:{""}
+ Tab:{" "}
  <span className="font-medium">
  {isTabVisible ?"Activo":"Inactivo"}
  </span>
  </p>
  <p>
- Ultimo reporte: hace{""}
+ Ultimo reporte: hace{" "}
  <span className="font-medium tabular-nums">
  {formatTimeSince(timeSinceLastReport)}
  </span>

@@ -504,10 +504,10 @@ export default function SpeedometerPage() {
  Freno del equipo
  </p>
  <p className="text-sm font-mono">
- <span className="font-bold text-red-500">{teamBrake.name}</span>{""}
+ <span className="font-bold text-red-500">{teamBrake.name}</span>{" "}
  <span className="text-muted-foreground">
- esta frenando al equipo &mdash;{""}
- <span className="font-mono tabular-nums">{teamBrake.entriesToday}</span> entradas en las ultimas{""}
+ esta frenando al equipo &mdash;{" "}
+ <span className="font-mono tabular-nums">{teamBrake.entriesToday}</span> entradas en las ultimas{" "}
  <span className="font-mono tabular-nums">{teamBrake.hoursInactive}</span> horas
  </span>
  </p>

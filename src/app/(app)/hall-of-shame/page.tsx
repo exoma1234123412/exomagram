@@ -536,7 +536,7 @@ export default function HallOfShamePage() {
  </span>
  </div>
  <p className="font-mono text-lg font-bold text-red-500 tracking-tight">
- {mostFlagged.profile?.full_name ??"Sin nombre"}{""}
+ {mostFlagged.profile?.full_name ??"Sin nombre"}{" "}
  <span className="text-sm text-red-400">
  — {mostFlagged.totalFlags} flags en 90 días
  </span>
@@ -604,7 +604,7 @@ export default function HallOfShamePage() {
  <span
  key={type}
  className="font-mono text-[9px] text-muted-foreground/60">
- {FLAG_TYPES[type as FlagType]?.emoji}{""}
+ {FLAG_TYPES[type as FlagType]?.emoji}{" "}
  {FLAG_TYPES[type as FlagType]?.label}: {count}
  </span>
  ))}

@@ -1013,7 +1013,7 @@ export default function WeeklyShamePage() {
         </section>
       )}
 
-      {/* =============== COMPARACION SEMANA ANTERIOR =============== */}
+      {/* =============== COMPARACIÓN SEMANA ANTERIOR =============== */}
       <section className="mb-8">
         <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground mb-3">
           Comparación Semana Anterior

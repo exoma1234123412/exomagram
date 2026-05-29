@@ -109,7 +109,7 @@ export function NoDataYet(props: EmptyStateProps) {
       }
       accentFrom="from-primary/10"
       accentTo="to-secondary/20"
-      title={props.title ?? "Sin datos todavia"}
+      title={props.title ?? "Sin datos todavía"}
       description={
         props.description ??
         "Aun no hay informacion para mostrar. Cuando haya actividad, aparecera aqui."
@@ -163,7 +163,7 @@ export function NoMembersState(props: EmptyStateProps) {
       title={props.title ?? "Sin miembros aun"}
       description={
         props.description ??
-        "Tu equipo todavia no tiene miembros. Invita a tus companeros para empezar a colaborar."
+        "Tu equipo todavía no tiene miembros. Invita a tus compañeros para empezar a colaborar."
       }
       ctaLabel={props.ctaLabel ?? "Invitar miembros"}
       {...props}

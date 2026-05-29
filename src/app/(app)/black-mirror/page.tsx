@@ -243,7 +243,7 @@ export default function BlackMirrorPage() {
  {/* Header */}
  <div className="flex items-center gap-3 mb-2">
  <Skull className="w-7 h-7 text-red-500"/>
- <h1 className="text-2xl font-bold tracking-tight text-white">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase text-white">
  El Espejo Negro
  </h1>
  </div>

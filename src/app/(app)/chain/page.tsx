@@ -391,7 +391,7 @@ export default function ChainPage() {
  <span className="text-red-500 font-bold">
  {lastBreak.breakerNames.join(",")}
  </span>
- {""}&mdash;{""}
+ {" "}&mdash;{" "}
  {format(new Date(lastBreak.date +"T12:00:00"),"d 'de' MMMM, yyyy", { locale: es })}
  </p>
  <div className="mt-2 space-y-1">

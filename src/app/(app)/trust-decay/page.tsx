@@ -564,7 +564,7 @@ export default function TrustDecayPage() {
  <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
  <div className="flex items-center gap-3 mb-2">
  <Droplets className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">Trust Decay</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Trust Decay</h1>
  </div>
  <div className="flex flex-col items-center justify-center py-24 gap-4">
  <div className="w-16 h-16 bg-primary/10 flex items-center justify-center">
@@ -586,7 +586,7 @@ export default function TrustDecayPage() {
  {/* Header */}
  <div className="flex items-center gap-3 mb-2">
  <Droplets className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">Trust Decay</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Trust Decay</h1>
  </div>
  <p className="text-muted-foreground text-sm mb-8">
  Cada vela representa el Trust Score de un miembro. Sin registros, la vela se derrite. Registra para mantener la llama viva.

@@ -160,9 +160,9 @@ export function ForcedComparison() {
  Promedio del equipo
  </p>
  <p className="text-sm">
- Tus companeros llevan{""}
+ Tus compañeros llevan {" "}
  <span className="font-bold tabular-nums text-lg">{data.teamAverage}</span>
- {""}hrs promedio hoy.
+ {" "} hrs promedio hoy.
  </p>
  </div>
 
@@ -198,17 +198,17 @@ export function ForcedComparison() {
  ) : belowAverage ? (
  <p className="text-sm">
  <span className="text-red-600 dark:text-red-400 font-bold">
- Estas por debajo.
- </span>{""}
- {worstFirstName} lleva menos que tu:{""}
+ Estás por debajo.
+ </span>{" "}
+ {worstFirstName} lleva menos que tú: {" "}
  <span className="font-bold tabular-nums">{data.worstHours} hrs.</span>
  </p>
  ) : (
  <p className="text-sm">
  <span className="text-emerald-600 dark:text-emerald-400 font-bold">
  Vas bien.
- </span>{""}
- {worstFirstName} va en ultimo con{""}
+ </span>{" "}
+ {worstFirstName} va en último con {" "}
  <span className="font-bold tabular-nums">{data.worstHours} hrs.</span>
  </p>
  )}
@@ -231,7 +231,7 @@ export function ForcedComparison() {
  </button>
  ) : (
  <p className="text-xs text-muted-foreground uppercase tracking-wide">
- Puedes cerrar en{""}
+ Puedes cerrar en{" "}
  <span className="font-bold tabular-nums text-foreground">
  {countdown}
  </span>

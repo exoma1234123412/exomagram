@@ -467,11 +467,11 @@ export function MorningShameRecap() {
               )}
             </section>
 
-            {/* ═══════ COMPARACION BRUTAL ═══════ */}
+            {/* ═══════ COMPARACIÓN BRUTAL ═══════ */}
             <section>
               <SectionHeader
                 icon={<Gavel className="w-4 h-4 text-red-500" />}
-                title="COMPARACION BRUTAL"
+                title="COMPARACIÓN BRUTAL"
               />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Best */}

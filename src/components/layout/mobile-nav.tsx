@@ -6,18 +6,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import {
- LayoutDashboard, Home, Grid3X3, User, Settings, LogOut, Clock,
- Eye, BarChart3, Trophy, MessageSquare, Brain, Heart, History,
- Flame, Target, Sparkles, Gauge, Monitor, Gavel, TrendingUp,
- Pickaxe, Swords, Stethoscope, Waves, Siren, FileSignature,
- Shuffle, EyeOff, Activity, Droplets, Dna, Skull, Coins,
- Package, ShieldAlert, Zap, Award, Calendar, Users,
- MessageSquareWarning, Plus, ScanEye, Radio, Menu, X, Search,
- Mail, Crosshair,
- ArrowDownUp, CandlestickChart, Hammer, Newspaper, Ghost, Timer, Ticket,
- UserMinus, Link2, Clock3, ShieldMinus, Lock, Handshake, Shield,
- Radar, FileText, Bone, Database, Table2, Scale, ScrollText, TrendingDown, Cross, UserX,
- FileWarning, ShieldCheck, Bot, ScanSearch, Split, ArrowRightLeft, Bell,
+ LayoutDashboard, Activity, Trophy, Brain, BarChart3, Gavel,
+ Skull, Coins, Eye, Swords, Zap, User, Settings,
+ LogOut, Plus, Menu, X, Search,
+ type LucideIcon,
 } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Logo } from "@/components/layout/logo";
@@ -27,150 +19,49 @@ interface MobileNavProps {
  unreadCount?: number;
 }
 
-const menuSections = [
+interface NavItem { href: string; label: string; icon: LucideIcon }
+
+// ═══════════════════════════════════════════════════════════
+// 15-HUB MOBILE NAVIGATION — same structure as sidebar
+// ═══════════════════════════════════════════════════════════
+
+const menuSections: { id: string; label: string; items: NavItem[] }[] = [
  {
- label:"OPS",
- items: [
- { href:"/alerts", label:"Alertas", icon: Bell },
- { href:"/home", label:"Inicio", icon: Home },
- { href:"/dashboard", label:"Timeline", icon: LayoutDashboard },
- { href:"/standup", label:"Standup", icon: MessageSquare },
- { href:"/auto-standup", label:"Auto-Standup", icon: Bot },
- { href:"/promises", label:"Promesas", icon: Target },
- { href:"/contract", label:"Pacto Semanal", icon: FileSignature },
- { href:"/auto-capture", label:"Auto-Captura", icon: Radar },
- { href:"/grid", label:"Equipo", icon: Grid3X3 },
- ],
+  id: "daily", label: "DIARIO",
+  items: [
+   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+   { href: "/feed", label: "Feed", icon: Activity },
+   { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
+  ],
  },
  {
- label:"INTEL",
- items: [
- { href:"/command", label:"Centro de Mando", icon: Crosshair },
- { href:"/ask-claude", label:"Ask Claude", icon: MessageSquare },
- { href:"/brain", label:"Claude Brain", icon: Brain },
- { href:"/hotseat", label:"Hot Seat", icon: Flame },
- { href:"/one-on-one", label:"1:1 Prep", icon: MessageSquare },
- { href:"/claude-audit", label:"Auditoría", icon: Eye },
- { href:"/bios", label:"Bios AI", icon: Brain },
- { href:"/archaeology", label:"Fósiles", icon: Pickaxe },
- { href:"/excuses", label:"Detector Excusas", icon: MessageSquareWarning },
- { href:"/excuse-archaeology", label:"Arqueología Excusas", icon: Bone },
- { href:"/excuse-patterns", label:"Patrones Excusas", icon: ScanEye },
- { href:"/brutal-truth", label:"Verdad Brutal", icon: Skull },
- { href:"/conflicts", label:"Conflictos AI", icon: ShieldAlert },
- { href:"/ai-predictions", label:"Predicciones AI", icon: Activity },
- { href:"/wellbeing", label:"Bienestar", icon: Heart },
- { href:"/productivity-autopsy", label:"Autopsia Prod.", icon: Stethoscope },
- { href:"/team-narrative", label:"Cronica Equipo", icon: Newspaper },
- { href:"/consistency", label:"Consistencia", icon: ScanSearch },
- { href:"/contradictions", label:"Contradicciones", icon: Split },
- ],
+  id: "intel", label: "INTELIGENCIA",
+  items: [
+   { href: "/ai-center", label: "AI Center", icon: Brain },
+   { href: "/analytics", label: "Analytics", icon: BarChart3 },
+   { href: "/accountability", label: "Accountability", icon: Gavel },
+  ],
  },
  {
- label:"PRESION",
- items: [
- { href:"/chain", label:"Cadena Equipo", icon: Link2 },
- { href:"/speedometer", label:"Velocímetro", icon: Gauge },
- { href:"/response-time", label:"Tiempo Respuesta", icon: Clock3 },
- { href:"/capital", label:"Trust Capital", icon: ShieldMinus },
- { href:"/irrevocable", label:"Apuesta Irrevocable", icon: Lock },
- { href:"/collateral", label:"Colateral", icon: Handshake },
- { href:"/shame-score", label:"Indice Verguenza", icon: Skull },
- { href:"/intervention", label:"Intervención", icon: UserX },
- { href:"/weekly-shame", label:"Informe Semanal", icon: Newspaper },
- { href:"/broken-promises", label:"Promesas Rotas", icon: ScrollText },
- { href:"/shame-contract", label:"Contrato Verguenza", icon: FileWarning },
- { href:"/reliability", label:"Confiabilidad", icon: ShieldCheck },
- { href:"/reciprocity", label:"Reciprocidad", icon: ArrowRightLeft },
- { href:"/trust-debt", label:"Deuda Confianza", icon: TrendingDown },
- { href:"/peer-verdict", label:"Peer Verdict", icon: Scale },
- { href:"/graveyard", label:"Cementerio Rachas", icon: Cross },
- ],
+  id: "pressure", label: "PRESION",
+  items: [
+   { href: "/shame", label: "Shame", icon: Skull },
+   { href: "/trust-market", label: "Trust Market", icon: Coins },
+   { href: "/surveillance", label: "Surveillance", icon: Eye },
+  ],
  },
  {
- label:"VIGILANCIA",
- items: [
- { href:"/surveillance", label:"Vigilancia Total", icon: Eye },
- { href:"/radar", label:"Radar", icon: Radar },
- { href:"/pulse", label:"Pulso EKG", icon: Activity },
- { href:"/trust-decay", label:"Trust Decay", icon: Droplets },
- { href:"/entropy", label:"Entropía", icon: Waves },
- { href:"/accountability", label:"Accountability", icon: Eye },
- { href:"/tribunal", label:"Tribunal", icon: Gavel },
- { href:"/roulette", label:"Ruleta", icon: Shuffle },
- { href:"/silent-hours", label:"Horas Silencio", icon: EyeOff },
- { href:"/twin", label:"Accountability Twin", icon: Users },
- { href:"/deadman", label:"Dead Man's Switch", icon: Timer },
- { href:"/ghost-radar", label:"Fantasma Inverso", icon: Ghost },
- { href:"/ghost-mode", label:"Modo Fantasma", icon: Ghost },
- { href:"/lottery", label:"Lotería Auditoría", icon: Ticket },
- { href:"/inverted", label:"Modo Invertido", icon: ArrowDownUp },
- ],
+  id: "compete", label: "COMPETENCIA",
+  items: [
+   { href: "/arena", label: "Arena", icon: Swords },
+   { href: "/seasons", label: "Progresion", icon: Zap },
+  ],
  },
- {
- label:"RENDIMIENTO",
- items: [
- { href:"/analytics", label:"Centro Comando", icon: Activity },
- { href:"/efficiency", label:"Eficiencia", icon: Gauge },
- { href:"/leaderboard", label:"Leaderboard", icon: Trophy },
- { href:"/dna-evolution", label:"DNA Evolución", icon: Dna },
- { href:"/autopsy", label:"Autopsia Reunión", icon: Stethoscope },
- { href:"/retro", label:"Retro semanal", icon: BarChart3 },
- { href:"/health", label:"Salud", icon: Heart },
- { href:"/matrix", label:"Matriz", icon: Table2 },
- ],
- },
- {
- label:"TÁCTICO",
- items: [
- { href:"/arena", label:"Competencias", icon: Swords },
- { href:"/duel", label:"Focus Duel", icon: Swords },
- { href:"/predictions", label:"Predicciones", icon: TrendingUp },
- { href:"/bets", label:"Apuestas", icon: Coins },
- { href:"/confession", label:"Confesión", icon: Skull },
- { href:"/panic", label:"Pánico", icon: Siren },
- { href:"/shoutouts", label:"Shoutouts", icon: Sparkles },
- { href:"/warroom", label:"War Room", icon: Monitor },
- { href:"/future-letter", label:"Carta Futuro", icon: Mail },
- { href:"/bounties", label:"Bounties", icon: Crosshair },
- { href:"/blood-contract", label:"Contrato Sangre", icon: Droplets },
- { href:"/elimination", label:"Eliminación", icon: Skull },
- { href:"/survivor", label:"Battle Royale", icon: Swords },
- { href:"/subastas", label:"Subasta Tareas", icon: Hammer },
- { href:"/trust-market", label:"Mercado Confianza", icon: CandlestickChart },
- { href:"/black-market", label:"Mercado Negro", icon: CandlestickChart },
- { href:"/obituario", label:"Obituario", icon: Newspaper },
- { href:"/price-game", label:"Precio Correcto", icon: ArrowDownUp },
- ],
- },
- {
- label:"PROGRESIÓN",
- items: [
- { href:"/xp", label:"XP y Niveles", icon: Zap },
- { href:"/achievements", label:"Logros", icon: Award },
- { href:"/seasons", label:"Temporadas", icon: Calendar },
- ],
- },
- {
- label:"CONTROL",
- items: [
- { href:"/goals", label:"Objetivos", icon: Target },
- { href:"/audit", label:"Audit Log", icon: History },
- { href:"/capsule", label:"Time Capsule", icon: Package },
- { href:"/retention", label:"Retención", icon: ShieldAlert },
- { href:"/insurance", label:"Seguro Trust Score", icon: Shield },
- { href:"/inheritance", label:"Herencia Digital", icon: Users },
- { href:"/reports", label:"Reportes", icon: FileText },
- { href:"/raw-data", label:"Raw Data", icon: Database },
- ],
- },
- {
- label: null,
- items: [
- { href:"/profile", label:"Mi Perfil", icon: User },
- { href:"/settings", label:"Ajustes", icon: Settings },
- ],
- },
+];
+
+const configItems: NavItem[] = [
+ { href: "/profile", label: "Perfil", icon: User },
+ { href: "/org-settings", label: "Ajustes Org", icon: Settings },
 ];
 
 export function MobileNav({ onLogEntry, unreadCount = 0 }: MobileNavProps) {
@@ -180,143 +71,177 @@ export function MobileNav({ onLogEntry, unreadCount = 0 }: MobileNavProps) {
  const supabase = createClient();
 
  async function handleLogout() {
- await supabase.auth.signOut();
- router.push("/login");
- router.refresh();
+  await supabase.auth.signOut();
+  router.push("/login");
+  router.refresh();
  }
 
  return (
- <>
- {menuOpen && (
- <div className="md:hidden fixed inset-0 z-[60] bg-background bg-grid-dense pt-[env(safe-area-inset-top)]">
- <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/40">
- <div className="flex items-center gap-2.5">
- <div className="relative">
- <Logo size={32} />
- <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_6px] shadow-primary/60"/>
- </div>
- <div>
- <span className="font-mono text-[12px] font-black tracking-[0.14em] block leading-none">EXOMAGRAM</span>
- <span className="font-mono text-[7px] tracking-[0.3em] text-primary/70 uppercase mt-0.5 block">Vigilancia Total</span>
- </div>
- </div>
- <div className="flex items-center gap-2">
- <NotificationBell />
- <button
- onClick={() => setMenuOpen(false)}
- className="w-8 h-8 flex items-center justify-center hover:bg-accent transition-colors border border-border/40">
- <X className="w-4 h-4"/>
- </button>
- </div>
- </div>
+  <>
+   {menuOpen && (
+    <div className="md:hidden fixed inset-0 z-[60] bg-background bg-grid-dense pt-[env(safe-area-inset-top)]">
+     <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/40">
+      <div className="flex items-center gap-2.5">
+       <div className="relative">
+        <Logo size={32} />
+        <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_6px] shadow-primary/60"/>
+       </div>
+       <div>
+        <span className="font-mono text-[12px] font-black tracking-[0.14em] block leading-none">EXOMAGRAM</span>
+        <span className="font-mono text-[7px] tracking-[0.3em] text-primary/70 uppercase mt-0.5 block">Vigilancia Total</span>
+       </div>
+      </div>
+      <div className="flex items-center gap-2">
+       <NotificationBell />
+       <button
+        onClick={() => setMenuOpen(false)}
+        className="w-8 h-8 flex items-center justify-center hover:bg-accent transition-colors border border-border/40">
+        <X className="w-4 h-4"/>
+       </button>
+      </div>
+     </div>
 
- {/* Search bar at top of menu */}
- <button
- onClick={() => {
- setMenuOpen(false);
- setTimeout(() => {
- window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }));
- }, 150);
- }}
- className="flex items-center gap-2.5 mx-4 mt-3 mb-2 px-3 py-2.5 border border-border/40 bg-accent/20 text-muted-foreground transition-colors active:bg-accent/40">
- <Search className="w-4 h-4 shrink-0"/>
- <span className="font-mono text-xs">Buscar comando...</span>
- </button>
+     {/* Search bar -- opens command palette */}
+     <button
+      onClick={() => {
+       setMenuOpen(false);
+       setTimeout(() => {
+        window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }));
+       }, 150);
+      }}
+      className="w-[calc(100%-2rem)] flex items-center gap-3 mx-4 mt-3 mb-4 px-3 py-2.5 border border-border hover:border-primary/30 transition-colors"
+     >
+      <Search className="w-4 h-4 text-muted-foreground" />
+      <span className="font-mono text-xs text-muted-foreground">Buscar funciones...</span>
+      <kbd className="ml-auto font-mono text-[8px] text-muted-foreground border border-border px-1.5 py-0.5">{"\u2318"}K</kbd>
+     </button>
 
- <div className="overflow-y-auto h-[calc(100vh-180px-env(safe-area-inset-top))] px-4 py-3 space-y-4">
- {menuSections.map((section, sectionIdx) => (
- <div key={sectionIdx}>
- {section.label && (
- <p className="font-mono text-[9px] font-semibold tracking-[0.18em] text-muted-foreground mb-2 px-1">
- {section.label}
- </p>
- )}
- <div className="grid grid-cols-3 gap-1">
- {section.items.map((item) => {
- const isActive = pathname.startsWith(item.href);
- return (
- <Link
- key={item.href}
- href={item.href}
- onClick={() => setMenuOpen(false)}
- className={cn(
-"flex flex-col items-center gap-1 p-2.5 text-center transition-all active:scale-95 border",
- isActive
- ?"bg-primary/8 text-primary border-primary/30":"bg-accent/20 text-muted-foreground hover:bg-accent/40 border-border/30")}
- >
- <item.icon className={cn("w-4 h-4", isActive &&"text-primary")} />
- <span className="text-[9px] font-mono font-medium leading-tight truncate w-full">{item.label}</span>
- </Link>
- );
- })}
- </div>
- </div>
- ))}
- </div>
+     <div className="overflow-y-auto h-[calc(100vh-180px-env(safe-area-inset-top))] px-4 py-3 space-y-4">
+      {menuSections.map((section) => (
+       <div key={section.id}>
+        <p className="font-mono text-[9px] font-semibold tracking-[0.18em] text-muted-foreground mb-2 px-1">
+         {section.label}
+        </p>
+        <div className="grid grid-cols-3 gap-1">
+         {section.items.map((item) => {
+          const isActive = item.href === "/dashboard"
+           ? pathname === "/dashboard" || pathname === "/"
+           : pathname.startsWith(item.href);
+          return (
+           <Link
+            key={item.href}
+            href={item.href}
+            onClick={() => setMenuOpen(false)}
+            className={cn(
+             "flex flex-col items-center gap-1 p-2.5 text-center transition-all active:scale-95 border",
+             isActive
+              ? "bg-primary/8 text-primary border-primary/30"
+              : "bg-accent/20 text-muted-foreground hover:bg-accent/40 border-border/30"
+            )}
+           >
+            <item.icon className={cn("w-4 h-4", isActive && "text-primary")} />
+            <span className="text-[9px] font-mono font-medium leading-tight truncate w-full">{item.label}</span>
+           </Link>
+          );
+         })}
+        </div>
+       </div>
+      ))}
 
- <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-border/40 bg-background safe-area-pb">
- <button
- onClick={handleLogout}
- className="flex items-center gap-2.5 w-full px-3 py-2 text-[10px] font-mono tracking-wide uppercase text-muted-foreground hover:text-muted-foreground hover:bg-accent/30 transition-colors">
- <LogOut className="w-3 h-3"/>
- Cerrar sesión
- </button>
- </div>
- </div>
- )}
+      {/* Config items */}
+      <div>
+       <div className="border-t border-border/40 mb-3" />
+       <div className="grid grid-cols-3 gap-1">
+        {configItems.map((item) => {
+         const isActive = pathname.startsWith(item.href);
+         return (
+          <Link
+           key={item.href}
+           href={item.href}
+           onClick={() => setMenuOpen(false)}
+           className={cn(
+            "flex flex-col items-center gap-1 p-2.5 text-center transition-all active:scale-95 border",
+            isActive
+             ? "bg-primary/8 text-primary border-primary/30"
+             : "bg-accent/20 text-muted-foreground hover:bg-accent/40 border-border/30"
+           )}
+          >
+           <item.icon className={cn("w-4 h-4", isActive && "text-primary")} />
+           <span className="text-[9px] font-mono font-medium leading-tight truncate w-full">{item.label}</span>
+          </Link>
+         );
+        })}
+       </div>
+      </div>
+     </div>
 
- <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background/95 glass border-t border-border/50 z-50 pb-[env(safe-area-inset-bottom)]">
- <div className="flex items-center justify-around py-1 px-1">
- <Link
- href="/dashboard"className={cn(
-"relative flex flex-col items-center gap-0.5 px-3 py-2 min-h-[44px] justify-center text-[8px] font-mono font-medium tracking-wide uppercase transition-all",
- pathname.startsWith("/dashboard") ?"text-primary":"text-muted-foreground active:scale-95")}
- >
- <LayoutDashboard className="w-5 h-5"/>
- Timeline
- {pathname.startsWith("/dashboard") && <span className="w-4 h-[1px] bg-primary mt-0.5"/>}
- </Link>
+     <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-border/40 bg-background safe-area-pb">
+      <button
+       onClick={handleLogout}
+       className="flex items-center gap-2.5 w-full px-3 py-2 text-[10px] font-mono tracking-wide uppercase text-muted-foreground hover:text-muted-foreground hover:bg-accent/30 transition-colors">
+       <LogOut className="w-3 h-3"/>
+       Cerrar sesion
+      </button>
+     </div>
+    </div>
+   )}
 
- <Link
- href="/now"className={cn(
-"relative flex flex-col items-center gap-0.5 px-3 py-2 min-h-[44px] justify-center text-[8px] font-mono font-medium tracking-wide uppercase transition-all",
- pathname.startsWith("/now") ?"text-primary":"text-muted-foreground active:scale-95")}
- >
- <Radio className="w-5 h-5"/>
- Ahora
- {pathname.startsWith("/now") && <span className="w-4 h-[1px] bg-primary mt-0.5"/>}
- </Link>
+   <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background/95 glass border-t border-border/50 z-50 pb-[env(safe-area-inset-bottom)]">
+    <div className="flex items-center justify-around py-1 px-1">
+     <Link
+      href="/dashboard" className={cn(
+       "relative flex flex-col items-center gap-0.5 px-3 py-2 min-h-[44px] justify-center text-[8px] font-mono font-medium tracking-wide uppercase transition-all",
+       pathname.startsWith("/dashboard") ? "text-primary" : "text-muted-foreground active:scale-95"
+      )}
+     >
+      <LayoutDashboard className="w-5 h-5"/>
+      Dashboard
+      {pathname.startsWith("/dashboard") && <span className="w-4 h-[1px] bg-primary mt-0.5"/>}
+     </Link>
 
- <button
- onClick={onLogEntry}
- className="flex flex-col items-center gap-0.5 px-3 py-2 text-[8px] font-mono font-medium tracking-wide uppercase text-white active:scale-95 transition-transform">
- <div className="w-11 h-11 bg-primary flex items-center justify-center -mt-6 border border-primary/80 ring-2 ring-background">
- <Plus className="w-5 h-5"/>
- </div>
- <span className="text-foreground mt-0.5">Registrar</span>
- </button>
+     <Link
+      href="/feed" className={cn(
+       "relative flex flex-col items-center gap-0.5 px-3 py-2 min-h-[44px] justify-center text-[8px] font-mono font-medium tracking-wide uppercase transition-all",
+       pathname.startsWith("/feed") ? "text-primary" : "text-muted-foreground active:scale-95"
+      )}
+     >
+      <Activity className="w-5 h-5"/>
+      Feed
+      {pathname.startsWith("/feed") && <span className="w-4 h-[1px] bg-primary mt-0.5"/>}
+     </Link>
 
- <Link
- href="/vigilance"className={cn(
-"flex flex-col items-center gap-0.5 px-3 py-2 min-h-[44px] justify-center text-[8px] font-mono font-medium tracking-wide uppercase transition-all",
- pathname.startsWith("/vigilance") ?"text-primary":"text-muted-foreground active:scale-95")}
- >
- <ScanEye className="w-5 h-5"/>
- Vigilancia
- {pathname.startsWith("/vigilance") && <span className="w-4 h-[1px] bg-primary mt-0.5"/>}
- </Link>
+     <button
+      onClick={onLogEntry}
+      className="flex flex-col items-center gap-0.5 px-3 py-2 text-[8px] font-mono font-medium tracking-wide uppercase text-white active:scale-95 transition-transform">
+      <div className="w-11 h-11 bg-primary flex items-center justify-center -mt-6 border border-primary/80 ring-2 ring-background">
+       <Plus className="w-5 h-5"/>
+      </div>
+      <span className="text-foreground mt-0.5">Registrar</span>
+     </button>
 
- <button
- onClick={() => setMenuOpen(true)}
- className={cn(
-"flex flex-col items-center gap-0.5 px-3 py-2 min-h-[44px] justify-center text-[8px] font-mono font-medium tracking-wide uppercase transition-all",
- menuOpen ?"text-primary":"text-muted-foreground active:scale-95")}
- >
- <Menu className="w-5 h-5"/>
- Menú
- </button>
- </div>
- </nav>
- </>
+     <Link
+      href="/leaderboard" className={cn(
+       "flex flex-col items-center gap-0.5 px-3 py-2 min-h-[44px] justify-center text-[8px] font-mono font-medium tracking-wide uppercase transition-all",
+       pathname.startsWith("/leaderboard") ? "text-primary" : "text-muted-foreground active:scale-95"
+      )}
+     >
+      <Trophy className="w-5 h-5"/>
+      Leaderboard
+      {pathname.startsWith("/leaderboard") && <span className="w-4 h-[1px] bg-primary mt-0.5"/>}
+     </Link>
+
+     <button
+      onClick={() => setMenuOpen(true)}
+      className={cn(
+       "flex flex-col items-center gap-0.5 px-3 py-2 min-h-[44px] justify-center text-[8px] font-mono font-medium tracking-wide uppercase transition-all",
+       menuOpen ? "text-primary" : "text-muted-foreground active:scale-95"
+      )}
+     >
+      <Menu className="w-5 h-5"/>
+      Menu
+     </button>
+    </div>
+   </nav>
+  </>
  );
 }

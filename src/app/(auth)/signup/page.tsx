@@ -92,7 +92,7 @@ export default function SignupPage() {
  </Button>
  </form>
  <p className="text-center text-sm text-muted-foreground mt-6">
- ¿Ya tienes cuenta?{""}
+ ¿Ya tienes cuenta?{" "}
  <Link href="/login"className="text-foreground hover:underline font-medium transition-colors">
  Iniciar sesión
  </Link>

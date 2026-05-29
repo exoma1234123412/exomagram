@@ -174,23 +174,23 @@ export function LastPlaceCurse() {
  <p className="font-mono text-[11px] uppercase tracking-wider text-red-600 dark:text-red-400 font-bold leading-tight">
  {tiedMembers.length > 0 ? (
  <>
- ULTIMO LUGAR — Compartes el ultimo lugar con{""}
+ ULTIMO LUGAR — Compartes el ultimo lugar con{" "}
  {tiedMembers.map((t) => t.name).join(",")}
  </>
  ) : (
  <>
- ULTIMO LUGAR — Todo el equipo te supera.{""}
+ ULTIMO LUGAR — Todo el equipo te supera.{" "}
  <span className="text-red-500 dark:text-red-300">
- {leader.name} lleva{""}
+ {leader.name} lleva{" "}
  <span className="font-mono tabular-nums">
  {leader.hours}
- </span>{""}
+ </span>{" "}
  hrs.
- </span>{""}
- Tu llevas{""}
+ </span>{" "}
+ Tu llevas{" "}
  <span className="font-mono tabular-nums">
  {currentUser.hours}
- </span>{""}
+ </span>{" "}
  hrs.
  </>
  )}
@@ -199,10 +199,10 @@ export function LastPlaceCurse() {
  {/* Escape gap */}
  <p className="font-mono text-[10px] tracking-wider text-red-500/70 dark:text-red-400/60 mt-0.5 flex items-center gap-1.5">
  <TrendingDown className="w-3 h-3 inline shrink-0"/>
- Te faltan{""}
+ Te faltan{" "}
  <span className="font-mono tabular-nums font-bold">
  {escapeGap}
- </span>{""}
+ </span>{" "}
  hrs para dejar el ultimo lugar
  {gap > escapeGap && (
  <span className="ml-2 opacity-60">

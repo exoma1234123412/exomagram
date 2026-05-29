@@ -407,7 +407,7 @@ export default function FocusPage() {
  </p>
  {activeSession.category && (
  <Badge variant="outline"className="text-[9px] font-mono mt-1">
- {CATEGORIES[activeSession.category as WorkCategory]?.emoji}{""}
+ {CATEGORIES[activeSession.category as WorkCategory]?.emoji}{" "}
  {CATEGORIES[activeSession.category as WorkCategory]?.label}
  </Badge>
  )}

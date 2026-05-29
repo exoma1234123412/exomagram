@@ -401,7 +401,7 @@ export default function ApiDocsPage() {
  {/* Header */}
  <div className="mb-8">
  <div className="flex items-center gap-3 mb-2">
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <BookOpen className="w-6 h-6 text-primary"/>
  API de Exomagram
  </h1>
@@ -426,10 +426,10 @@ export default function ApiDocsPage() {
  </CardHeader>
  <CardContent className="space-y-4">
  <p className="text-sm text-muted-foreground">
- Usa tu API key como Bearer token en el header{""}
+ Usa tu API key como Bearer token en el header{" "}
  <code className="font-mono bg-accent/50 px-1.5 py-0.5 rounded text-xs">
  Authorization
- </code>{""}
+ </code>{" "}
  de cada petición.
  </p>
 
@@ -587,14 +587,14 @@ export default function ApiDocsPage() {
  <h3 className="text-sm font-semibold mb-1">Límites de uso</h3>
  <p className="text-xs text-muted-foreground">
  1,000 peticiones por hora por API key. Las escrituras están limitadas a
- 100 por hora. Los headers{""}
+ 100 por hora. Los headers{" "}
  <code className="font-mono bg-accent/50 px-1 py-0.5 rounded">
  X-RateLimit-Remaining
- </code>{""}
- y{""}
+ </code>{" "}
+ y{" "}
  <code className="font-mono bg-accent/50 px-1 py-0.5 rounded">
  X-RateLimit-Reset
- </code>{""}
+ </code>{" "}
  indican tu cuota actual.
  </p>
  </div>

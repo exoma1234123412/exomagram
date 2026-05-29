@@ -394,7 +394,7 @@ export default function BloodContractPage() {
  <p className="font-mono text-xs text-foreground leading-relaxed">
  Yo, <span className="font-bold">{profileMap.get(userId!)?.full_name ??"?"}</span>,
  y <span className="font-bold">{profileMap.get(selectedOpponent)?.full_name ??"?"}</span>,
- sellamos este pacto de sangre digital con{""}
+ sellamos este pacto de sangre digital con{" "}
  <span className="font-bold text-red-600 tabular-nums">{stake} XP</span> en juego.
  Fecha limite: <span className="font-bold">{format(new Date(deadline +"T12:00:00"),"d 'de' MMMM yyyy", { locale: es })}</span>.
  </p>
@@ -747,7 +747,7 @@ function BrokenContractCard({
  <div className="flex-1 min-w-0">
  <p className="font-mono text-xs">
  <span className="font-bold text-red-600">{loser?.full_name ??"?"}</span>
- {""}rompio su pacto contra{""}
+ {" "}rompio su pacto contra{" "}
  <span className="font-bold">{winner?.full_name ??"?"}</span>
  </p>
  <p className="font-mono text-[9px] text-muted-foreground">
@@ -799,7 +799,7 @@ function LegendaryContractCard({
  <div className="flex-1 min-w-0">
  <p className="font-mono text-xs">
  <span className="font-bold text-amber-700 dark:text-amber-400">{winner?.full_name ??"?"}</span>
- {""}gano el pacto
+ {" "}gano el pacto
  </p>
  <p className="font-mono text-[9px] text-muted-foreground">
  {creator?.full_name ??"?"} vs {opponent?.full_name ??"?"} &middot; +{contract.stake} XP

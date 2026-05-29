@@ -104,7 +104,7 @@ export default function FeedbackPage() {
  return (
  <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
  <div className="mb-8">
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <MessageSquareText className="w-6 h-6 text-primary"/>
  Feedback anónimo
  </h1>

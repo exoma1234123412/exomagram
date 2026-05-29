@@ -46,6 +46,7 @@ import { saveEntrySnapshot } from "@/lib/entry-history";
 import { eventLogger } from "@/lib/event-logger";
 import { useOrg } from "@/lib/hooks/use-org";
 import { EntryTemplates, ManageTemplatesDialog, type EntryTemplate } from "./entry-templates";
+import { ProofUpload } from "./proof-upload";
 import { EntryValidator } from "@/components/tracking/entry-validator";
 import { PostEntryShame } from "@/components/social/post-entry-shame";
 import { ClaudeFollowup } from "@/components/ai/claude-followup";
@@ -64,15 +65,14 @@ export function LogEntryDialog({
  defaultHour,
  defaultDate,
 }: LogEntryDialogProps) {
- const now = new Date();
  const [category, setCategory] = useState<WorkCategory |"">("");
  const [title, setTitle] = useState("");
  const [description, setDescription] = useState("");
  const [hour, setHour] = useState<string>(
- defaultHour?.toString() ?? now.getHours().toString()
+ defaultHour?.toString() ?? new Date().getHours().toString()
  );
  const [date, setDate] = useState(
- defaultDate ?? now.toISOString().split("T")[0]
+ defaultDate ?? new Date().toISOString().split("T")[0]
  );
  const [mood, setMood] = useState<number | null>(null);
  const [energy, setEnergy] = useState<number | null>(null);
@@ -263,13 +263,15 @@ export function LogEntryDialog({
 
  // Anti-gaming: calculate if entry is late
  function calculateLateness(): { isLate: boolean; minutesLate: number } {
- const entryDate = new Date(`${date}T${String(parseInt(hour) + 1).padStart(2,"0")}:00:00`);
+ const now = new Date();
+ const entryDate = new Date(`${date}T${String(Math.min(parseInt(hour) + 1, 23)).padStart(2,"0")}:00:00`);
  const diff = (now.getTime() - entryDate.getTime()) / 1000 / 60;
  return { isLate: diff > 60, minutesLate: Math.max(0, Math.round(diff - 60)) };
  }
 
  // Anti-gaming: check if backfill is too old
  function isBackfillTooOld(): boolean {
+ const now = new Date();
  const entryDate = new Date(`${date}T${String(parseInt(hour)).padStart(2,"0")}:00:00`);
  const diffHours = (now.getTime() - entryDate.getTime()) / 1000 / 60 / 60;
  return diffHours > MAX_BACKFILL_HOURS;
@@ -279,6 +281,12 @@ export function LogEntryDialog({
  const tooOld = isBackfillTooOld();
  const hasProof = proofUrls.trim().length > 0;
  const titleTooShort = title.length > 0 && title.length < MIN_TITLE_LENGTH;
+ const charCountColor =
+   title.length < 10
+     ? "text-destructive/60"
+     : title.length < 20
+     ? "text-amber-500/60"
+     : "text-primary/60";
 
  // Step 1: User clicks submit -> trigger validation overlay
  async function handleSubmit(e: React.FormEvent) {
@@ -305,29 +313,13 @@ export function LogEntryDialog({
  setLoading(true);
  setError(null);
 
- const supabase = createClient();
- const {
- data: { user },
- } = await supabase.auth.getUser();
-
- if (!user) {
+ if (!userId || !orgId) {
  setError("No estás autenticado");
  setLoading(false);
  return;
  }
 
- const { data: membership } = await supabase
- .from("org_members")
- .select("org_id")
- .eq("user_id", user.id)
- .limit(1)
- .single();
-
- if (!membership) {
- setError("No perteneces a ninguna organización");
- setLoading(false);
- return;
- }
+ const supabase = createClient();
 
  const proofArray = proofUrls
  .split("\n")
@@ -343,8 +335,8 @@ export function LogEntryDialog({
  const { data: existingEntry } = await supabase
  .from("time_entries")
  .select("*")
- .eq("user_id", user.id)
- .eq("org_id", membership.org_id)
+ .eq("user_id", userId)
+ .eq("org_id", orgId)
  .eq("date", date)
  .eq("hour", parseInt(hour))
  .maybeSingle();
@@ -355,8 +347,8 @@ export function LogEntryDialog({
  if (existingEntry) {
    saveEntrySnapshot({
      entryId: existingEntry.id,
-     userId: user.id,
-     orgId: membership.org_id,
+     userId,
+     orgId,
      date,
      hour: parseInt(hour),
      snapshot: {
@@ -375,8 +367,8 @@ export function LogEntryDialog({
 
  const { data: upsertedEntry, error: insertError } = await supabase.from("time_entries").upsert(
  {
- user_id: user.id,
- org_id: membership.org_id,
+ user_id: userId,
+ org_id: orgId,
  date,
  hour: parseInt(hour),
  category: category as WorkCategory,
@@ -391,7 +383,7 @@ export function LogEntryDialog({
  is_late: lateness.isLate,
  minutes_late: lateness.minutesLate,
  logged_at: new Date().toISOString(),
- verification_status: proofArray.length > 0 ?"unverified":"unverified",
+ verification_status: proofArray.length > 0 ?"pending_verification":"unverified",
  // V10 — Advanced data
  difficulty: difficulty as 1 | 2 | 3 | 4 | 5 | null,
  focus_quality: focusQuality as 1 | 2 | 3 | 4 | 5 | null,
@@ -457,6 +449,7 @@ export function LogEntryDialog({
 
  // Play log-entry confirmation sound on successful save
  play("log-entry");
+ if (navigator.vibrate) navigator.vibrate(100);
 
  // V12 — Save revision if this was an edit (existing entry had data)
  const savedEntryId = upsertedEntry?.id ?? null;
@@ -478,8 +471,8 @@ export function LogEntryDialog({
    if (changedFields.length > 0) {
      supabase.from("entry_revisions").insert({
        entry_id: savedEntryId,
-       user_id: user.id,
-       org_id: membership.org_id,
+       user_id: userId!,
+       org_id: orgId!,
        version: currentVersion,
        old_data: Object.fromEntries(changedFields.map((k) => [k, (existingEntry as Record<string, unknown>)[k] ?? null])),
        new_data: Object.fromEntries(changedFields.map((k) => [k, (newData as Record<string, unknown>)[k] ?? null])),
@@ -496,7 +489,7 @@ export function LogEntryDialog({
  setFollowupDescription(finalDescription || "");
 
  // Update activity streak
- updateStreakOnEntry(user.id, membership.org_id, date);
+ updateStreakOnEntry(userId!, orgId!, date);
 
  // Mark as submitted so abandonment tracking doesn't fire
  submittedRef.current = true;
@@ -504,8 +497,8 @@ export function LogEntryDialog({
  // Log successful submission
  eventLogger.log({
  type: "entry_created",
- userId: user.id,
- orgId: membership.org_id,
+ userId: userId!,
+ orgId: orgId!,
  data: {
  category,
  hour: parseInt(hour),
@@ -517,7 +510,7 @@ export function LogEntryDialog({
  });
 
  // Show shame comparison overlay, then success
- savedTitleRef.current = title;
+ savedTitleRef.current = finalTitle;
  setShameEntry({
  hour: parseInt(hour),
  date,
@@ -533,7 +526,7 @@ export function LogEntryDialog({
  const profilePromise = supabase
  .from("profiles")
  .select("full_name")
- .eq("id", user.id)
+ .eq("id", userId!)
  .single();
 
  profilePromise.then(({ data: profile }) => {
@@ -541,7 +534,7 @@ export function LogEntryDialog({
  method:"POST",
  headers: {"Content-Type":"application/json"},
  body: JSON.stringify({
- org_id: membership.org_id,
+ org_id: orgId!,
  event_type:"entry_created",
  event_data: {
  user_name: profile?.full_name ??"Usuario",
@@ -669,7 +662,7 @@ export function LogEntryDialog({
    setSkillsTags("");
    setLearningNotes(null);
    onOpenChange(false);
-  }, 1500);
+  }, 2500);
  }
 
  function handleShameClose() {
@@ -727,7 +720,7 @@ export function LogEntryDialog({
  setSkillsTags("");
  setLearningNotes(null);
  onOpenChange(false);
- }, 1000);
+ }, 2500);
  }
 
  return (
@@ -771,7 +764,7 @@ export function LogEntryDialog({
  <Input
  type="date"value={date}
  onChange={(e) => setDate(e.target.value)}
- max={now.toISOString().split("T")[0]}
+ max={new Date().toISOString().split("T")[0]}
  className=""/>
  </div>
  <div className="space-y-2">
@@ -800,7 +793,7 @@ export function LogEntryDialog({
  return (
  <button
  key={key}
- type="button"onClick={() => { setCategory(key); touchedRef.current = true; }}
+ type="button"onClick={() => { setCategory(key); touchedRef.current = true; if (navigator.vibrate) navigator.vibrate(10); }}
  className={cn(
 "flex flex-col items-center gap-1.5 p-3 border-2 text-xs font-semibold transition-all duration-200",
  category === key
@@ -819,7 +812,7 @@ export function LogEntryDialog({
  {/* Title */}
  <div className="space-y-2">
  <Label htmlFor="title"className="text-sm font-medium">
- ¿Qué hiciste?{""}
+ ¿Qué hiciste?{" "}
  <span className="text-muted-foreground/60 text-xs font-normal">
  (mín. {MIN_TITLE_LENGTH} caracteres)
  </span>
@@ -831,11 +824,18 @@ export function LogEntryDialog({
  minLength={MIN_TITLE_LENGTH}
  className={cn("", titleTooShort &&"border-yellow-500 focus-visible:ring-yellow-500/30")}
  />
- {titleTooShort && (
+ <div className="flex items-center justify-between">
+ {titleTooShort ? (
  <p className="text-xs text-yellow-600 font-medium">
  {MIN_TITLE_LENGTH - title.length} caracteres más. Sé específico sobre lo que hiciste.
  </p>
+ ) : (
+ <span />
  )}
+ <span className={cn("font-mono text-[9px] tabular-nums", charCountColor)}>
+ {title.length}/100
+ </span>
+ </div>
  </div>
 
  {/* Description */}
@@ -851,7 +851,7 @@ export function LogEntryDialog({
  {/* Project selection */}
  <div className="space-y-2">
  <Label className="text-sm font-medium">
- Proyecto{""}
+ Proyecto{" "}
  <span className="text-muted-foreground/60 text-xs font-normal">(opcional)</span>
  </Label>
  {orgProjects.length > 0 ? (
@@ -898,6 +898,12 @@ export function LogEntryDialog({
  {hasProof ?"Con evidencia":"Sin evidencia"}
  </Badge>
  </Label>
+ <ProofUpload
+ userId={userId!}
+ onUploadComplete={(url) => {
+ setProofUrls((prev) => prev ? `${prev}\n${url}` : url);
+ }}
+ />
  <Textarea
  id="proof"placeholder={"Links a commits, PRs, documentos, screenshots...\nhttps://github.com/org/repo/pull/123\nhttps://linear.app/team/issue/EX-45"}
  value={proofUrls}
@@ -1268,7 +1274,12 @@ export function LogEntryDialog({
  )}
 
  {/* Success overlay */}
- {showSuccess && (
+ {showSuccess && (() => {
+ const proofArray = proofUrls.split("\n").map((l) => l.trim()).filter(Boolean);
+ const trustDelta = proofArray.length ? "+5" : lateness.isLate ? "-3" : "+2";
+ const trustColor = proofArray.length ? "text-primary" : lateness.isLate ? "text-destructive" : "text-amber-500";
+ const trustLabel = proofArray.length ? "con evidencia" : lateness.isLate ? "tardía" : "sin evidencia";
+ return (
  <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
  <div className="flex flex-col items-center gap-3">
  <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center animate-in zoom-in duration-300">
@@ -1280,9 +1291,13 @@ export function LogEntryDialog({
  <p className="text-lg font-bold text-green-600 dark:text-green-400">
  Registrado
  </p>
+ <p className={cn("font-mono text-sm tabular-nums mt-1", trustColor)}>
+ {trustDelta} Trust Score <span className="text-muted-foreground text-xs">({trustLabel})</span>
+ </p>
  </div>
  </div>
- )}
+ );
+ })()}
 
  {/* Slot reward — fires once after successful entry */}
  <SlotReward trigger={slotTrigger} onComplete={() => setSlotTrigger(false)} />

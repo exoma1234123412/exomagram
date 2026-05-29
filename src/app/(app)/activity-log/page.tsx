@@ -562,7 +562,7 @@ export default function ActivityLogPage() {
  <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full animate-ping"/>
  )}
  </div>
- <h1 className="text-2xl font-bold tracking-tight">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">
  Activity Log
  </h1>
  {/* En vivo indicator */}
@@ -766,7 +766,7 @@ export default function ActivityLogPage() {
  {/* ----------------------------------------------------------------- */}
  <div className="flex items-center justify-between mb-3">
  <p className="text-xs text-muted-foreground">
- {filteredEvents.length} evento{filteredEvents.length !== 1 ?"s":""}{""}
+ {filteredEvents.length} evento{filteredEvents.length !== 1 ?"s":""}{" "}
  {filterPerson || filterTypes.size < 5 ?"(filtrado)":"hoy"}
  </p>
  <Button
@@ -798,9 +798,9 @@ export default function ActivityLogPage() {
  <div className="text-center py-20 space-y-3">
  <Activity className="w-12 h-12 text-muted-foreground mx-auto"/>
  <p className="text-muted-foreground text-sm">
- No hay actividad registrada{""}
+ No hay actividad registrada{" "}
  {filterPerson || filterTypes.size < 5
- ?"con los filtros seleccionados":"todavia hoy"}
+ ?"con los filtros seleccionados":"todavía hoy"}
  .
  </p>
  {(filterPerson || filterTypes.size < 5) && (

@@ -342,7 +342,7 @@ function MutationsList({ months }: { months: MonthData[] }) {
  <Activity className="w-6 h-6 text-green-500"/>
  </div>
  <p className="text-sm text-muted-foreground text-center">
- Sin cambios significativos entre {prev.monthLabel} y{""}
+ Sin cambios significativos entre {prev.monthLabel} y{" "}
  {curr.monthLabel}.
  </p>
  </div>
@@ -385,9 +385,9 @@ function MutationsList({ months }: { months: MonthData[] }) {
  />
  )}
  <p className="text-sm flex-1">
- <span className="font-medium">{m.label}</span> pasó de{""}
- <span className="font-bold tabular-nums">{m.prevPercent}%</span>{""}
- a{""}
+ <span className="font-medium">{m.label}</span> pasó de{" "}
+ <span className="font-bold tabular-nums">{m.prevPercent}%</span>{" "}
+ a{" "}
  <span className="font-bold tabular-nums">{m.currPercent}%</span>
  </p>
  <Badge
@@ -764,7 +764,7 @@ export default function DnaEvolutionPage() {
  {/* Header */}
  <div className="flex items-center gap-3 mb-2">
  <Dna className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">
  DNA Evolución
  </h1>
  </div>

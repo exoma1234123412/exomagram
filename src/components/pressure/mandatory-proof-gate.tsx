@@ -517,13 +517,13 @@ export function MandatoryProofGate({
  <p className="text-sm text-red-600 dark:text-red-400 flex items-center justify-center gap-2">
  <AlertTriangle className="h-4 w-4 shrink-0"/>
  <span>
- Registraste{""}
+ Registraste{" "}
  <strong className="font-bold">
  {stats?.hoursLogged ?? 0}/{EXPECTED_DAILY_HOURS}
- </strong>{""}
- horas el{""}
+ </strong>{" "}
+ horas el{" "}
  <strong className="font-bold">{stats?.previousDate}</strong>
- {"|"}Cierre:{""}
+ {"|"}Cierre:{" "}
  <strong className="font-bold">
  {stats?.hasCloseout ?"Sí":"No"}
  </strong>
@@ -543,14 +543,14 @@ export function MandatoryProofGate({
  <div className="flex items-center justify-center gap-3 py-2">
  <Timer className="h-4 w-4 text-red-500"/>
  <p className="text-sm text-muted-foreground">
- Llevas{""}
+ Llevas{" "}
  <span
  className="font-mono font-bold text-red-500 tabular-nums"style={{
  animation:"gate-timer-tick 1s ease-in-out infinite",
  }}
  >
  {elapsedMinutes}:{elapsedSeconds.toString().padStart(2,"0")}
- </span>{""}
+ </span>{" "}
  minutos bloqueado
  </p>
  </div>
@@ -606,7 +606,7 @@ export function MandatoryProofGate({
  <span className="text-xs text-muted-foreground">
  {slot.category
  ? CATEGORIES[slot.category as WorkCategory]?.emoji
- :""}{""}
+ :""}{" "}
  {slot.title}
  </span>
  </div>
@@ -722,7 +722,7 @@ export function MandatoryProofGate({
  </p>
  <p className="text-[11px] text-muted-foreground">
  Estuviste bloqueado por {elapsedMinutes} minuto
- {elapsedMinutes !== 1 ?"s":""} y{""}
+ {elapsedMinutes !== 1 ?"s":""} y{" "}
  {elapsedSeconds} segundo{elapsedSeconds !== 1 ?"s":""}.
  Esto queda registrado.
  </p>
@@ -740,7 +740,7 @@ export function MandatoryProofGate({
  </div>
  <p className="text-center text-[10px] text-muted-foreground">
  Registra al menos {missingCount} hora
- {missingCount !== 1 ?"s":""} más del día{""}
+ {missingCount !== 1 ?"s":""} más del día{" "}
  {stats?.previousDate} para desbloquear el acceso.
  </p>
  </div>

@@ -144,12 +144,12 @@ export default function PactsPage() {
  <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
  <div className="flex items-center justify-between mb-8">
  <div>
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <Handshake className="w-6 h-6 text-primary"/>
  Pactos de Accountability
  </h1>
  <p className="text-muted-foreground text-sm">
- Compromisos publicos entre companeros
+ Compromisos publicos entre compañeros
  </p>
  </div>
  <Button onClick={() => setCreateOpen(true)} className="gap-2 bg-primary hover:from-blue-700 hover:to-blue-800 text-white border-0 hover:shadow-blue-600/40 transition-all duration-300 font-semibold">
@@ -163,7 +163,7 @@ export default function PactsPage() {
  ) : pacts.length === 0 ? (
  <div className="text-center py-20">
  <Handshake className="w-12 h-12 text-muted-foreground mx-auto mb-4"/>
- <p className="text-muted-foreground">No hay pactos todavia.</p>
+ <p className="text-muted-foreground">No hay pactos todavía.</p>
  <p className="text-sm text-muted-foreground/60 mt-1">
  Crea un pacto con un companero para comprometerse mutuamente.
  </p>

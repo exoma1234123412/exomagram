@@ -28,9 +28,10 @@ import { ScarcityTimer } from "@/components/psychology/scarcity-timer";
 import { GoalGradient } from "@/components/psychology/goal-gradient";
 import { SocialProofBar } from "@/components/psychology/social-proof-bar";
 import { SpotlightIndicator } from "@/components/psychology/spotlight-indicator";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, ChevronLeft, ChevronRight, FileCheck, Calendar } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, FileCheck, Calendar, ChevronDown } from "lucide-react";
 import { format, addDays, subDays } from "date-fns";
 import { es } from "date-fns/locale";
 import { getTodayMTY } from "@/lib/utils";
@@ -76,11 +77,7 @@ export default function DashboardPage() {
  const isToday = date === getTodayMTY();
 
  if (loading || orgLoading) {
- return (
- <div className="flex items-center justify-center h-screen">
- <div className="animate-pulse text-muted-foreground font-mono text-xs tracking-widest uppercase">Cargando...</div>
- </div>
- );
+ return <DashboardSkeleton />;
  }
 
  if (!orgId) return <NoOrgView />;
@@ -126,64 +123,72 @@ export default function DashboardPage() {
  )}
  </div>
 
- {/* Daily checklist — personal daily status overview */}
- {isToday && <DailyChecklist />}
-
- {/* Spotlight — constant surveillance reminder */}
- {isToday && <SpotlightIndicator orgId={orgId} />}
-
- {/* Worst of today — the single worst metric */}
- {isToday && <WorstOfToday />}
-
- {/* Forced comparison — can't dismiss for 5 seconds */}
- {isToday && <ForcedComparison />}
-
- {/* Throne — who wears the crown this week */}
- {isToday && <ThroneBanner orgId={orgId} />}
-
- {/* Team debt — collective accountability for D/F grades */}
- {isToday && <TeamDebt orgId={orgId} />}
-
- {/* Streak danger — anxiety countdown */}
- {isToday && <StreakDanger orgId={orgId} />}
-
- {/* Fear widget — trust score decay pressure */}
- {isToday && <FearWidget orgId={orgId} />}
-
- {/* AI Public Feed — team announcements, praise, challenges */}
- {isToday && <PublicFeed orgId={orgId} />}
-
- {/* Daily score — your personal scorecard */}
- {isToday && <DailyScoreWidget orgId={orgId} />}
-
- {/* Psychology: goal progress + scarcity timer */}
- {isToday && <GoalGradient orgId={orgId} />}
- {isToday && <ScarcityTimer orgId={orgId} />}
-
- {/* Psychology: sunk cost investment + competitive head-to-head */}
- {isToday && <SunkCostCounter orgId={orgId} />}
- {isToday && <CompetitiveWidget orgId={orgId} />}
-
- {/* Psychology: social proof — team completion rates */}
- {isToday && <SocialProofBar orgId={orgId} />}
-
- {/* Health check-in — daily wellness */}
- {isToday && <HealthCheckin orgId={orgId} />}
-
- {/* Quick log — fast entry */}
- {isToday && <QuickLog orgId={orgId} />}
+ {/* Missing hours — actionable alert, seen first */}
+ {isToday && <MissingHoursAlert date={date} />}
 
  {/* Live status — who's working now */}
  {isToday && <LiveStatusBar orgId={orgId} />}
 
- {/* Missing hours — gentle reminder */}
- {isToday && <MissingHoursAlert date={date} />}
+ {/* Quick log — fast entry */}
+ {isToday && <QuickLog orgId={orgId} />}
 
- {/* Filters */}
+ {/* Daily score — personal scorecard summary */}
+ {isToday && <DailyScoreWidget orgId={orgId} />}
+
+ {/* Filters + Feed — the core content */}
  <TimelineFiltersBar orgId={orgId} filters={filters} onChange={setFilters} />
-
- {/* Feed — the core */}
  <TimelineFeed date={date} orgId={orgId} filters={filters} />
+
+ {/* Presión y Métricas — collapsible psychology/gamification section */}
+ {isToday && (
+ <details className="mb-8 group" open>
+ <summary className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 cursor-pointer select-none flex items-center gap-2 mb-4 hover:text-muted-foreground/60 transition-colors">
+ <ChevronDown className="w-3 h-3 transition-transform group-open:rotate-0 -rotate-90" />
+ Presión y Métricas
+ </summary>
+
+ {/* Daily checklist — personal daily status overview */}
+ <DailyChecklist />
+
+ {/* Spotlight — constant surveillance reminder */}
+ <SpotlightIndicator orgId={orgId} />
+
+ {/* Worst of today — the single worst metric */}
+ <WorstOfToday />
+
+ {/* Forced comparison — can't dismiss for 5 seconds */}
+ <ForcedComparison />
+
+ {/* Throne — who wears the crown this week */}
+ <ThroneBanner orgId={orgId} />
+
+ {/* Team debt — collective accountability for D/F grades */}
+ <TeamDebt orgId={orgId} />
+
+ {/* Streak danger — anxiety countdown */}
+ <StreakDanger orgId={orgId} />
+
+ {/* Fear widget — trust score decay pressure */}
+ <FearWidget orgId={orgId} />
+
+ {/* AI Public Feed — team announcements, praise, challenges */}
+ <PublicFeed orgId={orgId} />
+
+ {/* Psychology: goal progress + scarcity timer */}
+ <GoalGradient orgId={orgId} />
+ <ScarcityTimer orgId={orgId} />
+
+ {/* Psychology: sunk cost investment + competitive head-to-head */}
+ <SunkCostCounter orgId={orgId} />
+ <CompetitiveWidget orgId={orgId} />
+
+ {/* Psychology: social proof — team completion rates */}
+ <SocialProofBar orgId={orgId} />
+
+ {/* Health check-in — daily wellness */}
+ <HealthCheckin orgId={orgId} />
+ </details>
+ )}
 
  <LogEntryDialog open={logOpen} onOpenChange={setLogOpen} defaultDate={date} />
  <DailyCloseoutDialog open={closeoutOpen} onOpenChange={setCloseoutOpen} />

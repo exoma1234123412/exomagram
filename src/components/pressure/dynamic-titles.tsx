@@ -584,7 +584,7 @@ export function DynamicTitle({ userId, className }: DynamicTitleProps) {
  ))}
  </div>
  <p className="text-[10px] opacity-60 pt-1 border-t border-white/10">
- Trust Score promedio: {data.trustAvg.toFixed(0)} | Racha:{""}
+ Trust Score promedio: {data.trustAvg.toFixed(0)} | Racha:{" "}
  {data.currentStreak}d | Flags: {data.unresolvedFlags}
  </p>
  </div>

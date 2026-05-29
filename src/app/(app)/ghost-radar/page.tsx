@@ -389,7 +389,7 @@ export default function GhostRadarPage() {
  <div className="flex items-center gap-2 mb-3">
  <Clock className="w-4 h-4 text-red-500/70"/>
  <span className="text-xs font-mono text-muted-foreground">
- Dias inactivo:{""}
+ Dias inactivo:{" "}
  <span
  className={cn(
 "font-bold tabular-nums text-base",

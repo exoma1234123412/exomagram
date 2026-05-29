@@ -280,7 +280,7 @@ const threshold = selectedMember ? 0 : Math.ceil(cell.total * 0.25);
  {/* Header */}
  <div className="flex items-center gap-3 mb-2">
  <EyeOff className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">
  Horas de Silencio
  </h1>
  </div>
@@ -490,7 +490,7 @@ const threshold = selectedMember ? 0 : Math.ceil(cell.total * 0.25);
  })}
  </p>
  <p className="text-xs text-muted-foreground">
- {formatHourShort(zone.startHour)} -{""}
+ {formatHourShort(zone.startHour)} -{" "}
  {formatHourShort(zone.endHour + 1)}
  </p>
  </div>

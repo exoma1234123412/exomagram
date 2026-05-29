@@ -273,7 +273,7 @@ function analyzePatronFantasma(entries: TimeEntry[]): Fossil | null {
  icon: Ghost,
  title:"Patron Fantasma",
  subtitle:`${ghostDays.length} dias con entradas esqueleticas`,
- finding:`Hubo ${ghostDays.length} dias donde todo el equipo escribio descripciones 50% mas cortas de lo normal. El ultimo fue el ${format(parseISO(latest.date),"d 'de' MMMM", { locale: es })}.`,
+ finding:`Hubo ${ghostDays.length} dias donde todo el equipo escribió descripciones 50% mas cortas de lo normal. El ultimo fue el ${format(parseISO(latest.date),"d 'de' MMMM", { locale: es })}.`,
  detail:`Promedio de ${Math.round(latest.avgLen)} caracteres vs ${Math.round(overallAvg)} normales.`,
  severity:"medium",
  layer: 3,
@@ -611,7 +611,7 @@ export default function ArchaeologyPage() {
  <Pickaxe className="w-5 h-5 text-amber-700 dark:text-amber-400"/>
  </div>
  <div>
- <h1 className="text-2xl font-bold tracking-tight">Fosiles</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Fosiles</h1>
  <p className="text-sm text-muted-foreground">
  Patrones ocultos excavados de {totalDays} dias de datos
  </p>

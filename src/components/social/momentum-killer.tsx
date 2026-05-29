@@ -327,7 +327,7 @@ export function MomentumKiller() {
  <span className="font-bold text-amber-300 underline decoration-amber-500/40 decoration-2 underline-offset-4">
  {flash.culpritName}
  </span>
- {""}dejo de registrar
+ {" "}dejo de registrar
  </p>
 
  <div className="flex items-center justify-center gap-3">

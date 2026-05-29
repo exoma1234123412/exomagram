@@ -136,7 +136,7 @@ function PeerCompletionRing({
  </div>
  </div>
  <div className="text-xs text-muted-foreground leading-tight">
- <span className="font-semibold text-foreground">{completed}</span> de{""}
+ <span className="font-semibold text-foreground">{completed}</span> de{" "}
  <span className="font-semibold text-foreground">{total}</span> personas
  <br />
  ya completaron sus {EXPECTED_DAILY_HOURS} horas hoy
@@ -393,7 +393,7 @@ export function UrgencyEngine() {
  <p className="text-xs text-emerald-700/70 dark:text-emerald-400/60 mt-1">
  {activePeople.slice(0, 4).map((p) => p.fullName).join(",")}
  {activePeople.length > 4
- ?`y ${activePeople.length - 4} mas`:""}{""}
+ ?`y ${activePeople.length - 4} mas`:""}{" "}
  ya comenzaron su dia.
  </p>
  )}
@@ -414,16 +414,16 @@ export function UrgencyEngine() {
  </div>
  <div className="flex-1 min-w-0">
  <p className="text-sm font-medium text-blue-800 dark:text-blue-300">
- Llevas{""}
+ Llevas{" "}
  <span className="font-bold">
  {state.myHoursLogged}/{EXPECTED_DAILY_HOURS}
- </span>{""}
- horas. El promedio del equipo es{""}
+ </span>{" "}
+ horas. El promedio del equipo es{" "}
  <span className="font-bold">{state.teamAverage}</span>.
  </p>
  {state.myHoursLogged < state.teamAverage && (
  <p className="text-xs text-blue-700/70 dark:text-blue-400/60 mt-1">
- Estas por debajo del promedio. Considera registrar tus
+ Estás por debajo del promedio. Considera registrar tus
  actividades.
  </p>
  )}
@@ -447,18 +447,18 @@ export function UrgencyEngine() {
  </div>
  <div className="flex-1 min-w-0">
  <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
- Vas por debajo del ritmo. A este paso solo registraras{""}
+ Vas por debajo del ritmo. A este paso solo registraras{" "}
  <span className="font-bold underline decoration-amber-500/50">
  {projected}
- </span>{""}
+ </span>{" "}
  horas hoy.
  </p>
  <p className="text-xs text-amber-700/80 dark:text-amber-400/60 mt-1">
- Te faltan{""}
+ Te faltan{" "}
  <span className="font-semibold">
  {formatHoursRemaining(remaining)}
- </span>{""}
- horas y quedan{""}
+ </span>{" "}
+ horas y quedan{" "}
  <span className="font-semibold">{minsLeft} minutos</span> de
  jornada.
  </p>
@@ -482,11 +482,11 @@ export function UrgencyEngine() {
  </div>
  <div className="flex-1 min-w-0">
  <p className="text-sm font-bold text-red-800 dark:text-red-300">
- URGENTE: Te faltan{""}
+ URGENTE: Te faltan{" "}
  <span className="text-red-600 dark:text-red-400 underline">
  {formatHoursRemaining(remaining)} horas
- </span>{""}
- y quedan{""}
+ </span>{" "}
+ y quedan{" "}
  <span className="text-red-600 dark:text-red-400 underline">
  {minsLeft} minutos
  </span>
@@ -526,14 +526,14 @@ export function UrgencyEngine() {
  Ultima oportunidad
  </p>
  <p className="text-sm font-semibold text-red-100 mt-0.5">
- Cierre en{""}
+ Cierre en{" "}
  <span className="text-white underline decoration-2 decoration-white/50">
  {minsLeft} minutos
  </span>
  . Registra ahora o el dia queda incompleto.
  </p>
  <p className="text-xs text-red-200/80 mt-1">
- Llevas {state.myHoursLogged}/{EXPECTED_DAILY_HOURS} horas. Faltan{""}
+ Llevas {state.myHoursLogged}/{EXPECTED_DAILY_HOURS} horas. Faltan{" "}
  {formatHoursRemaining(remaining)}.
  </p>
  </div>
@@ -564,23 +564,23 @@ export function UrgencyEngine() {
  El dia termino
  </p>
  <p className="text-sm font-semibold text-red-400/90 mt-1">
- Registraste{""}
+ Registraste{" "}
  <span className="text-red-300 font-black">
  {state.myHoursLogged}/{EXPECTED_DAILY_HOURS}
- </span>{""}
+ </span>{" "}
  horas. Tu trust score bajara.
  </p>
  <div className="flex items-center gap-2 mt-2">
  <TrendingDown className="w-4 h-4 text-red-500"/>
  <span className="text-xs text-red-400/80">
- Impacto estimado:{""}
- <span className="font-bold text-red-300">-{trustPenalty} pts</span>{""}
+ Impacto estimado:{" "}
+ <span className="font-bold text-red-300">-{trustPenalty} pts</span>{" "}
  en tu trust score
  </span>
  </div>
  {finishedPeople.length > 0 && (
  <p className="text-xs text-red-500/60 mt-2">
- {finishedPeople.length} de tus companeros completaron sus{""}
+ {finishedPeople.length} de tus compañeros completaron sus{" "}
  {EXPECTED_DAILY_HOURS} horas.
  </p>
  )}

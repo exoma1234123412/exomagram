@@ -17,6 +17,7 @@ import {
  AlertTriangle,
  Users,
 } from "lucide-react";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { TimeEntry, Profile, MoodLevel } from "@/lib/types/database";
 
@@ -422,14 +423,7 @@ export default function PulseEKGPage() {
  );
 
  if (orgLoading || loading) {
- return (
- <div className="flex flex-col items-center justify-center py-24 gap-3">
- <div className="w-10 h-10 bg-primary animate-pulse"/>
- <p className="text-sm text-muted-foreground animate-pulse">
- Cargando...
- </p>
- </div>
- );
+ return <PageSkeleton />;
  }
 
  if (!orgId) {
@@ -446,7 +440,7 @@ export default function PulseEKGPage() {
  <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
  {/* Header */}
  <div className="mb-8">
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <Activity className="w-6 h-6 text-primary"/>
  Pulso del Equipo
  </h1>
@@ -774,7 +768,7 @@ export default function PulseEKGPage() {
  {entries.length} entradas hoy
  </span>
  <span className="tabular-nums">
- {new Set(entries.map((e) => e.user_id)).size}/{members.length}{""}
+ {new Set(entries.map((e) => e.user_id)).size}/{members.length}{" "}
  miembros activos
  </span>
  </div>
@@ -823,7 +817,7 @@ export default function PulseEKGPage() {
  </Avatar>
  <div className="flex-1 min-w-0">
  <p className="text-sm font-medium truncate">
- {member.name.split("")[0]}
+ {member.name.split(" ")[0]}
  </p>
  </div>
  <div className="flex items-center gap-2">

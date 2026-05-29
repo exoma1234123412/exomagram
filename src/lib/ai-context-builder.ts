@@ -202,6 +202,61 @@ export async function buildTeamContext(
     );
   }
 
+  // V12/V15 intelligence layers (always included)
+  const v12Queries = await Promise.all([
+    supabase
+      .from("personal_baselines")
+      .select("user_id, avg_daily_hours, stddev_daily_hours, avg_mood, avg_energy, avg_stress, avg_quality_score, avg_proof_rate, avg_trust_score, trust_trend, typical_grade, promise_reliability, category_distribution, data_completeness, avg_sleep_hours, peak_productivity_hours")
+      .eq("org_id", orgId)
+      .order("computed_date", { ascending: false }),
+    supabase
+      .from("correlation_insights")
+      .select("user_id, dimension_a, dimension_b, correlation_coefficient, strength, insight")
+      .eq("org_id", orgId)
+      .in("strength", ["strong_positive", "strong_negative"])
+      .order("computed_date", { ascending: false })
+      .limit(50),
+    supabase
+      .from("unlogged_hours")
+      .select("user_id, date, hour, was_online, dominant_status")
+      .eq("org_id", orgId)
+      .gte("date", cutoffStr)
+      .eq("was_online", true),
+    supabase
+      .from("nudge_outcomes")
+      .select("user_id, nudge_type, psychology_technique, behavior_changed, response_latency_seconds")
+      .eq("org_id", orgId)
+      .gte("sent_at", cutoffStr + "T00:00:00"),
+    supabase
+      .from("daily_health")
+      .select("user_id, date, sleep_hours, sleep_quality, stress_morning, stress_evening, motivation_level, exercise_minutes")
+      .eq("org_id", orgId)
+      .gte("date", cutoffStr)
+      .order("date", { ascending: false })
+      .limit(200),
+  ]);
+
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const baselines = (v12Queries[0].data ?? []) as any[];
+  const correlations = (v12Queries[1].data ?? []) as any[];
+  const darkHours = (v12Queries[2].data ?? []) as any[];
+  const nudgeHistory = (v12Queries[3].data ?? []) as any[];
+  const healthData = (v12Queries[4].data ?? []) as any[];
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+
+  // Build lookup maps for V12/V15 data
+  const baselineMap = new Map<string, (typeof baselines)[0]>();
+  for (const b of baselines) {
+    if (!baselineMap.has(b.user_id)) baselineMap.set(b.user_id, b);
+  }
+  const correlationMap = new Map<string, typeof correlations>();
+  for (const c of correlations) {
+    if (!c.user_id) continue;
+    const list = correlationMap.get(c.user_id) ?? [];
+    list.push(c);
+    correlationMap.set(c.user_id, list);
+  }
+
   const results = await Promise.all(queries);
 
   // ── Destructure results ───────────────────────────────────────
@@ -398,8 +453,59 @@ export async function buildTeamContext(
     // Latest closeout
     if (userCloseouts.length > 0) {
       const lc = userCloseouts[0] as Record<string, unknown>;
-      lines.push(`  último closeout (${lc.date}): "${(lc.summary as string).slice(0, 150)}"`);
+      lines.push(`  último closeout (${lc.date}): "${((lc.summary as string) ?? "").slice(0, 150)}"`);
     }
+
+    // V12 — Personal baseline (30-day norm)
+    const userBaseline = baselineMap.get(userId);
+    if (userBaseline) {
+      lines.push(`  BASELINE 30d: avg=${userBaseline.avg_daily_hours ?? "?"}h/d (±${userBaseline.stddev_daily_hours ?? "?"}), mood=${userBaseline.avg_mood ?? "?"}, energy=${userBaseline.avg_energy ?? "?"}, stress=${userBaseline.avg_stress ?? "?"}, quality=${userBaseline.avg_quality_score ?? "?"}, trust=${userBaseline.avg_trust_score ?? "?"} (${userBaseline.trust_trend ?? "?"}), grade=${userBaseline.typical_grade ?? "?"}, proof=${userBaseline.avg_proof_rate ?? "?"}%, promises=${userBaseline.promise_reliability ?? "?"}%, data=${userBaseline.data_completeness ?? "?"}%`);
+      if (userBaseline.category_distribution) {
+        const dist = userBaseline.category_distribution as Record<string, number>;
+        const distStr = Object.entries(dist).map(([k, v]) => `${k}=${Math.round(v * 100)}%`).join(" ");
+        lines.push(`  CATEGORY MIX: ${distStr}`);
+      }
+    }
+
+    // V12 — Strong correlations
+    const userCorrs = correlationMap.get(userId);
+    if (userCorrs && userCorrs.length > 0) {
+      lines.push(`  CORRELACIONES: ${userCorrs.slice(0, 4).map((c: Record<string, unknown>) => `${c.dimension_a}↔${c.dimension_b}=${(c.correlation_coefficient as number) > 0 ? "+" : ""}${c.correlation_coefficient} (${c.strength})`).join("; ")}`);
+    }
+
+    // V15 — Dark hours (online but unlogged)
+    const userDarkHours = darkHours.filter((d: Record<string, unknown>) => d.user_id === userId);
+    if (userDarkHours.length > 0) {
+      lines.push(`  HORAS OSCURAS (online sin registro, ${days}d): ${userDarkHours.length}h — ${userDarkHours.slice(0, 5).map((d: Record<string, unknown>) => `${d.date} ${d.hour}:00`).join(", ")}${userDarkHours.length > 5 ? "..." : ""}`);
+    }
+
+    // V15 — Nudge effectiveness
+    const userNudges = nudgeHistory.filter((n: Record<string, unknown>) => n.user_id === userId);
+    if (userNudges.length > 0) {
+      const worked = userNudges.filter((n: Record<string, unknown>) => n.behavior_changed);
+      const avgLatency = worked.length > 0 ? Math.round(worked.reduce((s: number, n: Record<string, unknown>) => s + ((n.response_latency_seconds as number) ?? 0), 0) / worked.length / 60) : null;
+      lines.push(`  NUDGES (${days}d): ${userNudges.length} enviados, ${worked.length} efectivos (${userNudges.length > 0 ? Math.round((worked.length / userNudges.length) * 100) : 0}%)${avgLatency ? `, respuesta avg: ${avgLatency}min` : ""}`);
+    }
+
+    // V15 — Health trends
+    const userHealth = healthData.filter((h: Record<string, unknown>) => h.user_id === userId);
+    if (userHealth.length > 0) {
+      const avgSleep = userHealth.filter((h: Record<string, unknown>) => h.sleep_hours != null).reduce((s: number, h: Record<string, unknown>) => s + (h.sleep_hours as number), 0) / Math.max(1, userHealth.filter((h: Record<string, unknown>) => h.sleep_hours != null).length);
+      const stressDeltas = userHealth.filter((h: Record<string, unknown>) => h.stress_morning != null && h.stress_evening != null).map((h: Record<string, unknown>) => (h.stress_evening as number) - (h.stress_morning as number));
+      const avgStressDelta = stressDeltas.length > 0 ? (stressDeltas.reduce((a, b) => a + b, 0) / stressDeltas.length).toFixed(1) : null;
+      lines.push(`  SALUD: sleep_avg=${avgSleep.toFixed(1)}h, checks=${userHealth.length}/${days}d${avgStressDelta ? `, stress_delta_avg=${avgStressDelta} (+ = peor al final del día)` : ""}`);
+    }
+
+    // Derived metrics
+    const deepWorkRatio = totalHours > 0 ? Math.round((userEntries.filter((e: Record<string, unknown>) => e.category === "deep_work").length / totalHours) * 100) : 0;
+    const meetingTax = totalHours > 0 ? Math.round((userEntries.filter((e: Record<string, unknown>) => e.category === "meeting").length / totalHours) * 100) : 0;
+    const entrySources: Record<string, number> = {};
+    for (const e of userEntries) if (e.entry_source) entrySources[e.entry_source] = (entrySources[e.entry_source] ?? 0) + 1;
+    const sourceStr = Object.entries(entrySources).map(([k, v]) => `${k}=${v}`).join(" ");
+    const avgCompleteness = userEntries.filter((e: Record<string, unknown>) => e.completeness_score != null).length > 0
+      ? Math.round(userEntries.filter((e: Record<string, unknown>) => e.completeness_score != null).reduce((s: number, e: Record<string, unknown>) => s + (e.completeness_score as number), 0) / userEntries.filter((e: Record<string, unknown>) => e.completeness_score != null).length)
+      : null;
+    lines.push(`  DERIVED: deep_work_ratio=${deepWorkRatio}%, meeting_tax=${meetingTax}%, entry_sources=[${sourceStr}]${avgCompleteness != null ? `, completeness_avg=${avgCompleteness}%` : ""}`);
 
     lines.push("");
   }
@@ -799,6 +905,44 @@ export async function buildCompressedUserContext(
     const broken = _sumField(aggregates, "promises_broken");
     cLines.push(`PROMISES: ${kept}/${promisesMade}kept | ${broken}broken`);
     dataPoints += 2;
+  }
+
+  // -- V12: BASELINE (if available) --
+  const baselineRes = await supabase
+    .from("personal_baselines")
+    .select("avg_daily_hours, stddev_daily_hours, avg_trust_score, trust_trend, typical_grade, promise_reliability, data_completeness, avg_mood, avg_energy")
+    .eq("user_id", userId)
+    .eq("org_id", orgId)
+    .order("computed_date", { ascending: false })
+    .limit(1)
+    .single();
+  const bl = baselineRes.data as Record<string, unknown> | null;
+  if (bl) {
+    const blParts: string[] = [];
+    if (bl.avg_daily_hours != null) blParts.push(`avg:${bl.avg_daily_hours}h/d`);
+    if (bl.stddev_daily_hours != null) blParts.push(`±${bl.stddev_daily_hours}`);
+    if (bl.trust_trend) blParts.push(`trust:${bl.trust_trend}`);
+    if (bl.typical_grade) blParts.push(`grade:${bl.typical_grade}`);
+    if (bl.promise_reliability != null) blParts.push(`prom:${bl.promise_reliability}%`);
+    if (bl.data_completeness != null) blParts.push(`data:${bl.data_completeness}%`);
+    cLines.push(`BASELINE(30d): ${blParts.join(" | ")}`);
+    dataPoints += blParts.length;
+  }
+
+  // -- V12: CORRELATIONS --
+  const corrRes = await supabase
+    .from("correlation_insights")
+    .select("dimension_a, dimension_b, correlation_coefficient, strength")
+    .eq("user_id", userId)
+    .eq("org_id", orgId)
+    .in("strength", ["strong_positive", "strong_negative"])
+    .order("computed_date", { ascending: false })
+    .limit(5);
+  const corrs = (corrRes.data ?? []) as { dimension_a: string; dimension_b: string; correlation_coefficient: number; strength: string }[];
+  if (corrs.length > 0) {
+    const corrStr = corrs.map(c => `${c.dimension_a}<>${c.dimension_b}:${c.correlation_coefficient > 0 ? "+" : ""}${c.correlation_coefficient}`).join(" ");
+    cLines.push(`CORR: ${corrStr}`);
+    dataPoints += corrs.length;
   }
 
   // -- Include team context if requested --

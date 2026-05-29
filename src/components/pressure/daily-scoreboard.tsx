@@ -489,7 +489,7 @@ export function DailyScoreboard({ orgId }: { orgId: string }) {
  </p>
  </div>
  <span className="text-[10px] font-bold text-red-500 tabular-nums shrink-0">
- {zeroHoursMembers.length}{""}
+ {zeroHoursMembers.length}{" "}
  {zeroHoursMembers.length === 1 ?"persona":"personas"}
  </span>
  </div>

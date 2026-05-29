@@ -604,7 +604,7 @@ export default function DeadmanPage() {
  {alert.profile?.full_name ??"Desconocido"}
  </span>
  <span className="text-muted-foreground">
- {""}— {alert.hours_missing}h sin actividad
+ {" "}— {alert.hours_missing}h sin actividad
  </span>
  </p>
  <div className="flex items-center gap-2 mt-1 flex-wrap">

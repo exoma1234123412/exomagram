@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { cn, getInitials, getTodayMTY } from "@/lib/utils";
 import {
  Swords,
@@ -356,7 +357,7 @@ export default function ArenaPage() {
  .eq("org_id", orgId)
  .eq("date", today)
  .limit(1)
- .single();
+ .maybeSingle();
 
  if (todaySession) {
  const { data: entry } = await supabase
@@ -700,13 +701,7 @@ export default function ArenaPage() {
  // ─── Loading ───────────────────────────────────────────────────
 
  if (orgLoading || loading) {
- return (
- <div className="flex items-center justify-center h-screen">
- <div className="animate-pulse text-muted-foreground font-mono text-xs tracking-widest uppercase">
- Cargando arena...
- </div>
- </div>
- );
+ return <PageSkeleton />;
  }
 
  if (!orgId) {
@@ -1071,7 +1066,7 @@ function TribunalTab({
  </AvatarFallback>
  </Avatar>
  <span className="text-xs font-mono truncate flex-1">
- {v.profile?.full_name?.split("")[0] ??"?"}
+ {v.profile?.full_name?.split(" ")[0] ??"?"}
  </span>
  <Badge
  variant="outline"className={cn(
@@ -1225,7 +1220,7 @@ function LotterySpinCompact({
  const delay = 100 + slowTick * 60;
  setPhase("slowing");
  intervalRef.current = setTimeout(() => {
- if (slowTick === totalSlowTicks - 2) {
+ if (slowTick >= totalSlowTicks - 1) {
  setCurrentIdx(finalIdxRef.current);
  setPhase("done");
  setTimeout(() => {
@@ -1336,7 +1331,7 @@ function DuelosTab({
  </AvatarFallback>
  </Avatar>
  <span className="text-xs font-mono truncate">
- {m.profile.full_name?.split("")[0] ?? m.profile.email}
+ {m.profile.full_name?.split(" ")[0] ?? m.profile.email}
  </span>
  {duelOpponent === m.user_id && (
  <Check className="w-3 h-3 text-primary ml-auto shrink-0"/>
@@ -1389,7 +1384,7 @@ function DuelosTab({
  </Avatar>
  <div className="min-w-0">
  <p className="text-xs font-mono truncate">
- {d.challenger_profile?.full_name?.split("")[0] ??"?"}
+ {d.challenger_profile?.full_name?.split(" ")[0] ??"?"}
  </p>
  <p className={cn(
 "text-sm font-mono tabular-nums tracking-tight font-bold",
@@ -1411,7 +1406,7 @@ function DuelosTab({
  <div className="flex items-center gap-2 flex-1 min-w-0 justify-end text-right">
  <div className="min-w-0">
  <p className="text-xs font-mono truncate">
- {d.opponent_profile?.full_name?.split("")[0] ??"?"}
+ {d.opponent_profile?.full_name?.split(" ")[0] ??"?"}
  </p>
  <p className={cn(
 "text-sm font-mono tabular-nums tracking-tight font-bold",
@@ -1459,11 +1454,11 @@ function DuelosTab({
  {d.date}
  </span>
  <span className={cn("text-xs font-mono truncate", challengerWon &&"text-green-500")}>
- {d.challenger_profile?.full_name?.split("")[0] ??"?"} ({d.challenger_hours}h)
+ {d.challenger_profile?.full_name?.split(" ")[0] ??"?"} ({d.challenger_hours}h)
  </span>
  <span className="text-[10px] font-mono text-muted-foreground">vs</span>
  <span className={cn("text-xs font-mono truncate", !challengerWon && d.winner_id &&"text-green-500")}>
- {d.opponent_profile?.full_name?.split("")[0] ??"?"} ({d.opponent_hours}h)
+ {d.opponent_profile?.full_name?.split(" ")[0] ??"?"} ({d.opponent_hours}h)
  </span>
  <Trophy className="w-3 h-3 text-amber-500 ml-auto shrink-0"/>
  </div>
@@ -1719,7 +1714,7 @@ function MercadoTab({
  </AvatarFallback>
  </Avatar>
  <span className="text-xs font-mono truncate">
- {inv.target_profile?.full_name?.split("")[0] ??"?"}
+ {inv.target_profile?.full_name?.split(" ")[0] ??"?"}
  </span>
  </div>
  <div className="flex items-baseline gap-2">
@@ -1784,7 +1779,7 @@ function MercadoTab({
  </AvatarFallback>
  </Avatar>
  <span className={cn("text-xs font-mono truncate", isMe &&"text-primary font-medium")}>
- {s.profile.full_name?.split("")[0] ?? s.profile.email}
+ {s.profile.full_name?.split(" ")[0] ?? s.profile.email}
  </span>
  </div>
  <span className="col-span-2 font-mono text-sm tabular-nums tracking-tight font-bold text-right">

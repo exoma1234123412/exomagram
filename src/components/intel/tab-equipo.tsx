@@ -157,7 +157,7 @@ export function TabEquipo({ orgId }: { orgId: string; userId: string }) {
  </span>
  {m.trustScore !== null && (
  <span>
- Trust{""}
+ Trust{" "}
  <span className={cn("data-number text-base",
  m.trustScore >= 80 ?"text-green-600 dark:text-green-400":
  m.trustScore >= 50 ?"text-amber-600 dark:text-amber-400":

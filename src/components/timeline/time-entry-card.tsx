@@ -5,7 +5,7 @@ import type { TimeEntry, Profile } from "@/lib/types/database";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { cn, formatHour, getInitials } from "@/lib/utils";
+import { cn, formatHour, getInitials, entryFreshness, freshnessLabel, entryEntropy, entropyLabel, entryValue, valueLabel } from "@/lib/utils";
 import { ExternalLink, Clock, Shield, AlertTriangle, Pencil, ShieldCheck, FolderKanban, Bookmark, UserCheck, History } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { EntryReactions } from "@/components/reactions/entry-reactions";
@@ -14,7 +14,7 @@ import { VerifyEntryDialog } from "./verify-entry-dialog";
 import { EntryComments } from "./entry-comments";
 import { EntryChangelog } from "./entry-changelog";
 import { CrossVerifyDialog } from "./cross-verify";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface TimeEntryCardProps {
  entry: TimeEntry & { profiles?: Profile };
@@ -28,6 +28,16 @@ export function TimeEntryCard({ entry, showUser = true, currentUserId, isAdmin }
  const [verifyOpen, setVerifyOpen] = useState(false);
  const [crossVerifyOpen, setCrossVerifyOpen] = useState(false);
  const [bookmarked, setBookmarked] = useState(false);
+
+ useEffect(() => {
+ const supabase = createClient();
+ supabase.auth.getUser().then(({ data: { user } }) => {
+  if (!user) return;
+  supabase.from("entry_bookmarks").select("id").eq("user_id", user.id).eq("entry_id", entry.id).maybeSingle().then(({ data }) => {
+   if (data) setBookmarked(true);
+  });
+ });
+ }, [entry.id]);
 
  async function toggleBookmark() {
  const supabase = createClient();
@@ -48,6 +58,14 @@ export function TimeEntryCard({ entry, showUser = true, currentUserId, isAdmin }
  const isLate = entry.is_late;
  const isOwner = currentUserId === entry.user_id;
  const gradientClass = CATEGORY_COLORS[entry.category] ??"from-gray-400 to-gray-500";
+
+ // Computed metrics
+ const freshness = entry.logged_at ? entryFreshness(entry.logged_at, entry.date, entry.hour) : null;
+ const fresh = freshness != null ? freshnessLabel(freshness) : null;
+ const entropy = entryEntropy(entry.title, entry.description);
+ const ent = entropyLabel(entropy);
+ const value = entryValue(entry);
+ const val = valueLabel(value);
 
  return (
  <Card className={cn(
@@ -92,9 +110,6 @@ export function TimeEntryCard({ entry, showUser = true, currentUserId, isAdmin }
  {showUser && entry.profiles?.full_name && (
  <p className="text-xs text-muted-foreground mt-1">
  {entry.profiles.full_name}
- {entry.profiles.role && (
- <span className="text-muted-foreground"> · {entry.profiles.role}</span>
- )}
  </p>
  )}
 
@@ -125,14 +140,32 @@ export function TimeEntryCard({ entry, showUser = true, currentUserId, isAdmin }
  </span>
  )}
 
- {entry.mood && (
- <span className="text-[10px] text-muted-foreground/80">
- Ánimo: {"★".repeat(entry.mood)}{"☆".repeat(5 - entry.mood)}
+ {/* Freshness */}
+ {fresh && (
+ <span className={cn("text-[10px] font-mono font-semibold", fresh.color)}>
+ {fresh.text}
  </span>
  )}
- {entry.energy && (
- <span className="text-[10px]">
- {"--".repeat(entry.energy)}
+
+ {/* Entropy */}
+ <span className={cn("text-[10px] font-mono font-semibold", ent.color)}>
+ {ent.text}
+ </span>
+
+ {/* Value */}
+ <span className={cn("text-[10px] font-mono font-bold", val.color)}>
+ {val.text}
+ </span>
+
+ {/* Quality score */}
+ {entry.quality_score != null && (
+ <span className={cn(
+ "text-[10px] font-mono font-semibold",
+ entry.quality_score >= 70 ? "text-green-600 dark:text-green-400" :
+ entry.quality_score >= 40 ? "text-muted-foreground" :
+ "text-red-600 dark:text-red-400"
+ )}>
+ Q:{entry.quality_score}
  </span>
  )}
  </div>

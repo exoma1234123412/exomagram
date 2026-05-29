@@ -125,7 +125,7 @@ export default function BiosPage() {
  {/* Header */}
  <div className="flex items-center justify-between mb-8">
  <div>
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <Brain className="w-6 h-6 text-primary"/>
  Bios del equipo
  </h1>

@@ -116,7 +116,7 @@ export default function AdminPage() {
  <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
  <div className="flex items-center gap-3 mb-2">
  <Shield className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">Administracion</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Administracion</h1>
  </div>
  <p className="text-muted-foreground text-sm mb-8">
  {orgName ??""} - {members.length} miembros

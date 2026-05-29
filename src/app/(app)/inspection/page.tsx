@@ -484,7 +484,7 @@ export default function InspectionPage() {
  {todayResult.caughtName}
  </p>
  <p className="font-mono text-xs text-red-400/80 mt-0.5">
- {todayResult.caughtEntries}{""}
+ {todayResult.caughtEntries}{" "}
  {todayResult.caughtEntries === 1 ?"entrada":"entradas"} al
  momento de la inspección
  </p>
@@ -513,7 +513,7 @@ export default function InspectionPage() {
  {todayResult.bestName}
  </p>
  <p className="font-mono text-[10px] text-green-500/70">
- {todayResult.bestEntries}{""}
+ {todayResult.bestEntries}{" "}
  {todayResult.bestEntries === 1 ?"entrada":"entradas"} al
  momento
  </p>
@@ -684,7 +684,7 @@ export default function InspectionPage() {
  </div>
  <div className="text-right shrink-0">
  <p className="font-mono text-xs tabular-nums text-muted-foreground">
- {h.caughtEntries}{""}
+ {h.caughtEntries}{" "}
  {h.caughtEntries === 1 ?"entrada":"entradas"}
  </p>
  </div>

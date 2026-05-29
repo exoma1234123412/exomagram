@@ -160,7 +160,7 @@ const connectionCount = new Map<string, number>();
  return (
  <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
  <div className="mb-8">
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <GitBranch className="w-6 h-6 text-primary"/>
  Mapa de Colaboración
  </h1>

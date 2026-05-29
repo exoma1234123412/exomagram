@@ -95,7 +95,7 @@ export function EmptyChairCard({ profile, lastEntry }: EmptyChairCardProps) {
  {lastEntry ? (
  <p className="text-xs text-red-600/80 dark:text-red-400/80">
  <span className="font-bold tabular-nums">
- {elapsed.hours}h {String(elapsed.minutes).padStart(2,"0")}m{""}
+ {elapsed.hours}h {String(elapsed.minutes).padStart(2,"0")}m{" "}
  {String(elapsed.seconds).padStart(2,"0")}s
  </span>
  <span className="ml-1.5 uppercase tracking-wide text-[9px]">

@@ -224,7 +224,7 @@ export default function InsightsPage() {
  <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
  <div className="flex items-center gap-3 mb-2">
  <Lightbulb className="w-6 h-6 text-yellow-500"/>
- <h1 className="text-2xl font-bold tracking-tight">Mis Insights</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Mis Insights</h1>
  </div>
  <p className="text-muted-foreground text-sm mb-6">Patrones de trabajo de los ultimos 30 dias</p>
 
@@ -303,7 +303,7 @@ export default function InsightsPage() {
  style={{ width:`${Math.min((p.avgHours / EXPECTED_DAILY_HOURS) * 100, 100)}%`}}
  />
  </div>
- <span className="text-xs font-medium w-10 text-right">{p.avgHours}h</span>
+ <span className="text-xs font-medium w-10 text-right font-mono tabular-nums">{p.avgHours}h</span>
  {p.avgMood > 0 && (
  <span className="text-[10px] text-muted-foreground w-12">
  {"★".repeat(Math.round(p.avgMood))}
@@ -327,7 +327,7 @@ export default function InsightsPage() {
  <div className="grid grid-cols-2 gap-4">
  <div className="text-center p-3 bg-accent/40">
  <p className={cn(
-"text-2xl font-bold",
+"text-2xl font-bold font-mono tabular-nums",
  focusScore >= 60 ?"text-green-600": focusScore >= 30 ?"text-yellow-600":"text-red-600")}>
  {focusScore}%
  </p>
@@ -335,7 +335,7 @@ export default function InsightsPage() {
  <p className="text-[9px] text-muted-foreground/60">% deep work en bloques 2h+</p>
  </div>
  <div className="text-center p-3 bg-accent/40">
- <p className="text-2xl font-bold">{avgDeepWorkBlock}h</p>
+ <p className="text-2xl font-bold font-mono tabular-nums">{avgDeepWorkBlock}h</p>
  <p className="text-[10px] text-muted-foreground">Bloque promedio</p>
  <p className="text-[9px] text-muted-foreground/60">de deep work continuo</p>
  </div>
@@ -393,8 +393,8 @@ export default function InsightsPage() {
  <span className="text-xs flex-1">
  {CATEGORIES[category].emoji} {CATEGORIES[category].label}
  </span>
- <span className="text-xs text-muted-foreground">{count}h</span>
- <span className="text-xs font-medium w-8 text-right">{avgMood}</span>
+ <span className="text-xs text-muted-foreground font-mono tabular-nums">{count}h</span>
+ <span className="text-xs font-medium w-8 text-right font-mono tabular-nums">{avgMood}</span>
  <div className="w-12">
  <span className="text-[10px]">{"★".repeat(Math.round(avgMood))}</span>
  </div>
@@ -418,11 +418,11 @@ export default function InsightsPage() {
  <div key={category} className="flex items-center gap-2">
  <span className="text-xs">{CATEGORIES[category].emoji}</span>
  <span className="text-xs flex-1">{CATEGORIES[category].label}</span>
- <span className="text-xs font-medium">{percent}%</span>
+ <span className="text-xs font-medium font-mono tabular-nums">{percent}%</span>
  {delta !== 0 && (
  <Badge
  variant="outline"className={cn(
-"text-[9px] py-0",
+"text-[9px] py-0 font-mono tabular-nums",
  delta > 0 ?"text-green-600 border-green-300":"text-red-600 border-red-300")}
  >
  {delta > 0 ?"+":""}{delta}%

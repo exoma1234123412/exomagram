@@ -79,9 +79,9 @@ export function TeamDebt({ orgId }: { orgId: string }) {
  {debts.map((debt, i) => (
  <p key={i} className="text-sm">
  <span className="mr-1">!!</span>
- <span className="font-medium">Deuda de equipo:</span>{""}
- <span className="font-semibold">{debt.userName}</span>{""}
- sacó <span className="font-bold text-destructive">{debt.grade}</span> ayer.{""}
+ <span className="font-medium">Deuda de equipo:</span>{" "}
+ <span className="font-semibold">{debt.userName}</span>{" "}
+ sacó <span className="font-bold text-destructive">{debt.grade}</span> ayer.{" "}
  <span className="text-muted-foreground">El rendimiento individual afecta a todos.</span>
  </p>
  ))}

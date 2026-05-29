@@ -327,7 +327,7 @@ export default function AutopsyPage() {
  {/* Header */}
  <div className="flex items-center gap-3 mb-2">
  <Stethoscope className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">Autopsia de Reuniones</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Autopsia de Reuniones</h1>
  </div>
  <p className="text-muted-foreground text-sm mb-8">
  Evalua cada reunion, descubre cuales valen la pena y cuales son tiempo perdido.
@@ -435,8 +435,8 @@ export default function AutopsyPage() {
  <div className="min-w-0 flex-1">
  <p className="text-sm font-medium truncate">{m.entry.title}</p>
  <p className="text-xs text-muted-foreground">
- {m.entry.profile_name ?? m.entry.profile_email} &middot;{""}
- {format(new Date(m.entry.date +"T12:00:00"),"d MMM", { locale: es })} &middot;{""}
+ {m.entry.profile_name ?? m.entry.profile_email} &middot;{" "}
+ {format(new Date(m.entry.date +"T12:00:00"),"d MMM", { locale: es })} &middot;{" "}
  {m.entry.hour}:00
  </p>
  </div>
@@ -475,8 +475,8 @@ export default function AutopsyPage() {
  <div className="min-w-0 flex-1">
  <p className="text-sm font-medium truncate">{m.entry.title}</p>
  <p className="text-xs text-muted-foreground">
- {m.entry.profile_name ?? m.entry.profile_email} &middot;{""}
- {format(new Date(m.entry.date +"T12:00:00"),"d MMM", { locale: es })} &middot;{""}
+ {m.entry.profile_name ?? m.entry.profile_email} &middot;{" "}
+ {format(new Date(m.entry.date +"T12:00:00"),"d MMM", { locale: es })} &middot;{" "}
  {m.entry.hour}:00
  </p>
  </div>
@@ -518,8 +518,8 @@ export default function AutopsyPage() {
  <div className="min-w-0">
  <p className="text-sm font-medium">{m.entry.title}</p>
  <p className="text-xs text-muted-foreground">
- {m.entry.profile_name ?? m.entry.profile_email} &middot;{""}
- {format(new Date(m.entry.date +"T12:00:00"),"d MMM", { locale: es })} &middot;{""}
+ {m.entry.profile_name ?? m.entry.profile_email} &middot;{" "}
+ {format(new Date(m.entry.date +"T12:00:00"),"d MMM", { locale: es })} &middot;{" "}
  {m.entry.hour}:00
  </p>
  {m.entry.description && (
@@ -628,8 +628,8 @@ export default function AutopsyPage() {
  <div className="min-w-0 flex-1">
  <p className="text-sm font-medium truncate">{m.entry.title}</p>
  <p className="text-xs text-muted-foreground">
- {m.entry.profile_name ?? m.entry.profile_email} &middot;{""}
- {format(new Date(m.entry.date +"T12:00:00"),"d MMM", { locale: es })} &middot;{""}
+ {m.entry.profile_name ?? m.entry.profile_email} &middot;{" "}
+ {format(new Date(m.entry.date +"T12:00:00"),"d MMM", { locale: es })} &middot;{" "}
  {m.entry.hour}:00
  </p>
  {m.userRating?.comment && (

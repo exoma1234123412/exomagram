@@ -89,7 +89,7 @@ export default function HeatmapPage() {
  <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
  <div className="flex items-center gap-3 mb-2">
  <Grid3X3 className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">Team Heatmap</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Team Heatmap</h1>
  </div>
  <p className="text-muted-foreground text-sm mb-6 capitalize">
  {weekLabel}

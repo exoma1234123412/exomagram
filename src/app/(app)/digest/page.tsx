@@ -68,7 +68,7 @@ export default function DigestPage() {
  <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
  <div className="flex items-center justify-between mb-8">
  <div>
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <Mail className="w-6 h-6 text-primary"/>
  Digest diario
  </h1>

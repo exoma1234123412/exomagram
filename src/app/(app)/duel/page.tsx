@@ -310,7 +310,7 @@ export default function DuelPage() {
  {/* Header */}
  <div className="flex items-center justify-between mb-8">
  <div>
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <Swords className="w-6 h-6 text-primary"/>
  Focus Duel
  </h1>
@@ -395,10 +395,10 @@ export default function DuelPage() {
  <div className="flex items-center gap-3">
  <Clock className="w-5 h-5 text-muted-foreground animate-pulse"/>
  <p className="text-sm text-muted-foreground">
- Esperando que{""}
+ Esperando que{" "}
  <span className="font-semibold text-foreground">
  {duel.opponent_profile.full_name ?? duel.opponent_profile.email}
- </span>{""}
+ </span>{" "}
  acepte el reto
  </p>
  </div>

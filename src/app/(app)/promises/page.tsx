@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { cn, getInitials } from "@/lib/utils";
+import { cn, getInitials, getTodayMTY } from "@/lib/utils";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
@@ -46,7 +46,7 @@ export default function PromisesPage() {
  const [loading, setLoading] = useState(true);
  const [submitting, setSubmitting] = useState(false);
  const supabase = createClient();
- const today = new Date().toISOString().split("T")[0];
+ const today = getTodayMTY();
 
  useEffect(() => {
  if (orgLoading) return;
@@ -93,7 +93,8 @@ export default function PromisesPage() {
  }
 
  async function markPromise(id: string, status:"delivered"|"broken") {
- await supabase.from("daily_promises").update({ status }).eq("id", id);
+ const { error } = await supabase.from("daily_promises").update({ status }).eq("id", id);
+ if (error) return;
  setPromises((prev) => prev.map((p) => p.id === id ? { ...p, status } : p));
  setMyPromises((prev) => prev.map((p) => p.id === id ? { ...p, status } : p));
  }
@@ -125,7 +126,7 @@ export default function PromisesPage() {
  return (
  <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
  <div className="mb-8">
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <Target className="w-6 h-6 text-primary"/>
  Promesas del día
  </h1>

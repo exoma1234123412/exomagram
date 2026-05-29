@@ -667,7 +667,7 @@ export function WeeklyConfession() {
  {config.description}
  </p>
  <p className="text-xs text-muted-foreground/70 mt-2">
- Semana del {format(weekStart,"d 'de' MMMM", { locale: es })} al{""}
+ Semana del {format(weekStart,"d 'de' MMMM", { locale: es })} al{" "}
  {format(weekEnd,"d 'de' MMMM, yyyy", { locale: es })}
  </p>
  </div>
@@ -820,7 +820,7 @@ export function WeeklyConfession() {
  weekStats.streakActive ?"text-orange-500":"text-red-500")}
  />
  <p className="text-xs font-semibold">
- Racha: {weekStats.currentStreak} días{""}
+ Racha: {weekStats.currentStreak} días{" "}
  {weekStats.streakActive ?"activa":"en riesgo"}
  </p>
  </div>
@@ -840,13 +840,13 @@ export function WeeklyConfession() {
  <div className="space-y-2">
  <div className="flex items-center justify-between text-xs text-muted-foreground">
  <span>
- Tu promedio de horas:{""}
+ Tu promedio de horas:{" "}
  <span className="font-bold text-foreground tabular-nums">
  {teamComparison.userAvgHours}
  </span>
  </span>
  <span>
- Equipo:{""}
+ Equipo:{" "}
  <span className="font-bold text-foreground tabular-nums">
  {teamComparison.teamAvgHours}
  </span>
@@ -884,13 +884,13 @@ export function WeeklyConfession() {
  <div className="space-y-2">
  <div className="flex items-center justify-between text-xs text-muted-foreground">
  <span>
- Tu evidencia:{""}
+ Tu evidencia:{" "}
  <span className="font-bold text-foreground tabular-nums">
  {teamComparison.userProofRate}%
  </span>
  </span>
  <span>
- Equipo:{""}
+ Equipo:{" "}
  <span className="font-bold text-foreground tabular-nums">
  {teamComparison.teamProofRate}%
  </span>
@@ -1136,7 +1136,7 @@ export function WeeklyConfession() {
  </p>
  <p className="text-xs text-muted-foreground mt-1">
  {weekStats.totalHours} horas | {weekStats.proofRate}% evidencia |
- Trust Score{""}
+ Trust Score{" "}
  {weekStats.trustDelta > 0 ?"+":""}
  {weekStats.trustDelta}
  </p>

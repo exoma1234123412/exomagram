@@ -756,7 +756,7 @@ export default function MirrorPage() {
  {/* Header */}
  <div className="flex items-center gap-3 mb-2">
  <Eye className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">El Espejo</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">El Espejo</h1>
  </div>
  <p className="text-muted-foreground text-sm mb-8">
  Así te ve tu equipo. Sin filtros. Sin excusas.
@@ -978,9 +978,9 @@ export default function MirrorPage() {
  className="flex items-center justify-between py-1.5 border-b border-border/30 last:border-0">
  <div className="flex items-center gap-2 min-w-0">
  <span className="text-sm">
- ??{""}
- <span className="font-medium">{s.senderName}</span>{""}
- marcó{""}
+ ??{" "}
+ <span className="font-medium">{s.senderName}</span>{" "}
+ marcó{" "}
  <span className="text-muted-foreground truncate">
  &quot;{s.entryTitle}&quot;
  </span>
@@ -1017,9 +1017,9 @@ export default function MirrorPage() {
  className="flex items-center justify-between py-1.5 border-b border-border/30 last:border-0">
  <div className="flex items-center gap-2 min-w-0">
  <span className="text-sm">
- OK{""}
- <span className="font-medium">{v.senderName}</span>{""}
- verificó{""}
+ OK{" "}
+ <span className="font-medium">{v.senderName}</span>{" "}
+ verificó{" "}
  <span className="text-muted-foreground truncate">
  &quot;{v.entryTitle}&quot;
  </span>
@@ -1070,10 +1070,10 @@ export default function MirrorPage() {
  {computed.hoursBelow8PerDay}h
  </p>
  <p className="text-sm text-muted-foreground mt-1">
- Eso equivale a{""}
+ Eso equivale a{" "}
  <span className="font-bold text-foreground">
  {computed.fullDaysEquivalent} días completos
- </span>{""}
+ </span>{" "}
  de trabajo que tu equipo cubrió.
  </p>
  </div>
@@ -1237,15 +1237,15 @@ export default function MirrorPage() {
 
  {computed.score4WeeksAgo !== null && (
  <p className="text-sm text-center text-muted-foreground mt-4">
- Hace 4 semanas estabas en{""}
+ Hace 4 semanas estabas en{" "}
  <span className="font-bold text-foreground">
  {computed.score4WeeksAgo}
  </span>
- . Hoy estás en{""}
+ . Hoy estás en{" "}
  <span className={cn("font-bold", tier.color)}>
  {data.trustScore}
  </span>
- .{""}
+ .{" "}
  {data.trustScore > computed.score4WeeksAgo
  ?"Vas subiendo.": data.trustScore < computed.score4WeeksAgo
  ?"Vas bajando.":"Te mantienes igual."}
@@ -1286,7 +1286,7 @@ export default function MirrorPage() {
  ?"text-green-500":"text-red-500")}
  />
  <p className="text-sm">
- ...el viernes habrás registrado{""}
+ ...el viernes habrás registrado{" "}
  <span
  className={cn(
 "font-bold text-lg tabular-nums",
@@ -1294,7 +1294,7 @@ export default function MirrorPage() {
  ?"text-green-600":"text-red-600")}
  >
  {computed.projectedWeeklyHours}h
- </span>{""}
+ </span>{" "}
  de 40h
  </p>
  </div>
@@ -1313,7 +1313,7 @@ export default function MirrorPage() {
  ?"text-green-500":"text-red-500")}
  />
  <p className="text-sm">
- ...tu Trust Score será{""}
+ ...tu Trust Score será{" "}
  <span
  className={cn(
 "font-bold text-lg tabular-nums",
@@ -1321,8 +1321,8 @@ export default function MirrorPage() {
  ?"text-green-600":"text-red-600")}
  >
  ~{computed.projectedScore2w}
- </span>{""}
- (actualmente{""}
+ </span>{" "}
+ (actualmente{" "}
  <span className="font-bold tabular-nums">
  {data.trustScore}
  </span>
@@ -1344,7 +1344,7 @@ export default function MirrorPage() {
  ?"text-green-500":"text-red-500")}
  />
  <p className="text-sm">
- ...tu título será{""}
+ ...tu título será{" "}
  <Badge
  className={cn(
 "font-bold border",
@@ -1352,7 +1352,7 @@ export default function MirrorPage() {
  computed.projectedTier.color
  )}
  >
- Tier {computed.projectedTier.tier} —{""}
+ Tier {computed.projectedTier.tier} —{" "}
  {computed.projectedTier.label}
  </Badge>
  </p>
@@ -1372,7 +1372,7 @@ export default function MirrorPage() {
  ?"text-green-500":"text-red-500")}
  />
  <p className="text-sm">
- ...tu posición en el ranking será{""}
+ ...tu posición en el ranking será{" "}
  <span
  className={cn(
 "font-bold text-lg tabular-nums",
@@ -1380,7 +1380,7 @@ export default function MirrorPage() {
  ?"text-green-600":"text-red-600")}
  >
  #{data.rankPosition}
- </span>{""}
+ </span>{" "}
  de {data.teamSize}
  </p>
  </div>
@@ -1410,7 +1410,7 @@ export default function MirrorPage() {
  </div>
  <div className="flex-1 min-w-0">
  <p className="text-sm font-semibold">
- Registra 2 horas con evidencia para subir{""}
+ Registra 2 horas con evidencia para subir{" "}
  {Math.min(computed.pointsToNextTier, 5)} puntos
  </p>
  <p className="text-xs text-muted-foreground mt-0.5">

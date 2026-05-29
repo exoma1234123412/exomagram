@@ -469,46 +469,10 @@ export async function POST(request: NextRequest) {
   });
 }
 
-// ── DELETE — delete a saved report ─────────────────────────────
-export async function DELETE(request: NextRequest) {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
-  }
-
-  const reportId = request.nextUrl.searchParams.get("report_id");
-  const orgId = request.nextUrl.searchParams.get("org_id");
-
-  if (!reportId || !orgId) {
-    return NextResponse.json({ error: "report_id y org_id requeridos" }, { status: 400 });
-  }
-
-  // Verify membership
-  const { data: membership } = await supabase
-    .from("org_members")
-    .select("org_id")
-    .eq("user_id", user.id)
-    .eq("org_id", orgId)
-    .limit(1)
-    .single();
-
-  if (!membership) {
-    return NextResponse.json({ error: "Sin organizacion" }, { status: 403 });
-  }
-
-  const { error } = await supabase
-    .from("saved_reports")
-    .delete()
-    .eq("id", reportId)
-    .eq("org_id", orgId);
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  return NextResponse.json({ success: true });
+// DELETE bloqueado — los datos son permanentes
+export async function DELETE() {
+  return NextResponse.json(
+    { error: "DELETE bloqueado. Los reportes son permanentes." },
+    { status: 403 }
+  );
 }

@@ -85,7 +85,7 @@ export default function EfficiencyPage() {
  return (
  <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
  <div className="mb-8">
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <Gauge className="w-6 h-6 text-primary"/>
  Eficiencia
  </h1>
@@ -119,7 +119,7 @@ export default function EfficiencyPage() {
  <Card>
  <CardContent className="p-5 text-center">
  <Gauge className="w-6 h-6 mx-auto text-primary mb-2"/>
- <p className={cn("text-4xl font-bold",
+ <p className={cn("text-4xl font-bold font-mono tabular-nums",
  data.team_avg_efficiency >= 70 ?"text-green-600":
  data.team_avg_efficiency >= 50 ?"text-yellow-600":"text-red-600")}>
  {data.team_avg_efficiency}
@@ -130,7 +130,7 @@ export default function EfficiencyPage() {
  <Card>
  <CardContent className="p-5 text-center">
  <DollarSign className="w-6 h-6 mx-auto text-red-500 mb-2"/>
- <p className={cn("text-4xl font-bold", data.total_wasted_cost > 200 ?"text-red-600":"text-muted-foreground")}>
+ <p className={cn("text-4xl font-bold font-mono tabular-nums", data.total_wasted_cost > 200 ?"text-red-600":"text-muted-foreground")}>
  ${data.total_wasted_cost}
  </p>
  <p className="text-xs text-muted-foreground mt-1">Desperdiciado hoy</p>
@@ -161,28 +161,28 @@ export default function EfficiencyPage() {
  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
  <div className="p-2.5 bg-accent/40 text-center">
  <Flame className="w-3.5 h-3.5 mx-auto text-primary mb-0.5"/>
- <p className={cn("text-lg font-bold", a.deep_work_ratio >= 50 ?"text-green-600": a.deep_work_ratio >= 30 ?"text-yellow-600":"text-red-600")}>
+ <p className={cn("text-lg font-bold font-mono tabular-nums", a.deep_work_ratio >= 50 ?"text-green-600": a.deep_work_ratio >= 30 ?"text-yellow-600":"text-red-600")}>
  {a.deep_work_ratio}%
  </p>
  <p className="text-[9px] text-muted-foreground">Deep work</p>
  </div>
  <div className="p-2.5 bg-accent/40 text-center">
  <Brain className="w-3.5 h-3.5 mx-auto text-blue-500 mb-0.5"/>
- <p className={cn("text-lg font-bold", a.flow_state_hours >= 3 ?"text-green-600":"text-muted-foreground")}>
+ <p className={cn("text-lg font-bold font-mono tabular-nums", a.flow_state_hours >= 3 ?"text-green-600":"text-muted-foreground")}>
  {a.flow_state_hours}h
  </p>
  <p className="text-[9px] text-muted-foreground">Flow state</p>
  </div>
  <div className="p-2.5 bg-accent/40 text-center">
  <Repeat className="w-3.5 h-3.5 mx-auto text-orange-500 mb-0.5"/>
- <p className={cn("text-lg font-bold", a.context_switches <= 3 ?"text-green-600":"text-red-600")}>
+ <p className={cn("text-lg font-bold font-mono tabular-nums", a.context_switches <= 3 ?"text-green-600":"text-red-600")}>
  {a.context_switches}
  </p>
  <p className="text-[9px] text-muted-foreground">Switches</p>
  </div>
  <div className="p-2.5 bg-accent/40 text-center">
  <DollarSign className="w-3.5 h-3.5 mx-auto text-red-500 mb-0.5"/>
- <p className={cn("text-lg font-bold", a.wasted_cost > 100 ?"text-red-600":"text-muted-foreground")}>
+ <p className={cn("text-lg font-bold font-mono tabular-nums", a.wasted_cost > 100 ?"text-red-600":"text-muted-foreground")}>
  ${a.wasted_cost}
  </p>
  <p className="text-[9px] text-muted-foreground">Desperdicio</p>
@@ -209,7 +209,7 @@ export default function EfficiencyPage() {
  title={`${a.blocked_hours}h bloqueado`} />
  )}
  </div>
- <div className="flex gap-3 mt-1.5 text-[9px] text-muted-foreground">
+ <div className="flex gap-3 mt-1.5 text-[9px] text-muted-foreground font-mono tabular-nums">
  <span className="flex items-center gap-1"><div className="w-2 h-2 bg-green-500 rounded-full"/>Productivo {a.productive_hours}h</span>
  <span className="flex items-center gap-1"><div className="w-2 h-2 bg-blue-500 rounded-full"/>Reuniones {a.meeting_hours}h</span>
  <span className="flex items-center gap-1"><div className="w-2 h-2 bg-yellow-400 rounded-full"/>Overhead {a.overhead_hours}h</span>

@@ -164,7 +164,7 @@ export default function WeeklyPage() {
  <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
  <div className="flex items-center gap-3 mb-2">
  <BarChart3 className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">Resumen Semanal</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Resumen Semanal</h1>
  </div>
  <p className="text-muted-foreground text-sm mb-6 capitalize">{weekLabel}</p>
 
@@ -326,7 +326,7 @@ export default function WeeklyPage() {
  <div className="mt-3 flex items-center gap-2">
  <span className="text-xs text-muted-foreground">Principal:</span>
  <Badge variant="secondary"className="text-xs">
- {CATEGORIES[s.topCategory].emoji}{""}
+ {CATEGORIES[s.topCategory].emoji}{" "}
  {CATEGORIES[s.topCategory].label} ({s.topCategoryCount}h)
  </Badge>
  </div>

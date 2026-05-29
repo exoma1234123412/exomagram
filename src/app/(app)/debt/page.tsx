@@ -634,7 +634,7 @@ export default function DebtPage() {
  {/* Historical debt */}
  <div className="flex items-center gap-3 mt-1.5">
  <span className="font-mono text-[9px] text-muted-foreground">
- Ayer:{""}
+ Ayer:{" "}
  <span className={cn(
 "font-bold tabular-nums",
  m.yesterdayDebt > 0 ?"text-red-400/80":"text-green-500/80")}>
@@ -642,7 +642,7 @@ export default function DebtPage() {
  </span>
  </span>
  <span className="font-mono text-[9px] text-muted-foreground">
- Semana:{""}
+ Semana:{" "}
  <span className={cn(
 "font-bold tabular-nums",
  m.weekDebt > 0 ?"text-red-400/80":"text-green-500/80")}>

@@ -425,7 +425,7 @@ export default function RecapPage() {
  {/* ── Header ─────────────────────────────────────────── */}
  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
  <div>
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <Eye className="w-6 h-6 text-primary"/>
  Resumen del Dia
  </h1>
@@ -528,7 +528,7 @@ export default function RecapPage() {
  </p>
  <p className="text-xs text-muted-foreground mt-1">
  {typeof teamMoodAvg ==="string"&& teamMoodAvg !=="--"? getMoodEmoji(parseFloat(teamMoodAvg))
- :""}{""}
+ :""}{" "}
  Animo promedio
  </p>
  </CardContent>
@@ -614,7 +614,7 @@ export default function RecapPage() {
  <Badge
  key={cat}
  variant="secondary"className="text-[10px] gap-1">
- {CATEGORIES[cat as WorkCategory]?.emoji}{""}
+ {CATEGORIES[cat as WorkCategory]?.emoji}{" "}
  {CATEGORIES[cat as WorkCategory]?.label} {hours}h
  </Badge>
  ))}
@@ -838,7 +838,7 @@ export default function RecapPage() {
  </div>
  <div>
  <p className="text-sm font-semibold tabular-nums">
- {highlightFullProof}{""}
+ {highlightFullProof}{" "}
  <span className="font-normal text-muted-foreground">
  {highlightFullProof === 1 ?"miembro":"miembros"} con 100% evidencia
  </span>
@@ -852,7 +852,7 @@ export default function RecapPage() {
  </div>
  <div>
  <p className="text-sm font-semibold tabular-nums">
- {totalReactions}{""}
+ {totalReactions}{" "}
  <span className="font-normal text-muted-foreground">
  {totalReactions === 1 ?"reaccion":"reacciones"} del equipo
  </span>
@@ -866,7 +866,7 @@ export default function RecapPage() {
  </div>
  <div>
  <p className="text-sm font-semibold tabular-nums">
- {highlightCloseouts}{""}
+ {highlightCloseouts}{" "}
  <span className="font-normal text-muted-foreground">
  {highlightCloseouts === 1
  ?"cierre del dia completado":"cierres del dia completados"}
@@ -882,7 +882,7 @@ export default function RecapPage() {
  </div>
  <div>
  <p className="text-sm font-semibold tabular-nums">
- {totalFlags}{""}
+ {totalFlags}{" "}
  <span className="font-normal text-muted-foreground">
  {totalFlags === 1 ?"alerta levantada":"alertas levantadas"}
  </span>

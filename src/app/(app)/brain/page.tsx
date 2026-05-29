@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import {
  Brain,
  Send,
@@ -132,7 +133,7 @@ export default function BrainPage() {
  {Object.entries(d).map(([key, value]) => {
  if (value === null || value === undefined) return null;
 
- const label = key.replace(/_/g,"").replace(/\b\w/g, (c) => c.toUpperCase());
+ const label = key.replace(/_/g," ").replace(/\b\w/g, (c) => c.toUpperCase());
 
  if (typeof value ==="string") {
  return (
@@ -184,7 +185,7 @@ export default function BrainPage() {
  <CardContent className="p-3 text-xs">
  {Object.entries(item as Record<string, unknown>).map(([k, v]) => (
  <p key={k}>
- <span className="font-semibold">{k.replace(/_/g,"")}:</span>{""}
+ <span className="font-semibold">{k.replace(/_/g," ")}:</span>{" "}
  {typeof v ==="number"? <Badge variant="outline"className="text-[10px] ml-1">{String(v)}</Badge> : String(v)}
  </p>
  ))}
@@ -210,11 +211,15 @@ export default function BrainPage() {
  );
  }
 
+ if (orgLoading) {
+ return <PageSkeleton />;
+ }
+
  return (
  <div className="flex flex-col h-[calc(100vh-4rem)] max-w-4xl mx-auto px-4 sm:px-6 py-4">
  {/* Header */}
  <div className="mb-4">
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <Brain className="w-6 h-6 text-primary"/>
  Claude Brain
  </h1>
@@ -246,7 +251,7 @@ export default function BrainPage() {
  disabled={loading}
  >
  <User className="w-3 h-3 mr-1"/>
- {m.full_name?.split("")[0]}
+ {m.full_name?.split(" ")[0]}
  </Button>
  ))}
  </div>

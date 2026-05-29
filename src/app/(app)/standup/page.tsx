@@ -14,6 +14,7 @@ import { cn, getInitials, getTodayMTY } from "@/lib/utils";
 import { MOOD_LABELS } from "@/lib/constants";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { MessageSquare, CheckCircle2, AlertTriangle } from "lucide-react";
 
 interface Standup {
@@ -87,20 +88,15 @@ export default function StandupPage() {
  }
 
  if (loading) {
- return (
- <div className="flex flex-col items-center justify-center py-24 gap-3">
- <div className="w-10 h-10 bg-primary animate-pulse"/>
- <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
- </div>
- );
+ return <PageSkeleton />;
  }
 
- const displayDate = format(new Date(),"EEEE, d MMMM yyyy", { locale: es });
+ const displayDate = format(new Date(getTodayMTY() + "T12:00:00"),"EEEE, d MMMM yyyy", { locale: es });
 
  return (
  <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
  <div className="mb-8">
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <MessageSquare className="w-6 h-6 text-primary"/>
  Standup del día
  </h1>

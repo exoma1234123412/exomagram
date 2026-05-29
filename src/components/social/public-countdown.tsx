@@ -183,9 +183,9 @@ export function PublicCountdown() {
  <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 animate-pulse"/>
  <span className="text-red-700 dark:text-red-300 uppercase tracking-wide">
  <span className="font-bold">{member.fullName}</span>
- {""}no registra hace{""}
+ {" "}no registra hace{" "}
  <span className="font-bold tabular-nums">
- {elapsed.hours}h {String(elapsed.minutes).padStart(2,"0")}m{""}
+ {elapsed.hours}h {String(elapsed.minutes).padStart(2,"0")}m{" "}
  {String(elapsed.seconds).padStart(2,"0")}s
  </span>
  </span>

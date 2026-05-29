@@ -327,7 +327,7 @@ export function HerdPressure() {
  <span className="font-bold tabular-nums">
  {loggedMembers.length} de {totalMembers}
  </span>
- {""}ya registraron hoy.{""}
+ {" "}ya registraron hoy.{" "}
  <span className="font-bold">Tu no.</span>
  </span>
  </div>
@@ -427,7 +427,7 @@ export function HerdPressure() {
  {/* YOU section */}
  <div className="text-center space-y-2 pt-2">
  <p className="font-mono font-bold uppercase tracking-tight text-lg text-red-600 dark:text-red-400">
- SOLO FALTAS TU,{""}
+ SOLO FALTAS TU,{" "}
  <span className="underline decoration-red-500/50 decoration-2 underline-offset-2">
  {currentUserName ||"???"}
  </span>
@@ -437,11 +437,11 @@ export function HerdPressure() {
  <div className="flex items-center justify-center gap-2 text-muted-foreground">
  <Clock className="w-4 h-4"/>
  <span className="font-mono text-sm tabular-nums tracking-tight">
- Llevas{""}
+ Llevas{" "}
  <span className="font-bold text-red-600 dark:text-red-400">
  {getElapsedSinceFirstEntry()}
  </span>
- {""}sin registrar
+ {" "}sin registrar
  </span>
  </div>
  </div>
@@ -461,7 +461,7 @@ export function HerdPressure() {
  {/* Countdown note */}
  {!canDismiss && (
  <p className="text-center font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
- No puedes cerrar esto por{""}
+ No puedes cerrar esto por{" "}
  <span className="font-bold tabular-nums text-red-500">
  {dismissCountdown}s
  </span>

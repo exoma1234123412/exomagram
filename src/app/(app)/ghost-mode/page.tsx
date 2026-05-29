@@ -299,7 +299,7 @@ export default function GhostModePage() {
  </div>
  <p className="text-xs font-mono text-muted-foreground mb-8">
  Miembros sin actividad durante horas de trabajo se vuelven fantasmas
- visibles para todos. Hora actual:{""}
+ visibles para todos. Hora actual:{" "}
  <span className="font-mono tabular-nums text-foreground">
  {formatHour(currentHour)}
  </span>

@@ -490,7 +490,7 @@ export default function PriceGamePage() {
  <BarChart3 className="w-8 h-8 text-muted-foreground"/>
  </div>
  <p className="text-sm font-mono text-muted-foreground">
- Sin historial todavia
+ Sin historial todavía
  </p>
  <p className="text-xs text-muted-foreground/60 font-mono mt-1">
  Las rondas completadas aparecen aqui
@@ -519,7 +519,7 @@ export default function PriceGamePage() {
  <Trophy className="w-8 h-8 text-muted-foreground"/>
  </div>
  <p className="text-sm font-mono text-muted-foreground">
- Sin datos todavia
+ Sin datos todavía
  </p>
  <p className="text-xs text-muted-foreground/60 font-mono mt-1">
  Completa rondas para ver quien estima mejor

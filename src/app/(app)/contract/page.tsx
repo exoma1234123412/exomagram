@@ -128,7 +128,7 @@ export default function ContractPage() {
  .eq("org_id", orgId)
  .eq("week_start", currentWeek)
  .limit(1)
- .single();
+ .maybeSingle();
 
  setMyContract(mine as WeeklyContract | null);
 
@@ -199,7 +199,7 @@ export default function ContractPage() {
  setSubmitting(true);
 
  const commitments = texts.map((text) => ({ text, delivered: false }));
- const { data } = await supabase
+ const { data, error } = await supabase
  .from("weekly_contracts")
  .insert({
  user_id: userId,
@@ -210,6 +210,11 @@ export default function ContractPage() {
  })
  .select("*")
  .single();
+
+ if (error) {
+ setSubmitting(false);
+ return;
+ }
 
  if (data) {
  // Store in audit_log with consequence
@@ -241,11 +246,12 @@ export default function ContractPage() {
  i === index ? { ...c, delivered: !c.delivered } : c
  );
 
- await supabase
+ const { error } = await supabase
  .from("weekly_contracts")
  .update({ commitments: updated })
  .eq("id", myContract.id);
 
+ if (error) return;
  setMyContract({ ...myContract, commitments: updated });
  }
 
@@ -304,7 +310,7 @@ export default function ContractPage() {
  <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
  {/* ─── Header ─────────────────────────── */}
  <div className="mb-8">
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <FileSignature className="w-6 h-6 text-primary"/>
  Pacto Semanal
  </h1>
@@ -419,7 +425,7 @@ export default function ContractPage() {
 
  <Button
  type="submit"disabled={submitting || !c1.trim() || !c2.trim() || !c3.trim()}
- className="w-full bg-primary text-white hover: hover:shadow-blue-600/30 transition-all duration-300 gap-2">
+ className="w-full bg-primary text-white hover:shadow-blue-600/30 transition-all duration-300 gap-2">
  {submitting ? (
  <Loader2 className="w-4 h-4 animate-spin"/>
  ) : (

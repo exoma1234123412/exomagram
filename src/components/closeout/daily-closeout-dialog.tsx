@@ -215,7 +215,7 @@ export function DailyCloseoutDialog({ open, onOpenChange }: DailyCloseoutDialogP
  </div>
  </div>
 
- <Button type="submit"className="w-full h-10 bg-primary hover:from-blue-700 hover:to-blue-800 text-white border-0 hover:shadow-blue-600/40 transition-all duration-300 font-semibold"disabled={loading}>
+ <Button type="submit" className="w-full h-10 bg-primary hover:bg-primary/90 text-white border-0 transition-all duration-300 font-semibold" disabled={loading}>
  {loading ?"Enviando...":"Enviar cierre del día"}
  </Button>
 

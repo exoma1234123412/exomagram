@@ -133,7 +133,7 @@ export default function GoalsPage() {
  <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
  <div className="flex items-center justify-between mb-8">
  <div>
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <Target className="w-6 h-6 text-primary"/>
  Mis Objetivos
  </h1>
@@ -167,11 +167,11 @@ export default function GoalsPage() {
  {g.period ==="weekly"?"Semanal":"Mensual"}
  </Badge>
  {g.target_hours && (
- <Badge variant="secondary"className="text-xs">{g.target_hours}h objetivo</Badge>
+ <Badge variant="secondary"className="text-xs font-mono tabular-nums">{g.target_hours}h objetivo</Badge>
  )}
  {g.target_category && (
  <Badge variant="secondary"className="text-xs">
- {CATEGORIES[g.target_category as WorkCategory]?.emoji}{""}
+ {CATEGORIES[g.target_category as WorkCategory]?.emoji}{" "}
  {CATEGORIES[g.target_category as WorkCategory]?.label}
  </Badge>
  )}
@@ -180,7 +180,7 @@ export default function GoalsPage() {
  <div className="mt-3">
  <div className="flex justify-between text-xs text-muted-foreground mb-1">
  <span>Progreso</span>
- <span>{g.progress}%</span>
+ <span className="font-mono tabular-nums">{g.progress}%</span>
  </div>
  <div className="h-2 bg-muted rounded-full overflow-hidden">
  <div

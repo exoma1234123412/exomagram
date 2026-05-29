@@ -102,7 +102,7 @@ export function CrossVerifyDialog({ entry, open, onOpenChange }: CrossVerifyProp
  <div className="text-sm text-muted-foreground mb-3">
  <p className="font-medium text-foreground">{entry.title}</p>
  <p className="text-xs">{entry.date} - Hora {entry.hour}</p>
- <p className="text-xs mt-1">Pide a companeros que confirmen que estuvieron en esta reunion.</p>
+ <p className="text-xs mt-1">Pide a compañeros que confirmen que estuvieron en esta reunion.</p>
  </div>
 
  {sent ? (

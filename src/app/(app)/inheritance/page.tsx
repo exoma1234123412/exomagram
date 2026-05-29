@@ -387,7 +387,7 @@ export default function InheritancePage() {
  <div>
  <p className="text-xs font-mono font-medium text-destructive uppercase">Riesgo alto de herencia</p>
  <p className="text-xs text-muted-foreground mt-1">
- Tu heredero tiene un Trust Score de{""}
+ Tu heredero tiene un Trust Score de{" "}
  <span className="font-mono tabular-nums font-medium">{heirTrustScore}</span>.
  Si su rendimiento baja, tus puntajes historicos tambien decaeran.
  </p>
@@ -400,7 +400,7 @@ export default function InheritancePage() {
  <div>
  <p className="text-xs font-mono font-medium text-amber-700 uppercase">Riesgo moderado</p>
  <p className="text-xs text-muted-foreground mt-1">
- Trust Score del heredero:{""}
+ Trust Score del heredero:{" "}
  <span className="font-mono tabular-nums font-medium">{heirTrustScore}</span>.
  Monitorea su rendimiento.
  </p>
@@ -549,7 +549,7 @@ export default function InheritancePage() {
  </div>
  <p className="text-xs font-mono text-muted-foreground mt-3">
  Herencia al <span className="font-medium tabular-nums">{myDesignation.percentage}%</span>
- {""}&mdash; si el Trust Score de tu heredero baja,
+ {" "}&mdash; si el Trust Score de tu heredero baja,
  tus puntajes historicos decaeran proporcionalmente.
  </p>
  </CardContent>
@@ -597,7 +597,7 @@ export default function InheritancePage() {
  <div>
  <p className="font-mono font-medium text-sm">{getName(inheritor.fromId)}</p>
  <p className="text-xs font-mono text-muted-foreground">
- Trust Score:{""}
+ Trust Score:{" "}
  <span className="tabular-nums font-medium">
  {score ??"—"}
  </span>

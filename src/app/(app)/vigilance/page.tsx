@@ -473,13 +473,13 @@ export default function VigilancePage() {
  </Badge>
  <div className="h-4 w-px bg-border"/>
  <span className="text-muted-foreground">
- Total hoy:{""}
+ Total hoy:{" "}
  <span className="font-bold text-foreground">
  {totalHoursToday}h
  </span>
  </span>
  <span className="text-muted-foreground">
- Transparencia:{""}
+ Transparencia:{" "}
  <span
  className={cn(
 "font-bold",
@@ -682,7 +682,7 @@ function PersonCard({
  <div className="flex items-center justify-between text-[10px]">
  <span className="text-muted-foreground flex items-center gap-1">
  <Radio className="w-3 h-3"/>
- Ultima senal: hace{""}
+ Ultima senal: hace{" "}
  {card.liveStatus
  ? formatMinutesAgo(card.heartbeatMinutesAgo)
  :"N/A"}
@@ -836,7 +836,7 @@ function PersonCard({
  </span>
  </div>
  <p className="text-[9px] text-muted-foreground mt-0.5">
- {CATEGORIES[card.lastEntry.category].label} -{""}
+ {CATEGORIES[card.lastEntry.category].label} -{" "}
  {card.lastEntry.hour}:00
  </p>
  </div>

@@ -169,7 +169,7 @@ export default function HealthPage() {
  return (
  <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
  <div className="mb-8">
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <Heart className="w-6 h-6 text-red-500"/>
  Salud del Equipo
  </h1>
@@ -194,7 +194,7 @@ export default function HealthPage() {
  <CardContent className="p-4 text-center">
  <Heart className="w-5 h-5 mx-auto text-red-500 mb-1"/>
  <div className="flex items-center justify-center gap-1">
- <p className="text-2xl font-bold">{currentMood?.toFixed(1) ??"-"}</p>
+ <p className="text-2xl font-bold font-mono tabular-nums">{currentMood?.toFixed(1) ??"-"}</p>
  <TrendIcon t={trend(currentMood, prevMood)} />
  </div>
  <p className="text-xs text-muted-foreground">Ánimo promedio</p>
@@ -204,7 +204,7 @@ export default function HealthPage() {
  <CardContent className="p-4 text-center">
  <Zap className="w-5 h-5 mx-auto text-yellow-500 mb-1"/>
  <div className="flex items-center justify-center gap-1">
- <p className="text-2xl font-bold">{currentEnergy?.toFixed(1) ??"-"}</p>
+ <p className="text-2xl font-bold font-mono tabular-nums">{currentEnergy?.toFixed(1) ??"-"}</p>
  <TrendIcon t={trend(currentEnergy, prevEnergy)} />
  </div>
  <p className="text-xs text-muted-foreground">Energía promedio</p>
@@ -214,7 +214,7 @@ export default function HealthPage() {
  <CardContent className="p-4 text-center">
  <Brain className="w-5 h-5 mx-auto text-primary mb-1"/>
  <div className="flex items-center justify-center gap-1">
- <p className="text-2xl font-bold">{avgFocus?.toFixed(0) ??"-"}</p>
+ <p className="text-2xl font-bold font-mono tabular-nums">{avgFocus?.toFixed(0) ??"-"}</p>
  </div>
  <p className="text-xs text-muted-foreground">Focus Score</p>
  </CardContent>
@@ -223,7 +223,7 @@ export default function HealthPage() {
  <CardContent className="p-4 text-center">
  <Flame className="w-5 h-5 mx-auto text-orange-500 mb-1"/>
  <div className="flex items-center justify-center gap-1">
- <p className="text-2xl font-bold">{currentDeepWork?.toFixed(1) ??"-"}h</p>
+ <p className="text-2xl font-bold font-mono tabular-nums">{currentDeepWork?.toFixed(1) ??"-"}h</p>
  <TrendIcon t={trend(currentDeepWork, prevDeepWork)} />
  </div>
  <p className="text-xs text-muted-foreground">Deep work/día</p>
@@ -270,9 +270,9 @@ export default function HealthPage() {
  width:`${((d.totalHours - d.deepWorkHours - d.meetingHours - d.blockedHours) / EXPECTED_DAILY_HOURS) * 100}%`}} />
  )}
  </div>
- <span className="text-xs text-muted-foreground w-8 text-right">{d.totalHours}h</span>
+ <span className="text-xs text-muted-foreground w-8 text-right font-mono tabular-nums">{d.totalHours}h</span>
  <span className={cn(
-"text-xs w-10 text-right font-medium",
+"text-xs w-10 text-right font-medium font-mono tabular-nums",
  focus >= 70 ?"text-green-600": focus >= 40 ?"text-yellow-600":"text-red-600")}>
  F:{focus}
  </span>
@@ -309,25 +309,25 @@ export default function HealthPage() {
  </CardHeader>
  <CardContent className="space-y-2 text-sm">
  {currentMeetings !== null && currentMeetings > 3 && (
- <p className="flex items-center gap-2">
+ <p className="flex items-center gap-2 font-mono tabular-nums">
  <AlertTriangle className="w-4 h-4 text-yellow-500"/>
  El equipo pasa ~{currentMeetings.toFixed(1)}h/día en reuniones. Consideren reducirlas.
  </p>
  )}
  {currentBlocked !== null && currentBlocked > 1 && (
- <p className="flex items-center gap-2">
+ <p className="flex items-center gap-2 font-mono tabular-nums">
  <AlertTriangle className="w-4 h-4 text-red-500"/>
  Promedio de {currentBlocked.toFixed(1)}h/día bloqueados. Investigar las causas.
  </p>
  )}
  {currentDeepWork !== null && prevDeepWork !== null && currentDeepWork < prevDeepWork - 1 && (
- <p className="flex items-center gap-2">
+ <p className="flex items-center gap-2 font-mono tabular-nums">
  <TrendingDown className="w-4 h-4 text-red-500"/>
  Deep work bajó de {prevDeepWork.toFixed(1)}h a {currentDeepWork.toFixed(1)}h esta semana.
  </p>
  )}
  {currentMood !== null && currentMood >= 4 && (
- <p className="flex items-center gap-2">
+ <p className="flex items-center gap-2 font-mono tabular-nums">
  <Heart className="w-4 h-4 text-green-500"/>
  El ánimo del equipo está bien ({currentMood.toFixed(1)}/5).
  </p>

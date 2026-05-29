@@ -320,8 +320,8 @@ export default function MirrorModePage() {
  Modo Espejo Activo
  </p>
  <p className="text-xs text-muted-foreground mt-0.5">
- Estás viendo el timeline de{""}
- <span className="font-bold text-foreground">{partnerName}</span> — y{""}
+ Estás viendo el timeline de{" "}
+ <span className="font-bold text-foreground">{partnerName}</span> — y{" "}
  {partnerFirstName} está viendo el tuyo.
  </p>
  </div>
@@ -332,7 +332,7 @@ export default function MirrorModePage() {
  <div className="mb-8 border border-amber-500/30 bg-amber-500/5 p-3 flex items-center gap-3">
  <Eye className="w-4 h-4 text-amber-600 shrink-0"/>
  <p className="font-mono text-[10px] text-amber-700 dark:text-amber-400">
- Tu trabajo está siendo visto por:{""}
+ Tu trabajo está siendo visto por:{" "}
  <span className="font-bold uppercase">{partnerName}</span>
  </p>
  </div>

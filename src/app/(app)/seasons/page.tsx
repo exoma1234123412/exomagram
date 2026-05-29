@@ -232,7 +232,7 @@ export default function SeasonsPage() {
  {/* Header */}
  <div className="flex items-center gap-3 mb-1">
  <Trophy className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">
  Temporada {seasonNumber} — {seasonLabel}
  </h1>
  </div>
@@ -260,7 +260,7 @@ export default function SeasonsPage() {
  />
  </div>
  <p className="text-xs text-muted-foreground mt-2">
- {progressPct}% completado — la temporada se reinicia el{""}
+ {progressPct}% completado — la temporada se reinicia el{" "}
  {format(endOfMonth(now),"d 'de' MMMM", { locale: es })}
  </p>
  </CardContent>

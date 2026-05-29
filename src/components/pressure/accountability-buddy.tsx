@@ -875,7 +875,7 @@ export function AccountabilityBuddy({ orgId: orgIdProp }: { orgId?: string } = {
  <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 px-3 py-2">
  <p className="text-xs font-medium text-yellow-800 dark:text-yellow-300">
  <AlertTriangle className="w-3.5 h-3.5 inline mr-1"/>
- Tu buddy necesita ayuda — solo lleva{""}
+ Tu buddy necesita ayuda — solo lleva{" "}
  <span className="font-bold">{buddyData.hoursToday}h</span>
  </p>
  </div>
@@ -885,13 +885,13 @@ export function AccountabilityBuddy({ orgId: orgIdProp }: { orgId?: string } = {
  <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 px-3 py-2">
  <p className="text-xs font-medium text-red-800 dark:text-red-300">
  <AlertTriangle className="w-3.5 h-3.5 inline mr-1"/>
- No decepciones a{""}
+ No decepciones a{" "}
  <span className="font-bold">
  {firstName(buddyData.profile.full_name)}
- </span>{""}
- — lleva{""}
- <span className="font-bold">{buddyData.hoursToday}h</span>{""}
- y tú solo{""}
+ </span>{" "}
+ — lleva{" "}
+ <span className="font-bold">{buddyData.hoursToday}h</span>{" "}
+ y tú solo{" "}
  <span className="font-bold">{myData.hoursToday}h</span>
  </p>
  </div>
@@ -1046,7 +1046,7 @@ export function AccountabilityBuddy({ orgId: orgIdProp }: { orgId?: string } = {
  {/* Names */}
  <div className="min-w-0 flex-1">
  <p className="text-xs font-semibold truncate">
- {firstName(pair.user1.full_name)} &{""}
+ {firstName(pair.user1.full_name)} &{" "}
  {firstName(pair.user2.full_name)}
  {isMyPair && (
  <span className="text-[9px] text-primary ml-1">

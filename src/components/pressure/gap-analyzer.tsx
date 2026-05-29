@@ -324,7 +324,7 @@ export function GapAnalyzer({ orgId }: { orgId: string }) {
  {/* ---- 1. Today's Hour Grid ---- */}
  <div>
  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
- Mapa del dia — {formatHourShort(WORK_HOURS[0])} a{""}
+ Mapa del dia — {formatHourShort(WORK_HOURS[0])} a{" "}
  {formatHourShort(WORK_HOURS[WORK_HOURS.length - 1] + 1)}
  </h3>
  <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-12 gap-2">
@@ -514,8 +514,8 @@ export function GapAnalyzer({ orgId }: { orgId: string }) {
  <div className="flex items-start gap-2">
  <Flame className="h-4 w-4 text-orange-500 shrink-0 mt-0.5"/>
  <span className="text-xs text-red-800 dark:text-red-300">
- Tu racha de{""}
- <span className="font-bold">{data.currentStreak} dia{data.currentStreak !== 1 ?"s":""}</span>{""}
+ Tu racha de{" "}
+ <span className="font-bold">{data.currentStreak} dia{data.currentStreak !== 1 ?"s":""}</span>{" "}
  se rompera si no registras hoy
  </span>
  </div>

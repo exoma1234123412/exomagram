@@ -755,12 +755,12 @@ export default function BlackMarketPage() {
  <span className="font-medium">
  {isMe ?"T\u00fa": trade.userName}
  </span>
- {""}
- {isBuy ?"compr\u00f3":"vendi\u00f3"}{""}
+ {" "}
+ {isBuy ?"compr\u00f3":"vendi\u00f3"}{" "}
  <span className="font-medium">
  {trade.quantity}h de {catInfo?.label}
  </span>
- {""}
+ {" "}
  {catInfo?.emoji}
  </p>
  <p className="text-[10px] text-muted-foreground tabular-nums">

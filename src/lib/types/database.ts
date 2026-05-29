@@ -135,6 +135,15 @@ export interface TimeEntry {
   fields_filled: number;
   completeness_score: number;
   device_type: DeviceType | null;
+  // V16 — Forensic columns
+  backfill_probability: number | null;
+  description_entropy: number | null;
+  semantic_continuity_score: number | null;
+  typing_speed_wpm: number | null;
+  typing_deletion_count: number;
+  typing_pause_count: number;
+  typing_authenticity_score: number | null;
+  vocabulary_uniqueness_score: number | null;
   created_at: string;
   updated_at: string;
   // V11 — Soft deletes

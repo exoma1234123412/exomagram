@@ -368,7 +368,7 @@ export default function SprintsPage() {
  {/* Header */}
  <div className="flex items-center justify-between mb-8">
  <div>
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <Flag className="w-6 h-6 text-primary"/>
  Sprints
  </h1>
@@ -391,7 +391,7 @@ export default function SprintsPage() {
  <Badge className="bg-primary/10 text-primary border-primary/20 text-xs">
  Sprint activo
  </Badge>
- <Badge variant="outline"className="text-xs gap-1">
+ <Badge variant="outline"className="text-xs gap-1 font-mono tabular-nums">
  <Clock className="w-3 h-3"/>
  {sprintProgress.remaining} dias restantes
  </Badge>
@@ -405,17 +405,17 @@ export default function SprintsPage() {
  <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
  <span className="flex items-center gap-1">
  <Calendar className="w-3 h-3"/>
- {format(parseISO(activeSprint.start_date),"d MMM", { locale: es })} -{""}
+ {format(parseISO(activeSprint.start_date),"d MMM", { locale: es })} -{" "}
  {format(parseISO(activeSprint.end_date),"d MMM yyyy", { locale: es })}
  </span>
- <span className="flex items-center gap-1">
+ <span className="flex items-center gap-1 font-mono tabular-nums">
  <Target className="w-3 h-3"/>
  {activeSprint.goal_hours_per_person}h / persona
  </span>
  {parseCategoryFocus(activeSprint.goal_category_focus) && (
  <span>
- {CATEGORIES[parseCategoryFocus(activeSprint.goal_category_focus)!.category]?.emoji}{""}
- {parseCategoryFocus(activeSprint.goal_category_focus)!.percent}%{""}
+ {CATEGORIES[parseCategoryFocus(activeSprint.goal_category_focus)!.category]?.emoji}{" "}
+ {parseCategoryFocus(activeSprint.goal_category_focus)!.percent}%{" "}
  {CATEGORIES[parseCategoryFocus(activeSprint.goal_category_focus)!.category]?.label}
  </span>
  )}
@@ -437,7 +437,7 @@ export default function SprintsPage() {
 
  {/* Progress bar */}
  <div className="mt-5">
- <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
+ <div className="flex justify-between text-xs text-muted-foreground mb-1.5 font-mono tabular-nums">
  <span>Dia {sprintProgress.elapsed} de {sprintProgress.totalDays}</span>
  <span>{sprintProgress.percent}% transcurrido</span>
  </div>
@@ -479,10 +479,10 @@ export default function SprintsPage() {
  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
  <Card>
  <CardContent className="p-4 text-center">
- <p className="text-2xl font-bold text-primary">
+ <p className="text-2xl font-bold text-primary font-mono tabular-nums">
  {teamStats.totalHours}h
  </p>
- <p className="text-xs text-muted-foreground">
+ <p className="text-xs text-muted-foreground font-mono tabular-nums">
  de {teamStats.totalGoal}h objetivo equipo
  </p>
  <div className="h-1.5 bg-muted rounded-full overflow-hidden mt-2">
@@ -496,23 +496,23 @@ export default function SprintsPage() {
  </Card>
  <Card>
  <CardContent className="p-4 text-center">
- <p className="text-2xl font-bold">{teamStats.avgProof}%</p>
+ <p className="text-2xl font-bold font-mono tabular-nums">{teamStats.avgProof}%</p>
  <p className="text-xs text-muted-foreground">Evidencia promedio</p>
  </CardContent>
  </Card>
  <Card>
  <CardContent className="p-4 text-center">
- <p className="text-2xl font-bold text-green-600">
+ <p className="text-2xl font-bold text-green-600 font-mono tabular-nums">
  {teamStats.membersOnTrack}
  </p>
- <p className="text-xs text-muted-foreground">
+ <p className="text-xs text-muted-foreground font-mono tabular-nums">
  de {memberStats.length} en ritmo
  </p>
  </CardContent>
  </Card>
  <Card>
  <CardContent className="p-4 text-center">
- <p className="text-2xl font-bold">{memberStats.length}</p>
+ <p className="text-2xl font-bold font-mono tabular-nums">{memberStats.length}</p>
  <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
  <Users className="w-3 h-3"/> Miembros
  </p>
@@ -569,7 +569,7 @@ export default function SprintsPage() {
  </div>
  <Badge
  variant="outline"className={cn(
-"text-xs",
+"text-xs font-mono tabular-nums",
  pct >= 100
  ?"border-green-300 text-green-600": pct >= 70
  ?"border-amber-300 text-amber-600":"border-red-300 text-red-500")}
@@ -581,15 +581,15 @@ export default function SprintsPage() {
  {/* Stats grid */}
  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
  <div className="bg-accent/40 p-2 text-center">
- <p className="text-lg font-bold">{m.hoursLogged}h</p>
- <p className="text-[10px] text-muted-foreground">
+ <p className="text-lg font-bold font-mono tabular-nums">{m.hoursLogged}h</p>
+ <p className="text-[10px] text-muted-foreground font-mono tabular-nums">
  de {m.goalHours}h meta
  </p>
  </div>
  <div className="bg-accent/40 p-2 text-center">
  <p
  className={cn(
-"text-lg font-bold",
+"text-lg font-bold font-mono tabular-nums",
  m.proofRate >= 80
  ?"text-green-600": m.proofRate >= 50
  ?"text-amber-600":"text-red-500")}
@@ -604,20 +604,20 @@ export default function SprintsPage() {
  <div className="bg-accent/40 p-2 text-center">
  <p
  className={cn(
-"text-lg font-bold",
+"text-lg font-bold font-mono tabular-nums",
  focusCatPct >= focusParsed.percent
  ?"text-green-600":"text-amber-600")}
  >
  {focusCatPct}%
  </p>
  <p className="text-[10px] text-muted-foreground">
- {CATEGORIES[focusParsed.category]?.emoji}{""}
+ {CATEGORIES[focusParsed.category]?.emoji}{" "}
  {CATEGORIES[focusParsed.category]?.label}
  </p>
  </div>
  )}
  <div className="bg-accent/40 p-2 text-center">
- <p className="text-lg font-bold">
+ <p className="text-lg font-bold font-mono tabular-nums">
  {Object.keys(m.dailyHours).length}
  </p>
  <p className="text-[10px] text-muted-foreground">
@@ -702,7 +702,7 @@ export default function SprintsPage() {
  <Card>
  <CardContent className="p-5">
  <div className="flex items-center justify-between mb-3 text-xs text-muted-foreground">
- <span>
+ <span className="font-mono tabular-nums">
  Meta total: {burndownData.totalGoal}h equipo
  </span>
  <div className="flex items-center gap-4">
@@ -718,7 +718,7 @@ export default function SprintsPage() {
  {/* Chart area */}
  <div className="relative h-48 sm:h-56">
  {/* Y-axis labels */}
- <div className="absolute left-0 top-0 bottom-6 w-10 flex flex-col justify-between text-[9px] text-muted-foreground">
+ <div className="absolute left-0 top-0 bottom-6 w-10 flex flex-col justify-between text-[9px] text-muted-foreground font-mono tabular-nums">
  <span>{burndownData.totalGoal}h</span>
  <span>{Math.round(burndownData.totalGoal / 2)}h</span>
  <span>0h</span>
@@ -895,11 +895,11 @@ export default function SprintsPage() {
  </Badge>
  )}
  </div>
- <p className="text-xs text-muted-foreground mt-0.5">
+ <p className="text-xs text-muted-foreground mt-0.5 font-mono tabular-nums">
  {format(parseISO(sprint.start_date),"d MMM", {
  locale: es,
- })}{""}
- -{""}
+ })}{" "}
+ -{" "}
  {format(parseISO(sprint.end_date),"d MMM yyyy", {
  locale: es,
  })}
@@ -908,13 +908,13 @@ export default function SprintsPage() {
  {focusParsed && (
  <>
  {"|"}
- {CATEGORIES[focusParsed.category]?.emoji}{""}
+ {CATEGORIES[focusParsed.category]?.emoji}{" "}
  {focusParsed.percent}%
  </>
  )}
  </p>
  {stats && totalHoursAchieved !== null && totalGoalHours !== null && (
- <p className="text-xs text-muted-foreground mt-0.5">
+ <p className="text-xs text-muted-foreground mt-0.5 font-mono tabular-nums">
  {totalHoursAchieved}h logradas de {totalGoalHours}h planificadas (
  {Math.round((totalHoursAchieved / Math.max(totalGoalHours, 1)) * 100)}
  %)
@@ -969,16 +969,16 @@ export default function SprintsPage() {
  </div>
  </div>
  <div className="text-right shrink-0">
- <p className="text-sm font-semibold">
+ <p className="text-sm font-semibold font-mono tabular-nums">
  {m.hoursLogged}h
  </p>
- <p className="text-[10px] text-muted-foreground">
+ <p className="text-[10px] text-muted-foreground font-mono tabular-nums">
  de {m.goalHours}h ({pct}%)
  </p>
  </div>
  <Badge
  variant="outline"className={cn(
-"text-[10px] shrink-0",
+"text-[10px] shrink-0 font-mono tabular-nums",
  m.proofRate >= 80
  ?"text-green-600":"text-amber-600")}
  >

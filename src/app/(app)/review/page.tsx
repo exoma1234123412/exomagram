@@ -163,7 +163,7 @@ export default function ReviewPage() {
  return (
  <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
  <div className="mb-8">
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <FileText className="w-6 h-6 text-primary"/>
  Auto Performance Review
  </h1>
@@ -483,7 +483,7 @@ export default function ReviewPage() {
 "text-xs border",
  review.trajectory.risk_level ==="low"?"bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border-green-300 dark:border-green-800": review.trajectory.risk_level ==="high"?"bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 border-red-300 dark:border-red-800":"bg-yellow-50 dark:bg-yellow-950/30 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-800")}
  >
- Riesgo{""}
+ Riesgo{" "}
  {review.trajectory.risk_level ==="low"?"bajo": review.trajectory.risk_level ==="high"?"alto":"medio"}
  </Badge>
  </div>

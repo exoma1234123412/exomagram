@@ -225,7 +225,7 @@ export default function PanicPage() {
  <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
  {/* Header */}
  <div className="mb-8">
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <Siren className="w-6 h-6 text-primary"/>
  Botón de Pánico
  </h1>

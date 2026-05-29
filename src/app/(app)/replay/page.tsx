@@ -109,7 +109,7 @@ const byPerson = new Map<string, EntryWithProfile[]>();
  <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
  <div className="flex items-center gap-3 mb-2">
  <Film className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">Work Replay</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Work Replay</h1>
  </div>
  <p className="text-muted-foreground text-sm mb-8">
  Reproduce el dia del equipo como una pelicula

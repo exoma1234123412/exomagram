@@ -197,7 +197,7 @@ export default function AccountabilityPage() {
  <div className="flex items-center justify-between mb-2">
  <div className="flex items-center gap-3">
  <Eye className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">Accountability</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Accountability</h1>
  </div>
  </div>
  <p className="text-muted-foreground text-sm mb-6 capitalize">{displayDate}</p>
@@ -393,7 +393,7 @@ export default function AccountabilityPage() {
  {s.suspiciousReactions > 0 && (
  <Badge variant="outline"className="text-xs text-orange-600 border-orange-300">
  <AlertTriangle className="w-3 h-3 mr-1"/>
- Marcado como sospechoso por companeros
+ Marcado como sospechoso por compañeros
  </Badge>
  )}
  </div>

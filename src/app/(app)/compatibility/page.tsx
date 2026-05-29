@@ -131,7 +131,7 @@ const userProjects = new Map<string, Map<string, number>>(); // user -> project 
  <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
  <div className="flex items-center gap-3 mb-2">
  <GitMerge className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">Compatibilidad</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Compatibilidad</h1>
  </div>
  <p className="text-muted-foreground text-sm mb-6">
  Patrones de colaboracion entre miembros (30 dias)
@@ -144,7 +144,7 @@ const userProjects = new Map<string, Map<string, number>>(); // user -> project 
  </div>
  ) : pairs.length === 0 ? (
  <div className="text-center py-20 text-muted-foreground">
- No hay suficientes datos de colaboracion todavia.
+ No hay suficientes datos de colaboracion todavía.
  </div>
  ) : (
  <div className="space-y-3">
@@ -152,7 +152,7 @@ const userProjects = new Map<string, Map<string, number>>(); // user -> project 
  <Card key={`${p.userA.id}-${p.userB.id}`}>
  <CardContent className="p-4">
  <div className="flex items-center gap-4">
- <span className="text-sm font-bold text-muted-foreground w-6">#{i + 1}</span>
+ <span className="text-sm font-bold text-muted-foreground w-6 font-mono tabular-nums">#{i + 1}</span>
 
  <div className="flex items-center gap-2 flex-1 min-w-0">
  <div className="flex -space-x-2">
@@ -175,20 +175,20 @@ const userProjects = new Map<string, Map<string, number>>(); // user -> project 
  <div className="flex items-center gap-3 shrink-0">
  {p.sharedProjectHours > 0 && (
  <div className="text-center">
- <p className="text-sm font-bold text-primary">{p.sharedProjectHours}h</p>
+ <p className="text-sm font-bold text-primary font-mono tabular-nums">{p.sharedProjectHours}h</p>
  <p className="text-[9px] text-muted-foreground">proyecto comun</p>
  </div>
  )}
  <div className="text-center">
- <p className="text-sm font-bold">{p.overlapHours}h</p>
+ <p className="text-sm font-bold font-mono tabular-nums">{p.overlapHours}h</p>
  <p className="text-[9px] text-muted-foreground">overlap</p>
  </div>
  <div className="text-center">
- <p className="text-sm font-bold">{p.complementaryScore}%</p>
+ <p className="text-sm font-bold font-mono tabular-nums">{p.complementaryScore}%</p>
  <p className="text-[9px] text-muted-foreground">complemento</p>
  </div>
  <div className={cn(
-"w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold",
+"w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold font-mono tabular-nums",
  p.interactionScore >= 60 ?"bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400":
  p.interactionScore >= 30 ?"bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400":
 "bg-muted text-muted-foreground")}>

@@ -296,7 +296,7 @@ export default function MemberPage() {
  </AvatarFallback>
  </Avatar>
  <div className="flex-1">
- <h1 className="text-2xl font-bold tracking-tight">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">
  {profile.full_name ?? profile.email}
  </h1>
  {profile.role && (
@@ -495,7 +495,7 @@ export default function MemberPage() {
  <div key={category} className="space-y-1">
  <div className="flex items-center justify-between text-xs">
  <span>
- {CATEGORIES[category].emoji}{""}
+ {CATEGORIES[category].emoji}{" "}
  {CATEGORIES[category].label}
  </span>
  <span className="text-muted-foreground tabular-nums tracking-tight">

@@ -333,7 +333,7 @@ export default function TribunalPage() {
 
  {/* Header */}
  <div className="mb-8">
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <Gavel className="w-6 h-6 text-primary"/>
  Tribunal Diario
  </h1>

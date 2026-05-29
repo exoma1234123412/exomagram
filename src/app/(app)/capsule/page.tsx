@@ -160,7 +160,7 @@ export default function CapsulePage() {
  <div className="flex items-center justify-between mb-2">
  <div className="flex items-center gap-3">
  <Package className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">Time Capsule</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Time Capsule</h1>
  </div>
  <Button
  onClick={handleGenerate}
@@ -189,7 +189,7 @@ export default function CapsulePage() {
  <div className="bg-accent/40 px-4 py-2.5 mb-6 inline-flex items-center gap-2">
  <Clock className="w-4 h-4 text-muted-foreground"/>
  <span className="text-sm font-medium">
- Semana del{""}
+ Semana del{" "}
  {format(thisMonday,"d 'de' MMMM yyyy", { locale: es })}
  </span>
  </div>

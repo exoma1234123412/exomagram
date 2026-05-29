@@ -99,9 +99,9 @@ export function ThroneBanner({ orgId }: { orgId: string }) {
  <span>
  <span className="mr-1">👑</span>
  <span className="font-semibold">{crownFirstName}</span>
- {""}lidera con{""}
+ {" "}lidera con{" "}
  <span className="font-bold tabular-nums tracking-tight">{throne.crownDeepWorkHours}h</span>
- {""}de Deep Work esta semana
+ {" "}de Deep Work esta semana
  </span>
  )}
  {throne.crownName && throne.sleepyName && (
@@ -111,7 +111,7 @@ export function ThroneBanner({ orgId }: { orgId: string }) {
  <span className="text-muted-foreground">
  <span className="mr-1">--</span>
  <span className="font-semibold">{sleepyFirstName}</span>
- {""}va último con{""}
+ {" "}va último con{" "}
  <span className="font-bold tabular-nums tracking-tight">{throne.sleepyTotalHours}h</span>
  </span>
  )}

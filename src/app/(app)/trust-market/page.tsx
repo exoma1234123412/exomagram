@@ -353,7 +353,7 @@ export default function TrustMarketPage() {
  Mercado de Confianza
  </h1>
  <p className="text-xs font-mono text-muted-foreground mt-1">
- Invierte puntos de confianza en tus companeros. Si su Trust Score sube, tu inversion crece.
+ Invierte puntos de confianza en tus compañeros. Si su Trust Score sube, tu inversión crece.
  </p>
  </div>
 
@@ -573,7 +573,7 @@ export default function TrustMarketPage() {
  {rankings.length > 0 && (
  <div className="mb-8">
  <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground mb-3">
- Mejores inversionistas
+ Mejores inversiónistas
  </p>
  <div className="space-y-1">
  {rankings.slice(0, 10).map((rank, i) => (
@@ -630,7 +630,7 @@ export default function TrustMarketPage() {
  <DialogTitle className="font-mono">Invertir en {buyTarget?.profile.full_name}</DialogTitle>
  <DialogDescription>
  Trust Score actual: <span className="font-mono font-bold tabular-nums">{buyTarget?.currentScore}</span>.
- Si su score sube, tu inversion crece. Si baja, pierdes.
+ Si su score sube, tu inversión crece. Si baja, pierdes.
  </DialogDescription>
  </DialogHeader>
 
@@ -664,7 +664,7 @@ export default function TrustMarketPage() {
  onChange={(e) => setBuyAmount(Math.min(100, Math.max(1, parseInt(e.target.value) || 0)))}
  className="font-mono tabular-nums"/>
  <p className="text-[10px] font-mono text-muted-foreground mt-1">
- Maximo 100 puntos por inversion.
+ Maximo 100 puntos por inversión.
  </p>
  </div>
  </div>
@@ -694,7 +694,7 @@ export default function TrustMarketPage() {
  <Dialog open={!!sellItem} onOpenChange={(open) => !open && setSellItem(null)}>
  <DialogContent className="sm:max-w-sm">
  <DialogHeader>
- <DialogTitle className="font-mono">Vender inversion</DialogTitle>
+ <DialogTitle className="font-mono">Vender inversión</DialogTitle>
  <DialogDescription>
  Inversion en <span className="font-bold">{sellItem?.targetProfile.full_name}</span>.
  </DialogDescription>
@@ -732,7 +732,7 @@ export default function TrustMarketPage() {
  sellItem.gainLoss > 0 &&"text-green-600",
  sellItem.gainLoss < 0 &&"text-red-600")}>
  {sellItem.gainLoss >= 0 ?"+":""}{sellItem.gainLoss.toFixed(1)}%
- {""}
+ {" "}
  ({sellItem.gainLoss >= 0 ?"+":""}{Math.round(sellItem.investment.amount * (sellItem.gainLoss / 100))} pts)
  </p>
  </div>

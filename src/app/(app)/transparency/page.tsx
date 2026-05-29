@@ -436,7 +436,7 @@ export default function TransparencyPage() {
  </div>
  <p className="text-xs font-mono text-muted-foreground mb-8">
  Trust Score determina tu nivel de privacidad. Confianza alta = mas
- autonomia. Confianza baja = exposicion total.
+ autonomía. Confianza baja = exposición total.
  </p>
 
  {/* Stat strip */}
@@ -589,7 +589,7 @@ export default function TransparencyPage() {
  {config.label}
  </span>
  <span className="font-mono text-[9px] text-muted-foreground ml-auto">
- {tierMembers.length}{""}
+ {tierMembers.length}{" "}
  {tierMembers.length === 1 ?"miembro":"miembros"}
  </span>
  </div>

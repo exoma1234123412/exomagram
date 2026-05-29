@@ -572,7 +572,7 @@ export default function PowerRankingsPage() {
  {/* Header */}
  <div className="flex items-center gap-3 mb-1">
  <Trophy className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">
  Power Rankings de la Semana
  </h1>
  </div>
@@ -679,7 +679,7 @@ export default function PowerRankingsPage() {
  </div>
  <p className="text-sm text-muted-foreground mt-2 italic">
  Puntaje más alto: {playerOfTheWeek.totalHours}h
- registradas, {playerOfTheWeek.proofPercent}% evidencia,{""}
+ registradas, {playerOfTheWeek.proofPercent}% evidencia,{" "}
  {playerOfTheWeek.reactionsReceived} reacciones recibidas.
  </p>
  </div>
@@ -894,7 +894,7 @@ export default function PowerRankingsPage() {
  </span>
  <span className="text-muted-foreground">|</span>
  <span className="tabular-nums">
- <Flame className="w-3 h-3 inline text-orange-400"/>{""}
+ <Flame className="w-3 h-3 inline text-orange-400"/>{" "}
  {r.streak}d
  </span>
  <span className="text-muted-foreground">|</span>
@@ -927,7 +927,7 @@ export default function PowerRankingsPage() {
  <span
  key={b.category}
  className="text-[10px] text-muted-foreground">
- {CATEGORIES[b.category].emoji}{""}
+ {CATEGORIES[b.category].emoji}{" "}
  {CATEGORIES[b.category].label} ({b.count})
  </span>
  ))}

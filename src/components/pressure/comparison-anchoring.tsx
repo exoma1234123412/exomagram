@@ -231,8 +231,8 @@ export function BetterThanYou({ metric, yourValue, orgId }: BetterThanYouProps) 
  <TooltipTrigger className="cursor-default">
  <span className="text-[10px] text-muted-foreground/70 flex items-center gap-1">
  <Users className="w-3 h-3"/>
- {betterPeople.length}{""}
- {betterPeople.length === 1 ?"persona tiene":"personas tienen"}{""}
+ {betterPeople.length}{" "}
+ {betterPeople.length === 1 ?"persona tiene":"personas tienen"}{" "}
  mejor {metric} que tu
  </span>
  </TooltipTrigger>

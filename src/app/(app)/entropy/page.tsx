@@ -213,7 +213,7 @@ export default function EntropyPage() {
  {/* Header */}
  <div className="flex items-center gap-3 mb-2">
  <Waves className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">Entropía</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Entropía</h1>
  </div>
  <p className="text-muted-foreground text-sm mb-8">
  Mide qué tan caótico o enfocado es el día de cada persona según los cambios de categoría.
@@ -303,11 +303,11 @@ export default function EntropyPage() {
  {m.profile.full_name ?? m.profile.email}
  </h3>
  <p className="text-xs text-muted-foreground">
- Promedio 14d:{""}
+ Promedio 14d:{" "}
  <span className={cn("font-medium", getEntropyLabel(m.avg14).color)}>
  {(m.avg14 * 100).toFixed(0)}%
  </span>
- {""}&middot;{""}
+ {" "}&middot;{" "}
  {getEntropyLabel(m.avg14).text}
  </p>
  </div>

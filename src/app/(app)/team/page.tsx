@@ -412,7 +412,7 @@ export default function TeamPage() {
  {/* Header */}
  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
  <div>
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <Users className="w-6 h-6 text-primary"/>
  Directorio del equipo
  </h1>
@@ -421,7 +421,7 @@ export default function TeamPage() {
  <span>{members.length} miembro{members.length !== 1 ?"s":""}</span>
  <span className="hidden sm:inline">|</span>
  <span className="hidden sm:flex items-center gap-1">
- Trust Score prom.:{""}
+ Trust Score prom.:{" "}
  <span className={cn("font-bold tabular-nums tracking-tight", trustColor(avgTrust))}>
  {avgTrust}
  </span>

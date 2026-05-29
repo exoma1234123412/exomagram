@@ -635,10 +635,10 @@ export default function HomePage() {
  <div className="flex items-center gap-2 text-sm">
  <Clock className="w-4 h-4 text-muted-foreground"/>
  <span className="text-muted-foreground">
- Quedan{""}
+ Quedan{" "}
  <span className="font-semibold text-foreground tabular-nums tracking-tight">
  {workdayRemaining.hours}h {workdayRemaining.minutes}m
- </span>{""}
+ </span>{" "}
  de jornada
  </span>
  </div>
@@ -672,7 +672,7 @@ export default function HomePage() {
  CATEGORIES[state.intention.focusCategory].color
  )}
  >
- {CATEGORIES[state.intention.focusCategory].emoji}{""}
+ {CATEGORIES[state.intention.focusCategory].emoji}{" "}
  {CATEGORIES[state.intention.focusCategory].label}
  </Badge>
  )}
@@ -873,11 +873,11 @@ export default function HomePage() {
  <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
  <Trophy className="w-3.5 h-3.5 text-yellow-500"/>
  <span>
- Top hoy:{""}
+ Top hoy:{" "}
  <span className="font-semibold text-foreground">
  {state.teamPulse.topPerformer.name}
- </span>{""}
- con{""}
+ </span>{" "}
+ con{" "}
  <span className="font-semibold text-foreground tabular-nums tracking-tight">
  {state.teamPulse.topPerformer.hours}h
  </span>

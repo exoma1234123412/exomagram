@@ -320,11 +320,11 @@ export default function OrgSettingsPage() {
  <div className="flex items-center gap-3">
  <Settings className="w-6 h-6 text-primary"/>
  <div>
- <h1 className="text-2xl font-bold tracking-tight">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">
  Configuracion de organizacion
  </h1>
  <p className="text-sm text-muted-foreground mt-0.5">
- {settings.orgName ||"Sin nombre"}{""}
+ {settings.orgName ||"Sin nombre"}{" "}
  <Badge variant="secondary"className="text-xs ml-1">
  {role}
  </Badge>
@@ -834,7 +834,7 @@ export default function OrgSettingsPage() {
  trustWeightTotal === 100
  ?"text-green-600":"text-red-600")}
  >
- Total: {trustWeightTotal}%{""}
+ Total: {trustWeightTotal}%{" "}
  {trustWeightTotal === 100 ? (
  <Check className="w-4 h-4 inline"/>
  ) : (
@@ -1176,7 +1176,7 @@ export default function OrgSettingsPage() {
  </DialogHeader>
  <div className="space-y-2">
  <Label className="text-sm">
- Escribe <strong>{settings.orgName ||"el nombre"}</strong>{""}
+ Escribe <strong>{settings.orgName ||"el nombre"}</strong>{" "}
  para confirmar:
  </Label>
  <Input

@@ -646,11 +646,11 @@ export default function CollateralPage() {
  </div>
  </div>
  <p className="font-mono text-[10px] text-muted-foreground mt-1">
- Registró solo{""}
+ Registró solo{" "}
  <span className="font-bold text-red-500">
  {sd.hoursLogged}h
- </span>{""}
- el{""}
+ </span>{" "}
+ el{" "}
  {format(
  new Date(sd.date +"T12:00:00"),
 "EEEE d 'de' MMMM",
@@ -662,7 +662,7 @@ export default function CollateralPage() {
  <div className="flex items-center gap-1.5">
  <ArrowRight className="w-3 h-3 text-muted-foreground"/>
  <p className="font-mono text-[10px] text-muted-foreground">
- Compensar el{""}
+ Compensar el{" "}
  {format(
  new Date(sd.nextBusinessDay +"T12:00:00"),
 "EEEE d",
@@ -678,7 +678,7 @@ export default function CollateralPage() {
  </div>
  <div>
  <p className="font-mono text-[10px] text-muted-foreground">
- Progreso:{""}
+ Progreso:{" "}
  <span
  className={cn(
 "font-bold tabular-nums",
@@ -686,7 +686,7 @@ export default function CollateralPage() {
  ?"text-green-600":"text-muted-foreground")}
  >
  {sd.nextDayHours}h
- </span>{""}
+ </span>{" "}
  / 8h
  </p>
  </div>
@@ -733,11 +733,11 @@ export default function CollateralPage() {
  </div>
  </div>
  <p className="font-mono text-[10px] text-muted-foreground mt-1">
- Registró solo{""}
+ Registró solo{" "}
  <span className="font-bold text-red-500">
  {sd.hoursLogged}h
- </span>{""}
- el{""}
+ </span>{" "}
+ el{" "}
  {format(
  new Date(sd.date +"T12:00:00"),
 "EEEE d 'de' MMMM",
@@ -746,7 +746,7 @@ export default function CollateralPage() {
  . No compensó al día siguiente (
  <span className="font-bold text-red-500">
  {sd.nextDayHours}h
- </span>{""}
+ </span>{" "}
  registradas).
  </p>
  </div>
@@ -790,17 +790,17 @@ export default function CollateralPage() {
  </div>
  </div>
  <p className="font-mono text-[10px] text-muted-foreground mt-1">
- Día corto el{""}
+ Día corto el{" "}
  {format(
  new Date(sd.date +"T12:00:00"),
 "EEEE d",
  { locale: es }
- )}{""}
- ({sd.hoursLogged}h) — Compensó con{""}
+ )}{" "}
+ ({sd.hoursLogged}h) — Compensó con{" "}
  <span className="font-bold text-green-600">
  {sd.nextDayHours}h
- </span>{""}
- el{""}
+ </span>{" "}
+ el{" "}
  {format(
  new Date(sd.nextBusinessDay +"T12:00:00"),
 "EEEE d",
@@ -939,7 +939,7 @@ export default function CollateralPage() {
  {memberStats
  .filter((s) => s.shortDays === 0)
  .map((s) => s.profile?.full_name ??"Desconocido")
- .join(",")}{""}
+ .join(",")}{" "}
  &mdash; Sin días cortos en los últimos 14 días
  </p>
  </div>
@@ -959,7 +959,7 @@ export default function CollateralPage() {
  <p className="font-mono text-sm text-red-400 mt-1">
  <span className="font-bold text-red-500">
  {memberStats[0].profile?.full_name ??"Desconocido"}
- </span>{""}
+ </span>{" "}
  &mdash; {memberStats[0].complianceRate}% de cumplimiento (
  {memberStats[0].compensated}/{memberStats[0].shortDays} días
  compensados)
@@ -1024,18 +1024,18 @@ export default function CollateralPage() {
  </p>
  </div>
  <p className="font-mono text-[10px] text-muted-foreground mt-1">
- Prometió{""}
- <span className="font-bold">{c.hoursPromised}h</span>{""}
- para el día siguiente del{""}
+ Prometió{" "}
+ <span className="font-bold">{c.hoursPromised}h</span>{" "}
+ para el día siguiente del{" "}
  {format(
  new Date(c.dateOff +"T12:00:00"),
 "d 'de' MMMM",
  { locale: es }
  )}
- .{""}
+ .{" "}
  {c.deadlinePassed && (
  <>
- Registró{""}
+ Registró{" "}
  <span
  className={cn(
 "font-bold",

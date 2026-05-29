@@ -475,10 +475,10 @@ export default function ResponseTimePage() {
  </span>
  </div>
  <p className="font-mono text-[10px] text-muted-foreground mt-1">
- {format(parseISO(worstDay.date),"d MMM", { locale: es })} --{""}
+ {format(parseISO(worstDay.date),"d MMM", { locale: es })} --{" "}
  <span className="text-red-600 font-semibold">
  {worstDay.worstUserName}
- </span>{""}
+ </span>{" "}
  ({formatResponseTime(worstDay.worstUserMin)})
  </p>
  </div>
@@ -656,19 +656,19 @@ export default function ResponseTimePage() {
  <p className="font-mono text-sm">
  <span className="text-red-600 font-bold">
  {slowest.profile.full_name ?? slowest.profile.email}
- </span>{""}
+ </span>{" "}
  <span className="text-muted-foreground">
- tarda en promedio{""}
+ tarda en promedio{" "}
  </span>
  <span className="text-red-600 font-bold tabular-nums">
  {formatResponseTime(slowest.avgResponseMin)}
- </span>{""}
+ </span>{" "}
  <span className="text-muted-foreground">
- en registrar despues de cada hora. Solo{""}
+ en registrar despues de cada hora. Solo{" "}
  </span>
  <span className="text-red-600 font-bold tabular-nums">
  {slowest.pctWithin30}%
- </span>{""}
+ </span>{" "}
  <span className="text-muted-foreground">
  de sus entradas fueron dentro de los primeros 30 minutos.
  </span>
@@ -699,7 +699,7 @@ export default function ResponseTimePage() {
  {formatHour(hs.hour)}
  </span>
  <span className="font-mono text-[9px] text-muted-foreground">
- {hs.logged.length} registrado{hs.logged.length !== 1 ?"s":""}{""}
+ {hs.logged.length} registrado{hs.logged.length !== 1 ?"s":""}{" "}
  {hs.missing.length > 0 && (
  <span className="text-red-600">
  / {hs.missing.length} faltante{hs.missing.length !== 1 ?"s":""}

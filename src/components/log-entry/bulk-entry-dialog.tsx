@@ -267,7 +267,7 @@ export function BulkEntryDialog({ open, onOpenChange }: BulkEntryDialogProps) {
  {/* Title */}
  <div className="space-y-2">
  <Label htmlFor="bulk-title">
- ¿Qué hiciste?{""}
+ ¿Qué hiciste?{" "}
  <span className="text-muted-foreground text-xs">
  (mín. {MIN_TITLE_LENGTH} caracteres)
  </span>

@@ -93,7 +93,7 @@ export default function NowPage() {
  <Radio className="w-6 h-6 text-green-500"/>
  <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full animate-ping"/>
  </div>
- <h1 className="text-2xl font-bold tracking-tight">Ahora</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Ahora</h1>
  </div>
  <p className="text-muted-foreground text-sm mb-6">
  {onlineCount} persona{onlineCount !== 1 ?"s":""} activa{onlineCount !== 1 ?"s":""} ahora mismo
@@ -103,7 +103,7 @@ export default function NowPage() {
  <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 bg-primary animate-pulse"/><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>
  ) : sorted.length === 0 ? (
  <div className="text-center py-20 text-muted-foreground">
- No hay miembros en el equipo todavia.
+ No hay miembros en el equipo todavía.
  </div>
  ) : (
  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

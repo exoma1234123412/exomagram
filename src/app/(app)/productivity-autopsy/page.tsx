@@ -49,7 +49,7 @@ interface AutopsyReport {
   hora_por_hora: HourEntry[];
   causa_de_muerte: string;
   factores_contribuyentes: string[];
-  comparacion_mejor_dia: {
+  comparación_mejor_dia: {
     mejor_dia_fecha: string;
     mejor_dia_horas: number;
     diferencias_clave: string[];
@@ -602,29 +602,29 @@ function AutopsyReportCard({ report }: { report: AutopsyReport }) {
               Mejor dia
             </p>
             <p className="font-mono text-2xl font-bold tabular-nums text-green-600 mt-1">
-              {report.comparacion_mejor_dia?.mejor_dia_horas ?? 0}h
+              {report.comparación_mejor_dia?.mejor_dia_horas ?? 0}h
             </p>
             <p className="font-mono text-[10px] text-muted-foreground">
-              {report.comparacion_mejor_dia?.mejor_dia_fecha ?? "N/A"}
+              {report.comparación_mejor_dia?.mejor_dia_fecha ?? "N/A"}
             </p>
           </div>
         </div>
-        {report.comparacion_mejor_dia?.diferencias_clave?.length > 0 && (
+        {report.comparación_mejor_dia?.diferencias_clave?.length > 0 && (
           <div className="space-y-1 mb-2">
-            {report.comparacion_mejor_dia.diferencias_clave.map((d, i) => (
+            {report.comparación_mejor_dia.diferencias_clave.map((d, i) => (
               <p key={i} className="font-mono text-xs text-muted-foreground">
                 &mdash; {d}
               </p>
             ))}
           </div>
         )}
-        {report.comparacion_mejor_dia?.que_falta && (
+        {report.comparación_mejor_dia?.que_falta && (
           <div className="bg-accent/30 border border-border p-3 mt-2">
             <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground mb-1">
               Que falta
             </p>
             <p className="font-mono text-xs text-foreground">
-              {report.comparacion_mejor_dia.que_falta}
+              {report.comparación_mejor_dia.que_falta}
             </p>
           </div>
         )}

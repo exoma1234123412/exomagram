@@ -142,7 +142,7 @@ export default function ChangelogPage() {
  {/* Header */}
  <div className="flex items-center gap-3 mb-1">
  <Sparkles className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">Novedades</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Novedades</h1>
  </div>
  <p className="text-sm text-muted-foreground mb-8">
  Las últimas funcionalidades y mejoras de Exomagram.

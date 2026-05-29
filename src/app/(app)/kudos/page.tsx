@@ -85,7 +85,7 @@ export default function KudosPage() {
  <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
  <div className="flex items-center gap-3 mb-2">
  <Heart className="w-6 h-6 text-pink-500"/>
- <h1 className="text-2xl font-bold tracking-tight">Kudos</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Kudos</h1>
  </div>
  <p className="text-muted-foreground text-sm mb-6">
  Reconocimientos del equipo
@@ -99,7 +99,7 @@ export default function KudosPage() {
  ) : kudos.length === 0 ? (
  <div className="text-center py-20">
  <p className="text-muted-foreground">
- No hay kudos todavia. Reacciona a las entradas de tus companeros
+ No hay kudos todavía. Reacciona a las entradas de tus compañeros
  con"Impresionante"o"Me ayudo".
  </p>
  </div>
@@ -127,8 +127,8 @@ export default function KudosPage() {
  <p className="text-sm">
  <span className="font-medium">
  {k.reactor.full_name ?? k.reactor.email}
- </span>{""}
- reacciono con{""}
+ </span>{" "}
+ reacciono con{" "}
  <Badge
  variant="outline"className="text-[10px] inline-flex">
  {reactionInfo.emoji} {reactionInfo.label}

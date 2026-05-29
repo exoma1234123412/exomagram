@@ -48,11 +48,11 @@ export default function LandingPage() {
  </div>
 
  <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6">
- Ve exactamente{""}
+ Ve exactamente{" "}
  <span className="bg-primary bg-clip-text text-transparent">
  que hace
- </span>{""}
- tu equipo,{""}
+ </span>{" "}
+ tu equipo,{" "}
  <span className="bg-primary bg-clip-text text-transparent">
  hora por hora
  </span>

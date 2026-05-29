@@ -637,7 +637,7 @@ export default function DataHubPage() {
 
  // Reactions
  if (reactionDaysGiven < workDays * 0.2) {
- recs.push({ text:"Reacciona a entradas de tus companeros — fortalece el accountability mutuo", priority:"low"});
+ recs.push({ text:"Reacciona a entradas de tus compañeros — fortalece el accountability mutuo", priority:"low"});
  }
 
  return recs.slice(0, 5);

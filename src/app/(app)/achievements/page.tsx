@@ -59,7 +59,7 @@ export default function AchievementsPage() {
  return (
  <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
  <div className="mb-6">
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <Award className="w-6 h-6 text-primary"/>
  Logros
  </h1>
@@ -70,7 +70,7 @@ export default function AchievementsPage() {
 
  <div className="mb-4">
  <p className="text-sm text-muted-foreground">
- <span className="font-semibold tabular-nums tracking-tight">{unlocked.size}</span> /{""}
+ <span className="font-semibold tabular-nums tracking-tight">{unlocked.size}</span> /{" "}
  <span className="tabular-nums tracking-tight">{keys.length}</span> desbloqueados
  </p>
  </div>

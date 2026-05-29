@@ -86,7 +86,7 @@ export default function LoginPage() {
  </Link>
  </p>
  <p className="text-center text-[10px] font-mono text-muted-foreground mt-2">
- Sin acceso?{""}
+ Sin acceso?{" "}
  <Link href="/signup"className="text-foreground/70 hover:text-primary transition-colors underline underline-offset-2">
  Solicitar cuenta
  </Link>

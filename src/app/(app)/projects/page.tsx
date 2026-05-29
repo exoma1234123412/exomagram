@@ -163,13 +163,20 @@ export default function ProjectsPage() {
 
  const slug = newName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
- await supabase.from("projects").insert({
+ const { error } = await supabase.from("projects").insert({
  org_id: orgId,
  name: newName.trim(),
  slug,
  description: newDesc.trim() || null,
  created_by: user.id,
  });
+
+ if (error) {
+ console.error("Error creating project:", error);
+ alert(`Error: ${error.message}`);
+ setCreating(false);
+ return;
+ }
 
  setNewName("");
  setNewDesc("");

@@ -43,7 +43,7 @@ export default function GridPage() {
  <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
  {/* Header */}
  <div className="mb-8">
- <h1 className="text-2xl font-bold tracking-tight">Vista de Equipo</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Vista de Equipo</h1>
  <p className="text-muted-foreground text-sm capitalize">{displayDate}</p>
  </div>
 

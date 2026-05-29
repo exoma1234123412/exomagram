@@ -296,7 +296,7 @@ function AuctionCard({
  {auction.winner_profile.full_name ??"?"}
  </span>
  <span className="text-xs text-muted-foreground">
- se comprometió a{""}
+ se comprometió a{" "}
  <span className="font-mono tabular-nums tracking-tight">
  {auction.winning_bid}h
  </span>
@@ -413,7 +413,7 @@ function AuctionCard({
  {isClaimed && isWinner && (
  <Badge className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-mono text-[10px] gap-1">
  <Clock className="w-3 h-3"/>
- Te toca entregar en{""}
+ Te toca entregar en{" "}
  <span className="tabular-nums tracking-tight">{auction.winning_bid}h</span>
  </Badge>
  )}
@@ -878,16 +878,16 @@ export default function SubastasPage() {
  <div className="bg-accent/30 border border-border p-3 text-sm">
  <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground mb-1">Vista previa</p>
  <p>
- La tarea{""}
- <span className="font-bold">&quot;{title.trim()}&quot;</span>{""}
- acepta ofertas por{""}
+ La tarea{" "}
+ <span className="font-bold">&quot;{title.trim()}&quot;</span>{" "}
+ acepta ofertas por{" "}
  <span className="font-bold tabular-nums tracking-tight">
  {deadlineHours}h
  </span>
- . Máximo{""}
+ . Máximo{" "}
  <span className="font-bold tabular-nums tracking-tight">
  {maxHours}h
- </span>{""}
+ </span>{" "}
  para completarla.
  </p>
  </div>
