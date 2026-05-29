@@ -22,6 +22,7 @@ import { ScheduleOptimizer } from "@/components/dashboard/schedule-optimizer";
 import { VelocityWidget } from "@/components/dashboard/velocity-widget";
 import { MoodWeather } from "@/components/dashboard/mood-weather";
 import { ProductivityScore } from "@/components/dashboard/productivity-score";
+import { WorkSessionTracker } from "@/components/accountability/work-session";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, ChevronLeft, ChevronRight, FileCheck, Layers, Calendar } from "lucide-react";
@@ -181,6 +182,9 @@ export default function DashboardPage() {
 
       {/* Quick log */}
       {isToday && <QuickLog orgId={orgId} />}
+
+      {/* Verified work session */}
+      {isToday && <WorkSessionTracker orgId={orgId} />}
 
       {/* Empty Chair - who's NOT working */}
       {isToday && <EmptyChair orgId={orgId} />}
