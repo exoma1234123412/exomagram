@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,21 +66,10 @@ const GRADE_STYLE: Record<string, { color: string; bg: string; emoji: string }> 
 };
 
 export default function EfficiencyPage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [data, setData] = useState<EffData | null>(null);
   const [loading, setLoading] = useState(false);
-  const [orgId, setOrgId] = useState<string | null>(null);
-  const supabase = createClient();
-
-  useEffect(() => {
-    async function loadOrg() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: m } = await supabase.from("org_members").select("org_id").eq("user_id", user.id).limit(1).single();
-      if (m) setOrgId(m.org_id);
-    }
-    loadOrg();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!orgId) return;
@@ -118,7 +107,7 @@ export default function EfficiencyPage() {
         {!isToday && <Button variant="ghost" size="sm" onClick={() => setDate(new Date().toISOString().split("T")[0])}>Hoy</Button>}
       </div>
 
-      {loading ? (
+      {orgLoading || loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <Gauge className="w-10 h-10 text-primary animate-pulse" />
           <p className="text-sm text-muted-foreground animate-pulse">Analizando eficiencia...</p>

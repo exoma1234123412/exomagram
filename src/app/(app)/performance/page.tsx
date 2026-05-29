@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { useOrg } from "@/lib/context/org-context";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types/database";
 import type { WorkCategory, ReactionType } from "@/lib/types/database";
@@ -149,7 +150,7 @@ function clamp(val: number, min: number, max: number) {
 // ---------------------------------------------------------------------------
 
 export default function PerformancePage() {
-  const [orgId, setOrgId] = useState<string | null>(null);
+  const { orgId, loading: orgLoading } = useOrg();
   const [members, setMembers] = useState<{ user_id: string; profiles: Profile }[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [report, setReport] = useState<PerformanceReport | null>(null);
@@ -158,44 +159,26 @@ export default function PerformancePage() {
   const [copied, setCopied] = useState(false);
   const supabase = createClient();
 
-  // Load org membership
+  // Load org members
   useEffect(() => {
-    async function loadOrg() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        setLoading(false);
-        return;
-      }
+    if (orgLoading) return;
+    if (!orgId) { setLoading(false); return; }
 
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-      if (!membership) {
-        setLoading(false);
-        return;
-      }
-
-      setOrgId(membership.org_id);
-
+    async function loadMembers() {
       const { data: memberData } = await supabase
         .from("org_members")
         .select("user_id, profiles(*)")
-        .eq("org_id", membership.org_id)
+        .eq("org_id", orgId!)
         ;
 
       if (memberData && memberData.length > 0) {
-        setMembers(memberData);
+        setMembers(memberData as { user_id: string; profiles: Profile }[]);
         setSelectedUserId(memberData[0].user_id);
       }
       setLoading(false);
     }
-    loadOrg();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    loadMembers();
+  }, [orgLoading, orgId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Generate report when member selected
   useEffect(() => {

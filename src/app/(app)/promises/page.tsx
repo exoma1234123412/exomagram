@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useOrg } from "@/lib/context/org-context";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types/database";
 import { Button } from "@/components/ui/button";
@@ -38,43 +39,36 @@ interface Promise {
 }
 
 export default function PromisesPage() {
+  const { orgId, userId, loading: orgLoading } = useOrg();
   const [promises, setPromises] = useState<Promise[]>([]);
   const [myPromises, setMyPromises] = useState<Promise[]>([]);
   const [newPromise, setNewPromise] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [orgId, setOrgId] = useState<string | null>(null);
   const supabase = createClient();
   const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
+    if (orgLoading) return;
+    if (!orgId || !userId) { setLoading(false); return; }
+
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setLoading(false); return; }
-      setUserId(user.id);
-
-      const { data: membership } = await supabase
-        .from("org_members").select("org_id").eq("user_id", user.id).limit(1).single();
-      if (!membership) { setLoading(false); return; }
-      setOrgId(membership.org_id);
-
       // Get all promises for today from the org
       const { data } = await supabase
         .from("daily_promises")
         .select("*, profiles(full_name, avatar_url, role)")
-        .eq("org_id", membership.org_id)
+        .eq("org_id", orgId!)
         .eq("date", today)
         .order("created_at")
         ;
 
       const all = data ?? [];
       setPromises(all);
-      setMyPromises(all.filter((p) => p.user_id === user.id));
+      setMyPromises(all.filter((p) => p.user_id === userId));
       setLoading(false);
     }
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgLoading, orgId, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function addPromise(e: React.FormEvent) {
     e.preventDefault();

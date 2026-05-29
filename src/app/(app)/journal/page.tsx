@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import { CATEGORIES, EXPECTED_DAILY_HOURS, ACHIEVEMENTS } from "@/lib/constants";
 import type { WorkCategory } from "@/lib/types/database";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,6 +29,7 @@ interface WeekJournal {
 }
 
 export default function JournalPage() {
+  const { orgId, userId, loading: orgLoading } = useOrg();
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [journal, setJournal] = useState<WeekJournal | null>(null);
   const [reflection, setReflection] = useState("");
@@ -39,19 +41,10 @@ export default function JournalPage() {
   const weekLabel = `${format(weekStart, "d MMM", { locale: es })} - ${format(weekEnd, "d MMM yyyy", { locale: es })}`;
 
   useEffect(() => {
+    if (!orgId || !userId) return;
+
     async function load() {
       setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (!membership) { setLoading(false); return; }
 
       const startStr = weekStart.toISOString().split("T")[0];
       const endStr = weekEnd.toISOString().split("T")[0];
@@ -60,29 +53,29 @@ export default function JournalPage() {
         supabase
           .from("time_entries")
           .select("*")
-          .eq("user_id", user.id)
-          .eq("org_id", membership.org_id)
+          .eq("user_id", userId!)
+          .eq("org_id", orgId!)
           .gte("date", startStr)
           .lte("date", endStr),
         supabase
           .from("daily_closeouts")
           .select("summary, blockers")
-          .eq("user_id", user.id)
-          .eq("org_id", membership.org_id)
+          .eq("user_id", userId!)
+          .eq("org_id", orgId!)
           .gte("date", startStr)
           .lte("date", endStr),
         supabase
           .from("activity_streaks")
           .select("current_streak")
-          .eq("user_id", user.id)
-          .eq("org_id", membership.org_id)
+          .eq("user_id", userId!)
+          .eq("org_id", orgId!)
           .limit(1)
           .single(),
         supabase
           .from("achievements")
           .select("achievement_type")
-          .eq("user_id", user.id)
-          .eq("org_id", membership.org_id),
+          .eq("user_id", userId!)
+          .eq("org_id", orgId!),
       ]);
 
       const allEntries = entries ?? [];
@@ -142,7 +135,7 @@ export default function JournalPage() {
       setLoading(false);
     }
     load();
-  }, [weekStart]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgId, userId, weekStart]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function saveReflection() {
     const key = `exomagram_journal_${weekStart.toISOString().split("T")[0]}`;
@@ -150,7 +143,7 @@ export default function JournalPage() {
     setSavedReflection(reflection);
   }
 
-  if (loading) {
+  if (orgLoading || loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />

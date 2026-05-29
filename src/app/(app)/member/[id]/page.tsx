@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import type { Profile, AccountabilityFlag, DailyCloseout } from "@/lib/types/database";
 import { CATEGORIES, FLAG_TYPES, EXPECTED_DAILY_HOURS, WORK_HOURS, MOOD_LABELS, CATEGORY_COLORS } from "@/lib/constants";
 import type { WorkCategory, FlagType } from "@/lib/types/database";

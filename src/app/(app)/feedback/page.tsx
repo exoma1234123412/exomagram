@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import type { Profile } from "@/lib/types/database";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -31,6 +32,7 @@ const FEEDBACK_TYPES = {
 // Only admins/owners can see aggregated anonymous feedback
 
 export default function FeedbackPage() {
+  const { orgId, userId, role, loading: orgLoading } = useOrg();
   const [members, setMembers] = useState<Profile[]>([]);
   const [toUserId, setToUserId] = useState("");
   const [feedbackType, setFeedbackType] = useState("");
@@ -39,52 +41,35 @@ export default function FeedbackPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [orgId, setOrgId] = useState<string | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const isAdmin = role === "owner" || role === "admin";
   const supabase = createClient();
 
   useEffect(() => {
-    async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setLoading(false); return; }
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id, role")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (!membership) { setLoading(false); return; }
-      setOrgId(membership.org_id);
-      setIsAdmin(membership.role === "owner" || membership.role === "admin");
-
+    if (!orgId || !userId) return;
+    async function loadMembers() {
       const { data: memberData } = await supabase
         .from("org_members")
         .select("user_id, profiles(*)")
-        .eq("org_id", membership.org_id)
+        .eq("org_id", orgId!)
         ;
 
       setMembers(
-        (memberData ?? []).map((m) => m.profiles).filter((p) => p.id !== user.id)
+        (memberData ?? []).map((m) => m.profiles).filter((p): p is Profile => p !== null && p.id !== userId)
       );
       setLoading(false);
     }
-    load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    loadMembers();
+  }, [orgId, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!toUserId || !feedbackType || !message.trim() || !orgId) return;
+    if (!toUserId || !feedbackType || !message.trim() || !orgId || !userId) return;
     setSubmitting(true);
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
 
     // Store in audit log as anonymous feedback
     await supabase.from("audit_log").insert({
       org_id: orgId,
-      user_id: anonymous ? "00000000-0000-0000-0000-000000000000" : user.id,
+      user_id: anonymous ? "00000000-0000-0000-0000-000000000000" : userId,
       action: "shoutout_given", // reuse action type
       target_type: "anonymous_feedback",
       target_id: null,
@@ -93,7 +78,7 @@ export default function FeedbackPage() {
         feedback_type: feedbackType,
         message,
         is_anonymous: anonymous,
-        actual_from: user.id, // only visible in DB, not exposed to frontend
+        actual_from: userId, // only visible in DB, not exposed to frontend
       },
     });
 
@@ -107,7 +92,7 @@ export default function FeedbackPage() {
     }, 3000);
   }
 
-  if (loading) {
+  if (orgLoading || loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />

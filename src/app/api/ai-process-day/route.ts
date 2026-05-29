@@ -14,6 +14,12 @@ import { NextResponse } from "next/server";
 // This is the LEARNING layer — Claude gets smarter about each person over time.
 
 export async function POST(request: Request) {
+  // Verify cron secret — this route is a nightly processor called by a scheduler
+  const authHeader = request.headers.get("authorization");
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const orgId = searchParams.get("org_id");
   const date = searchParams.get("date") ?? new Date().toISOString().split("T")[0];

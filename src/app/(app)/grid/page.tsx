@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useState } from "react";
+import { useOrg } from "@/lib/context/org-context";
 import { TeamGrid } from "@/components/grid/team-grid";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,30 +10,8 @@ import { format, addDays, subDays } from "date-fns";
 import { es } from "date-fns/locale";
 
 export default function GridPage() {
+  const { orgId, loading } = useOrg();
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [orgId, setOrgId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const supabase = createClient();
-
-  useEffect(() => {
-    async function loadOrg() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (membership) setOrgId(membership.org_id);
-      setLoading(false);
-    }
-    loadOrg();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isToday = date === new Date().toISOString().split("T")[0];
   const displayDate = format(new Date(date + "T12:00:00"), "EEEE, d MMMM yyyy", {

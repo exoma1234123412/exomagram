@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import type { Profile } from "@/lib/types/database";
 import { CATEGORIES, EXPECTED_DAILY_HOURS } from "@/lib/constants";
 import type { WorkCategory } from "@/lib/types/database";
@@ -38,11 +39,11 @@ interface WeeklyMemberStats {
 }
 
 export default function WeeklyPage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [weekStart, setWeekStart] = useState(() => {
     const now = new Date();
     return startOfWeek(now, { weekStartsOn: 1 });
   });
-  const [orgId, setOrgId] = useState<string | null>(null);
   const [stats, setStats] = useState<WeeklyMemberStats[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
@@ -52,23 +53,6 @@ export default function WeeklyPage() {
     (d) => d.getDay() !== 0 && d.getDay() !== 6
   ); // Mon-Fri
   const weekDatesStr = weekDays.map((d) => d.toISOString().split("T")[0]);
-
-  useEffect(() => {
-    async function loadOrg() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-      if (membership) setOrgId(membership.org_id);
-    }
-    loadOrg();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!orgId) return;
@@ -216,7 +200,7 @@ export default function WeeklyPage() {
         </Button>
       </div>
 
-      {loading ? (
+      {orgLoading || loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
           <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>

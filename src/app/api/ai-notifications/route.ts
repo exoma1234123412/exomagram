@@ -18,6 +18,12 @@ import { NextResponse } from "next/server";
 // The key insight: public praise + private criticism is the most effective combo.
 
 export async function POST(request: Request) {
+  // Verify cron secret — this route is called by a scheduler, not end users
+  const authHeader = request.headers.get("authorization");
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const orgId = searchParams.get("org_id");
   if (!orgId) return NextResponse.json({ error: "org_id required" }, { status: 400 });

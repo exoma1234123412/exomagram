@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import type { Profile } from "@/lib/types/database";
 import { CATEGORIES, EXPECTED_DAILY_HOURS } from "@/lib/constants";
 import type { WorkCategory } from "@/lib/types/database";
@@ -33,29 +34,18 @@ interface MemberRank {
 }
 
 export default function LeaderboardPage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const supabase = createClient();
   const [rankings, setRankings] = useState<MemberRank[]>([]);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<7 | 14 | 30>(7);
-  const [orgId, setOrgId] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!orgId) return;
+
     async function load() {
       setLoading(true);
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-      if (!membership) return;
-
-      const orgId = membership.org_id;
-      setOrgId(orgId);
       const endDate = new Date().toISOString().split("T")[0];
       const startDate = subDays(new Date(), period).toISOString().split("T")[0];
 
@@ -150,7 +140,7 @@ export default function LeaderboardPage() {
       setLoading(false);
     }
     load();
-  }, [period]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgId, period]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const medalIcons = [
     <Trophy key="1" className="w-5 h-5 text-yellow-500" />,
@@ -185,7 +175,7 @@ export default function LeaderboardPage() {
         </div>
       </div>
 
-      {loading ? (
+      {orgLoading || loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
           <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>

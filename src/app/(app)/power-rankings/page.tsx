@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { useOrg } from "@/lib/context/org-context";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types/database";
 import { CATEGORIES, EXPECTED_DAILY_HOURS } from "@/lib/constants";
@@ -299,10 +300,10 @@ function CategorySegments({
 // === MAIN PAGE ===
 
 export default function PowerRankingsPage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [weekStart, setWeekStart] = useState(() =>
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
-  const [orgId, setOrgId] = useState<string | null>(null);
   const [rankings, setRankings] = useState<MemberPowerRanking[]>([]);
   const [loading, setLoading] = useState(true);
   const [showPreviousWeek, setShowPreviousWeek] = useState(false);
@@ -319,24 +320,6 @@ export default function PowerRankingsPage() {
   const currentWeekKey = getWeekKey(weekStart);
   const previousWeekStart = subWeeks(weekStart, 1);
   const previousWeekKey = getWeekKey(previousWeekStart);
-
-  // Load org
-  useEffect(() => {
-    async function loadOrg() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-      if (membership) setOrgId(membership.org_id);
-    }
-    loadOrg();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load rankings data
   const loadRankingsForWeek = useCallback(
@@ -487,7 +470,10 @@ export default function PowerRankingsPage() {
   );
 
   useEffect(() => {
-    if (!orgId) return;
+    if (orgLoading || !orgId) {
+      if (!orgLoading && !orgId) setLoading(false);
+      return;
+    }
 
     async function load() {
       setLoading(true);
@@ -509,7 +495,7 @@ export default function PowerRankingsPage() {
     }
 
     load();
-  }, [orgId, weekStart]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgLoading, orgId, weekStart]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load previous week comparison when toggled
   useEffect(() => {

@@ -19,55 +19,45 @@ import {
   Brain,
   Heart,
   History,
-  BookOpen,
   Flame,
   Target,
   Sparkles,
   Gauge,
-  FileText,
-  Rss,
+  Monitor,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 
-// --- DIA A DIA ---
 const dailyNav = [
   { href: "/home", label: "Inicio", icon: Home },
-  { href: "/feed", label: "Feed", icon: Rss },
   { href: "/dashboard", label: "Timeline", icon: LayoutDashboard },
   { href: "/standup", label: "Standup", icon: MessageSquare },
-  { href: "/grid", label: "Equipo", icon: Grid3X3 },
   { href: "/promises", label: "Promesas", icon: Target },
+  { href: "/grid", label: "Equipo", icon: Grid3X3 },
 ];
 
-// --- AI ---
 const aiNav = [
   { href: "/brain", label: "Claude Brain", icon: Brain },
-  { href: "/claude-audit", label: "Auditoría AI", icon: Eye },
+  { href: "/claude-audit", label: "Auditoría", icon: Eye },
   { href: "/hotseat", label: "Hot Seat", icon: Flame },
   { href: "/one-on-one", label: "1:1 Prep", icon: MessageSquare },
-  { href: "/narrative", label: "Narrativa", icon: BookOpen },
 ];
 
-// --- METRICAS ---
 const metricsNav = [
   { href: "/accountability", label: "Accountability", icon: Eye },
   { href: "/efficiency", label: "Eficiencia", icon: Gauge },
   { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
   { href: "/health", label: "Salud", icon: Heart },
-  { href: "/weekly", label: "Semanal", icon: BarChart3 },
-  { href: "/retro", label: "Retro", icon: BarChart3 },
+  { href: "/retro", label: "Retro semanal", icon: BarChart3 },
 ];
 
-// --- MAS ---
 const moreNav = [
   { href: "/shoutouts", label: "Shoutouts", icon: Sparkles },
   { href: "/goals", label: "Objetivos", icon: Target },
   { href: "/audit", label: "Audit Log", icon: History },
-  { href: "/reports", label: "Reportes", icon: FileText },
+  { href: "/warroom", label: "War Room", icon: Monitor },
 ];
 
-// --- CONFIG ---
 const configNav = [
   { href: "/profile", label: "Mi Perfil", icon: User },
   { href: "/settings", label: "Ajustes", icon: Settings },
@@ -118,7 +108,6 @@ export function Sidebar() {
 
   return (
     <aside className="hidden md:flex w-56 flex-col border-r border-border/50 bg-sidebar h-screen sticky top-0">
-      {/* Logo */}
       <div className="p-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 bg-foreground rounded-md flex items-center justify-center">
@@ -129,7 +118,6 @@ export function Sidebar() {
         <NotificationBell />
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 p-3 space-y-4 overflow-y-auto">
         <NavSection items={dailyNav} />
         <NavSection items={aiNav} label="AI" />
@@ -138,7 +126,6 @@ export function Sidebar() {
         <NavSection items={configNav} />
       </nav>
 
-      {/* Logout */}
       <div className="p-3 border-t border-border/50">
         <Button
           variant="ghost"

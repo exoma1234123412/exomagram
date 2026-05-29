@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useOrg } from "@/lib/context/org-context";
 import { createClient } from "@/lib/supabase/client";
 import type { TimeEntry, Profile } from "@/lib/types/database";
 import { CATEGORIES, WORK_HOURS, CATEGORY_COLORS } from "@/lib/constants";
@@ -8,7 +9,6 @@ import type { WorkCategory } from "@/lib/types/database";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { cn, getInitials } from "@/lib/utils";
 import { Clock, Flame, TrendingUp, Calendar, Shield, Award, Dna, Zap, GitGraph } from "lucide-react";
 import { ACHIEVEMENTS } from "@/lib/constants";
@@ -17,6 +17,7 @@ import { EnergyForecast } from "@/components/profile/energy-forecast";
 import { ContributionGraph } from "@/components/profile/contribution-graph";
 
 export default function ProfilePage() {
+  const { orgId, userId, loading: orgLoading } = useOrg();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [entries, setEntries] = useState<TimeEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,18 +28,16 @@ export default function ProfilePage() {
   const supabase = createClient();
 
   useEffect(() => {
-    async function load() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
+    if (orgLoading) return;
+    if (!userId) { setLoading(false); return; }
 
+    async function load() {
       const [{ data: profileData }, { data: entryData }] = await Promise.all([
-        supabase.from("profiles").select("*").eq("id", user.id).single(),
+        supabase.from("profiles").select("*").eq("id", userId!).single(),
         supabase
           .from("time_entries")
           .select("*")
-          .eq("user_id", user.id)
+          .eq("user_id", userId!)
           .order("date", { ascending: false })
           .order("hour", { ascending: false })
           .limit(200),
@@ -47,15 +46,7 @@ export default function ProfilePage() {
       setProfile(profileData);
       setEntries(entryData ?? []);
 
-      // Load comparative data, achievements, and streak
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (membership) {
+      if (orgId) {
         // Get team entries for last 30 days
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -65,20 +56,20 @@ export default function ProfilePage() {
           supabase
             .from("time_entries")
             .select("user_id, proof_urls, is_late, date")
-            .eq("org_id", membership.org_id)
+            .eq("org_id", orgId)
             .gte("date", startDate),
           supabase
             .from("activity_streaks")
             .select("current_streak")
-            .eq("user_id", user.id)
-            .eq("org_id", membership.org_id)
+            .eq("user_id", userId!)
+            .eq("org_id", orgId)
             .limit(1)
             .single(),
           supabase
             .from("achievements")
             .select("achievement_type")
-            .eq("user_id", user.id)
-            .eq("org_id", membership.org_id),
+            .eq("user_id", userId!)
+            .eq("org_id", orgId),
         ]);
 
         setStreak(streakData?.current_streak ?? 0);
@@ -101,7 +92,7 @@ export default function ProfilePage() {
           });
 
           // User's own stats
-          const myEntries = teamEntries.filter((e) => e.user_id === user.id);
+          const myEntries = teamEntries.filter((e) => e.user_id === userId);
           if (myEntries.length > 0) {
             const myWithProof = myEntries.filter((e) => e.proof_urls && (e.proof_urls as string[]).length > 0);
             const myLate = myEntries.filter((e) => e.is_late);
@@ -118,7 +109,7 @@ export default function ProfilePage() {
       setLoading(false);
     }
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgLoading, orgId, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
     return (

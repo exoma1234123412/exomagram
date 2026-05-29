@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import { CATEGORIES, EXPECTED_DAILY_HOURS } from "@/lib/constants";
 import type { WorkCategory } from "@/lib/types/database";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,31 +33,22 @@ interface DayStats {
 }
 
 export default function HealthPage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [dayStats, setDayStats] = useState<DayStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [focusScores, setFocusScores] = useState<Map<string, number>>(new Map());
   const supabase = createClient();
 
   useEffect(() => {
+    if (!orgId) return;
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setLoading(false); return; }
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-      if (!membership) { setLoading(false); return; }
-
       const endDate = new Date().toISOString().split("T")[0];
       const startDate = subDays(new Date(), 14).toISOString().split("T")[0];
 
       const { data: entries } = await supabase
         .from("time_entries")
         .select("*")
-        .eq("org_id", membership.org_id)
+        .eq("org_id", orgId!)
         .gte("date", startDate)
         .lte("date", endDate)
         .order("date")

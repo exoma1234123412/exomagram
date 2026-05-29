@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import type { TimeEntry, Profile, LiveStatus } from "@/lib/types/database";
 import type { WorkCategory } from "@/lib/types/database";
 import { CATEGORIES, WORK_HOURS, EXPECTED_DAILY_HOURS } from "@/lib/constants";
@@ -623,34 +624,14 @@ function SummaryBar({ rows }: { rows: MemberRow[] }) {
 // ────────────────────────────────────────────────────────────────
 
 export default function TimelineViewPage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [orgId, setOrgId] = useState<string | null>(null);
   const [entries, setEntries] = useState<EntryWithProfile[]>([]);
   const [members, setMembers] = useState<Profile[]>([]);
   const [liveStatuses, setLiveStatuses] = useState<LiveStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortMode, setSortMode] = useState<SortMode>("gaps");
   const supabase = createClient();
-
-  // Load org
-  useEffect(() => {
-    async function loadOrg() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (membership) setOrgId(membership.org_id);
-    }
-    loadOrg();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load data
   const loadData = useCallback(async () => {
@@ -802,7 +783,7 @@ export default function TimelineViewPage() {
   // Render: Loading
   // ──────────────────────────────────────────────────────────────
 
-  if (loading && !orgId) {
+  if (orgLoading || (loading && !orgId)) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="flex flex-col items-center gap-3">

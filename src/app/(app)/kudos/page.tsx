@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import type { Profile, TimeEntry } from "@/lib/types/database";
 import { CATEGORIES, REACTIONS } from "@/lib/constants";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,29 +23,15 @@ interface KudosEntry {
 }
 
 export default function KudosPage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [kudos, setKudos] = useState<KudosEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
   useEffect(() => {
+    if (!orgId) return;
+
     async function load() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (!membership) {
-        setLoading(false);
-        return;
-      }
-
       // Get positive reactions (impressive + helped_me) with entry and profiles
       const { data: reactions } = await supabase
         .from("entry_reactions")
@@ -62,7 +49,7 @@ export default function KudosPage() {
 
       // Filter to only entries from this org
       const orgReactions = reactions.filter(
-        (r) => r.time_entries?.org_id === membership.org_id
+        (r) => r.time_entries?.org_id === orgId
       );
 
       // Get reactor profiles
@@ -93,7 +80,7 @@ export default function KudosPage() {
     }
 
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
@@ -105,7 +92,7 @@ export default function KudosPage() {
         Reconocimientos del equipo
       </p>
 
-      {loading ? (
+      {orgLoading || loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
           <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>

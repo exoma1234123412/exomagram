@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import type {
   Profile,
   LiveStatus,
@@ -131,7 +132,7 @@ interface Alert {
 // ---------------------------------------------------------------------------
 
 export default function VigilancePage() {
-  const [orgId, setOrgId] = useState<string | null>(null);
+  const { orgId, loading: orgLoading } = useOrg();
   const [cards, setCards] = useState<MemberCard[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
@@ -147,27 +148,6 @@ export default function VigilancePage() {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
-
-  // ---- Load org ----
-  useEffect(() => {
-    async function loadOrg() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (membership) setOrgId(membership.org_id);
-      else setLoading(false);
-    }
-    loadOrg();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---- Main data fetch ----
   const fetchData = useCallback(async () => {
@@ -430,7 +410,7 @@ export default function VigilancePage() {
   const currentHour = new Date().getHours();
 
   // ---- Loading state ----
-  if (loading) {
+  if (orgLoading || loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-background">
         <div className="flex flex-col items-center gap-3">

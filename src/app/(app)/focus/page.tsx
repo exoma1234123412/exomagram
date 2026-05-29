@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import { CATEGORIES, LIVE_STATUS_CONFIG } from "@/lib/constants";
 import type { WorkCategory, LiveStatus, Profile } from "@/lib/types/database";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -173,9 +174,7 @@ function CircularProgress({
 
 export default function FocusPage() {
   // Auth / org
-  const [orgId, setOrgId] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { orgId, userId, loading: orgLoading } = useOrg();
 
   // Timer state
   const [presetMinutes, setPresetMinutes] = useState(25);
@@ -193,34 +192,6 @@ export default function FocusPage() {
   const [teamFocus, setTeamFocus] = useState<StatusWithProfile[]>([]);
 
   const supabase = createClient();
-
-  // -----------------------------------------------------------------------
-  // Load org + user
-  // -----------------------------------------------------------------------
-
-  useEffect(() => {
-    async function init() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-      setUserId(user.id);
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (membership) setOrgId(membership.org_id);
-      setLoading(false);
-    }
-    init();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // -----------------------------------------------------------------------
   // Load today's sessions + team focus
@@ -441,7 +412,7 @@ export default function FocusPage() {
   // Loading state
   // -----------------------------------------------------------------------
 
-  if (loading) {
+  if (orgLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="flex flex-col items-center gap-3">

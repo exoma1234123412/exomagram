@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useOrg } from "@/lib/context/org-context";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,7 @@ interface PulseTrend {
 }
 
 export default function PulsePage() {
-  const [orgId, setOrgId] = useState<string | null>(null);
+  const { orgId, userId, loading: orgLoading } = useOrg();
   const [hasResponded, setHasResponded] = useState(false);
   const [responses, setResponses] = useState<Map<string, number>>(new Map());
   const [submitting, setSubmitting] = useState(false);
@@ -38,26 +39,16 @@ export default function PulsePage() {
   const currentWeek = startOfWeek(new Date(), { weekStartsOn: 1 }).toISOString().split("T")[0];
 
   useEffect(() => {
+    if (orgLoading) return;
+    if (!orgId || !userId) { setLoading(false); return; }
+
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (!membership) { setLoading(false); return; }
-      setOrgId(membership.org_id);
-
       // Check if already responded this week
       const { data: existing } = await supabase
         .from("pulse_responses")
         .select("question_id, score")
-        .eq("user_id", user.id)
-        .eq("org_id", membership.org_id)
+        .eq("user_id", userId!)
+        .eq("org_id", orgId!)
         .eq("week", currentWeek);
 
       if (existing && existing.length > 0) {
@@ -71,7 +62,7 @@ export default function PulsePage() {
       const { data: allResponses } = await supabase
         .from("pulse_responses")
         .select("question_id, score, week")
-        .eq("org_id", membership.org_id)
+        .eq("org_id", orgId!)
         .order("week", { ascending: true });
 
       if (allResponses && allResponses.length > 0) {
@@ -103,17 +94,14 @@ export default function PulsePage() {
       setLoading(false);
     }
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgLoading, orgId, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleSubmit() {
-    if (!orgId || responses.size < QUESTIONS.length) return;
+    if (!orgId || !userId || responses.size < QUESTIONS.length) return;
     setSubmitting(true);
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setSubmitting(false); return; }
-
     const inserts = QUESTIONS.map((q) => ({
-      user_id: user.id,
+      user_id: userId,
       org_id: orgId,
       week: currentWeek,
       question_id: q.id,

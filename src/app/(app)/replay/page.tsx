@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { useOrg } from "@/lib/context/org-context";
 import { createClient } from "@/lib/supabase/client";
 import type { TimeEntry, Profile } from "@/lib/types/database";
 import { CATEGORIES, WORK_HOURS, CATEGORY_COLORS } from "@/lib/constants";

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import type { Profile, TimeEntry, LiveStatus } from "@/lib/types/database";
 import { CATEGORIES, LIVE_STATUS_CONFIG, EXPECTED_DAILY_HOURS } from "@/lib/constants";
 import type { WorkCategory } from "@/lib/types/database";

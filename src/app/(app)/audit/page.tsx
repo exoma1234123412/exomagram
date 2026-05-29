@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import type { Profile } from "@/lib/types/database";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -43,6 +44,7 @@ interface AuditEntry {
 }
 
 export default function AuditPage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [entries, setEntries] = useState<AuditEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
@@ -51,24 +53,18 @@ export default function AuditPage() {
   const pageSize = 50;
 
   useEffect(() => {
+    if (!orgId) {
+      if (!orgLoading) setLoading(false);
+      return;
+    }
+
     async function load() {
       setLoading(true);
-
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setLoading(false); return; }
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-      if (!membership) { setLoading(false); return; }
 
       let query = supabase
         .from("audit_log")
         .select("*, profiles(*)")
-        .eq("org_id", membership.org_id)
+        .eq("org_id", orgId!)
         .order("created_at", { ascending: false })
         .range(page * pageSize, (page + 1) * pageSize - 1);
 
@@ -81,7 +77,7 @@ export default function AuditPage() {
       setLoading(false);
     }
     load();
-  }, [page, filterAction]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgId, orgLoading, page, filterAction]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">

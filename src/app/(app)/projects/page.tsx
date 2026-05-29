@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useOrg } from "@/lib/context/org-context";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types/database";
 import { CATEGORIES, CATEGORY_COLORS } from "@/lib/constants";
@@ -24,6 +25,7 @@ interface ProjectStats {
 }
 
 export default function ProjectsPage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [projects, setProjects] = useState<ProjectStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [days, setDays] = useState(30);
@@ -31,19 +33,11 @@ export default function ProjectsPage() {
   const supabase = createClient();
 
   useEffect(() => {
+    if (orgLoading) return;
+    if (!orgId) { setLoading(false); return; }
+
     async function load() {
       setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (!membership) { setLoading(false); return; }
 
       const startDate = subDays(new Date(), days).toISOString().split("T")[0];
 
@@ -51,7 +45,7 @@ export default function ProjectsPage() {
       const { data: entries } = await supabase
         .from("time_entries")
         .select("*, profiles(*)")
-        .eq("org_id", membership.org_id)
+        .eq("org_id", orgId!)
         .gte("date", startDate)
         .not("project", "is", null)
         .order("date", { ascending: false });
@@ -111,7 +105,7 @@ export default function ProjectsPage() {
       setLoading(false);
     }
     load();
-  }, [days]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgLoading, orgId, days]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function toggleExpand(name: string) {
     setExpanded((prev) => {

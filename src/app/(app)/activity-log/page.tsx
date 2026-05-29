@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import type {
   Profile,
   TimeEntry,
@@ -242,7 +243,7 @@ function buildFlagEvent(
 // ---------------------------------------------------------------------------
 
 export default function ActivityLogPage() {
-  const [orgId, setOrgId] = useState<string | null>(null);
+  const { orgId, loading: orgLoading } = useOrg();
   const [events, setEvents] = useState<ActivityEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [isLive, setIsLive] = useState(true);
@@ -271,26 +272,6 @@ export default function ActivityLogPage() {
 
   const feedRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
-
-  // -------------------------------------------------------------------------
-  // Load org
-  // -------------------------------------------------------------------------
-  useEffect(() => {
-    async function loadOrg() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-      if (membership) setOrgId(membership.org_id);
-    }
-    loadOrg();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // -------------------------------------------------------------------------
   // Load profiles
@@ -833,7 +814,7 @@ export default function ActivityLogPage() {
       {/* ----------------------------------------------------------------- */}
       {/* Feed                                                              */}
       {/* ----------------------------------------------------------------- */}
-      {loading ? (
+      {loading || orgLoading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
           <p className="text-sm text-muted-foreground animate-pulse">

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import { CATEGORIES, WORK_HOURS, MOOD_LABELS, ENERGY_LABELS, EXPECTED_DAILY_HOURS, CATEGORY_COLORS } from "@/lib/constants";
 import type { WorkCategory } from "@/lib/types/database";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +31,7 @@ interface DayPattern {
 const DAY_NAMES = ["dom", "lun", "mar", "mie", "jue", "vie", "sab"];
 
 export default function InsightsPage() {
+  const { orgId, userId, loading: orgLoading } = useOrg();
   const [peakHours, setPeakHours] = useState<{ hour: number; count: number }[]>([]);
   const [dayPatterns, setDayPatterns] = useState<DayPattern[]>([]);
   const [focusScore, setFocusScore] = useState(0);
@@ -42,19 +44,9 @@ export default function InsightsPage() {
   const supabase = createClient();
 
   useEffect(() => {
+    if (!orgId || !userId) return;
+
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (!membership) { setLoading(false); return; }
-
       // Get last 30 days of entries
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -63,8 +55,8 @@ export default function InsightsPage() {
       const { data: entries } = await supabase
         .from("time_entries")
         .select("*")
-        .eq("user_id", user.id)
-        .eq("org_id", membership.org_id)
+        .eq("user_id", userId!)
+        .eq("org_id", orgId!)
         .gte("date", startDate)
         .order("date", { ascending: true })
         .order("hour", { ascending: true });
@@ -222,9 +214,9 @@ export default function InsightsPage() {
       setLoading(false);
     }
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgId, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (loading) {
+  if (orgLoading || loading) {
     return <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>;
   }
 

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { Profile, OrgMember } from "@/lib/types/database";
+import { useOrg } from "@/lib/context/org-context";
+import type { Profile } from "@/lib/types/database";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -40,48 +41,30 @@ const ROLE_CONFIG = {
 };
 
 export default function AdminPage() {
+  const { orgId, userId: currentUserId, orgName, role: currentRole, loading: orgLoading } = useOrg();
   const [members, setMembers] = useState<MemberWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [orgId, setOrgId] = useState<string | null>(null);
-  const [orgName, setOrgName] = useState("");
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [currentRole, setCurrentRole] = useState<string>("member");
   const [updating, setUpdating] = useState<string | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
-    async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      setCurrentUserId(user.id);
+    if (!orgId) {
+      if (!orgLoading) setLoading(false);
+      return;
+    }
 
-      const { data: membership } = await supabase
+    async function loadMembers() {
+      const { data: memberData } = await supabase
         .from("org_members")
-        .select("org_id, role")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
+        .select("id, user_id, role, joined_at, profiles(*)")
+        .eq("org_id", orgId!)
+        .order("joined_at", { ascending: true });
 
-      if (!membership) { setLoading(false); return; }
-      setOrgId(membership.org_id);
-      setCurrentRole(membership.role);
-
-      const [{ data: org }, { data: memberData }] = await Promise.all([
-        supabase.from("organizations").select("name").eq("id", membership.org_id).single(),
-        supabase
-          .from("org_members")
-          .select("id, user_id, role, joined_at, profiles(*)")
-          .eq("org_id", membership.org_id)
-          .order("joined_at", { ascending: true })
-          ,
-      ]);
-
-      setOrgName((org as { name: string })?.name ?? "");
       setMembers(memberData ?? []);
       setLoading(false);
     }
-    load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    loadMembers();
+  }, [orgId, orgLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isOwnerOrAdmin = currentRole === "owner" || currentRole === "admin";
 
@@ -113,7 +96,7 @@ export default function AdminPage() {
     setUpdating(null);
   }
 
-  if (loading) {
+  if (loading || orgLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
@@ -145,7 +128,7 @@ export default function AdminPage() {
         <h1 className="text-2xl font-bold tracking-tight">Administracion</h1>
       </div>
       <p className="text-muted-foreground text-sm mb-8">
-        {orgName} - {members.length} miembros
+        {orgName ?? ""} - {members.length} miembros
       </p>
 
       <Card>

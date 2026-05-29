@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useOrg } from "@/lib/context/org-context";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types/database";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,12 +51,11 @@ type PactWithProfiles = Pact & {
 };
 
 export default function PactsPage() {
+  const { orgId, userId, loading: orgLoading } = useOrg();
   const [pacts, setPacts] = useState<PactWithProfiles[]>([]);
   const [members, setMembers] = useState<{ user_id: string; full_name: string | null }[]>([]);
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
-  const [orgId, setOrgId] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
 
   // Create form
   const [partnerId, setPartnerId] = useState("");
@@ -68,37 +68,26 @@ export default function PactsPage() {
   const supabase = createClient();
 
   useEffect(() => {
+    if (orgLoading) return;
+    if (!orgId || !userId) { setLoading(false); return; }
+
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      setUserId(user.id);
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-
-      if (!membership) { setLoading(false); return; }
-      setOrgId(membership.org_id);
-
       const [{ data: memberData }, { data: pactData }] = await Promise.all([
         supabase
           .from("org_members")
           .select("user_id, profiles(full_name)")
-          .eq("org_id", membership.org_id)
+          .eq("org_id", orgId!)
           ,
         supabase
           .from("accountability_pacts")
           .select("*, creator:profiles!accountability_pacts_creator_id_fkey(*), partner:profiles!accountability_pacts_partner_id_fkey(*)")
-          .eq("org_id", membership.org_id)
+          .eq("org_id", orgId!)
           .order("created_at", { ascending: false })
           ,
       ]);
 
       setMembers(
-        memberData?.filter((m) => m.user_id !== user.id).map((m) => ({
+        memberData?.filter((m) => m.user_id !== userId).map((m) => ({
           user_id: m.user_id,
           full_name: m.profiles?.full_name,
         })) ?? []
@@ -107,7 +96,7 @@ export default function PactsPage() {
       setLoading(false);
     }
     load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orgLoading, orgId, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleCreate() {
     if (!orgId || !userId || !partnerId || !title.trim()) return;

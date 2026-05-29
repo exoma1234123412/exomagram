@@ -1,133 +1,230 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { MOOD_LABELS, EXPECTED_DAILY_HOURS } from "@/lib/constants";
-import { DailyScoreWidget } from "@/components/dashboard/daily-score-widget";
-import { QuickLog } from "@/components/dashboard/quick-log";
-import { SocialPressureWidget } from "@/components/accountability/social-pressure";
-import { WorkSessionTracker } from "@/components/accountability/work-session";
-import { MissingHoursAlert } from "@/components/alerts/missing-hours-alert";
-import { LiveStatusBar } from "@/components/live/live-status-bar";
+import {
+  CATEGORIES,
+  EXPECTED_DAILY_HOURS,
+  WORK_HOURS,
+  CATEGORY_COLORS,
+} from "@/lib/constants";
+import type { WorkCategory, ReactionType } from "@/lib/types/database";
 import { DailyChallenge } from "@/components/dashboard/daily-challenge";
+import { MoodWeather } from "@/components/dashboard/mood-weather";
 import { DailyCloseoutDialog } from "@/components/closeout/daily-closeout-dialog";
+import { LogEntryDialog } from "@/components/log-entry/log-entry-dialog";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { cn, getTodayMTY } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { cn, getTodayMTY, getInitials, timeAgo, formatHourShort } from "@/lib/utils";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import Link from "next/link";
 import {
   Sun,
   Sunrise,
-  Coffee,
   Moon,
-  Sparkles,
-  Target,
-  MessageSquare,
-  CheckCircle2,
-  XCircle,
   Clock,
-  Plus,
   Flame,
-  Loader2,
+  Shield,
   AlertTriangle,
-  TrendingUp,
-  FileCheck,
-  Calendar,
   Users,
-  Brain,
-  Zap,
+  Bell,
+  Heart,
+  Plus,
+  FileCheck,
+  Rss,
+  Eye,
+  CheckCircle2,
+  Target,
+  Trophy,
+  Activity,
 } from "lucide-react";
 
-// ─── TIME MODES ─────────────────────────────────────────────
-type TimeMode = "morning" | "deep_work" | "production" | "review";
-
-function getTimeMode(): TimeMode {
+// ─── GREETING LOGIC ─────────────────────────────────────────
+function getGreeting(name: string): { text: string; icon: typeof Sun } {
   const hour = new Date().getHours();
-  if (hour < 9) return "morning";
-  if (hour < 12) return "deep_work";
-  if (hour < 17) return "production";
-  return "review";
+  const first = name.split(" ")[0] || name;
+  if (hour < 12) return { text: `Buenos dias, ${first}`, icon: Sunrise };
+  if (hour < 19) return { text: `Buenas tardes, ${first}`, icon: Sun };
+  return { text: `Buenas noches, ${first}`, icon: Moon };
 }
 
-function getGreeting(name: string): { text: string; icon: typeof Sun; sub: string } {
-  const mode = getTimeMode();
-  const first = name.split(" ")[0] || name;
-  switch (mode) {
-    case "morning":
-      return { text: `Buenos días, ${first}`, icon: Sunrise, sub: "Prepara tu día. Tu equipo ya está mirando." };
-    case "deep_work":
-      return { text: `A trabajar, ${first}`, icon: Coffee, sub: "Hora de Deep Work. Enfócate y registra." };
-    case "production":
-      return { text: `Sigue así, ${first}`, icon: Sun, sub: "Tarde productiva. Revisa tu progreso vs promesas." };
-    case "review":
-      return { text: `Hora de cerrar, ${first}`, icon: Moon, sub: "Evalúa tu día y planifica mañana." };
+// ─── WORKDAY REMAINING ─────────────────────────────────────
+function getWorkdayRemaining(): { hours: number; minutes: number } | null {
+  const now = new Date();
+  const h = now.getHours();
+  const m = now.getMinutes();
+  const endHour = WORK_HOURS[WORK_HOURS.length - 1] + 1; // 19
+  if (h >= endHour) return null;
+  const startHour = WORK_HOURS[0]; // 7
+  if (h < startHour) {
+    const totalMin = (endHour - startHour) * 60;
+    return { hours: Math.floor(totalMin / 60), minutes: totalMin % 60 };
   }
+  const remaining = (endHour * 60) - (h * 60 + m);
+  if (remaining <= 0) return null;
+  return { hours: Math.floor(remaining / 60), minutes: remaining % 60 };
 }
 
 // ─── INTERFACES ─────────────────────────────────────────────
-interface Promise {
+interface Notification {
   id: string;
-  user_id: string;
+  type: string;
   title: string;
-  status: "pending" | "delivered" | "broken";
+  body: string | null;
+  link: string | null;
+  read: boolean;
+  created_at: string;
 }
 
-interface Standup {
+interface RecentEntry {
   id: string;
-  yesterday: string;
-  today_plan: string;
-  blockers: string | null;
-  mood: number | null;
-  submitted_at: string;
+  title: string;
+  category: WorkCategory;
+  hour: number;
+  logged_at: string;
+  reactions: { reaction: ReactionType; count: number }[];
 }
 
-interface UserState {
+interface BuddyInfo {
+  userId: string;
+  name: string;
+  avatarUrl: string | null;
+  hoursToday: number;
+  streak: number;
+  isOnline: boolean;
+}
+
+interface TeamPulse {
+  onlineCount: number;
+  totalMembers: number;
+  completedToday: number;
+  topPerformer: { name: string; hours: number } | null;
+}
+
+interface IntentionData {
+  todayPlan: string;
+  focusCategory: WorkCategory | null;
+  totalPlanned: number;
+  totalActual: number;
+}
+
+interface HomeState {
   userId: string;
   orgId: string;
   name: string;
+  avatarUrl: string | null;
   hoursLogged: number;
   hoursWithProof: number;
   streak: number;
-  hasStandup: boolean;
-  standup: Standup | null;
-  promises: Promise[];
-  pendingPromises: number;
-  teamOnlineCount: number;
+  trustScore: number | null;
+  hourGrid: Map<number, { category: WorkCategory; title: string } | null>;
+  recentEntries: RecentEntry[];
+  notifications: Notification[];
+  teamPulse: TeamPulse;
+  buddy: BuddyInfo | null;
+  intention: IntentionData | null;
 }
 
-interface CoachMessage {
-  message: string;
-  loading: boolean;
+// ─── CIRCULAR PROGRESS RING ────────────────────────────────
+function ProgressRing({
+  value,
+  max,
+  size = 120,
+  strokeWidth = 8,
+  className,
+}: {
+  value: number;
+  max: number;
+  size?: number;
+  strokeWidth?: number;
+  className?: string;
+}) {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const pct = Math.min(value / max, 1);
+  const offset = circumference * (1 - pct);
+
+  const color =
+    pct >= 1
+      ? "stroke-green-500"
+      : pct >= 0.5
+        ? "stroke-blue-500"
+        : "stroke-orange-500";
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      className={cn("transform -rotate-90", className)}
+    >
+      {/* Background track */}
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        strokeWidth={strokeWidth}
+        className="stroke-muted/40"
+      />
+      {/* Progress arc */}
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+        className={cn("transition-all duration-1000 ease-out", color)}
+      />
+    </svg>
+  );
 }
 
-// ─── MAIN PAGE ──────────────────────────────────────────────
+// ─── TYPE EMOJI FOR NOTIFICATIONS ──────────────────────────
+const TYPE_EMOJI: Record<string, string> = {
+  entry_logged: "📝",
+  shoutout_received: "⭐",
+  reaction_received: "👍",
+  flag_raised: "🚩",
+  standup_reminder: "💬",
+  closeout_reminder: "📋",
+  verification_request: "🔍",
+  goal_completed: "🎯",
+  streak_milestone: "🔥",
+};
+
+const REACTION_EMOJI: Record<ReactionType, string> = {
+  verified: "✅",
+  suspicious: "🤔",
+  impressive: "🔥",
+  helped_me: "🙏",
+};
+
+// ═══════════════════════════════════════════════════════════════
+// MAIN PAGE
+// ═══════════════════════════════════════════════════════════════
 export default function HomePage() {
-  const [state, setState] = useState<UserState | null>(null);
+  const [state, setState] = useState<HomeState | null>(null);
   const [loading, setLoading] = useState(true);
-  const [timeMode, setTimeMode] = useState<TimeMode>(getTimeMode);
-  const [coach, setCoach] = useState<CoachMessage>({ message: "", loading: false });
   const [closeoutOpen, setCloseoutOpen] = useState(false);
+  const [logOpen, setLogOpen] = useState(false);
   const supabase = createClient();
   const today = getTodayMTY();
 
-  // Update time mode every minute
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeMode(getTimeMode());
-    }, 60_000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Load user state
   useEffect(() => {
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setLoading(false); return; }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
       const { data: membership } = await supabase
         .from("org_members")
@@ -136,80 +233,298 @@ export default function HomePage() {
         .limit(1)
         .single();
 
-      if (!membership) { setLoading(false); return; }
+      if (!membership) {
+        setLoading(false);
+        return;
+      }
 
+      const orgId = membership.org_id;
+
+      // Parallel fetches
       const [
         { data: profile },
         { data: entries },
         { data: streakData },
-        { data: standupData },
-        { data: promisesData },
+        { data: trustData },
+        { data: notifs },
+        { data: teamMembers },
         { data: teamStatuses },
+        { data: standupData },
+        { data: buddyPairs },
       ] = await Promise.all([
-        supabase.from("profiles").select("full_name").eq("id", user.id).single(),
-        supabase.from("time_entries").select("id, proof_urls").eq("user_id", user.id).eq("date", today),
-        supabase.from("activity_streaks").select("current_streak").eq("user_id", user.id).eq("org_id", membership.org_id).maybeSingle(),
-        supabase.from("standups").select("*").eq("user_id", user.id).eq("date", today).maybeSingle(),
-        supabase.from("daily_promises").select("*").eq("user_id", user.id).eq("date", today).order("created_at"),
-        supabase.from("live_status").select("id").eq("org_id", membership.org_id).neq("status", "offline"),
+        supabase
+          .from("profiles")
+          .select("full_name, avatar_url")
+          .eq("id", user.id)
+          .single(),
+        supabase
+          .from("time_entries")
+          .select("id, title, category, hour, proof_urls, logged_at")
+          .eq("user_id", user.id)
+          .eq("date", today)
+          .order("hour", { ascending: true }),
+        supabase
+          .from("activity_streaks")
+          .select("current_streak")
+          .eq("user_id", user.id)
+          .eq("org_id", orgId)
+          .maybeSingle(),
+        supabase
+          .from("trust_score_history")
+          .select("score")
+          .eq("user_id", user.id)
+          .eq("org_id", orgId)
+          .order("date", { ascending: false })
+          .limit(1),
+        supabase
+          .from("notifications")
+          .select("id, type, title, body, link, read, created_at")
+          .eq("user_id", user.id)
+          .eq("read", false)
+          .order("created_at", { ascending: false })
+          .limit(3),
+        supabase
+          .from("org_members")
+          .select("user_id")
+          .eq("org_id", orgId),
+        supabase
+          .from("live_status")
+          .select("user_id, status")
+          .eq("org_id", orgId)
+          .neq("status", "offline"),
+        supabase
+          .from("standups")
+          .select("today_plan")
+          .eq("user_id", user.id)
+          .eq("date", today)
+          .maybeSingle(),
+        supabase
+          .from("buddy_pairs")
+          .select("user_a, user_b")
+          .eq("org_id", orgId)
+          .or(`user_a.eq.${user.id},user_b.eq.${user.id}`)
+          .eq("active", true)
+          .limit(1)
+          .maybeSingle(),
       ]);
 
-      const hoursLogged = entries?.length ?? 0;
-      const hoursWithProof = entries?.filter((e) => e.proof_urls && e.proof_urls.length > 0).length ?? 0;
+      const myEntries = entries ?? [];
+      const hoursLogged = myEntries.length;
+      const hoursWithProof = myEntries.filter(
+        (e) => e.proof_urls && (e.proof_urls as string[]).length > 0
+      ).length;
+
+      // Build hour grid
+      const hourGrid = new Map<
+        number,
+        { category: WorkCategory; title: string } | null
+      >();
+      for (const h of WORK_HOURS) {
+        const entry = myEntries.find((e) => e.hour === h);
+        hourGrid.set(
+          h,
+          entry
+            ? { category: entry.category as WorkCategory, title: entry.title }
+            : null
+        );
+      }
+
+      // Fetch reactions for recent entries (last 3)
+      const recentRaw = myEntries.slice(-3).reverse();
+      let recentEntries: RecentEntry[] = [];
+      if (recentRaw.length > 0) {
+        const { data: allReactions } = await supabase
+          .from("entry_reactions")
+          .select("entry_id, reaction")
+          .in(
+            "entry_id",
+            recentRaw.map((e) => e.id)
+          );
+
+        recentEntries = recentRaw.map((e) => {
+          const entryReactions = (allReactions ?? []).filter(
+            (r) => r.entry_id === e.id
+          );
+          const reactionCounts: Record<string, number> = {};
+          entryReactions.forEach((r) => {
+            reactionCounts[r.reaction] =
+              (reactionCounts[r.reaction] ?? 0) + 1;
+          });
+          return {
+            id: e.id,
+            title: e.title,
+            category: e.category as WorkCategory,
+            hour: e.hour,
+            logged_at: e.logged_at,
+            reactions: Object.entries(reactionCounts).map(([reaction, count]) => ({
+              reaction: reaction as ReactionType,
+              count,
+            })),
+          };
+        });
+      }
+
+      // Team pulse: count how many completed EXPECTED_DAILY_HOURS
+      const allMemberIds = (teamMembers ?? []).map((m) => m.user_id);
+      let completedToday = 0;
+      let topPerformer: { name: string; hours: number } | null = null;
+
+      if (allMemberIds.length > 0) {
+        const { data: allEntries } = await supabase
+          .from("time_entries")
+          .select("user_id")
+          .eq("org_id", orgId)
+          .eq("date", today);
+
+        const { data: allProfiles } = await supabase
+          .from("profiles")
+          .select("id, full_name")
+          .in("id", allMemberIds);
+
+        const countByUser: Record<string, number> = {};
+        (allEntries ?? []).forEach((e) => {
+          countByUser[e.user_id] = (countByUser[e.user_id] ?? 0) + 1;
+        });
+
+        let maxHours = 0;
+        let maxUser = "";
+        for (const [uid, count] of Object.entries(countByUser)) {
+          if (count >= EXPECTED_DAILY_HOURS) completedToday++;
+          if (count > maxHours) {
+            maxHours = count;
+            maxUser = uid;
+          }
+        }
+
+        if (maxHours > 0 && maxUser !== user.id) {
+          const tp = (allProfiles ?? []).find((p) => p.id === maxUser);
+          if (tp) {
+            topPerformer = {
+              name: (tp.full_name as string)?.split(" ")[0] ?? "?",
+              hours: maxHours,
+            };
+          }
+        }
+      }
+
+      // Buddy info
+      let buddy: BuddyInfo | null = null;
+      if (buddyPairs) {
+        const buddyId =
+          (buddyPairs as { user_a: string; user_b: string }).user_a === user.id
+            ? (buddyPairs as { user_a: string; user_b: string }).user_b
+            : (buddyPairs as { user_a: string; user_b: string }).user_a;
+
+        const [{ data: buddyProfile }, { data: buddyEntries }, { data: buddyStreak }] =
+          await Promise.all([
+            supabase
+              .from("profiles")
+              .select("full_name, avatar_url")
+              .eq("id", buddyId)
+              .single(),
+            supabase
+              .from("time_entries")
+              .select("id")
+              .eq("user_id", buddyId)
+              .eq("date", today),
+            supabase
+              .from("activity_streaks")
+              .select("current_streak")
+              .eq("user_id", buddyId)
+              .eq("org_id", orgId)
+              .maybeSingle(),
+          ]);
+
+        const buddyOnline = (teamStatuses ?? []).some(
+          (s) => s.user_id === buddyId
+        );
+
+        buddy = {
+          userId: buddyId,
+          name:
+            (buddyProfile as { full_name: string | null })?.full_name ?? "Buddy",
+          avatarUrl:
+            (buddyProfile as { avatar_url: string | null })?.avatar_url ?? null,
+          hoursToday: buddyEntries?.length ?? 0,
+          streak:
+            (buddyStreak as { current_streak: number } | null)
+              ?.current_streak ?? 0,
+          isOnline: buddyOnline,
+        };
+      }
+
+      // Intention from standup
+      let intention: IntentionData | null = null;
+      if (standupData && (standupData as { today_plan: string }).today_plan) {
+        // Figure out dominant category from entries
+        const categoryCounts: Record<string, number> = {};
+        myEntries.forEach((e) => {
+          categoryCounts[e.category] =
+            (categoryCounts[e.category] ?? 0) + 1;
+        });
+        const topCat = Object.entries(categoryCounts).sort(
+          (a, b) => b[1] - a[1]
+        )[0];
+
+        intention = {
+          todayPlan: (standupData as { today_plan: string }).today_plan,
+          focusCategory: topCat
+            ? (topCat[0] as WorkCategory)
+            : null,
+          totalPlanned: EXPECTED_DAILY_HOURS,
+          totalActual: hoursLogged,
+        };
+      }
 
       setState({
         userId: user.id,
-        orgId: membership.org_id,
-        name: (profile as { full_name: string } | null)?.full_name ?? "?",
+        orgId,
+        name:
+          (profile as { full_name: string | null })?.full_name ?? "Usuario",
+        avatarUrl:
+          (profile as { avatar_url: string | null })?.avatar_url ?? null,
         hoursLogged,
         hoursWithProof,
-        streak: (streakData as { current_streak: number } | null)?.current_streak ?? 0,
-        hasStandup: !!standupData,
-        standup: standupData as Standup | null,
-        promises: (promisesData ?? []) as Promise[],
-        pendingPromises: (promisesData ?? []).filter((p) => (p as Promise).status === "pending").length,
-        teamOnlineCount: teamStatuses?.length ?? 0,
+        streak:
+          (streakData as { current_streak: number } | null)?.current_streak ??
+          0,
+        trustScore:
+          trustData && trustData.length > 0
+            ? (trustData[0] as { score: number }).score
+            : null,
+        hourGrid,
+        recentEntries,
+        notifications: (notifs ?? []) as Notification[],
+        teamPulse: {
+          onlineCount: teamStatuses?.length ?? 0,
+          totalMembers: allMemberIds.length,
+          completedToday,
+          topPerformer,
+        },
+        buddy,
+        intention,
       });
       setLoading(false);
     }
+
     load();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Fetch Claude coach message
-  const fetchCoach = useCallback(async (type: string) => {
-    if (!state) return;
-    setCoach({ message: "", loading: true });
-    try {
-      const res = await fetch("/api/claude-coach", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ org_id: state.orgId, user_id: state.userId, type }),
-      });
-      const data = await res.json();
-      setCoach({ message: data.message ?? data.coaching ?? "Sin respuesta.", loading: false });
-    } catch {
-      setCoach({ message: "No se pudo conectar con Claude.", loading: false });
-    }
-  }, [state]);
-
-  // Auto-fetch coach on load based on time mode
-  useEffect(() => {
-    if (!state) return;
-    const type = timeMode === "review" ? "end_of_day" : "realtime_nudge";
-    fetchCoach(type);
-  }, [state, timeMode, fetchCoach]);
-
+  // ── LOADING ──────────────────────────────────────────────
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />
-          <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
+          <p className="text-sm text-muted-foreground animate-pulse">
+            Cargando...
+          </p>
         </div>
       </div>
     );
   }
 
+  // ── NO ORG ───────────────────────────────────────────────
   if (!state) {
     return (
       <div className="flex items-center justify-center min-h-screen px-4">
@@ -217,7 +532,9 @@ export default function HomePage() {
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
             <AlertTriangle className="w-8 h-8 text-primary" />
           </div>
-          <p className="text-muted-foreground">No se encontró organización. Ve a Dashboard para crear una.</p>
+          <p className="text-muted-foreground">
+            No se encontro organizacion. Ve a Dashboard para crear una.
+          </p>
         </div>
       </div>
     );
@@ -225,652 +542,570 @@ export default function HomePage() {
 
   const greeting = getGreeting(state.name);
   const GreetingIcon = greeting.icon;
-  const displayDate = format(new Date(), "EEEE, d MMMM yyyy", { locale: es });
-  const hoursProgress = Math.min((state.hoursLogged / EXPECTED_DAILY_HOURS) * 100, 100);
+  const displayDate = format(new Date(), "EEEE, d 'de' MMMM yyyy", {
+    locale: es,
+  });
+  const workdayRemaining = getWorkdayRemaining();
+  const proofPct =
+    state.hoursLogged > 0
+      ? Math.round((state.hoursWithProof / state.hoursLogged) * 100)
+      : 0;
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
-      {/* ─── HEADER ───────────────────────────────────────── */}
+      {/* ═══════════════════════════════════════════════════════
+          1. GREETING
+          ═══════════════════════════════════════════════════════ */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-1">
           <GreetingIcon className="w-6 h-6 text-primary" />
-          <h1 className="text-2xl font-bold tracking-tight">{greeting.text}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {greeting.text}
+          </h1>
         </div>
-        <p className="text-muted-foreground text-sm capitalize">{displayDate}</p>
-        <p className="text-xs text-muted-foreground/60 mt-1">{greeting.sub}</p>
+        <p className="text-muted-foreground text-sm capitalize">
+          {displayDate}
+        </p>
       </div>
 
-      {/* ─── STATUS STRIP ─────────────────────────────────── */}
-      <div className="grid grid-cols-4 gap-3 mb-8">
-        <div className="bg-accent/40 rounded-xl p-3 text-center">
-          <p className="text-2xl font-bold tabular-nums tracking-tight">{state.hoursLogged}</p>
-          <p className="text-[10px] text-muted-foreground">Horas hoy</p>
-        </div>
-        <div className="bg-accent/40 rounded-xl p-3 text-center">
-          <p className="text-2xl font-bold tabular-nums tracking-tight">{state.hoursWithProof}</p>
-          <p className="text-[10px] text-muted-foreground">Con evidencia</p>
-        </div>
-        <div className="bg-accent/40 rounded-xl p-3 text-center">
-          <div className="flex items-center justify-center gap-1">
-            <Flame className="w-4 h-4 text-orange-500" />
-            <p className="text-2xl font-bold tabular-nums tracking-tight">{state.streak}</p>
-          </div>
-          <p className="text-[10px] text-muted-foreground">Racha</p>
-        </div>
-        <div className="bg-accent/40 rounded-xl p-3 text-center">
-          <div className="flex items-center justify-center gap-1">
-            <Users className="w-4 h-4 text-green-500" />
-            <p className="text-2xl font-bold tabular-nums tracking-tight">{state.teamOnlineCount}</p>
-          </div>
-          <p className="text-[10px] text-muted-foreground">En línea</p>
-        </div>
-      </div>
+      {/* ═══════════════════════════════════════════════════════
+          2. YOUR DAY AT A GLANCE — Hero Section
+          ═══════════════════════════════════════════════════════ */}
+      <Card className="mb-8 overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
+        <CardContent className="p-6">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-5">
+            Tu dia de un vistazo
+          </p>
 
-      {/* ─── HOURS PROGRESS RING ──────────────────────────── */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-medium text-muted-foreground">Progreso de horas</span>
-          <span className="text-xs font-bold tabular-nums">{state.hoursLogged}/{EXPECTED_DAILY_HOURS}h</span>
-        </div>
-        <div className="w-full bg-accent/60 rounded-full h-3 overflow-hidden">
-          <div
-            className={cn(
-              "h-full rounded-full transition-all duration-700",
-              hoursProgress >= 100
-                ? "bg-gradient-to-r from-green-500 to-emerald-500"
-                : hoursProgress >= 50
-                  ? "bg-gradient-to-r from-blue-500 to-blue-600"
-                  : "bg-gradient-to-r from-yellow-500 to-orange-500"
-            )}
-            style={{ width: `${hoursProgress}%` }}
-          />
-        </div>
-      </div>
-
-      {/* ─── CLAUDE AI INSIGHT ────────────────────────────── */}
-      <Card className="mb-8 border-primary/20 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
-        <CardContent className="p-5">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shrink-0 shadow-lg shadow-blue-600/20">
-              <Brain className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <p className="font-semibold text-sm">Claude Coach</p>
-                <Badge variant="secondary" className="text-[10px]">
-                  {timeMode === "morning" ? "Predicción" : timeMode === "review" ? "Evaluación" : "Nudge"}
-                </Badge>
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+            {/* Circular progress ring */}
+            <div className="relative flex items-center justify-center shrink-0">
+              <ProgressRing
+                value={state.hoursLogged}
+                max={EXPECTED_DAILY_HOURS}
+                size={120}
+                strokeWidth={10}
+              />
+              <div className="absolute inset-0 flex flex-col items-center justify-center rotate-0">
+                <span className="text-3xl font-bold tabular-nums tracking-tight">
+                  {state.hoursLogged}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  / {EXPECTED_DAILY_HOURS}h
+                </span>
               </div>
-              {coach.loading ? (
-                <div className="flex items-center gap-2 py-2">
-                  <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">Analizando tu estado...</p>
+            </div>
+
+            {/* Stat pills + countdown */}
+            <div className="flex-1 w-full space-y-4">
+              {/* Three stat pills */}
+              <div className="grid grid-cols-3 gap-2">
+                <div className="bg-accent/40 rounded-xl px-3 py-2.5 text-center">
+                  <div className="flex items-center justify-center gap-1">
+                    <Shield className="w-3.5 h-3.5 text-green-500" />
+                    <span
+                      className={cn(
+                        "text-lg font-bold tabular-nums tracking-tight",
+                        proofPct >= 80
+                          ? "text-green-600"
+                          : proofPct >= 50
+                            ? "text-yellow-600"
+                            : "text-red-600"
+                      )}
+                    >
+                      {state.hoursLogged > 0 ? `${proofPct}%` : "-"}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">
+                    Evidencia
+                  </p>
+                </div>
+
+                <div className="bg-accent/40 rounded-xl px-3 py-2.5 text-center">
+                  <div className="flex items-center justify-center gap-1">
+                    <Flame className="w-3.5 h-3.5 text-orange-500" />
+                    <span className="text-lg font-bold tabular-nums tracking-tight">
+                      {state.streak}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">
+                    Racha
+                  </p>
+                </div>
+
+                <div className="bg-accent/40 rounded-xl px-3 py-2.5 text-center">
+                  <div className="flex items-center justify-center gap-1">
+                    <Trophy className="w-3.5 h-3.5 text-blue-500" />
+                    <span
+                      className={cn(
+                        "text-lg font-bold tabular-nums tracking-tight",
+                        state.trustScore === null
+                          ? "text-muted-foreground"
+                          : state.trustScore >= 80
+                            ? "text-green-600"
+                            : state.trustScore >= 60
+                              ? "text-blue-600"
+                              : "text-yellow-600"
+                      )}
+                    >
+                      {state.trustScore ?? "-"}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">
+                    Trust Score
+                  </p>
+                </div>
+              </div>
+
+              {/* Countdown */}
+              {workdayRemaining ? (
+                <div className="flex items-center gap-2 text-sm">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">
+                    Quedan{" "}
+                    <span className="font-semibold text-foreground tabular-nums tracking-tight">
+                      {workdayRemaining.hours}h {workdayRemaining.minutes}m
+                    </span>{" "}
+                    de jornada
+                  </span>
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-                  {coach.message}
-                </p>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* ─── TIME-BASED SECTIONS ──────────────────────────── */}
-      {timeMode === "morning" && (
-        <MorningSection state={state} setState={setState} />
-      )}
-
-      {timeMode === "deep_work" && (
-        <DeepWorkSection state={state} />
-      )}
-
-      {timeMode === "production" && (
-        <ProductionSection state={state} setState={setState} />
-      )}
-
-      {timeMode === "review" && (
-        <ReviewSection state={state} onOpenCloseout={() => setCloseoutOpen(true)} />
-      )}
-
-      {/* ─── ALWAYS VISIBLE ───────────────────────────────── */}
-      <LiveStatusBar orgId={state.orgId} />
-
-      <DailyCloseoutDialog open={closeoutOpen} onOpenChange={setCloseoutOpen} />
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════
-// MORNING MODE (before 9am)
-// ═══════════════════════════════════════════════════════════════
-
-function MorningSection({ state, setState }: { state: UserState; setState: React.Dispatch<React.SetStateAction<UserState | null>> }) {
-  return (
-    <div className="space-y-6 mb-8">
-      {/* Daily challenge / dare */}
-      <DailyChallenge orgId={state.orgId} />
-
-      {/* Inline standup */}
-      {!state.hasStandup ? (
-        <InlineStandup state={state} setState={setState} />
-      ) : (
-        <Card className="bg-green-50/50 dark:bg-green-950/10 border-green-200 dark:border-green-800 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
-          <CardContent className="p-4 flex items-center gap-3">
-            <CheckCircle2 className="w-5 h-5 text-green-600" />
-            <p className="text-sm font-medium text-green-700 dark:text-green-400">
-              Standup enviado a las {state.standup ? format(new Date(state.standup.submitted_at), "h:mm a") : ""}
-            </p>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Inline promise maker */}
-      <InlinePromiseMaker state={state} setState={setState} />
-
-      {/* Quick log for early starters */}
-      <QuickLog orgId={state.orgId} />
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════
-// DEEP WORK MODE (9am - 12pm)
-// ═══════════════════════════════════════════════════════════════
-
-function DeepWorkSection({ state }: { state: UserState }) {
-  return (
-    <div className="space-y-6 mb-8">
-      {/* Work session tracker */}
-      <WorkSessionTracker orgId={state.orgId} />
-
-      {/* Quick log */}
-      <QuickLog orgId={state.orgId} />
-
-      {/* Daily score */}
-      <DailyScoreWidget orgId={state.orgId} />
-
-      {/* AI nudge if falling behind */}
-      {state.hoursLogged < Math.max(new Date().getHours() - 8, 1) && (
-        <Card className="border-yellow-200 dark:border-yellow-800 bg-yellow-50/50 dark:bg-yellow-950/10 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
-          <CardContent className="p-4 flex items-center gap-3">
-            <Zap className="w-5 h-5 text-yellow-600" />
-            <div>
-              <p className="text-sm font-medium text-yellow-700 dark:text-yellow-400">
-                Vas por detrás del ritmo esperado
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {state.hoursLogged} horas registradas, se esperan al menos {Math.max(new Date().getHours() - 8, 1)}.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════
-// PRODUCTION MODE (12pm - 5pm)
-// ═══════════════════════════════════════════════════════════════
-
-function ProductionSection({ state, setState }: { state: UserState; setState: React.Dispatch<React.SetStateAction<UserState | null>> }) {
-  return (
-    <div className="space-y-6 mb-8">
-      {/* Progress vs promises */}
-      <PromisesProgress state={state} setState={setState} />
-
-      {/* Social pressure ranking */}
-      <SocialPressureWidget orgId={state.orgId} />
-
-      {/* Missing hours */}
-      <MissingHoursAlert date={getTodayMTY()} />
-
-      {/* Work session tracker */}
-      <WorkSessionTracker orgId={state.orgId} />
-
-      {/* Quick log */}
-      <QuickLog orgId={state.orgId} />
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════
-// REVIEW MODE (after 5pm)
-// ═══════════════════════════════════════════════════════════════
-
-function ReviewSection({ state, onOpenCloseout }: { state: UserState; onOpenCloseout: () => void }) {
-  return (
-    <div className="space-y-6 mb-8">
-      {/* Day grade */}
-      <DailyScoreWidget orgId={state.orgId} />
-
-      {/* Closeout CTA */}
-      <Card className="border-primary/20 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
-        <CardContent className="p-5 text-center space-y-3">
-          <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
-            <FileCheck className="w-7 h-7 text-primary" />
-          </div>
-          <div>
-            <p className="font-semibold">Cierra tu día</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              Resumen de logros, bloqueos y plan para mañana. Tu equipo lo ve.
-            </p>
-          </div>
-          <Button
-            onClick={onOpenCloseout}
-            className="gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 transition-all duration-300 border-0"
-          >
-            <FileCheck className="w-4 h-4" />
-            Cerrar día
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* Tomorrow planning inline */}
-      <TomorrowPlanning state={state} />
-
-      {/* Trust score projection */}
-      <Card className="transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
-        <CardContent className="p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <TrendingUp className="w-5 h-5 text-primary" />
-            <p className="font-semibold text-sm">Proyección Trust Score</p>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <p className="text-3xl font-bold tabular-nums tracking-tight">
-              {Math.min(
-                Math.round(
-                  (state.hoursLogged / EXPECTED_DAILY_HOURS) * 40 +
-                  (state.hoursWithProof / Math.max(state.hoursLogged, 1)) * 30 +
-                  (state.hasStandup ? 15 : 0) +
-                  (state.pendingPromises === 0 && state.promises.length > 0 ? 15 : 5)
-                ),
-                100
-              )}
-            </p>
-            <span className="text-sm text-muted-foreground">/100</span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Basado en horas ({state.hoursLogged}h), evidencia ({state.hoursWithProof}), standup y promesas cumplidas.
-          </p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════
-// INLINE STANDUP FORM
-// ═══════════════════════════════════════════════════════════════
-
-function InlineStandup({ state, setState }: { state: UserState; setState: React.Dispatch<React.SetStateAction<UserState | null>> }) {
-  const [yesterday, setYesterday] = useState("");
-  const [todayPlan, setTodayPlan] = useState("");
-  const [blockers, setBlockers] = useState("");
-  const [mood, setMood] = useState<number | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const supabase = createClient();
-  const today = getTodayMTY();
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setSubmitting(true);
-
-    const { data } = await supabase.from("standups").upsert({
-      user_id: state.userId,
-      org_id: state.orgId,
-      date: today,
-      yesterday,
-      today_plan: todayPlan,
-      blockers: blockers || null,
-      mood: mood as 1 | 2 | 3 | 4 | 5 | null,
-    }, { onConflict: "user_id,org_id,date" }).select("*").single();
-
-    if (data) {
-      setState((prev) => prev ? {
-        ...prev,
-        hasStandup: true,
-        standup: data as unknown as Standup,
-      } : prev);
-    }
-    setSubmitting(false);
-  }
-
-  return (
-    <Card className="border-yellow-200 dark:border-yellow-800 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
-      <CardContent className="p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <MessageSquare className="w-5 h-5 text-primary" />
-          <h3 className="font-semibold text-sm">Standup rápido</h3>
-          <Badge variant="secondary" className="text-[10px]">Pendiente</Badge>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="space-y-1.5">
-            <Label className="text-xs">¿Qué hiciste ayer?</Label>
-            <Textarea
-              placeholder="Resumen breve..."
-              value={yesterday}
-              onChange={(e) => setYesterday(e.target.value)}
-              required
-              minLength={10}
-              rows={2}
-              className="text-sm"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs">¿Qué vas a hacer hoy?</Label>
-            <Textarea
-              placeholder="Plan para hoy, sé específico..."
-              value={todayPlan}
-              onChange={(e) => setTodayPlan(e.target.value)}
-              required
-              minLength={10}
-              rows={2}
-              className="text-sm"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs">¿Algún bloqueo?</Label>
-            <Textarea
-              placeholder="Opcional — ¿algo que te impide avanzar?"
-              value={blockers}
-              onChange={(e) => setBlockers(e.target.value)}
-              rows={1}
-              className="text-sm"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs">¿Cómo te sientes?</Label>
-            <div className="flex gap-2">
-              {[1, 2, 3, 4, 5].map((level) => (
-                <button
-                  key={level}
-                  type="button"
-                  onClick={() => setMood(mood === level ? null : level)}
-                  className={cn(
-                    "flex-1 py-1.5 rounded-lg text-xs font-medium transition-all",
-                    mood === level ? "bg-blue-600 text-white" : "bg-muted hover:bg-muted/80"
-                  )}
-                >
-                  {MOOD_LABELS[level]}
-                </button>
-              ))}
-            </div>
-          </div>
-          <Button type="submit" className="w-full rounded-xl gap-2" disabled={submitting}>
-            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <MessageSquare className="w-4 h-4" />}
-            {submitting ? "Enviando..." : "Enviar standup"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════
-// INLINE PROMISE MAKER
-// ═══════════════════════════════════════════════════════════════
-
-function InlinePromiseMaker({ state, setState }: { state: UserState; setState: React.Dispatch<React.SetStateAction<UserState | null>> }) {
-  const [newPromise, setNewPromise] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const supabase = createClient();
-  const today = getTodayMTY();
-
-  async function addPromise(e: React.FormEvent) {
-    e.preventDefault();
-    if (!newPromise.trim()) return;
-    setSubmitting(true);
-
-    const { data } = await supabase.from("daily_promises").insert({
-      user_id: state.userId,
-      org_id: state.orgId,
-      date: today,
-      title: newPromise.trim(),
-      status: "pending",
-    }).select("*").single();
-
-    if (data) {
-      const p = data as unknown as Promise;
-      setState((prev) => prev ? {
-        ...prev,
-        promises: [...prev.promises, p],
-        pendingPromises: prev.pendingPromises + 1,
-      } : prev);
-    }
-    setNewPromise("");
-    setSubmitting(false);
-  }
-
-  async function markPromise(id: string, status: "delivered" | "broken") {
-    await supabase.from("daily_promises").update({ status }).eq("id", id);
-    setState((prev) => {
-      if (!prev) return prev;
-      const updated = prev.promises.map((p) => p.id === id ? { ...p, status } : p);
-      return {
-        ...prev,
-        promises: updated,
-        pendingPromises: updated.filter((p) => p.status === "pending").length,
-      };
-    });
-  }
-
-  return (
-    <Card className="border-primary/20 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
-      <CardContent className="p-5">
-        <div className="flex items-center gap-2 mb-3">
-          <Target className="w-5 h-5 text-primary" />
-          <h3 className="font-semibold text-sm">Promesas de hoy</h3>
-          {state.promises.length > 0 && (
-            <Badge variant="secondary" className="text-[10px]">
-              {state.promises.filter((p) => p.status === "delivered").length}/{state.promises.length}
-            </Badge>
-          )}
-        </div>
-
-        {state.promises.length > 0 && (
-          <div className="space-y-2 mb-4">
-            {state.promises.map((p) => (
-              <div key={p.id} className={cn(
-                "flex items-center gap-3 p-2.5 rounded-xl transition-all text-sm",
-                p.status === "delivered" && "bg-green-50 dark:bg-green-950/20",
-                p.status === "broken" && "bg-red-50 dark:bg-red-950/20 line-through opacity-60",
-                p.status === "pending" && "bg-accent/40",
-              )}>
-                {p.status === "delivered" && <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />}
-                {p.status === "broken" && <XCircle className="w-4 h-4 text-red-500 shrink-0" />}
-                {p.status === "pending" && <Clock className="w-4 h-4 text-yellow-500 shrink-0" />}
-                <span className="flex-1 font-medium">{p.title}</span>
-                {p.status === "pending" && (
-                  <div className="flex gap-1">
-                    <Button size="sm" variant="ghost" className="h-6 text-[10px] text-green-600 rounded-lg" onClick={() => markPromise(p.id, "delivered")}>
-                      Cumplida
-                    </Button>
-                    <Button size="sm" variant="ghost" className="h-6 text-[10px] text-red-500 rounded-lg" onClick={() => markPromise(p.id, "broken")}>
-                      No pude
-                    </Button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        <form onSubmit={addPromise} className="flex gap-2">
-          <Input
-            placeholder="Hoy voy a entregar..."
-            value={newPromise}
-            onChange={(e) => setNewPromise(e.target.value)}
-            required
-            minLength={5}
-            className="flex-1 text-sm rounded-xl"
-          />
-          <Button type="submit" disabled={submitting} className="gap-1.5 rounded-xl" size="sm">
-            {submitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
-            Prometer
-          </Button>
-        </form>
-        <p className="text-[10px] text-muted-foreground/60 mt-2">
-          Tu equipo ve estas promesas. Al final del día, marca si cumpliste.
-        </p>
-      </CardContent>
-    </Card>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════
-// PROMISES PROGRESS (production mode)
-// ═══════════════════════════════════════════════════════════════
-
-function PromisesProgress({ state, setState }: { state: UserState; setState: React.Dispatch<React.SetStateAction<UserState | null>> }) {
-  const supabase = createClient();
-
-  async function markPromise(id: string, status: "delivered" | "broken") {
-    await supabase.from("daily_promises").update({ status }).eq("id", id);
-    setState((prev) => {
-      if (!prev) return prev;
-      const updated = prev.promises.map((p) => p.id === id ? { ...p, status } : p);
-      return {
-        ...prev,
-        promises: updated,
-        pendingPromises: updated.filter((p) => p.status === "pending").length,
-      };
-    });
-  }
-
-  if (state.promises.length === 0) return null;
-
-  const delivered = state.promises.filter((p) => p.status === "delivered").length;
-  const total = state.promises.length;
-  const pct = Math.round((delivered / total) * 100);
-
-  return (
-    <Card className="transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
-      <CardContent className="p-5">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Target className="w-5 h-5 text-primary" />
-            <h3 className="font-semibold text-sm">Progreso vs promesas</h3>
-          </div>
-          <Badge
-            className={cn(
-              "text-[10px]",
-              pct === 100 ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-            )}
-          >
-            {pct}%
-          </Badge>
-        </div>
-        <div className="w-full bg-accent/60 rounded-full h-2 overflow-hidden mb-4">
-          <div
-            className={cn(
-              "h-full rounded-full transition-all duration-500",
-              pct === 100 ? "bg-green-500" : "bg-primary"
-            )}
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-        <div className="space-y-2">
-          {state.promises.map((p) => (
-            <div key={p.id} className={cn(
-              "flex items-center gap-3 p-2.5 rounded-xl transition-all text-sm",
-              p.status === "delivered" && "bg-green-50 dark:bg-green-950/20",
-              p.status === "broken" && "bg-red-50 dark:bg-red-950/20 line-through opacity-60",
-              p.status === "pending" && "bg-accent/40",
-            )}>
-              {p.status === "delivered" && <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />}
-              {p.status === "broken" && <XCircle className="w-4 h-4 text-red-500 shrink-0" />}
-              {p.status === "pending" && <Clock className="w-4 h-4 text-yellow-500 shrink-0" />}
-              <span className="flex-1 font-medium">{p.title}</span>
-              {p.status === "pending" && (
-                <div className="flex gap-1">
-                  <Button size="sm" variant="ghost" className="h-6 text-[10px] text-green-600 rounded-lg" onClick={() => markPromise(p.id, "delivered")}>
-                    Cumplida
-                  </Button>
-                  <Button size="sm" variant="ghost" className="h-6 text-[10px] text-red-500 rounded-lg" onClick={() => markPromise(p.id, "broken")}>
-                    No pude
-                  </Button>
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                  <span className="text-muted-foreground">
+                    Jornada laboral finalizada
+                  </span>
                 </div>
               )}
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════
-// TOMORROW PLANNING (review mode)
-// ═══════════════════════════════════════════════════════════════
-
-function TomorrowPlanning({ state }: { state: UserState }) {
-  const [plan, setPlan] = useState("");
-  const [saved, setSaved] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const supabase = createClient();
-
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault();
-    if (!plan.trim()) return;
-    setSaving(true);
-
-    // Save as tomorrow's standup draft (today_plan field)
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowDate = tomorrow.toISOString().split("T")[0];
-
-    await supabase.from("standups").upsert({
-      user_id: state.userId,
-      org_id: state.orgId,
-      date: tomorrowDate,
-      yesterday: "",
-      today_plan: plan.trim(),
-      blockers: null,
-      mood: null,
-    }, { onConflict: "user_id,org_id,date" });
-
-    setSaved(true);
-    setSaving(false);
-  }
-
-  if (saved) {
-    return (
-      <Card className="bg-green-50/50 dark:bg-green-950/10 border-green-200 dark:border-green-800 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
-        <CardContent className="p-4 flex items-center gap-3">
-          <CheckCircle2 className="w-5 h-5 text-green-600" />
-          <p className="text-sm font-medium text-green-700 dark:text-green-400">
-            Plan de mañana guardado.
-          </p>
+          </div>
         </CardContent>
       </Card>
-    );
-  }
 
-  return (
-    <Card className="transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
-      <CardContent className="p-5">
-        <div className="flex items-center gap-2 mb-3">
-          <Calendar className="w-5 h-5 text-primary" />
-          <h3 className="font-semibold text-sm">Planifica mañana</h3>
-        </div>
-        <form onSubmit={handleSave} className="space-y-3">
-          <Textarea
-            placeholder="¿Qué vas a hacer mañana? Esto se carga como borrador de tu standup."
-            value={plan}
-            onChange={(e) => setPlan(e.target.value)}
-            required
-            minLength={10}
-            rows={3}
-            className="text-sm"
-          />
-          <Button type="submit" className="w-full rounded-xl gap-2" disabled={saving}>
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Calendar className="w-4 h-4" />}
-            {saving ? "Guardando..." : "Guardar plan para mañana"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+      {/* ═══════════════════════════════════════════════════════
+          3. MORNING INTENTION (if set via standup)
+          ═══════════════════════════════════════════════════════ */}
+      {state.intention && (
+        <Card className="mb-8 border-primary/20 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
+          <CardContent className="p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Target className="w-5 h-5 text-primary" />
+              <h3 className="font-semibold text-sm">Plan de hoy</h3>
+              {state.intention.focusCategory && (
+                <Badge
+                  className={cn(
+                    "text-[10px]",
+                    CATEGORIES[state.intention.focusCategory].bgColor,
+                    CATEGORIES[state.intention.focusCategory].color
+                  )}
+                >
+                  {CATEGORIES[state.intention.focusCategory].emoji}{" "}
+                  {CATEGORIES[state.intention.focusCategory].label}
+                </Badge>
+              )}
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-3 line-clamp-3">
+              {state.intention.todayPlan}
+            </p>
+            {/* Progress bar: actual vs planned */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Progreso</span>
+                <span className="font-medium tabular-nums tracking-tight">
+                  {state.intention.totalActual}/{state.intention.totalPlanned}h
+                </span>
+              </div>
+              <div className="w-full bg-accent/60 rounded-full h-2 overflow-hidden">
+                <div
+                  className={cn(
+                    "h-full rounded-full transition-all duration-700",
+                    state.intention.totalActual >= state.intention.totalPlanned
+                      ? "bg-gradient-to-r from-green-500 to-emerald-500"
+                      : "bg-gradient-to-r from-blue-500 to-blue-600"
+                  )}
+                  style={{
+                    width: `${Math.min((state.intention.totalActual / state.intention.totalPlanned) * 100, 100)}%`,
+                  }}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════
+          4. QUICK ACTIONS — 4 big buttons
+          ═══════════════════════════════════════════════════════ */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+        <Button
+          onClick={() => setLogOpen(true)}
+          className="h-auto flex-col gap-2 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 transition-all duration-300 border-0"
+        >
+          <Plus className="w-5 h-5" />
+          <span className="text-xs font-semibold">Registrar hora</span>
+        </Button>
+
+        <Button
+          onClick={() => setCloseoutOpen(true)}
+          variant="outline"
+          className="h-auto flex-col gap-2 py-4 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-primary/5"
+        >
+          <FileCheck className="w-5 h-5 text-primary" />
+          <span className="text-xs font-semibold">Cerrar dia</span>
+        </Button>
+
+        <Link
+          href="/feed"
+          className={cn(
+            "inline-flex shrink-0 items-center justify-center rounded-xl border border-border bg-background text-sm font-medium transition-all",
+            "hover:bg-muted hover:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+            "h-auto flex-col gap-2 py-4 hover:shadow-lg hover:shadow-primary/5"
+          )}
+        >
+          <Rss className="w-5 h-5 text-primary" />
+          <span className="text-xs font-semibold">Ver feed</span>
+        </Link>
+
+        <Link
+          href="/mirror"
+          className={cn(
+            "inline-flex shrink-0 items-center justify-center rounded-xl border border-border bg-background text-sm font-medium transition-all",
+            "hover:bg-muted hover:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+            "h-auto flex-col gap-2 py-4 hover:shadow-lg hover:shadow-primary/5"
+          )}
+        >
+          <Eye className="w-5 h-5 text-primary" />
+          <span className="text-xs font-semibold">Mi espejo</span>
+        </Link>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════
+          5. YOUR GAPS — hour grid
+          ═══════════════════════════════════════════════════════ */}
+      <Card className="mb-8 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
+        <CardContent className="p-5">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Activity className="w-5 h-5 text-primary" />
+              <h3 className="font-semibold text-sm">Tus huecos</h3>
+            </div>
+            <span className="text-xs text-muted-foreground tabular-nums tracking-tight">
+              {state.hoursLogged}/{WORK_HOURS.length} horas cubiertas
+            </span>
+          </div>
+          <div className="grid grid-cols-6 sm:grid-cols-12 gap-1.5">
+            {WORK_HOURS.map((h) => {
+              const entry = state.hourGrid.get(h);
+              const isCurrent = new Date().getHours() === h;
+              return (
+                <div
+                  key={h}
+                  title={
+                    entry
+                      ? `${formatHourShort(h)} — ${CATEGORIES[entry.category].label}: ${entry.title}`
+                      : `${formatHourShort(h)} — Sin registro`
+                  }
+                  className={cn(
+                    "aspect-square rounded-lg flex flex-col items-center justify-center text-[9px] font-medium transition-all cursor-default relative",
+                    entry
+                      ? cn(
+                          CATEGORY_COLORS[entry.category],
+                          "text-white shadow-sm"
+                        )
+                      : "bg-muted/50 text-muted-foreground",
+                    isCurrent && "ring-2 ring-primary ring-offset-1 ring-offset-background"
+                  )}
+                >
+                  <span className="leading-none">
+                    {h > 12 ? h - 12 : h}
+                  </span>
+                  <span className="leading-none opacity-70">
+                    {h >= 12 ? "p" : "a"}
+                  </span>
+                  {entry && (
+                    <span className="absolute -top-0.5 -right-0.5 text-[8px] leading-none">
+                      {CATEGORIES[entry.category].emoji}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {/* Legend */}
+          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-3">
+            {Object.entries(CATEGORIES)
+              .filter(([key]) => {
+                // Only show categories that appear in the grid
+                for (const entry of state.hourGrid.values()) {
+                  if (entry?.category === key) return true;
+                }
+                return false;
+              })
+              .map(([key, cat]) => (
+                <div key={key} className="flex items-center gap-1">
+                  <div
+                    className={cn(
+                      "w-2 h-2 rounded-sm",
+                      CATEGORY_COLORS[key]
+                    )}
+                  />
+                  <span className="text-[9px] text-muted-foreground">
+                    {cat.label}
+                  </span>
+                </div>
+              ))}
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 rounded-sm bg-muted/50" />
+              <span className="text-[9px] text-muted-foreground">
+                Sin registro
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ═══════════════════════════════════════════════════════
+          6. TEAM PULSE (compact)
+          ═══════════════════════════════════════════════════════ */}
+      <Card className="mb-8 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
+        <CardContent className="p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Users className="w-5 h-5 text-primary" />
+            <h3 className="font-semibold text-sm">Pulso del equipo</h3>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {/* Online now */}
+            <div className="bg-accent/40 rounded-xl p-3 text-center">
+              <div className="flex items-center justify-center gap-1.5 mb-1">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+                </span>
+                <span className="text-xl font-bold tabular-nums tracking-tight">
+                  {state.teamPulse.onlineCount}
+                </span>
+              </div>
+              <p className="text-[10px] text-muted-foreground">En linea</p>
+            </div>
+
+            {/* Completed today */}
+            <div className="bg-accent/40 rounded-xl p-3 text-center">
+              <span className="text-xl font-bold tabular-nums tracking-tight">
+                {state.teamPulse.completedToday}
+                <span className="text-sm font-medium text-muted-foreground">
+                  /{state.teamPulse.totalMembers}
+                </span>
+              </span>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                Completados
+              </p>
+            </div>
+
+            {/* Team mood weather */}
+            <div className="col-span-2 sm:col-span-2">
+              <MoodWeather orgId={state.orgId} />
+            </div>
+          </div>
+
+          {/* Top performer */}
+          {state.teamPulse.topPerformer && (
+            <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+              <Trophy className="w-3.5 h-3.5 text-yellow-500" />
+              <span>
+                Top hoy:{" "}
+                <span className="font-semibold text-foreground">
+                  {state.teamPulse.topPerformer.name}
+                </span>{" "}
+                con{" "}
+                <span className="font-semibold text-foreground tabular-nums tracking-tight">
+                  {state.teamPulse.topPerformer.hours}h
+                </span>
+              </span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ═══════════════════════════════════════════════════════
+          7. RECENT ACTIVITY — last 3 entries with reactions
+          ═══════════════════════════════════════════════════════ */}
+      {state.recentEntries.length > 0 && (
+        <Card className="mb-8 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
+          <CardContent className="p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Clock className="w-5 h-5 text-primary" />
+              <h3 className="font-semibold text-sm">Actividad reciente</h3>
+            </div>
+            <div className="space-y-3">
+              {state.recentEntries.map((entry) => {
+                const cat = CATEGORIES[entry.category];
+                return (
+                  <div
+                    key={entry.id}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-accent/30 transition-all"
+                  >
+                    <div
+                      className={cn(
+                        "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm",
+                        cat.bgColor
+                      )}
+                    >
+                      {cat.emoji}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {entry.title}
+                      </p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <Badge
+                          variant="secondary"
+                          className={cn("text-[9px] py-0", cat.color)}
+                        >
+                          {cat.label}
+                        </Badge>
+                        <span className="text-[10px] text-muted-foreground tabular-nums tracking-tight">
+                          {formatHourShort(entry.hour)}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {timeAgo(entry.logged_at)}
+                        </span>
+                      </div>
+                    </div>
+                    {/* Reactions */}
+                    {entry.reactions.length > 0 && (
+                      <div className="flex items-center gap-1 shrink-0">
+                        {entry.reactions.map((r) => (
+                          <span
+                            key={r.reaction}
+                            className="text-xs bg-accent/60 rounded-lg px-1.5 py-0.5 tabular-nums tracking-tight"
+                          >
+                            {REACTION_EMOJI[r.reaction]} {r.count}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════
+          8. NOTIFICATIONS PREVIEW — latest 3 unread
+          ═══════════════════════════════════════════════════════ */}
+      {state.notifications.length > 0 && (
+        <Card className="mb-8 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Bell className="w-5 h-5 text-primary" />
+                <h3 className="font-semibold text-sm">Notificaciones</h3>
+                <Badge className="text-[9px] py-0 bg-red-500 text-white">
+                  {state.notifications.length}
+                </Badge>
+              </div>
+            </div>
+            <div className="space-y-2">
+              {state.notifications.map((n) => (
+                <div
+                  key={n.id}
+                  className="flex items-start gap-2.5 p-2.5 rounded-xl bg-primary/5 transition-all"
+                >
+                  <span className="text-base mt-0.5 shrink-0">
+                    {TYPE_EMOJI[n.type] ?? "📌"}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium">{n.title}</p>
+                    {n.body && (
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                        {n.body}
+                      </p>
+                    )}
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      {timeAgo(n.created_at)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════
+          9. YOUR BUDDY — compact buddy card
+          ═══════════════════════════════════════════════════════ */}
+      {state.buddy && (
+        <Card className="mb-8 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
+          <CardContent className="p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Heart className="w-5 h-5 text-primary" />
+              <h3 className="font-semibold text-sm">Tu Buddy</h3>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Avatar className="ring-2 ring-background shadow-sm">
+                  {state.buddy.avatarUrl && (
+                    <AvatarImage src={state.buddy.avatarUrl} />
+                  )}
+                  <AvatarFallback>
+                    {getInitials(state.buddy.name)}
+                  </AvatarFallback>
+                </Avatar>
+                <span
+                  className={cn(
+                    "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-background",
+                    state.buddy.isOnline ? "bg-green-500" : "bg-gray-400"
+                  )}
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold truncate">
+                  {state.buddy.name}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {state.buddy.isOnline ? "En linea" : "Desconectado"}
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="text-center">
+                  <p className="text-lg font-bold tabular-nums tracking-tight">
+                    {state.buddy.hoursToday}
+                  </p>
+                  <p className="text-[9px] text-muted-foreground">Horas</p>
+                </div>
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-0.5">
+                    <Flame className="w-3 h-3 text-orange-500" />
+                    <p className="text-lg font-bold tabular-nums tracking-tight">
+                      {state.buddy.streak}
+                    </p>
+                  </div>
+                  <p className="text-[9px] text-muted-foreground">Racha</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════
+          10. DAILY CHALLENGE — with progress
+          ═══════════════════════════════════════════════════════ */}
+      <DailyChallenge orgId={state.orgId} />
+
+      {/* ── Dialogs ───────────────────────────────────────────── */}
+      <DailyCloseoutDialog
+        open={closeoutOpen}
+        onOpenChange={setCloseoutOpen}
+      />
+      <LogEntryDialog
+        open={logOpen}
+        onOpenChange={setLogOpen}
+      />
+    </div>
   );
 }

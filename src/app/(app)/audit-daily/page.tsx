@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -63,22 +63,10 @@ const GRADE_CONFIG: Record<string, { color: string; bg: string; emoji: string; b
 };
 
 export default function DailyAuditPage() {
+  const { orgId, loading: orgLoading } = useOrg();
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [data, setData] = useState<AuditData | null>(null);
   const [loading, setLoading] = useState(false);
-  const [orgId, setOrgId] = useState<string | null>(null);
-  const supabase = createClient();
-
-  useEffect(() => {
-    async function loadOrg() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: membership } = await supabase
-        .from("org_members").select("org_id").eq("user_id", user.id).limit(1).single();
-      if (membership) setOrgId(membership.org_id);
-    }
-    loadOrg();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function runAudit() {
     if (!orgId) return;
@@ -132,10 +120,10 @@ export default function DailyAuditPage() {
         </Button>
       </div>
 
-      {loading ? (
+      {loading || orgLoading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <Brain className="w-10 h-10 text-primary animate-pulse" />
-          <p className="text-sm text-muted-foreground animate-pulse">AI analizando el día del equipo...</p>
+          <p className="text-sm text-muted-foreground animate-pulse">{orgLoading ? "Cargando..." : "AI analizando el día del equipo..."}</p>
         </div>
       ) : data ? (
         <div className="space-y-6">

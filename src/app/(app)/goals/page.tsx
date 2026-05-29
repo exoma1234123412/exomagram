@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import { CATEGORIES } from "@/lib/constants";
 import type { WorkCategory } from "@/lib/types/database";
 import { Button } from "@/components/ui/button";
@@ -40,10 +41,10 @@ interface Goal {
 }
 
 export default function GoalsPage() {
+  const { orgId, userId, loading: orgLoading } = useOrg();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [orgId, setOrgId] = useState<string | null>(null);
   const supabase = createClient();
 
   // Form state
@@ -55,38 +56,24 @@ export default function GoalsPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setLoading(false); return; }
-
-      const { data: membership } = await supabase
-        .from("org_members")
-        .select("org_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
-      if (!membership) { setLoading(false); return; }
-      setOrgId(membership.org_id);
-
+    if (!userId) return;
+    async function loadGoals() {
       const { data } = await supabase
         .from("goals")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", userId!)
         .order("created_at", { ascending: false });
 
       setGoals((data ?? []) as Goal[]);
       setLoading(false);
     }
-    load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    loadGoals();
+  }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
-    if (!orgId) return;
+    if (!orgId || !userId) return;
     setSubmitting(true);
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
 
     const now = new Date();
     const startDate = now.toISOString().split("T")[0];
@@ -95,7 +82,7 @@ export default function GoalsPage() {
     ).toISOString().split("T")[0];
 
     const { data } = await supabase.from("goals").insert({
-      user_id: user.id,
+      user_id: userId,
       org_id: orgId,
       title,
       description: description || null,
@@ -129,7 +116,7 @@ export default function GoalsPage() {
     );
   }
 
-  if (loading) {
+  if (orgLoading || loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 animate-pulse" />

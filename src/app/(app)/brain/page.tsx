@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import type { Profile } from "@/lib/types/database";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,29 +39,22 @@ const QUICK_ACTIONS = [
 ];
 
 export default function BrainPage() {
+  const { orgId, userId, loading: orgLoading } = useOrg();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [orgId, setOrgId] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
   const [members, setMembers] = useState<Profile[]>([]);
   const chatRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
 
   useEffect(() => {
-    async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      setUserId(user.id);
-      const { data: m } = await supabase.from("org_members").select("org_id").eq("user_id", user.id).limit(1).single();
-      if (!m) return;
-      setOrgId(m.org_id);
-      const { data: memberData } = await supabase.from("org_members").select("user_id, profiles(*)").eq("org_id", m.org_id)
-        ;
-      setMembers(memberData?.map((md) => md.profiles) ?? []);
+    if (!orgId) return;
+    async function loadMembers() {
+      const { data: memberData } = await supabase.from("org_members").select("user_id, profiles(*)").eq("org_id", orgId!);
+      setMembers(memberData?.map((md: any) => md.profiles) ?? []);
     }
-    load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    loadMembers();
+  }, [orgId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });

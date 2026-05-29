@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { TimelineFeed } from "@/components/timeline/timeline-feed";
 import { TimelineFiltersBar, type TimelineFilters } from "@/components/timeline/timeline-filters";
@@ -30,6 +31,7 @@ export default function DashboardPage() {
     verification: null,
   });
   const supabase = createClient();
+  const router = useRouter();
 
   useEffect(() => {
     async function loadOrg() {
@@ -37,7 +39,20 @@ export default function DashboardPage() {
       if (!user) return;
       const { data: membership } = await supabase
         .from("org_members").select("org_id").eq("user_id", user.id).limit(1).single();
-      if (membership) setOrgId(membership.org_id);
+      if (membership) {
+        setOrgId(membership.org_id);
+
+        // Redirect to welcome if user has zero time entries
+        const { count } = await supabase
+          .from("time_entries")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .eq("org_id", membership.org_id);
+        if (count === 0) {
+          router.replace("/welcome");
+          return;
+        }
+      }
       setLoading(false);
     }
     loadOrg();
