@@ -208,7 +208,7 @@ export default function InsurancePage() {
 
  {/* Today's Status — Big Shield */}
  <div className="mb-8">
- <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground mb-2 block">
+ <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 mb-2 block">
  Estado de hoy
  </span>
  <Card
@@ -260,7 +260,7 @@ export default function InsurancePage() {
 
  {/* Stats Row */}
  <div className="mb-8">
- <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground mb-2 block">
+ <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 mb-2 block">
  Resumen
  </span>
  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -322,7 +322,7 @@ export default function InsurancePage() {
 
  {/* Protection Meter */}
  <div className="mb-8">
- <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground mb-2 block">
+ <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 mb-2 block">
  Medidor de proteccion — {format(todayDate,"MMMM yyyy", { locale: es })}
  </span>
  <Card className="border border-border">
@@ -344,7 +344,7 @@ export default function InsurancePage() {
 
  {/* Calendar View */}
  <div className="mb-8">
- <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground mb-2 block">
+ <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 mb-2 block">
  Calendario del mes
  </span>
  <Card className="border border-border">
@@ -406,7 +406,7 @@ export default function InsurancePage() {
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
  {/* History */}
  <div>
- <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground mb-2 block">
+ <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 mb-2 block">
  Historial de polizas
  </span>
  <Card className="border border-border">
@@ -457,7 +457,7 @@ export default function InsurancePage() {
 
  {/* Strategy Tips */}
  <div>
- <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground mb-2 block">
+ <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 mb-2 block">
  Estrategia
  </span>
  <Card className="border border-border">
@@ -505,7 +505,7 @@ export default function InsurancePage() {
 
  {/* Pricing Card */}
  <div className="mb-8">
- <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground mb-2 block">
+ <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 mb-2 block">
  Precios
  </span>
  <Card className="border border-border">
@@ -519,7 +519,7 @@ export default function InsurancePage() {
  <p className="font-mono text-[10px] text-muted-foreground">Martes a domingo</p>
  </div>
  </div>
- <div className="flex items-center gap-3 p-3 border border-emerald-600/30 bg-emerald-500/5">
+ <div className="flex items-center gap-3 p-3 border border-border">
  <Coins className="w-5 h-5 text-emerald-500"/>
  <div>
  <p className="font-mono text-xs font-medium">Lunes</p>

@@ -16,7 +16,7 @@ import {
  Mail, Crosshair,
  ArrowDownUp, CandlestickChart, Hammer, Newspaper, Ghost, Timer, Ticket,
  UserMinus, Link2, Clock3, ShieldMinus, Lock, Handshake, Shield,
- Radar, FileText, Bone, Database, Table2,
+ Radar, FileText, Bone, Database, Table2, Scale,
 } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Logo } from "@/components/layout/logo";
@@ -64,6 +64,7 @@ const menuSections = [
  { href:"/irrevocable", label:"Apuesta Irrevocable", icon: Lock },
  { href:"/collateral", label:"Colateral", icon: Handshake },
  { href:"/shame-score", label:"Indice Verguenza", icon: Skull },
+ { href:"/weekly-shame", label:"Informe Semanal", icon: Newspaper },
  { href:"/peer-verdict", label:"Peer Verdict", icon: Scale },
  ],
  },

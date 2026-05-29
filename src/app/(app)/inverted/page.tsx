@@ -57,8 +57,8 @@ function getCountdownText(targetDate: Date): string {
  const now = new Date();
  const diff = differenceInDays(targetDate, now);
  if (diff <= 0) return"Hoy";
- if (diff === 1) return"1 dia";
- return`${diff} dias`;
+ if (diff === 1) return"1 día";
+ return`${diff} días`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -284,7 +284,7 @@ export default function InvertedPage() {
  {/* Header */}
  <div className="flex items-center gap-3 mb-2">
  <ArrowDownUp className="w-6 h-6 text-fuchsia-500 rotate-180"/>
- <h1 className="text-2xl font-bold tracking-tight">Modo Invertido</h1>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">Modo Invertido</h1>
  </div>
  <p className="text-sm text-muted-foreground mb-8">
  Un dia al mes, todas las metricas se invierten. Quien trabaja menos, gana mas.
@@ -293,12 +293,9 @@ export default function InvertedPage() {
 
  {/* Active Banner or Countdown */}
  {isInvertedToday ? (
- <div className="relative mb-8 overflow-hidden bg-gradient-to-r from-fuchsia-600 via-purple-600 to-fuchsia-700 p-6 text-white shadow-fuchsia-600/25">
- <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_60%)]"/>
- <div className="absolute -right-6 -top-6 w-32 h-32 rounded-full bg-white/5 animate-pulse"/>
- <div className="absolute -left-4 -bottom-4 w-24 h-24 rounded-full bg-white/5 animate-pulse delay-500"/>
+ <div className="relative mb-8 overflow-hidden bg-fuchsia-600 p-6 text-white border border-fuchsia-600/30">
  <div className="relative z-10 flex items-center gap-4">
- <div className="flex items-center justify-center w-14 h-14 bg-white/15 backdrop-blur-sm">
+ <div className="flex items-center justify-center w-14 h-14 bg-white/15 border border-white/20">
  <RotateCcw className="w-7 h-7 animate-spin"style={{ animationDuration:"3s"}} />
  </div>
  <div>
@@ -310,7 +307,7 @@ export default function InvertedPage() {
  </div>
  </div>
  ) : (
- <Card className="mb-8 transition-all duration-300 hover:border-primary/30 border-fuchsia-500/20">
+ <Card className="mb-8 transition-colors hover:border-primary/30 border-fuchsia-500/20">
  <CardContent className="p-5">
  <div className="flex items-center justify-between">
  <div className="flex items-center gap-3">
@@ -336,13 +333,13 @@ export default function InvertedPage() {
  <section className="mb-8">
  <div className="flex items-center gap-2 mb-4">
  <TrendingDown className="w-4 h-4 text-fuchsia-500"/>
- <h2 className="text-lg font-semibold tracking-tight">Ranking Invertido</h2>
+ <h2 className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40">Ranking Invertido</h2>
  </div>
 
  {members.length === 0 ? (
- <Card className="transition-all duration-300">
+ <Card className="transition-colors">
  <CardContent className="p-8 flex flex-col items-center gap-3">
- <div className="w-16 h-16 bg-primary/10 flex items-center justify-center">
+ <div className="w-16 h-16 bg-primary/10 border border-primary/20 flex items-center justify-center">
  <ArrowDownUp className="w-8 h-8 text-primary"/>
  </div>
  <p className="text-sm text-muted-foreground text-center">
@@ -359,9 +356,9 @@ export default function InvertedPage() {
  <Card
  key={m.userId}
  className={cn(
-"transition-all duration-300 hover:border-primary/30",
- isTop &&"border-fuchsia-500/40 shadow-fuchsia-500/10",
- isMe &&"ring-1 ring-fuchsia-500/30")}
+"transition-colors hover:border-primary/30",
+ isTop &&"border-fuchsia-500/40",
+ isMe &&"border border-fuchsia-500/30")}
  >
  <CardContent className="p-4">
  <div className="flex items-center gap-3">
@@ -370,7 +367,7 @@ export default function InvertedPage() {
  className={cn(
 "flex items-center justify-center w-8 h-8 font-bold text-sm tabular-nums tracking-tight shrink-0",
  isTop
- ?"bg-fuchsia-500 text-white":"bg-accent/40 text-muted-foreground")}
+ ?"bg-fuchsia-500 text-white":"bg-accent/30 border border-border text-muted-foreground")}
  >
  {isTop ? (
  <Crown className="w-4 h-4 scale-y-[-1]"/>
@@ -431,23 +428,23 @@ export default function InvertedPage() {
  <section className="mb-8">
  <div className="flex items-center gap-2 mb-4">
  <Eye className="w-4 h-4 text-fuchsia-500"/>
- <h2 className="text-lg font-semibold tracking-tight">Normal vs Invertido</h2>
+ <h2 className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40">Normal vs Invertido</h2>
  </div>
 
- <Card className="transition-all duration-300 hover:border-primary/30">
+ <Card className="transition-colors hover:border-primary/30">
  <CardContent className="p-4">
  <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-4 gap-y-2 items-center">
  {/* Header */}
- <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+ <div className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40">
  Miembro
  </div>
- <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider text-center">
+ <div className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 text-center">
  Normal
  </div>
- <div className="text-[10px] font-mono text-fuchsia-500 uppercase tracking-wider text-center">
+ <div className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 text-center">
  Invertido
  </div>
- <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider text-center">
+ <div className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 text-center">
  Delta
  </div>
 
@@ -512,7 +509,7 @@ export default function InvertedPage() {
  <section className="mb-8">
  <div className="flex items-center gap-2 mb-4">
  <AlertTriangle className="w-4 h-4 text-amber-500"/>
- <h2 className="text-lg font-semibold tracking-tight">Analisis de Inversion</h2>
+ <h2 className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40">Analisis de Inversion</h2>
  </div>
  <p className="text-xs text-muted-foreground mb-3">
  Quienes se benefician mas del modo invertido pueden estar jugando el sistema normalmente.
@@ -525,8 +522,7 @@ export default function InvertedPage() {
  <Card
  key={m.userId}
  className={cn(
-"transition-all duration-300 hover:border-primary/30",
- benefitsFromInversion &&"border-amber-500/30")}
+"transition-colors hover:border-primary/30 border border-amber-500/30")}
  >
  <CardContent className="p-4">
  <div className="flex items-center gap-3">
@@ -576,11 +572,11 @@ export default function InvertedPage() {
  <section className="mb-8">
  <div className="flex items-center gap-2 mb-4">
  <History className="w-4 h-4 text-fuchsia-500"/>
- <h2 className="text-lg font-semibold tracking-tight">Historial de Dias Invertidos</h2>
+ <h2 className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40">Historial de Dias Invertidos</h2>
  </div>
 
  {pastDays.length === 0 ? (
- <Card className="transition-all duration-300">
+ <Card className="transition-colors">
  <CardContent className="p-6 text-center">
  <p className="text-sm text-muted-foreground">Sin historial disponible</p>
  </CardContent>
@@ -590,10 +586,10 @@ export default function InvertedPage() {
  {pastDays.map((pd) => (
  <Card
  key={pd.date}
- className="transition-all duration-300 hover:border-primary/30">
+ className="transition-colors hover:border-primary/30">
  <CardContent className="p-4 flex items-center justify-between">
  <div className="flex items-center gap-3">
- <div className="flex items-center justify-center w-8 h-8 bg-fuchsia-500/10">
+ <div className="flex items-center justify-center w-8 h-8 bg-fuchsia-500/10 border border-fuchsia-500/20">
  <RotateCcw className="w-4 h-4 text-fuchsia-500"/>
  </div>
  <div>
@@ -622,7 +618,7 @@ export default function InvertedPage() {
 
  {/* How it works */}
  <section className="mb-8">
- <Card className="transition-all duration-300 hover:border-primary/30 border-fuchsia-500/10">
+ <Card className="transition-colors hover:border-primary/30 border-fuchsia-500/10">
  <CardHeader className="pb-2">
  <CardTitle className="text-sm font-semibold flex items-center gap-2">
  <ArrowDownUp className="w-4 h-4 text-fuchsia-500"/>

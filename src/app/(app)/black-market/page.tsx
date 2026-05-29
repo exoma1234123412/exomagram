@@ -394,7 +394,7 @@ export default function BlackMarketPage() {
  if (orgLoading || loading) {
  return (
  <div className="flex items-center justify-center h-screen">
- <div className="animate-pulse text-muted-foreground">Cargando...</div>
+ <div className="animate-pulse font-mono text-xs tracking-widest uppercase text-muted-foreground">Cargando...</div>
  </div>
  );
  }
@@ -410,14 +410,14 @@ export default function BlackMarketPage() {
  <div className="flex items-center gap-3">
  <CandlestickChart className="w-7 h-7 text-primary"/>
  <div>
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  Mercado Negro de Horas
  <span className="relative flex h-2.5 w-2.5">
  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"/>
  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"/>
  </span>
  </h1>
- <p className="text-muted-foreground text-sm mt-0.5">
+ <p className="text-xs font-mono text-muted-foreground mt-0.5">
  Cotizaci&oacute;n en tiempo real &middot; Compra y vende horas de trabajo
  </p>
  </div>
@@ -426,7 +426,7 @@ export default function BlackMarketPage() {
 
  {/* Wallet bar */}
  <div className="grid grid-cols-3 gap-3 mb-8">
- <Card className="bg-accent/40 border-0">
+ <Card className="bg-accent/30 border border-border">
  <CardContent className="p-4 flex items-center gap-3">
  <div className="w-10 h-10 bg-primary/10 flex items-center justify-center">
  <Wallet className="w-5 h-5 text-primary"/>
@@ -439,7 +439,7 @@ export default function BlackMarketPage() {
  </div>
  </CardContent>
  </Card>
- <Card className="bg-accent/40 border-0">
+ <Card className="bg-accent/30 border border-border">
  <CardContent className="p-4 flex items-center gap-3">
  <div className="w-10 h-10 bg-emerald-500/10 flex items-center justify-center">
  <BarChart3 className="w-5 h-5 text-emerald-500"/>
@@ -452,7 +452,7 @@ export default function BlackMarketPage() {
  </div>
  </CardContent>
  </Card>
- <Card className="bg-accent/40 border-0">
+ <Card className="bg-accent/30 border border-border">
  <CardContent className="p-4 flex items-center gap-3">
  <div className="w-10 h-10 bg-amber-500/10 flex items-center justify-center">
  <Zap className="w-5 h-5 text-amber-500"/>
@@ -469,7 +469,7 @@ export default function BlackMarketPage() {
 
  {/* Market Ticker Grid */}
  <div className="mb-8">
- <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+ <h2 className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 mb-3 flex items-center gap-2">
  <Activity className="w-4 h-4"/>
  Cotizaciones
  </h2>
@@ -485,8 +485,8 @@ export default function BlackMarketPage() {
  <Card
  key={mp.category}
  className={cn(
-"transition-all duration-300 hover:border-primary/30 cursor-pointer overflow-hidden",
- isSelected &&"ring-2 ring-primary/40",
+"border border-border transition-colors hover:border-primary/30 cursor-pointer overflow-hidden",
+ isSelected &&"border-primary/40",
  )}
  onClick={() =>
  setSelectedCategory(isSelected ? null : mp.category)
@@ -534,7 +534,7 @@ export default function BlackMarketPage() {
  <div className="flex items-end justify-between mb-3">
  <p
  className={cn(
-"text-2xl font-bold tabular-nums tracking-tight transition-all duration-500",
+"text-xl font-mono font-bold tabular-nums tracking-tight transition-all duration-500",
  isUp ?"text-green-600 dark:text-green-400":"text-red-600 dark:text-red-400",
  )}
  >
@@ -553,7 +553,7 @@ export default function BlackMarketPage() {
  {isSelected && (
  <div className="flex gap-2 mt-3 pt-3 border-t">
  <Button
- size="sm"className="flex-1 bg-green-600 hover:bg-green-700 text-white border-0 gap-1 text-xs"disabled={myCredits < mp.price}
+ size="sm"className="flex-1 bg-green-600 hover:bg-green-700 text-white border-0 gap-1 text-xs font-mono"disabled={myCredits < mp.price}
  onClick={(e) => {
  e.stopPropagation();
  executeTrade("buy", mp.category);
@@ -563,7 +563,7 @@ export default function BlackMarketPage() {
  Comprar
  </Button>
  <Button
- size="sm"variant="outline"className="flex-1 border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 gap-1 text-xs"disabled={held <= 0}
+ size="sm"variant="outline"className="flex-1 border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 gap-1 text-xs font-mono"disabled={held <= 0}
  onClick={(e) => {
  e.stopPropagation();
  executeTrade("sell", mp.category);
@@ -584,9 +584,9 @@ export default function BlackMarketPage() {
  {/* Two columns: Portfolio + Leaderboard */}
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
  {/* My Portfolio */}
- <Card className="transition-all duration-300 hover:border-primary/30">
+ <Card className="border border-border transition-colors hover:border-primary/30">
  <CardHeader>
- <CardTitle className="flex items-center gap-2 text-sm">
+ <CardTitle className="flex items-center gap-2 font-mono text-xs font-bold tracking-tight uppercase">
  <BarChart3 className="w-4 h-4 text-primary"/>
  Mi Portafolio
  </CardTitle>
@@ -594,7 +594,7 @@ export default function BlackMarketPage() {
  <CardContent>
  {Object.entries(myPortfolio).filter(([, qty]) => (qty as number) > 0).length === 0 ? (
  <div className="flex flex-col items-center justify-center py-6 gap-3">
- <div className="w-12 h-12 bg-primary/10 flex items-center justify-center">
+ <div className="w-12 h-12 bg-primary/10 border border-border flex items-center justify-center">
  <ShoppingCart className="w-6 h-6 text-primary/40"/>
  </div>
  <p className="text-sm text-muted-foreground">
@@ -614,7 +614,7 @@ export default function BlackMarketPage() {
  return (
  <div
  key={cat}
- className="flex items-center gap-3 p-2.5 bg-accent/40">
+ className="flex items-center gap-3 p-2.5 bg-accent/30 border border-border">
  <span
  className={cn(
 "w-7 h-7 flex items-center justify-center text-xs",
@@ -644,9 +644,9 @@ export default function BlackMarketPage() {
  </Card>
 
  {/* Leaderboard */}
- <Card className="transition-all duration-300 hover:border-primary/30">
+ <Card className="border border-border transition-colors hover:border-primary/30">
  <CardHeader>
- <CardTitle className="flex items-center gap-2 text-sm">
+ <CardTitle className="flex items-center gap-2 font-mono text-xs font-bold tracking-tight uppercase">
  <Trophy className="w-4 h-4 text-amber-500"/>
  Los M&aacute;s Ricos
  </CardTitle>
@@ -665,7 +665,7 @@ export default function BlackMarketPage() {
  key={entry.userId}
  className={cn(
 "flex items-center gap-3 p-2.5",
- isMe ?"bg-primary/5 ring-1 ring-primary/20":"bg-accent/40",
+ isMe ?"bg-primary/5 border border-primary/20":"bg-accent/30",
  )}
  >
  <span
@@ -710,13 +710,13 @@ export default function BlackMarketPage() {
 
  {/* Recent Trades */}
  <div className="mb-8">
- <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+ <h2 className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 mb-3 flex items-center gap-2">
  <Zap className="w-4 h-4"/>
  &Oacute;rdenes Activas
  </h2>
  {recentTrades.length === 0 ? (
  <div className="flex flex-col items-center justify-center py-8 gap-3">
- <div className="w-16 h-16 bg-primary/10 flex items-center justify-center">
+ <div className="w-16 h-16 bg-primary/10 border border-border flex items-center justify-center">
  <CandlestickChart className="w-8 h-8 text-primary/40"/>
  </div>
  <p className="text-sm text-muted-foreground">

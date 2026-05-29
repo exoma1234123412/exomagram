@@ -211,7 +211,7 @@ export default function SurvivorPage() {
  if (orgLoading || loading) {
  return (
  <div className="flex items-center justify-center h-screen">
- <div className="animate-pulse text-muted-foreground">Cargando...</div>
+ <div className="animate-pulse font-mono text-xs tracking-widest uppercase text-muted-foreground">Cargando...</div>
  </div>
  );
  }
@@ -266,7 +266,7 @@ export default function SurvivorPage() {
  <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
  {/* Header */}
  <div className="mb-8">
- <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase flex items-center gap-2">
  <Swords className="w-6 h-6 text-primary"/>
  Battle Royale Semanal
  </h1>
@@ -278,13 +278,13 @@ export default function SurvivorPage() {
 
  {/* Survivor announcement */}
  {survivor && (
- <div className="mb-8 relative overflow-hidden border-2 border-amber-400 dark:border-amber-500 bg-gradient-to-br from-amber-50 via-yellow-50 to-amber-100 dark:from-amber-950/40 dark:via-yellow-950/20 dark:to-amber-950/30 p-6">
+ <div className="mb-8 relative overflow-hidden border border-amber-400/40 bg-amber-50 dark:bg-amber-950/30 p-6">
  <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,rgba(251,191,36,0.15),transparent_70%)]"/>
  <div className="relative flex flex-col items-center gap-4 text-center">
  <div className="relative">
- <div className="absolute -inset-3 rounded-full bg-amber-400/20 animate-pulse"/>
- <div className="absolute -inset-6 rounded-full bg-amber-400/10 animate-pulse"style={{ animationDelay:"0.5s"}} />
- <Avatar className="w-20 h-20 ring-4 ring-amber-400 shadow-amber-400/30">
+ <div className="absolute -inset-3 bg-amber-400/20 animate-pulse"/>
+ <div className="absolute -inset-6 bg-amber-400/10 animate-pulse"style={{ animationDelay:"0.5s"}} />
+ <Avatar className="w-20 h-20 ring-4 ring-amber-400">
  <AvatarImage src={survivor.profile?.avatar_url ?? undefined} />
  <AvatarFallback className="text-xl font-bold bg-amber-100 dark:bg-amber-900 text-amber-700">
  {getInitials(survivor.profile?.full_name ?? null)}
@@ -315,7 +315,7 @@ export default function SurvivorPage() {
  {/* Day progress bar */}
  <div className="mb-8">
  <div className="flex items-center justify-between mb-3">
- <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+ <h2 className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 flex items-center gap-2">
  <Calendar className="w-4 h-4"/>
  Dia {currentDay} de 5
  </h2>
@@ -344,7 +344,7 @@ export default function SurvivorPage() {
  <div key={dayNum} className="flex-1">
  <div
  className={cn(
-"p-2 text-center transition-all duration-300 border",
+"p-2 text-center transition-colors border",
  isPast && eliminated &&"bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800",
  isPast && !eliminated &&"bg-accent/40 border-border/50",
  isCurrent &&"bg-primary/5 border-primary/30 ring-2 ring-primary/20",
@@ -381,7 +381,7 @@ export default function SurvivorPage() {
  </div>
  ) : isCurrent ? (
  <div className="flex flex-col items-center gap-1">
- <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+ <div className="w-6 h-6 rounded-full bg-accent/30 border border-border flex items-center justify-center">
  <Flame className="w-3 h-3 text-primary animate-pulse"/>
  </div>
  <p className="text-[8px] text-primary font-medium">Hoy</p>
@@ -403,14 +403,14 @@ export default function SurvivorPage() {
 
  {/* Current standings */}
  <div className="mb-8">
- <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+ <h2 className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 mb-3 flex items-center gap-2">
  <Trophy className="w-4 h-4"/>
  Clasificación
  </h2>
 
  {standings.length === 0 ? (
  <div className="flex flex-col items-center justify-center py-12 gap-4">
- <div className="w-16 h-16 bg-primary/10 flex items-center justify-center">
+ <div className="w-16 h-16 bg-accent/30 border border-border flex items-center justify-center">
  <Swords className="w-7 h-7 text-primary/40"/>
  </div>
  <p className="text-sm text-muted-foreground">
@@ -426,9 +426,9 @@ export default function SurvivorPage() {
  <Card
  key={s.userId}
  className={cn(
-"transition-all duration-300 hover:border-primary/30",
+"transition-colors hover:border-primary/30",
  s.isEliminated &&"opacity-50",
- s.isSurvivor &&"border-amber-300 dark:border-amber-600 shadow-amber-400/10")}
+ s.isSurvivor &&"border-amber-300 dark:border-amber-600")}
  >
  <CardContent className="p-4">
  <div className="flex items-center gap-3">
@@ -438,7 +438,7 @@ export default function SurvivorPage() {
 "w-8 h-8 flex items-center justify-center text-sm font-bold tabular-nums",
  s.isSurvivor &&"bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400",
  s.isEliminated &&"bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400",
- !s.isSurvivor && !s.isEliminated &&"bg-accent/40 text-muted-foreground")}
+ !s.isSurvivor && !s.isEliminated &&"bg-accent/30 border border-border text-muted-foreground")}
  >
  {s.isSurvivor ? (
  <Crown className="w-4 h-4"/>
@@ -540,7 +540,7 @@ export default function SurvivorPage() {
 
  {/* Daily breakdown */}
  <div className="mb-8">
- <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+ <h2 className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 mb-3 flex items-center gap-2">
  <Flame className="w-4 h-4"/>
  Detalle por dia
  </h2>
@@ -555,7 +555,7 @@ export default function SurvivorPage() {
  <Card
  key={elim.day}
  className={cn(
-"transition-all duration-300 hover:border-primary/30",
+"transition-colors hover:border-primary/30",
  eliminated &&"border-red-200 dark:border-red-800/50")}
  >
  <CardHeader className="pb-2 pt-4 px-4">
@@ -646,9 +646,9 @@ export default function SurvivorPage() {
  </div>
 
  {/* Scoring explanation */}
- <Card className="transition-all duration-300 hover:border-primary/30">
+ <Card className="transition-colors hover:border-primary/30">
  <CardContent className="p-4">
- <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+ <h3 className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/40 mb-2">
  Formula de puntuacion
  </h3>
  <p className="text-xs text-muted-foreground leading-relaxed">

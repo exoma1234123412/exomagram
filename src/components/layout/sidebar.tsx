@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import {
  LayoutDashboard, User, Settings, LogOut,
  Crosshair, Swords, Zap, BarChart3, Database, FileText,
- Target, Brain, Eye, Skull, FolderKanban, Scale,
+ Target, Brain, Eye, Skull, FolderKanban, Scale, Cpu,
  type LucideIcon,
 } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/notification-bell";
@@ -26,6 +26,7 @@ const navItems: NavItem[] = [
  { href:"/projects", label:"Proyectos", icon: FolderKanban },
  { href:"/analytics", label:"Analítica", icon: BarChart3 },
  { href:"/data-hub", label:"Hub de Datos", icon: Database },
+ { href:"/ai-center", label:"AI Center", icon: Cpu },
  { href:"/reports", label:"Reportes", icon: FileText },
  { href:"/focus", label:"Focus", icon: Target },
  { href:"/reflection", label:"Reflexión", icon: Brain },

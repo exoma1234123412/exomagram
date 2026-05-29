@@ -171,6 +171,8 @@ export function LogEntryDialog({
  setProofUrls("");
  setError(null);
  setShowSuccess(false);
+ setShowShame(false);
+ setShameEntry(null);
  setValidating(false);
  // Reset advanced fields
  setAdvancedOpen(false);
@@ -231,8 +233,15 @@ export function LogEntryDialog({
  setValidating(true);
  }
 
- // Step 2: Called by EntryValidator when Claude approves
- async function handleActualSubmit() {
+ // Step 2: Called by EntryValidator when Claude approves (may include corrected text)
+ async function handleActualSubmit(updatedEntry?: { title: string; description: string }) {
+ // Apply corrected text from inline editor if provided
+ if (updatedEntry) {
+ setTitle(updatedEntry.title);
+ setDescription(updatedEntry.description);
+ }
+ const finalTitle = updatedEntry?.title ?? title;
+ const finalDescription = updatedEntry?.description ?? description;
  setValidating(false);
  setLoading(true);
  setError(null);
@@ -278,8 +287,8 @@ export function LogEntryDialog({
  date,
  hour: parseInt(hour),
  category: category as WorkCategory,
- title,
- description: description || null,
+ title: finalTitle,
+ description: finalDescription || null,
  mood: mood as 1 | 2 | 3 | 4 | 5 | null,
  energy: energy as 1 | 2 | 3 | 4 | 5 | null,
  links: null,
@@ -358,6 +367,42 @@ export function LogEntryDialog({
  });
 
  // Shame overlay handles its own timing — no auto-close here
+ }
+
+ function handleShameClose() {
+ setShowShame(false);
+ setShameEntry(null);
+ // Show brief success then close
+ setShowSuccess(true);
+ setTimeout(() => {
+ setCategory("");
+ setTitle("");
+ setDescription("");
+ setMood(null);
+ setEnergy(null);
+ setProject("");
+ setProofUrls("");
+ setShowSuccess(false);
+ setValidating(false);
+ setAdvancedOpen(false);
+ setDifficulty(null);
+ setFocusQuality(null);
+ setValueRating(null);
+ setStressLevel(null);
+ setConfidence(null);
+ setInterruptions(0);
+ setContextSwitches(0);
+ setOutputType(null);
+ setLocation(null);
+ setToolsUsed([]);
+ setCollaborators([]);
+ setClientFacing(false);
+ setCouldBeAsync(false);
+ setBlockerDetail(null);
+ setSkillsTags("");
+ setLearningNotes(null);
+ onOpenChange(false);
+ }, 1000);
  }
 
  return (
@@ -850,6 +895,14 @@ export function LogEntryDialog({
  recentEntries={recentEntries}
  onApproved={handleActualSubmit}
  onCancel={() => setValidating(false)}
+ />
+ )}
+
+ {/* Post-entry shame comparison overlay */}
+ {showShame && shameEntry && (
+ <PostEntryShame
+ entry={shameEntry}
+ onClose={handleShameClose}
  />
  )}
 

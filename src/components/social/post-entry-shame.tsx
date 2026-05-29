@@ -49,7 +49,6 @@ export function PostEntryShame({ entry, onClose }: PostEntryShameProps) {
   const [teamEntries, setTeamEntries] = useState<TeamEntryComparison[]>([]);
   const [loading, setLoading] = useState(true);
   const [canDismiss, setCanDismiss] = useState(false);
-  const mountTimeRef = useRef(Date.now());
   const autoDismissRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const minDisplayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
