@@ -127,11 +127,11 @@ export default function BudgetsPage() {
   const offTrackCount = statuses.filter((s) => !s.onTrack).length;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <PieChart className="w-6 h-6 text-violet-600" />
+          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+            <PieChart className="w-6 h-6 text-primary" />
             Time Budgets
           </h1>
           <p className="text-muted-foreground text-sm">
@@ -209,7 +209,7 @@ export default function BudgetsPage() {
       ) : (
         <>
           {/* Summary */}
-          <div className="flex gap-3 mb-6">
+          <div className="flex gap-3 mb-8">
             {onTrackCount > 0 && (
               <Badge variant="outline" className="text-green-600 border-green-300 gap-1">
                 <CheckCircle2 className="w-3 h-3" />
@@ -233,6 +233,7 @@ export default function BudgetsPage() {
 
               return (
                 <Card key={s.category} className={cn(
+                  "transition-all duration-300 hover:shadow-lg hover:shadow-primary/5",
                   !s.onTrack && "border-red-200 dark:border-red-800"
                 )}>
                   <CardContent className="p-4">
@@ -248,7 +249,7 @@ export default function BudgetsPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <span className={cn(
-                          "text-sm font-bold",
+                          "text-sm font-bold tabular-nums tracking-tight",
                           s.onTrack ? "text-green-600" : "text-red-600"
                         )}>
                           {s.actual}h
@@ -263,7 +264,7 @@ export default function BudgetsPage() {
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div
                         className={cn(
-                          "h-full rounded-full transition-all",
+                          "h-full rounded-full transition-all duration-500",
                           s.onTrack ? CATEGORY_COLORS[s.category] : "bg-red-500"
                         )}
                         style={{ width: `${Math.min(pct, 100)}%` }}

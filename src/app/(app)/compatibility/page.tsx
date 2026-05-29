@@ -140,7 +140,7 @@ export default function CompatibilityPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="flex items-center gap-3 mb-2">
-        <GitMerge className="w-6 h-6 text-violet-600" />
+        <GitMerge className="w-6 h-6 text-primary" />
         <h1 className="text-2xl font-bold">Compatibilidad</h1>
       </div>
       <p className="text-muted-foreground text-sm mb-6">
@@ -182,7 +182,7 @@ export default function CompatibilityPage() {
                   <div className="flex items-center gap-3 shrink-0">
                     {p.sharedProjectHours > 0 && (
                       <div className="text-center">
-                        <p className="text-sm font-bold text-violet-600">{p.sharedProjectHours}h</p>
+                        <p className="text-sm font-bold text-primary">{p.sharedProjectHours}h</p>
                         <p className="text-[9px] text-muted-foreground">proyecto comun</p>
                       </div>
                     )}

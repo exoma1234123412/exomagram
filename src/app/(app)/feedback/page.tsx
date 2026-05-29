@@ -24,7 +24,7 @@ const FEEDBACK_TYPES = {
   constructive: { label: "Constructivo", emoji: "💡", color: "text-blue-600" },
   appreciation: { label: "Apreciación", emoji: "🙏", color: "text-green-600" },
   concern: { label: "Preocupación", emoji: "⚠️", color: "text-yellow-600" },
-  suggestion: { label: "Sugerencia", emoji: "🎯", color: "text-violet-600" },
+  suggestion: { label: "Sugerencia", emoji: "🎯", color: "text-primary" },
 };
 
 // Anonymous feedback is stored without from_user_id visible to the recipient
@@ -212,7 +212,7 @@ export default function FeedbackPage() {
                       : "border-muted"
                   )}
                 >
-                  <Lock className={cn("w-4 h-4", anonymous ? "text-violet-600" : "text-muted-foreground")} />
+                  <Lock className={cn("w-4 h-4", anonymous ? "text-primary" : "text-muted-foreground")} />
                   {anonymous ? "Anónimo" : "Con tu nombre"}
                 </button>
               </div>

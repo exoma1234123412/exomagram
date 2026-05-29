@@ -18,7 +18,7 @@ const ACTION_LABELS: Record<string, { label: string; emoji: string; color: strin
   entry_updated: { label: "Entrada editada", emoji: "✏️", color: "text-yellow-600" },
   entry_deleted: { label: "Entrada borrada", emoji: "🗑️", color: "text-red-600" },
   closeout_submitted: { label: "Cierre del día", emoji: "📋", color: "text-blue-600" },
-  standup_submitted: { label: "Standup", emoji: "💬", color: "text-violet-600" },
+  standup_submitted: { label: "Standup", emoji: "💬", color: "text-primary" },
   reaction_added: { label: "Reacción", emoji: "👍", color: "text-green-600" },
   reaction_removed: { label: "Reacción removida", emoji: "👎", color: "text-gray-600" },
   flag_created: { label: "Flag levantada", emoji: "🚩", color: "text-red-600" },

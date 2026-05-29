@@ -106,7 +106,7 @@ export function EntryComments({ entryId }: { entryId: string }) {
     <div className="mt-2 pt-2 border-t space-y-2">
       {comments.map((c) => (
         <div key={c.id} className="flex gap-2">
-          <Avatar className="w-5 h-5 mt-0.5">
+          <Avatar className="w-5 h-5 mt-0.5 ring-2 ring-background shadow-sm">
             <AvatarImage src={c.profiles.avatar_url ?? undefined} />
             <AvatarFallback className="text-[8px]">
               {getInitials(c.profiles.full_name)}
@@ -142,10 +142,9 @@ export function EntryComments({ entryId }: { entryId: string }) {
         />
         <Button
           size="icon"
-          variant="ghost"
           onClick={handleSubmit}
           disabled={submitting || !newComment.trim()}
-          className="h-8 w-8 shrink-0"
+          className="h-8 w-8 shrink-0 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25"
         >
           <Send className="w-3 h-3" />
         </Button>

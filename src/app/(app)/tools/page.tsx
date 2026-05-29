@@ -6,10 +6,10 @@ import { Wrench } from "lucide-react";
 
 export default function ToolsPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Wrench className="w-6 h-6 text-violet-600" />
+        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+          <Wrench className="w-6 h-6 text-primary" />
           Herramientas
         </h1>
         <p className="text-muted-foreground text-sm">

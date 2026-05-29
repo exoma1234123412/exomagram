@@ -22,7 +22,6 @@ import {
   UserCog,
   Crown,
   UserMinus,
-  Loader2,
   AlertTriangle,
 } from "lucide-react";
 
@@ -121,8 +120,9 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      <div className="flex flex-col items-center justify-center py-24 gap-3">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" />
+        <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
       </div>
     );
   }
@@ -144,12 +144,12 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
       <div className="flex items-center gap-3 mb-2">
-        <Shield className="w-6 h-6 text-violet-600" />
-        <h1 className="text-2xl font-bold">Administracion</h1>
+        <Shield className="w-6 h-6 text-primary" />
+        <h1 className="text-2xl font-bold tracking-tight">Administracion</h1>
       </div>
-      <p className="text-muted-foreground text-sm mb-6">
+      <p className="text-muted-foreground text-sm mb-8">
         {orgName} - {members.length} miembros
       </p>
 
@@ -175,7 +175,7 @@ export default function AdminPage() {
                     isCurrentUser && "bg-violet-50/50 dark:bg-violet-950/10 border-violet-200 dark:border-violet-800"
                   )}
                 >
-                  <Avatar className="w-10 h-10">
+                  <Avatar className="w-10 h-10 ring-2 ring-background shadow-sm">
                     <AvatarImage src={m.profiles.avatar_url ?? undefined} />
                     <AvatarFallback>{getInitials(m.profiles.full_name)}</AvatarFallback>
                   </Avatar>

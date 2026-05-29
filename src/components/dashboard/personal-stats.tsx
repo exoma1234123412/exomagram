@@ -93,11 +93,11 @@ export function PersonalStatsWidget({ orgId, date }: { orgId: string; date: stri
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
       {/* Hours today */}
-      <Card className="group/stat hover:shadow-lg hover:shadow-violet-500/5 transition-all duration-300 overflow-hidden relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent" />
+      <Card className="group/stat hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 overflow-hidden relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
         <CardContent className="p-4 text-center relative">
-          <div className="w-8 h-8 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center mx-auto mb-2">
-            <Clock className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+          <div className="w-8 h-8 rounded-xl bg-primary/10 dark:bg-primary/15 flex items-center justify-center mx-auto mb-2">
+            <Clock className="w-4 h-4 text-primary" />
           </div>
           <p className={cn(
             "text-2xl font-bold tabular-nums tracking-tight",

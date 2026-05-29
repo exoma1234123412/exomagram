@@ -19,6 +19,7 @@ import {
   TrendingUp,
   AlertTriangle,
 } from "lucide-react";
+import { StreakLeaderboard } from "@/components/leaderboard/streak-leaderboard";
 
 interface MemberRank {
   profile: Profile;
@@ -40,6 +41,7 @@ export default function LeaderboardPage() {
   const [rankings, setRankings] = useState<MemberRank[]>([]);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<7 | 14 | 30>(7);
+  const [orgId, setOrgId] = useState<string | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
@@ -58,6 +60,7 @@ export default function LeaderboardPage() {
       if (!membership) return;
 
       const orgId = membership.org_id;
+      setOrgId(orgId);
       const endDate = new Date().toISOString().split("T")[0];
       const startDate = subDays(new Date(), period).toISOString().split("T")[0];
 
@@ -267,6 +270,13 @@ export default function LeaderboardPage() {
               </CardContent>
             </Card>
           ))}
+
+          {/* Streak Leaderboard */}
+          {orgId && (
+            <div className="mt-8">
+              <StreakLeaderboard orgId={orgId} />
+            </div>
+          )}
 
           {rankings.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 gap-4">

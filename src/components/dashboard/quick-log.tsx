@@ -49,9 +49,11 @@ export function QuickLog({ orgId }: { orgId: string }) {
   }
 
   return (
-    <div className="mb-6">
+    <div className="mb-8">
       <div className="flex items-center gap-2 mb-2">
-        <Zap className="w-4 h-4 text-yellow-500" />
+        <div className="w-8 h-8 rounded-xl bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+          <Zap className="w-4 h-4 text-yellow-500" />
+        </div>
         <span className="text-xs font-semibold text-muted-foreground uppercase">Quick Log — {new Date().getHours()}:00</span>
         {success && <span className="text-xs text-green-600 font-medium ml-auto">Guardado</span>}
       </div>
@@ -66,10 +68,10 @@ export function QuickLog({ orgId }: { orgId: string }) {
                 type="button"
                 onClick={() => setCategory(category === key ? "" : key)}
                 className={cn(
-                  "w-8 h-8 rounded-lg text-sm transition-all flex items-center justify-center",
+                  "w-8 h-8 rounded-xl text-sm transition-all flex items-center justify-center",
                   category === key
-                    ? "bg-violet-100 dark:bg-violet-900/40 ring-2 ring-violet-500 scale-110"
-                    : "bg-muted/50 hover:bg-muted opacity-60 hover:opacity-100"
+                    ? "bg-primary/10 dark:bg-primary/20 ring-2 ring-primary scale-110"
+                    : "bg-accent/40 hover:bg-accent opacity-60 hover:opacity-100"
                 )}
                 title={cat.label}
               >
@@ -89,7 +91,7 @@ export function QuickLog({ orgId }: { orgId: string }) {
           minLength={10}
         />
 
-        <Button type="submit" size="icon" disabled={loading || !category || title.length < 10}>
+        <Button type="submit" size="icon" disabled={loading || !category || title.length < 10} className="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25">
           <Send className="w-4 h-4" />
         </Button>
       </form>

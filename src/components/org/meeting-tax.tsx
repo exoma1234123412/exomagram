@@ -107,7 +107,7 @@ export function MeetingTax({ orgId, days = 7 }: { orgId: string; days?: number }
         </h3>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-          <div className="text-center p-2 bg-muted/30 rounded-lg">
+          <div className="text-center p-2 bg-accent/40 rounded-xl">
             <p className={cn("text-xl font-bold", isTaxHigh ? "text-red-600" : "text-foreground")}>
               {data.meetingPersonHours}h
             </p>
@@ -115,17 +115,17 @@ export function MeetingTax({ orgId, days = 7 }: { orgId: string; days?: number }
               <Users className="w-3 h-3 inline" /> persona-hora
             </p>
           </div>
-          <div className="text-center p-2 bg-muted/30 rounded-lg">
+          <div className="text-center p-2 bg-accent/40 rounded-xl">
             <p className={cn("text-xl font-bold", data.equivalentFullDays > 5 ? "text-red-600" : "text-foreground")}>
               {data.equivalentFullDays}
             </p>
             <p className="text-[10px] text-muted-foreground">dias completos equivalentes</p>
           </div>
-          <div className="text-center p-2 bg-muted/30 rounded-lg">
+          <div className="text-center p-2 bg-accent/40 rounded-xl">
             <p className="text-xl font-bold">{data.meetingPercent}%</p>
             <p className="text-[10px] text-muted-foreground">del tiempo total</p>
           </div>
-          <div className="text-center p-2 bg-muted/30 rounded-lg">
+          <div className="text-center p-2 bg-accent/40 rounded-xl">
             <p className="text-xl font-bold">{data.avgParticipantsPerHour}</p>
             <p className="text-[10px] text-muted-foreground">personas/reunion prom.</p>
           </div>

@@ -157,25 +157,25 @@ export default function PactsPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Handshake className="w-6 h-6 text-violet-600" />
+          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+            <Handshake className="w-6 h-6 text-primary" />
             Pactos de Accountability
           </h1>
           <p className="text-muted-foreground text-sm">
             Compromisos publicos entre companeros
           </p>
         </div>
-        <Button onClick={() => setCreateOpen(true)} className="gap-2">
+        <Button onClick={() => setCreateOpen(true)} className="gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300 font-semibold">
           <Plus className="w-4 h-4" />
           Nuevo pacto
         </Button>
       </div>
 
       {loading ? (
-        <div className="text-center py-20 text-muted-foreground">Cargando...</div>
+        <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>
       ) : pacts.length === 0 ? (
         <div className="text-center py-20">
           <Handshake className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
@@ -194,15 +194,15 @@ export default function PactsPage() {
             const isActive = pact.status === "active" && daysLeft > 0;
 
             return (
-              <Card key={pact.id} className={cn(!isActive && "opacity-60")}>
+              <Card key={pact.id} className={cn("transition-all duration-300 hover:shadow-lg hover:shadow-primary/5", !isActive && "opacity-60")}>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="flex -space-x-2">
-                      <Avatar className="w-9 h-9 border-2 border-background">
+                      <Avatar className="w-9 h-9 ring-2 ring-background shadow-sm">
                         <AvatarImage src={pact.creator?.avatar_url ?? undefined} />
                         <AvatarFallback className="text-[10px]">{getInitials(pact.creator?.full_name)}</AvatarFallback>
                       </Avatar>
-                      <Avatar className="w-9 h-9 border-2 border-background">
+                      <Avatar className="w-9 h-9 ring-2 ring-background shadow-sm">
                         <AvatarImage src={pact.partner?.avatar_url ?? undefined} />
                         <AvatarFallback className="text-[10px]">{getInitials(pact.partner?.full_name)}</AvatarFallback>
                       </Avatar>
@@ -237,7 +237,7 @@ export default function PactsPage() {
                       </div>
                       <div className="h-2 bg-muted rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-violet-500 rounded-full transition-all"
+                          className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-all duration-500"
                           style={{ width: `${Math.min((pact.creator_progress / pact.target_value) * 100, 100)}%` }}
                         />
                       </div>
@@ -249,7 +249,7 @@ export default function PactsPage() {
                       </div>
                       <div className="h-2 bg-muted rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-blue-500 rounded-full transition-all"
+                          className="h-full bg-blue-500 rounded-full transition-all duration-500"
                           style={{ width: `${Math.min((pact.partner_progress / pact.target_value) * 100, 100)}%` }}
                         />
                       </div>
@@ -272,7 +272,7 @@ export default function PactsPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Handshake className="w-5 h-5 text-violet-600" />
+              <Handshake className="w-5 h-5 text-primary" />
               Nuevo Pacto
             </DialogTitle>
           </DialogHeader>
@@ -327,7 +327,7 @@ export default function PactsPage() {
                 ))}
               </div>
             </div>
-            <Button onClick={handleCreate} disabled={creating || !partnerId || !title.trim()} className="w-full">
+            <Button onClick={handleCreate} disabled={creating || !partnerId || !title.trim()} className="w-full rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300 font-semibold">
               {creating ? "Creando..." : "Crear pacto"}
             </Button>
           </div>

@@ -132,7 +132,7 @@ export function PomodoroTimer() {
                 className="text-muted/20" />
               <circle cx="60" cy="60" r="54" fill="none" strokeWidth="8"
                 className={cn(
-                  completed ? "text-green-500" : "text-violet-500"
+                  completed ? "text-green-500" : "text-primary"
                 )}
                 strokeDasharray={`${2 * Math.PI * 54}`}
                 strokeDashoffset={`${2 * Math.PI * 54 * (1 - progress)}`}
@@ -144,7 +144,7 @@ export function PomodoroTimer() {
               {completed ? (
                 <CheckCircle2 className="w-10 h-10 text-green-500" />
               ) : (
-                <span className="text-3xl font-mono font-bold">
+                <span className="text-3xl font-mono font-bold tabular-nums tracking-tight">
                   {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
                 </span>
               )}
@@ -187,7 +187,7 @@ export function PomodoroTimer() {
           {/* Controls */}
           <div className="flex items-center justify-center gap-2">
             {!isRunning && !completed && (
-              <Button onClick={startTimer} disabled={!taskTitle.trim()} className="gap-2">
+              <Button onClick={startTimer} disabled={!taskTitle.trim()} className="gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25">
                 <Play className="w-4 h-4" /> Iniciar
               </Button>
             )}

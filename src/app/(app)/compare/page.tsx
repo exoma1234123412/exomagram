@@ -16,7 +16,8 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { subDays } from "date-fns";
-import { Loader2, ArrowLeftRight, Shield, Clock, Flame, Brain, TrendingUp } from "lucide-react";
+import { ArrowLeftRight, Shield, Clock, Flame, Brain, TrendingUp } from "lucide-react";
+import { RadarChart } from "@/components/compare/radar-chart";
 
 interface UserStats {
   profile: Profile;
@@ -175,17 +176,18 @@ export default function ComparePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      <div className="flex flex-col items-center justify-center py-24 gap-3">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" />
+        <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <ArrowLeftRight className="w-6 h-6 text-violet-600" />
+        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+          <ArrowLeftRight className="w-6 h-6 text-primary" />
           Comparar miembros
         </h1>
         <p className="text-muted-foreground text-sm">Últimos 30 días — todo visible para el equipo</p>
@@ -215,9 +217,9 @@ export default function ComparePage() {
       {statsA && statsB && (
         <>
           {/* Profile headers */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <Avatar className="w-12 h-12">
+              <Avatar className="w-12 h-12 ring-2 ring-background shadow-sm">
                 <AvatarImage src={statsA.profile.avatar_url ?? undefined} />
                 <AvatarFallback>{getInitials(statsA.profile.full_name)}</AvatarFallback>
               </Avatar>
@@ -231,15 +233,33 @@ export default function ComparePage() {
                 <p className="font-semibold">{statsB.profile.full_name ?? statsB.profile.email}</p>
                 <p className="text-xs text-muted-foreground">{statsB.profile.role}</p>
               </div>
-              <Avatar className="w-12 h-12">
+              <Avatar className="w-12 h-12 ring-2 ring-background shadow-sm">
                 <AvatarImage src={statsB.profile.avatar_url ?? undefined} />
                 <AvatarFallback>{getInitials(statsB.profile.full_name)}</AvatarFallback>
               </Avatar>
             </div>
           </div>
 
+          {/* Radar Chart */}
+          <Card className="mb-6 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
+            <CardContent className="p-6">
+              <RadarChart
+                axes={[
+                  { label: "Horas", valueA: Math.min(statsA.totalHours / 40 * 100, 100), valueB: Math.min(statsB.totalHours / 40 * 100, 100) },
+                  { label: "Evidencia", valueA: statsA.proofPercent, valueB: statsB.proofPercent },
+                  { label: "Focus", valueA: statsA.deepWorkPercent, valueB: statsB.deepWorkPercent },
+                  { label: "Animo", valueA: (statsA.avgMood ?? 3) * 20, valueB: (statsB.avgMood ?? 3) * 20 },
+                  { label: "Puntualidad", valueA: 100 - statsA.latePercent, valueB: 100 - statsB.latePercent },
+                  { label: "Actividad", valueA: Math.min(statsA.activeDays / 20 * 100, 100), valueB: Math.min(statsB.activeDays / 20 * 100, 100) },
+                ]}
+                nameA={statsA.profile.full_name?.split(" ")[0] ?? "A"}
+                nameB={statsB.profile.full_name?.split(" ")[0] ?? "B"}
+              />
+            </CardContent>
+          </Card>
+
           {/* Comparison bars */}
-          <Card>
+          <Card className="transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
             <CardContent className="p-6 space-y-5">
               <CompareBar label="Horas totales" valueA={statsA.totalHours} valueB={statsB.totalHours} suffix="h" higherIsBetter />
               <CompareBar label="Horas/día" valueA={statsA.hoursPerDay} valueB={statsB.hoursPerDay} suffix="h" higherIsBetter />

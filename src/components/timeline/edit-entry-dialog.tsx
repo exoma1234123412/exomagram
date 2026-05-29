@@ -91,10 +91,10 @@ export function EditEntryDialog({ entry, open, onOpenChange, onSaved }: EditEntr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Pencil className="w-4 h-4 text-violet-600" />
+          <DialogTitle className="flex items-center gap-2.5 font-bold tracking-tight">
+            <Pencil className="w-4 h-4 text-primary" />
             Editar entrada
           </DialogTitle>
         </DialogHeader>
@@ -112,10 +112,10 @@ export function EditEntryDialog({ entry, open, onOpenChange, onSaved }: EditEntr
                     type="button"
                     onClick={() => setCategory(key)}
                     className={cn(
-                      "flex flex-col items-center gap-1 p-2 rounded-lg border-2 text-xs font-medium transition-all",
+                      "flex flex-col items-center gap-1.5 p-2.5 rounded-xl border-2 text-xs font-semibold transition-all duration-200",
                       category === key
-                        ? "border-violet-500 bg-violet-50 dark:bg-violet-900/30"
-                        : "border-transparent bg-muted/50 hover:bg-muted"
+                        ? "border-primary bg-primary/5 shadow-sm shadow-primary/10 scale-[1.02]"
+                        : "border-transparent bg-accent/50 hover:bg-accent hover:scale-[1.01]"
                     )}
                   >
                     <span className="text-base">{cat.emoji}</span>
@@ -164,7 +164,7 @@ export function EditEntryDialog({ entry, open, onOpenChange, onSaved }: EditEntr
           {/* Proof */}
           <div className="space-y-2">
             <Label htmlFor="edit-proof" className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-violet-600" />
+              <Shield className="w-4 h-4 text-primary" />
               Evidencia
               {hasProof && (
                 <Badge variant="outline" className="text-[10px] text-green-600 border-green-300">
@@ -181,10 +181,14 @@ export function EditEntryDialog({ entry, open, onOpenChange, onSaved }: EditEntr
             />
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && (
+            <div className="bg-destructive/5 border border-destructive/20 rounded-xl px-3 py-2">
+              <p className="text-sm text-destructive font-medium">{error}</p>
+            </div>
+          )}
 
           <div className="flex gap-2">
-            <Button type="submit" className="flex-1" disabled={loading}>
+            <Button type="submit" className="flex-1 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25 font-semibold" disabled={loading}>
               {loading ? "Guardando..." : "Guardar cambios"}
             </Button>
             <Button

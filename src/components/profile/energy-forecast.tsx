@@ -104,7 +104,7 @@ export function EnergyForecast({ entries }: { entries: TimeEntry[] }) {
                 {avgMood !== null && (
                   <div
                     className={cn(
-                      "h-full rounded transition-all",
+                      "h-full rounded transition-all duration-500",
                       avgMood >= 4 ? "bg-green-400" : avgMood >= 3 ? "bg-yellow-400" : "bg-red-400"
                     )}
                     style={{ width: `${(avgMood / 5) * 100}%` }}
@@ -117,18 +117,18 @@ export function EnergyForecast({ entries }: { entries: TimeEntry[] }) {
                 {avgEnergy !== null && (
                   <div
                     className={cn(
-                      "h-full rounded transition-all",
-                      avgEnergy >= 4 ? "bg-violet-400" : avgEnergy >= 3 ? "bg-blue-400" : "bg-orange-400"
+                      "h-full rounded transition-all duration-500",
+                      avgEnergy >= 4 ? "bg-primary" : avgEnergy >= 3 ? "bg-blue-400" : "bg-orange-400"
                     )}
                     style={{ width: `${(avgEnergy / 5) * 100}%` }}
                   />
                 )}
               </div>
 
-              <span className="text-[10px] text-muted-foreground w-6 text-center">
+              <span className="text-[10px] text-muted-foreground w-6 text-center tabular-nums tracking-tight">
                 {avgMood?.toFixed(1) ?? "-"}
               </span>
-              <span className="text-[10px] text-muted-foreground w-6 text-center">
+              <span className="text-[10px] text-muted-foreground w-6 text-center tabular-nums tracking-tight">
                 {avgEnergy?.toFixed(1) ?? "-"}
               </span>
             </div>
@@ -141,7 +141,7 @@ export function EnergyForecast({ entries }: { entries: TimeEntry[] }) {
             <span className="text-[10px] text-muted-foreground">Ánimo</span>
           </div>
           <div className="flex-1 flex items-center gap-1">
-            <Zap className="w-3 h-3 text-violet-400" />
+            <Zap className="w-3 h-3 text-primary" />
             <span className="text-[10px] text-muted-foreground">Energía</span>
           </div>
           <span className="w-6" />
@@ -151,37 +151,37 @@ export function EnergyForecast({ entries }: { entries: TimeEntry[] }) {
 
       {/* Predictions */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-green-50 dark:bg-green-950/20 rounded-lg p-3">
+        <div className="bg-green-50 dark:bg-green-950/20 rounded-xl p-3">
           <div className="flex items-center gap-2 mb-1">
             <TrendingUp className="w-4 h-4 text-green-600" />
             <span className="text-xs font-semibold text-green-700 dark:text-green-400">Hora pico</span>
           </div>
-          <p className="text-lg font-bold text-green-700 dark:text-green-400">{formatHour(peakEnergyHour)}</p>
+          <p className="text-lg font-bold tabular-nums tracking-tight text-green-700 dark:text-green-400">{formatHour(peakEnergyHour)}</p>
           <p className="text-[10px] text-green-600/70">Aquí tienes más energía. Agenda deep work.</p>
         </div>
-        <div className="bg-orange-50 dark:bg-orange-950/20 rounded-lg p-3">
+        <div className="bg-orange-50 dark:bg-orange-950/20 rounded-xl p-3">
           <div className="flex items-center gap-2 mb-1">
             <TrendingDown className="w-4 h-4 text-orange-600" />
             <span className="text-xs font-semibold text-orange-700 dark:text-orange-400">Hora baja</span>
           </div>
-          <p className="text-lg font-bold text-orange-700 dark:text-orange-400">{formatHour(lowEnergyHour)}</p>
+          <p className="text-lg font-bold tabular-nums tracking-tight text-orange-700 dark:text-orange-400">{formatHour(lowEnergyHour)}</p>
           <p className="text-[10px] text-orange-600/70">Baja energía. Haz tareas livianas o descansa.</p>
         </div>
-        <div className="bg-violet-50 dark:bg-violet-950/20 rounded-lg p-3">
+        <div className="bg-primary/5 dark:bg-primary/10 rounded-xl p-3">
           <div className="flex items-center gap-2 mb-1">
-            <Heart className="w-4 h-4 text-violet-600" />
-            <span className="text-xs font-semibold text-violet-700 dark:text-violet-400">Mejor día</span>
+            <Heart className="w-4 h-4 text-primary" />
+            <span className="text-xs font-semibold text-primary">Mejor día</span>
           </div>
-          <p className="text-lg font-bold text-violet-700 dark:text-violet-400">{days[bestDay]}</p>
-          <p className="text-[10px] text-violet-600/70">Tu ánimo promedio es {bestDayMood.toFixed(1)}/5</p>
+          <p className="text-lg font-bold text-primary">{days[bestDay]}</p>
+          <p className="text-[10px] text-primary/60">Tu ánimo promedio es <span className="tabular-nums">{bestDayMood.toFixed(1)}</span>/5</p>
         </div>
-        <div className="bg-red-50 dark:bg-red-950/20 rounded-lg p-3">
+        <div className="bg-red-50 dark:bg-red-950/20 rounded-xl p-3">
           <div className="flex items-center gap-2 mb-1">
             <Minus className="w-4 h-4 text-red-600" />
             <span className="text-xs font-semibold text-red-700 dark:text-red-400">Peor día</span>
           </div>
           <p className="text-lg font-bold text-red-700 dark:text-red-400">{days[worstDay]}</p>
-          <p className="text-[10px] text-red-600/70">Tu ánimo promedio es {worstDayMood.toFixed(1)}/5</p>
+          <p className="text-[10px] text-red-600/70">Tu ánimo promedio es <span className="tabular-nums">{worstDayMood.toFixed(1)}</span>/5</p>
         </div>
       </div>
     </div>

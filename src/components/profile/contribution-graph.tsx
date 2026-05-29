@@ -167,9 +167,9 @@ export function ContributionGraph({ entries }: { entries: TimeEntry[] }) {
           <span>Mas</span>
         </div>
         <div className="flex gap-3 text-[10px] text-muted-foreground">
-          <span>{graph.totalHours}h total</span>
-          <span>{graph.activeDays} dias activos</span>
-          <span>{graph.maxStreak}d mejor racha</span>
+          <span><span className="tabular-nums tracking-tight">{graph.totalHours}</span>h total</span>
+          <span><span className="tabular-nums tracking-tight">{graph.activeDays}</span> dias activos</span>
+          <span><span className="tabular-nums tracking-tight">{graph.maxStreak}</span>d mejor racha</span>
         </div>
       </div>
     </div>

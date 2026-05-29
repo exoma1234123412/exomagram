@@ -130,20 +130,20 @@ export function WorkDNA({ entries }: { entries: TimeEntry[] }) {
 
       {/* DNA Insights */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-muted/50 rounded-lg p-3 text-center">
+        <div className="bg-accent/40 rounded-xl p-3 text-center">
           <p className="text-lg font-bold">{chronotype}</p>
           <p className="text-[10px] text-muted-foreground">Cronotipo</p>
         </div>
-        <div className="bg-muted/50 rounded-lg p-3 text-center">
-          <p className="text-lg font-bold">{rhythmScore}%</p>
+        <div className="bg-accent/40 rounded-xl p-3 text-center">
+          <p className="text-lg font-bold tabular-nums tracking-tight">{rhythmScore}%</p>
           <p className="text-[10px] text-muted-foreground">Consistencia</p>
         </div>
-        <div className="bg-muted/50 rounded-lg p-3 text-center">
-          <p className="text-lg font-bold">{peakHour > 12 ? peakHour - 12 : peakHour}{peakHour >= 12 ? "PM" : "AM"}</p>
+        <div className="bg-accent/40 rounded-xl p-3 text-center">
+          <p className="text-lg font-bold tabular-nums tracking-tight">{peakHour > 12 ? peakHour - 12 : peakHour}{peakHour >= 12 ? "PM" : "AM"}</p>
           <p className="text-[10px] text-muted-foreground">Hora pico</p>
         </div>
-        <div className="bg-muted/50 rounded-lg p-3 text-center">
-          <p className="text-lg font-bold">{deepWorkRatio}%</p>
+        <div className="bg-accent/40 rounded-xl p-3 text-center">
+          <p className="text-lg font-bold tabular-nums tracking-tight">{deepWorkRatio}%</p>
           <p className="text-[10px] text-muted-foreground">Deep work</p>
         </div>
       </div>

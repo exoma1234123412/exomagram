@@ -186,7 +186,7 @@ export default function KudosPage() {
                   </div>
 
                   {/* The entry that received kudos */}
-                  <div className="bg-muted/30 rounded-lg p-3 border">
+                  <div className="bg-accent/30 rounded-xl p-3 border border-border/50">
                     <div className="flex items-center gap-2 mb-1">
                       <Avatar className="w-5 h-5">
                         <AvatarImage

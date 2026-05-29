@@ -14,7 +14,6 @@ import { es } from "date-fns/locale";
 import {
   ChevronLeft,
   ChevronRight,
-  Loader2,
   Mail,
   AlertTriangle,
   CheckCircle2,
@@ -88,11 +87,11 @@ export default function DigestPage() {
   const displayDate = format(new Date(date + "T12:00:00"), "EEEE, d MMMM yyyy", { locale: es });
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Mail className="w-6 h-6 text-violet-600" />
+          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+            <Mail className="w-6 h-6 text-primary" />
             Digest diario
           </h1>
           <p className="text-muted-foreground text-sm capitalize">{displayDate}</p>
@@ -100,7 +99,7 @@ export default function DigestPage() {
       </div>
 
       {/* Date nav */}
-      <div className="flex items-center gap-2 mb-6">
+      <div className="flex items-center gap-2 mb-8">
         <Button variant="outline" size="icon"
           onClick={() => setDate(subDays(new Date(date + "T12:00:00"), 1).toISOString().split("T")[0])}>
           <ChevronLeft className="w-4 h-4" />
@@ -122,8 +121,9 @@ export default function DigestPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-20">
-          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground mx-auto" />
+        <div className="flex flex-col items-center justify-center py-24 gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" />
+          <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
         </div>
       ) : data ? (
         <div className="space-y-6">
@@ -131,7 +131,7 @@ export default function DigestPage() {
           <div className="grid grid-cols-3 gap-4">
             <Card>
               <CardContent className="p-4 text-center">
-                <p className={cn("text-3xl font-bold",
+                <p className={cn("text-3xl font-bold tabular-nums tracking-tight",
                   data.team_avg_trust >= 70 ? "text-green-600" :
                   data.team_avg_trust >= 50 ? "text-yellow-600" : "text-red-600"
                 )}>
@@ -142,13 +142,13 @@ export default function DigestPage() {
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
-                <p className="text-3xl font-bold">{data.total_members}</p>
+                <p className="text-3xl font-bold tabular-nums tracking-tight">{data.total_members}</p>
                 <p className="text-xs text-muted-foreground">Miembros</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
-                <p className={cn("text-3xl font-bold",
+                <p className={cn("text-3xl font-bold tabular-nums tracking-tight",
                   data.members_with_flags > 0 ? "text-red-600" : "text-green-600"
                 )}>
                   {data.members_with_flags}
@@ -162,13 +162,14 @@ export default function DigestPage() {
           <div className="space-y-3">
             {data.digest.map((m) => (
               <Card key={m.user_id} className={cn(
+                "transition-all duration-300 hover:shadow-lg hover:shadow-primary/5",
                 m.flags.length > 2 && "border-red-200 dark:border-red-900",
                 m.trust_score >= 80 && m.flags.length === 0 && "border-green-200 dark:border-green-900"
               )}>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
                     <div className="text-center min-w-[60px]">
-                      <p className={cn("text-2xl font-bold",
+                      <p className={cn("text-2xl font-bold tabular-nums tracking-tight",
                         m.trust_score >= 80 ? "text-green-600" :
                         m.trust_score >= 50 ? "text-yellow-600" : "text-red-600"
                       )}>

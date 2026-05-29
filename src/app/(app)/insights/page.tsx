@@ -263,7 +263,7 @@ export default function InsightsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
-              <Clock className="w-4 h-4 text-violet-500" />
+              <Clock className="w-4 h-4 text-primary" />
               Horas pico
             </CardTitle>
           </CardHeader>

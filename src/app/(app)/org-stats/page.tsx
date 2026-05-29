@@ -22,6 +22,7 @@ import {
 import { DriftDetection } from "@/components/org/drift-detection";
 import { MeetingTax } from "@/components/org/meeting-tax";
 import { AntiPatterns } from "@/components/org/anti-patterns";
+import { TimezoneOverlap } from "@/components/org/timezone-overlap";
 
 const CATEGORY_COLORS: Record<string, string> = {
   deep_work: "bg-violet-500", meeting: "bg-blue-500", review: "bg-amber-500",
@@ -138,15 +139,20 @@ export default function OrgStatsPage() {
   }, [days]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
-    return <div className="flex items-center justify-center h-screen text-muted-foreground">Cargando...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center py-24 gap-3">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" />
+        <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Building2 className="w-6 h-6 text-violet-600" />
+          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+            <Building2 className="w-6 h-6 text-primary" />
             {orgName || "Organizacion"}
           </h1>
           <p className="text-muted-foreground text-sm">
@@ -163,18 +169,18 @@ export default function OrgStatsPage() {
       </div>
 
       {/* Overview cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
         <Card>
           <CardContent className="p-3 text-center">
-            <Clock className="w-4 h-4 mx-auto text-violet-500 mb-1" />
-            <p className="text-2xl font-bold">{totalHours}h</p>
+            <Clock className="w-4 h-4 mx-auto text-primary mb-1" />
+            <p className="text-2xl font-bold tabular-nums tracking-tight">{totalHours}h</p>
             <p className="text-[10px] text-muted-foreground">Horas totales</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-3 text-center">
             <Shield className="w-4 h-4 mx-auto text-green-500 mb-1" />
-            <p className={cn("text-2xl font-bold", avgProofPercent >= 70 ? "text-green-600" : avgProofPercent >= 40 ? "text-yellow-600" : "text-red-600")}>
+            <p className={cn("text-2xl font-bold tabular-nums tracking-tight", avgProofPercent >= 70 ? "text-green-600" : avgProofPercent >= 40 ? "text-yellow-600" : "text-red-600")}>
               {avgProofPercent}%
             </p>
             <p className="text-[10px] text-muted-foreground">Evidencia</p>
@@ -183,7 +189,7 @@ export default function OrgStatsPage() {
         <Card>
           <CardContent className="p-3 text-center">
             <TrendingUp className="w-4 h-4 mx-auto text-blue-500 mb-1" />
-            <p className={cn("text-2xl font-bold", avgTrustScore >= 70 ? "text-green-600" : avgTrustScore >= 50 ? "text-yellow-600" : "text-red-600")}>
+            <p className={cn("text-2xl font-bold tabular-nums tracking-tight", avgTrustScore >= 70 ? "text-green-600" : avgTrustScore >= 50 ? "text-yellow-600" : "text-red-600")}>
               {avgTrustScore}
             </p>
             <p className="text-[10px] text-muted-foreground">Trust Score prom.</p>
@@ -192,7 +198,7 @@ export default function OrgStatsPage() {
         <Card>
           <CardContent className="p-3 text-center">
             <AlertTriangle className="w-4 h-4 mx-auto text-orange-500 mb-1" />
-            <p className={cn("text-2xl font-bold", unresolvedFlags === 0 ? "text-green-600" : "text-orange-600")}>
+            <p className={cn("text-2xl font-bold tabular-nums tracking-tight", unresolvedFlags === 0 ? "text-green-600" : "text-orange-600")}>
               {unresolvedFlags}
             </p>
             <p className="text-[10px] text-muted-foreground">Flags activos</p>
@@ -202,7 +208,7 @@ export default function OrgStatsPage() {
 
       {/* Anti-Patterns & Drift */}
       {orgId && (
-        <div className="space-y-4 mb-6">
+        <div className="space-y-4 mb-8">
           <AntiPatterns orgId={orgId} days={days} />
           <DriftDetection orgId={orgId} />
         </div>
@@ -210,8 +216,15 @@ export default function OrgStatsPage() {
 
       {/* Meeting Tax */}
       {orgId && (
-        <div className="mb-6">
+        <div className="mb-8">
           <MeetingTax orgId={orgId} days={days} />
+        </div>
+      )}
+
+      {/* Timezone Overlap */}
+      {orgId && (
+        <div className="mb-8">
+          <TimezoneOverlap orgId={orgId} />
         </div>
       )}
 
@@ -255,7 +268,7 @@ export default function OrgStatsPage() {
                 return (
                   <div key={h} className="flex-1 flex flex-col items-center gap-1">
                     <div
-                      className={cn("w-full rounded-t", count === 0 ? "bg-muted/30" : "bg-violet-500")}
+                      className={cn("w-full rounded-t", count === 0 ? "bg-muted/30" : "bg-primary")}
                       style={{ height: `${Math.max(pct, 3)}%`, opacity: Math.max(0.3, pct / 100) }}
                       title={`${h}:00 - ${count} entradas`}
                     />
@@ -307,24 +320,24 @@ export default function OrgStatsPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-3">
-              <div className="text-center p-2 bg-muted/30 rounded-lg">
-                <p className="text-xl font-bold">{avgStreak}</p>
+              <div className="text-center p-2 bg-accent/40 rounded-xl">
+                <p className="text-xl font-bold tabular-nums tracking-tight">{avgStreak}</p>
                 <p className="text-[10px] text-muted-foreground">Racha promedio</p>
               </div>
-              <div className="text-center p-2 bg-muted/30 rounded-lg">
-                <p className={cn("text-xl font-bold", totalFlags === 0 ? "text-green-600" : "text-orange-600")}>
+              <div className="text-center p-2 bg-accent/40 rounded-xl">
+                <p className={cn("text-xl font-bold tabular-nums tracking-tight", totalFlags === 0 ? "text-green-600" : "text-orange-600")}>
                   {totalFlags}
                 </p>
                 <p className="text-[10px] text-muted-foreground">Flags totales</p>
               </div>
-              <div className="text-center p-2 bg-muted/30 rounded-lg">
-                <p className="text-xl font-bold">
+              <div className="text-center p-2 bg-accent/40 rounded-xl">
+                <p className="text-xl font-bold tabular-nums tracking-tight">
                   {memberCount > 0 ? Math.round(totalHours / Math.max(1, days) / memberCount * 10) / 10 : 0}
                 </p>
                 <p className="text-[10px] text-muted-foreground">h/persona/dia</p>
               </div>
-              <div className="text-center p-2 bg-muted/30 rounded-lg">
-                <p className="text-xl font-bold">{memberCount}</p>
+              <div className="text-center p-2 bg-accent/40 rounded-xl">
+                <p className="text-xl font-bold tabular-nums tracking-tight">{memberCount}</p>
                 <p className="text-[10px] text-muted-foreground">Miembros</p>
               </div>
             </div>

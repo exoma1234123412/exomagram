@@ -6,11 +6,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { ExternalLink, Clock, Shield, AlertTriangle, Pencil, ShieldCheck, FolderKanban } from "lucide-react";
+import { ExternalLink, Clock, Shield, AlertTriangle, Pencil, ShieldCheck, FolderKanban, Bookmark, UserCheck, History } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 import { EntryReactions } from "@/components/reactions/entry-reactions";
 import { EditEntryDialog } from "./edit-entry-dialog";
 import { VerifyEntryDialog } from "./verify-entry-dialog";
 import { EntryComments } from "./entry-comments";
+import { EntryChangelog } from "./entry-changelog";
+import { CrossVerifyDialog } from "./cross-verify";
 import { useState } from "react";
 
 interface TimeEntryCardProps {
@@ -45,6 +48,22 @@ function getInitials(name: string | null) {
 export function TimeEntryCard({ entry, showUser = true, currentUserId, isAdmin }: TimeEntryCardProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [verifyOpen, setVerifyOpen] = useState(false);
+  const [crossVerifyOpen, setCrossVerifyOpen] = useState(false);
+  const [bookmarked, setBookmarked] = useState(false);
+
+  async function toggleBookmark() {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    if (bookmarked) {
+      await supabase.from("entry_bookmarks").delete().eq("user_id", user.id).eq("entry_id", entry.id);
+      setBookmarked(false);
+    } else {
+      await supabase.from("entry_bookmarks").upsert({ user_id: user.id, entry_id: entry.id }, { onConflict: "user_id,entry_id" });
+      setBookmarked(true);
+    }
+  }
   const cat = CATEGORIES[entry.category];
   const verification = VERIFICATION_STATUS[entry.verification_status ?? "unverified"];
   const hasProof = entry.proof_urls && entry.proof_urls.length > 0;
@@ -202,7 +221,31 @@ export function TimeEntryCard({ entry, showUser = true, currentUserId, isAdmin }
                   Verificar
                 </button>
               )}
+              {isOwner && entry.category === "meeting" && (
+                <button
+                  onClick={() => setCrossVerifyOpen(true)}
+                  className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground hover:text-blue-600 px-2.5 py-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all"
+                >
+                  <UserCheck className="w-3 h-3" />
+                  Verificar
+                </button>
+              )}
+              <button
+                onClick={toggleBookmark}
+                className={cn(
+                  "inline-flex items-center gap-1 text-[10px] font-medium px-2.5 py-1.5 rounded-lg transition-all",
+                  bookmarked
+                    ? "text-yellow-600 bg-yellow-50 dark:bg-yellow-950/20"
+                    : "text-muted-foreground hover:text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-950/20"
+                )}
+              >
+                <Bookmark className={cn("w-3 h-3", bookmarked && "fill-current")} />
+                {bookmarked ? "Guardado" : "Guardar"}
+              </button>
             </div>
+
+            {/* Changelog */}
+            <EntryChangelog entryId={entry.id} />
           </div>
         </div>
       </CardContent>
@@ -212,6 +255,9 @@ export function TimeEntryCard({ entry, showUser = true, currentUserId, isAdmin }
       )}
       {verifyOpen && (
         <VerifyEntryDialog entry={entry} open={verifyOpen} onOpenChange={setVerifyOpen} />
+      )}
+      {crossVerifyOpen && (
+        <CrossVerifyDialog entry={entry} open={crossVerifyOpen} onOpenChange={setCrossVerifyOpen} />
       )}
     </Card>
   );

@@ -119,7 +119,7 @@ export function DailyChallenge({ orgId }: { orgId: string }) {
 
   return (
     <Card className={cn(
-      "mb-4 transition-all",
+      "mb-8 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5",
       myCompleted
         ? "border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-950/10"
         : "border-yellow-200 dark:border-yellow-800 bg-yellow-50/30 dark:bg-yellow-950/10"
@@ -145,7 +145,7 @@ export function DailyChallenge({ orgId }: { orgId: string }) {
         <div className="text-center shrink-0">
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Users className="w-3 h-3" />
-            <span className="font-medium">{teamCompleted}/{teamTotal}</span>
+            <span className="font-medium tabular-nums tracking-tight">{teamCompleted}/{teamTotal}</span>
           </div>
         </div>
       </CardContent>

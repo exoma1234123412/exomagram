@@ -55,7 +55,7 @@ export function LiveStatusBar({ orgId }: { orgId: string }) {
   const offline = statuses.filter((s) => s.status === "offline");
 
   return (
-    <div className="bg-card border border-border/50 rounded-2xl p-5 mb-8 shadow-sm">
+    <div className="bg-card/80 glass border border-border/40 rounded-2xl p-5 mb-8 shadow-sm shadow-primary/3">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold flex items-center gap-2.5">
           <span className="relative flex h-2.5 w-2.5">

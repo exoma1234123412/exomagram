@@ -65,10 +65,10 @@ export function VerifyEntryDialog({ entry, open, onOpenChange, onSaved }: Verify
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md rounded-2xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-violet-600" />
+          <DialogTitle className="flex items-center gap-2.5 font-bold tracking-tight">
+            <ShieldCheck className="w-4 h-4 text-primary" />
             Verificar entrada
           </DialogTitle>
         </DialogHeader>
@@ -88,8 +88,8 @@ export function VerifyEntryDialog({ entry, open, onOpenChange, onSaved }: Verify
                   type="button"
                   onClick={() => setStatus(opt.value)}
                   className={cn(
-                    "flex items-center gap-2 p-2.5 rounded-lg border-2 text-sm font-medium transition-all",
-                    status === opt.value ? opt.color : "border-transparent bg-muted/50 hover:bg-muted"
+                    "flex items-center gap-2 p-3 rounded-xl border-2 text-sm font-semibold transition-all duration-200",
+                    status === opt.value ? cn(opt.color, "shadow-sm scale-[1.02]") : "border-transparent bg-accent/50 hover:bg-accent"
                   )}
                 >
                   {opt.icon}
@@ -110,9 +110,13 @@ export function VerifyEntryDialog({ entry, open, onOpenChange, onSaved }: Verify
             />
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && (
+            <div className="bg-destructive/5 border border-destructive/20 rounded-xl px-3 py-2">
+              <p className="text-sm text-destructive font-medium">{error}</p>
+            </div>
+          )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25 font-semibold" disabled={loading}>
             {loading ? "Guardando..." : "Actualizar verificacion"}
           </Button>
         </form>

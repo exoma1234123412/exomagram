@@ -74,7 +74,7 @@ export default async function PublicDashboard({
         {/* Summary cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm">
-            <p className="text-3xl font-bold text-violet-600">{totalHours}</p>
+            <p className="text-3xl font-bold text-primary">{totalHours}</p>
             <p className="text-sm text-muted-foreground">Horas registradas</p>
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm">

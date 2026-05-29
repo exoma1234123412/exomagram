@@ -151,19 +151,24 @@ export default function JournalPage() {
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center h-screen text-muted-foreground">Cargando...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center py-24 gap-3">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" />
+        <p className="text-sm text-muted-foreground animate-pulse">Cargando...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
       <div className="flex items-center gap-3 mb-2">
-        <BookOpen className="w-6 h-6 text-violet-600" />
-        <h1 className="text-2xl font-bold">Work Journal</h1>
+        <BookOpen className="w-6 h-6 text-primary" />
+        <h1 className="text-2xl font-bold tracking-tight">Work Journal</h1>
       </div>
-      <p className="text-muted-foreground text-sm mb-6 capitalize">{weekLabel}</p>
+      <p className="text-muted-foreground text-sm mb-8 capitalize">{weekLabel}</p>
 
       {/* Week nav */}
-      <div className="flex items-center gap-2 mb-6">
+      <div className="flex items-center gap-2 mb-8">
         <Button variant="outline" size="icon" onClick={() => setWeekStart(subWeeks(weekStart, 1))}>
           <ChevronLeft className="w-4 h-4" />
         </Button>
@@ -187,35 +192,35 @@ export default function JournalPage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <Card>
               <CardContent className="p-3 text-center">
-                <Clock className="w-4 h-4 mx-auto text-violet-500 mb-1" />
-                <p className="text-xl font-bold">{journal.totalHours}h</p>
+                <Clock className="w-4 h-4 mx-auto text-primary mb-1" />
+                <p className="text-xl font-bold tabular-nums tracking-tight">{journal.totalHours}h</p>
                 <p className="text-[10px] text-muted-foreground">Total</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-3 text-center">
                 <Shield className="w-4 h-4 mx-auto text-green-500 mb-1" />
-                <p className={cn("text-xl font-bold", journal.proofPercent >= 70 ? "text-green-600" : "text-yellow-600")}>{journal.proofPercent}%</p>
+                <p className={cn("text-xl font-bold tabular-nums tracking-tight", journal.proofPercent >= 70 ? "text-green-600" : "text-yellow-600")}>{journal.proofPercent}%</p>
                 <p className="text-[10px] text-muted-foreground">Evidencia</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-3 text-center">
-                <p className="text-xl font-bold">{journal.avgMood || "-"}</p>
+                <p className="text-xl font-bold tabular-nums tracking-tight">{journal.avgMood || "-"}</p>
                 <p className="text-[10px] text-muted-foreground">Animo prom.</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-3 text-center">
                 <Flame className={cn("w-4 h-4 mx-auto mb-1", journal.streak > 0 ? "text-orange-500" : "text-muted-foreground")} />
-                <p className="text-xl font-bold">{journal.streak}</p>
+                <p className="text-xl font-bold tabular-nums tracking-tight">{journal.streak}</p>
                 <p className="text-[10px] text-muted-foreground">Racha</p>
               </CardContent>
             </Card>
           </div>
 
           {/* Daily breakdown mini chart */}
-          <Card>
+          <Card className="transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
             <CardContent className="p-4">
               <p className="text-xs font-medium text-muted-foreground mb-2">Horas por dia</p>
               <div className="flex items-end gap-2 h-16">
@@ -254,7 +259,7 @@ export default function JournalPage() {
                 <ul className="space-y-1.5">
                   {journal.highlights.map((h, i) => (
                     <li key={i} className="text-sm text-muted-foreground flex gap-2">
-                      <span className="text-violet-500 mt-1">•</span>
+                      <span className="text-primary mt-1">•</span>
                       {h}
                     </li>
                   ))}
@@ -324,7 +329,7 @@ export default function JournalPage() {
                 size="sm"
                 onClick={saveReflection}
                 disabled={reflection === savedReflection}
-                className="gap-2"
+                className="gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25"
               >
                 <Save className="w-3 h-3" />
                 {reflection === savedReflection ? "Guardado" : "Guardar reflexion"}

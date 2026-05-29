@@ -109,19 +109,19 @@ export function KeyboardShortcuts({ onNewEntry }: KeyboardShortcutsProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[20vh]">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[18vh]">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setOpen(false)} />
 
       {/* Command palette */}
-      <div className="relative w-full max-w-lg bg-background border rounded-xl shadow-2xl overflow-hidden">
-        <div className="flex items-center gap-3 px-4 py-3 border-b">
-          <Search className="w-4 h-4 text-muted-foreground" />
+      <div className="relative w-full max-w-lg bg-background/95 glass border border-border/50 rounded-2xl shadow-2xl shadow-primary/10 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-200">
+        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-border/50">
+          <Search className="w-4 h-4 text-muted-foreground/60" />
           <input
             value={query}
             onChange={(e) => handleInput(e.target.value)}
             placeholder="Buscar entradas, paginas..."
-            className="flex-1 bg-transparent outline-none text-sm"
+            className="flex-1 bg-transparent outline-none text-sm placeholder:text-muted-foreground/40"
             autoFocus
           />
           <kbd className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-mono">ESC</kbd>
@@ -136,7 +136,7 @@ export function KeyboardShortcuts({ onNewEntry }: KeyboardShortcutsProps) {
                 <button
                   key={link.href}
                   onClick={() => navigate(link.href)}
-                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-muted transition-colors text-left"
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-accent/60 transition-all duration-150 text-left group/cmd"
                 >
                   <span className="flex-1">{link.label}</span>
                   <kbd className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-mono">{link.shortcut}</kbd>
@@ -178,18 +178,24 @@ export function KeyboardShortcuts({ onNewEntry }: KeyboardShortcutsProps) {
           )}
         </div>
 
-        <div className="flex items-center gap-4 px-4 py-2 border-t text-[10px] text-muted-foreground">
-          <span className="flex items-center gap-1">
-            <kbd className="bg-muted px-1 py-0.5 rounded font-mono">
-              <Command className="w-3 h-3 inline" />K
+        <div className="flex items-center gap-4 px-4 py-2.5 border-t border-border/50 bg-muted/30 text-[10px] text-muted-foreground/60">
+          <span className="flex items-center gap-1.5">
+            <kbd className="bg-background/80 border border-border/50 px-1.5 py-0.5 rounded-md font-mono text-[9px] shadow-sm">
+              <Command className="w-2.5 h-2.5 inline" />K
             </kbd>
             Buscar
           </span>
-          <span className="flex items-center gap-1">
-            <kbd className="bg-muted px-1 py-0.5 rounded font-mono">
-              <Command className="w-3 h-3 inline" />N
+          <span className="flex items-center gap-1.5">
+            <kbd className="bg-background/80 border border-border/50 px-1.5 py-0.5 rounded-md font-mono text-[9px] shadow-sm">
+              <Command className="w-2.5 h-2.5 inline" />N
             </kbd>
             Nueva entrada
+          </span>
+          <span className="flex items-center gap-1.5 ml-auto">
+            <kbd className="bg-background/80 border border-border/50 px-1.5 py-0.5 rounded-md font-mono text-[9px] shadow-sm">
+              ESC
+            </kbd>
+            Cerrar
           </span>
         </div>
       </div>

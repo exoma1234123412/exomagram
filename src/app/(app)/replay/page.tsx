@@ -129,17 +129,17 @@ export default function ReplayPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
       <div className="flex items-center gap-3 mb-2">
-        <Film className="w-6 h-6 text-violet-600" />
-        <h1 className="text-2xl font-bold">Work Replay</h1>
+        <Film className="w-6 h-6 text-primary" />
+        <h1 className="text-2xl font-bold tracking-tight">Work Replay</h1>
       </div>
-      <p className="text-muted-foreground text-sm mb-6">
+      <p className="text-muted-foreground text-sm mb-8">
         Reproduce el dia del equipo como una pelicula
       </p>
 
       {/* Controls */}
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-8">
         <Input
           type="date"
           value={date}
@@ -186,7 +186,7 @@ export default function ReplayPage() {
       </div>
 
       {/* Progress bar */}
-      <div className="mb-6">
+      <div className="mb-8">
         <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
           <span>{formatHour(WORK_HOURS[0])}</span>
           <span>{visibleEntries.length} entradas</span>
@@ -194,7 +194,7 @@ export default function ReplayPage() {
         </div>
         <div className="h-2 bg-muted rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-all duration-300"
+            className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -217,7 +217,7 @@ export default function ReplayPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-20 text-muted-foreground">Cargando...</div>
+        <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>
       ) : entries.length === 0 ? (
         <div className="text-center py-20 text-muted-foreground">
           No hay entradas para este dia.
@@ -233,11 +233,11 @@ export default function ReplayPage() {
             return (
               <Card
                 key={userId}
-                className="animate-in fade-in slide-in-from-bottom-2 duration-500"
+                className="animate-in fade-in slide-in-from-bottom-2 duration-500 transition-all hover:shadow-lg hover:shadow-primary/5"
               >
                 <CardContent className="p-3">
                   <div className="flex items-center gap-2 mb-2">
-                    <Avatar className="w-8 h-8">
+                    <Avatar className="w-8 h-8 ring-2 ring-background shadow-sm">
                       <AvatarImage src={profile?.avatar_url ?? undefined} />
                       <AvatarFallback className="text-[10px]">{getInitials(profile?.full_name)}</AvatarFallback>
                     </Avatar>
@@ -264,7 +264,7 @@ export default function ReplayPage() {
                   </div>
 
                   {/* Latest entry */}
-                  <div className="mt-2 p-2 bg-muted/30 rounded-lg">
+                  <div className="mt-2 p-2 bg-accent/40 rounded-xl">
                     <div className="flex items-center gap-1.5">
                       <Badge variant="secondary" className={cn("text-[9px]", latestCat.color, latestCat.bgColor)}>
                         {latestCat.emoji}

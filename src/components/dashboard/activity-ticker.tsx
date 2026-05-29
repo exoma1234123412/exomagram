@@ -64,7 +64,7 @@ export function ActivityTicker({ orgId }: { orgId: string }) {
   const doubled = [...entries, ...entries];
 
   return (
-    <div className="relative overflow-hidden mb-4 rounded-lg bg-muted/30 border">
+    <div className="relative overflow-hidden mb-4 rounded-xl bg-accent/40 border">
       <div
         ref={tickerRef}
         className="flex items-center gap-6 py-2 px-4 animate-ticker whitespace-nowrap"

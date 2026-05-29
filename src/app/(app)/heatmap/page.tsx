@@ -165,8 +165,8 @@ export default function HeatmapPage() {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 animate-pulse" /><p className="text-sm text-muted-foreground animate-pulse">Cargando...</p></div>
       ) : (
-        <Card>
-          <CardContent className="p-4 overflow-x-auto">
+        <Card className="overflow-hidden border-border/50 shadow-sm">
+          <CardContent className="p-5 overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr>
@@ -202,10 +202,10 @@ export default function HeatmapPage() {
                       const topCat = cell?.topCategory;
 
                       return (
-                        <td key={key} className="p-0.5">
+                        <td key={key} className="p-[2px]">
                           <div
                             className={cn(
-                              "w-full h-8 rounded-sm flex items-center justify-center text-[10px] font-medium transition-colors",
+                              "w-full h-9 rounded-lg flex items-center justify-center text-[10px] font-semibold transition-all duration-200 hover:scale-105 hover:z-10 cursor-default",
                               count === 0
                                 ? "bg-muted/20"
                                 : topCat
@@ -243,18 +243,18 @@ export default function HeatmapPage() {
             </table>
 
             {/* Legend */}
-            <div className="flex flex-wrap gap-3 mt-4 pt-3 border-t">
+            <div className="flex flex-wrap gap-3 mt-5 pt-4 border-t border-border/40">
               {(Object.keys(CATEGORIES) as WorkCategory[]).map((key) => {
                 const cat = CATEGORIES[key];
                 return (
                   <div key={key} className="flex items-center gap-1.5 text-xs">
                     <div
                       className={cn(
-                        "w-3 h-3 rounded-sm",
+                        "w-3 h-3 rounded-md shadow-sm",
                         CATEGORY_COLORS[key]
                       )}
                     />
-                    <span className="text-muted-foreground">
+                    <span className="text-muted-foreground/70 font-medium">
                       {cat.emoji} {cat.label}
                     </span>
                   </div>

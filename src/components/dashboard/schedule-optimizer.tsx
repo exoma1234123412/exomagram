@@ -130,7 +130,7 @@ export function ScheduleOptimizer({ orgId }: { orgId: string }) {
   };
 
   return (
-    <Card className="mb-6">
+    <Card className="mb-8 transition-all duration-300">
       <CardContent className="p-4">
         <h3 className="text-sm font-semibold flex items-center gap-2 mb-1">
           <Sparkles className="w-4 h-4 text-yellow-500" />
@@ -164,7 +164,7 @@ export function ScheduleOptimizer({ orgId }: { orgId: string }) {
         {/* Recommendations */}
         <div className="flex flex-wrap gap-2 text-xs">
           {bestDeepWork && (
-            <Badge variant="outline" className="gap-1 text-violet-600 border-violet-300">
+            <Badge variant="outline" className="gap-1 text-primary border-violet-300">
               <Brain className="w-3 h-3" />
               Deep work: {bestDeepWork}
             </Badge>

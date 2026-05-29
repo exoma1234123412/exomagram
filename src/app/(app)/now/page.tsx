@@ -179,7 +179,7 @@ export default function NowPage() {
                         {inFlow ? (
                           <Badge
                             variant="outline"
-                            className="text-[10px] shrink-0 text-violet-600 border-violet-300 bg-violet-50 dark:bg-violet-950/20 animate-pulse"
+                            className="text-[10px] shrink-0 text-primary border-primary/30 bg-primary/5 dark:bg-primary/10 animate-pulse"
                           >
                             <Sparkles className="w-3 h-3 mr-0.5" />
                             En flow - No molestar

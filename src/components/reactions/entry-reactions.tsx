@@ -35,7 +35,6 @@ export function EntryReactions({ entryId }: { entryId: string }) {
     if (!userId) return;
 
     if (myReaction === reaction) {
-      // Remove reaction
       await supabase
         .from("entry_reactions")
         .delete()
@@ -44,7 +43,6 @@ export function EntryReactions({ entryId }: { entryId: string }) {
       setMyReaction(null);
       setReactions((prev) => prev.filter((r) => r.user_id !== userId));
     } else {
-      // Upsert reaction
       await supabase.from("entry_reactions").upsert({
         entry_id: entryId,
         user_id: userId,
@@ -65,7 +63,7 @@ export function EntryReactions({ entryId }: { entryId: string }) {
   }
 
   return (
-    <div className="flex items-center gap-1 mt-2">
+    <div className="flex items-center gap-1 mt-2.5">
       {(Object.keys(REACTIONS) as ReactionType[]).map((type) => {
         const config = REACTIONS[type];
         const count = counts.get(type) ?? 0;
@@ -76,17 +74,20 @@ export function EntryReactions({ entryId }: { entryId: string }) {
             onClick={() => handleReaction(type)}
             title={config.description}
             className={cn(
-              "flex items-center gap-1 px-2 py-0.5 rounded-full text-xs transition-all border",
+              "flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all duration-200",
               isActive
                 ? type === "suspicious"
-                  ? "bg-red-50 border-red-200 dark:bg-red-950/30 dark:border-red-800"
-                  : "bg-violet-50 border-violet-200 dark:bg-violet-950/30 dark:border-violet-800"
-                : "border-transparent hover:bg-muted"
+                  ? "bg-red-50 border border-red-200/60 dark:bg-red-950/20 dark:border-red-800/40 shadow-sm"
+                  : "bg-primary/5 border border-primary/20 shadow-sm"
+                : "border border-transparent hover:bg-accent/50 hover:border-border/30"
             )}
           >
-            <span>{config.emoji}</span>
+            <span className="text-sm">{config.emoji}</span>
             {count > 0 && (
-              <span className={cn("font-medium", isActive ? "text-foreground" : "text-muted-foreground")}>
+              <span className={cn(
+                "font-semibold tabular-nums text-[11px]",
+                isActive ? "text-foreground" : "text-muted-foreground/70"
+              )}>
                 {count}
               </span>
             )}

@@ -220,7 +220,7 @@ export default function HealthPage() {
         </Card>
         <Card className="transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
           <CardContent className="p-4 text-center">
-            <Brain className="w-5 h-5 mx-auto text-violet-500 mb-1" />
+            <Brain className="w-5 h-5 mx-auto text-primary mb-1" />
             <div className="flex items-center justify-center gap-1">
               <p className="text-2xl font-bold">{avgFocus?.toFixed(0) ?? "-"}</p>
             </div>

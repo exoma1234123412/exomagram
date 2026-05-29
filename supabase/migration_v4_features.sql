@@ -400,3 +400,22 @@ CREATE POLICY "Users can submit pulse"
 CREATE POLICY "Users can update own pulse"
   ON pulse_responses FOR UPDATE
   USING (auth.uid() = user_id);
+
+-- ============================================
+-- ENTRY BOOKMARKS
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS entry_bookmarks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  entry_id UUID NOT NULL REFERENCES time_entries(id) ON DELETE CASCADE,
+  note TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE(user_id, entry_id)
+);
+
+ALTER TABLE entry_bookmarks ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can manage own bookmarks"
+  ON entry_bookmarks FOR ALL
+  USING (auth.uid() = user_id);

@@ -69,7 +69,7 @@ export function EntryTemplates({ onApply }: EntryTemplatesProps) {
           <button
             key={t.id}
             onClick={() => onApply(t)}
-            className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium bg-muted/50 hover:bg-muted transition-colors"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-xl text-[10px] font-medium bg-accent/40 hover:bg-accent transition-colors"
             title={`${cat.label}: ${t.title}`}
           >
             <span>{cat.emoji}</span>
@@ -128,7 +128,7 @@ export function ManageTemplatesDialog({ open, onOpenChange }: ManageTemplatesDia
       <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <BookTemplate className="w-5 h-5 text-violet-600" />
+            <BookTemplate className="w-5 h-5 text-primary" />
             Plantillas de entrada
           </DialogTitle>
         </DialogHeader>
@@ -139,7 +139,7 @@ export function ManageTemplatesDialog({ open, onOpenChange }: ManageTemplatesDia
             {templates.map((t) => {
               const cat = CATEGORIES[t.category];
               return (
-                <div key={t.id} className="flex items-center gap-2 p-2 rounded-lg bg-muted/30 border">
+                <div key={t.id} className="flex items-center gap-2 p-2 rounded-xl bg-accent/40 border transition-all duration-300">
                   <span className="text-base">{cat.emoji}</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium">{t.name}</p>
@@ -184,7 +184,7 @@ export function ManageTemplatesDialog({ open, onOpenChange }: ManageTemplatesDia
                   onClick={() => setCategory(key)}
                   className={cn(
                     "px-2 py-1 rounded text-[10px] font-medium",
-                    category === key ? "bg-violet-600 text-white" : "bg-muted hover:bg-muted/80"
+                    category === key ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white" : "bg-muted hover:bg-muted/80"
                   )}
                 >
                   {CATEGORIES[key].emoji} {CATEGORIES[key].label}
@@ -192,7 +192,7 @@ export function ManageTemplatesDialog({ open, onOpenChange }: ManageTemplatesDia
               ))}
             </div>
           </div>
-          <Button onClick={handleAdd} size="sm" disabled={!name.trim() || !title.trim()} className="w-full gap-2">
+          <Button onClick={handleAdd} size="sm" disabled={!name.trim() || !title.trim()} className="w-full gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-violet-500/25">
             <Plus className="w-3 h-3" />
             Guardar plantilla
           </Button>

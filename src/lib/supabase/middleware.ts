@@ -33,18 +33,17 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/signup");
 
-  // AUTH DISABLED FOR DEVELOPMENT
-  // if (!user && !isAuthPage && !request.nextUrl.pathname.startsWith("/auth")) {
-  //   const url = request.nextUrl.clone();
-  //   url.pathname = "/login";
-  //   return NextResponse.redirect(url);
-  // }
+  if (!user && !isAuthPage && !request.nextUrl.pathname.startsWith("/auth") && !request.nextUrl.pathname.startsWith("/public")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
 
-  // if (user && isAuthPage) {
-  //   const url = request.nextUrl.clone();
-  //   url.pathname = "/dashboard";
-  //   return NextResponse.redirect(url);
-  // }
+  if (user && isAuthPage) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
 
   return supabaseResponse;
 }

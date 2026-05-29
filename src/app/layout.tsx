@@ -16,6 +16,14 @@ export const metadata: Metadata = {
   title: "Exomagram — Transparencia total del trabajo",
   description:
     "Ve exactamente qué hace cada miembro de tu equipo, hora por hora. Transparencia radical para equipos modernos.",
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
 };
 
 export default function RootLayout({

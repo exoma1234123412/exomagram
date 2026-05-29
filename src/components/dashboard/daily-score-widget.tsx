@@ -76,7 +76,7 @@ export function DailyScoreWidget({ orgId }: { orgId: string }) {
   const proofPercent = data.hoursLogged > 0 ? Math.round((data.hoursWithProof / data.hoursLogged) * 100) : 0;
 
   return (
-    <div className={cn("rounded-xl bg-gradient-to-r to-transparent p-4 mb-6 border", scoreBg)}>
+    <div className={cn("rounded-xl bg-gradient-to-r to-transparent p-4 mb-8 border transition-all duration-300 hover:shadow-lg hover:shadow-primary/5", scoreBg)}>
       <div className="flex items-center gap-6 flex-wrap">
         {/* Score circle */}
         <div className="relative w-16 h-16 shrink-0">
@@ -90,7 +90,7 @@ export function DailyScoreWidget({ orgId }: { orgId: string }) {
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className={cn("text-lg font-bold", scoreColor)}>{data.score}</span>
+            <span className={cn("text-lg font-bold tabular-nums tracking-tight", scoreColor)}>{data.score}</span>
           </div>
         </div>
 
@@ -98,7 +98,7 @@ export function DailyScoreWidget({ orgId }: { orgId: string }) {
         <div className="flex items-center gap-5 flex-wrap flex-1">
           <div className="flex items-center gap-1.5">
             <Clock className="w-4 h-4 text-muted-foreground" />
-            <span className={cn("text-sm font-semibold",
+            <span className={cn("text-sm font-semibold tabular-nums tracking-tight",
               data.hoursLogged >= EXPECTED_DAILY_HOURS ? "text-green-600" :
               data.hoursLogged >= 4 ? "text-foreground" : "text-red-600"
             )}>
@@ -108,14 +108,14 @@ export function DailyScoreWidget({ orgId }: { orgId: string }) {
 
           <div className="flex items-center gap-1.5">
             <Shield className={cn("w-4 h-4", proofPercent >= 80 ? "text-green-500" : "text-yellow-500")} />
-            <span className="text-sm font-semibold">{proofPercent}%</span>
+            <span className="text-sm font-semibold tabular-nums tracking-tight">{proofPercent}%</span>
             <span className="text-[10px] text-muted-foreground">evidencia</span>
           </div>
 
           {data.streak > 0 && (
             <div className="flex items-center gap-1.5">
               <Flame className="w-4 h-4 text-orange-500" />
-              <span className="text-sm font-semibold">{data.streak}d</span>
+              <span className="text-sm font-semibold tabular-nums tracking-tight">{data.streak}d</span>
             </div>
           )}
 

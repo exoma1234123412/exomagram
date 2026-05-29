@@ -71,19 +71,19 @@ export function EntrySearch({ orgId }: { orgId: string }) {
   }
 
   return (
-    <div className="mb-4">
+    <div className="mb-6">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/50" />
         <Input
           value={query}
           onChange={(e) => handleChange(e.target.value)}
           placeholder="Buscar entradas por titulo, descripcion o proyecto..."
-          className="pl-9 pr-9"
+          className="pl-10 pr-10 h-10 rounded-xl bg-accent/30 border-border/50 focus-visible:bg-background"
         />
         {query && (
           <button
             onClick={clear}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-foreground transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -91,62 +91,62 @@ export function EntrySearch({ orgId }: { orgId: string }) {
       </div>
 
       {searching && (
-        <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
-          <Loader2 className="w-3 h-3 animate-spin" />
+        <div className="flex items-center gap-2 mt-3 text-sm text-muted-foreground">
+          <Loader2 className="w-3.5 h-3.5 animate-spin text-primary/60" />
           Buscando...
         </div>
       )}
 
       {hasSearched && !searching && results.length === 0 && (
-        <p className="text-sm text-muted-foreground mt-2">
+        <p className="text-sm text-muted-foreground/70 mt-3">
           Sin resultados para &quot;{query}&quot;
         </p>
       )}
 
       {results.length > 0 && (
-        <div className="mt-2 border rounded-lg divide-y max-h-80 overflow-y-auto">
+        <div className="mt-3 border border-border/50 rounded-2xl divide-y divide-border/30 max-h-80 overflow-y-auto shadow-lg shadow-primary/5 bg-card">
           {results.map((entry) => {
             const cat = CATEGORIES[entry.category];
             return (
               <div
                 key={entry.id}
-                className="p-3 hover:bg-muted/30 transition-colors"
+                className="p-3.5 hover:bg-accent/30 transition-colors first:rounded-t-2xl last:rounded-b-2xl"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   {entry.profiles && (
-                    <Avatar className="w-5 h-5">
+                    <Avatar className="w-6 h-6 ring-1 ring-background">
                       <AvatarImage src={entry.profiles.avatar_url ?? undefined} />
-                      <AvatarFallback className="text-[8px]">
+                      <AvatarFallback className="text-[8px] font-semibold">
                         {getInitials(entry.profiles.full_name)}
                       </AvatarFallback>
                     </Avatar>
                   )}
-                  <span className="text-sm font-medium flex-1 truncate">
+                  <span className="text-sm font-semibold flex-1 truncate">
                     {entry.title}
                   </span>
                   <Badge
                     variant="secondary"
-                    className={cn("text-[10px]", cat.color, cat.bgColor)}
+                    className={cn("text-[10px] rounded-lg font-semibold", cat.color, cat.bgColor)}
                   >
                     {cat.emoji} {cat.label}
                   </Badge>
                 </div>
-                <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground">
+                <div className="flex items-center gap-2 mt-1.5 text-[10px] text-muted-foreground/60 font-medium">
                   <span>{entry.profiles?.full_name}</span>
-                  <span>|</span>
-                  <span>{entry.date}</span>
-                  <span>{formatHour(entry.hour)}</span>
+                  <span className="text-muted-foreground/30">|</span>
+                  <span className="tabular-nums">{entry.date}</span>
+                  <span className="tabular-nums">{formatHour(entry.hour)}</span>
                   {entry.project && (
                     <>
-                      <span>|</span>
-                      <Badge variant="outline" className="text-[10px] py-0">
+                      <span className="text-muted-foreground/30">|</span>
+                      <Badge variant="outline" className="text-[10px] py-0 rounded-md">
                         {entry.project}
                       </Badge>
                     </>
                   )}
                 </div>
                 {entry.description && (
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                  <p className="text-xs text-muted-foreground/60 mt-1.5 line-clamp-1">
                     {entry.description}
                   </p>
                 )}

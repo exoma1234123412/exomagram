@@ -235,11 +235,11 @@ export default function ProfilePage() {
 
       {/* Stats cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-        <Card className="overflow-hidden relative hover:shadow-lg hover:shadow-violet-500/5 transition-all duration-300">
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent" />
+        <Card className="overflow-hidden relative hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
           <CardContent className="p-4 text-center relative">
-            <div className="w-9 h-9 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center mx-auto mb-2">
-              <Clock className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+            <div className="w-9 h-9 rounded-xl bg-primary/10 dark:bg-primary/15 flex items-center justify-center mx-auto mb-2">
+              <Clock className="w-4 h-4 text-primary" />
             </div>
             <p className="text-2xl font-bold tabular-nums tracking-tight">{totalHours}</p>
             <p className="text-[11px] text-muted-foreground font-medium mt-0.5">Horas registradas</p>
@@ -466,7 +466,7 @@ export default function ProfilePage() {
       <Card className="mb-8">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
-            <Dna className="w-5 h-5 text-violet-500" />
+            <Dna className="w-5 h-5 text-primary" />
             Work DNA
           </CardTitle>
         </CardHeader>

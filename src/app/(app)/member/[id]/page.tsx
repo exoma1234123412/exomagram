@@ -243,8 +243,8 @@ export default function MemberPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen text-muted-foreground">
-        Cargando...
+      <div className="flex items-center justify-center h-screen">
+        <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-primary to-primary/40 animate-pulse" />
       </div>
     );
   }
@@ -307,11 +307,11 @@ export default function MemberPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
       {/* Back link */}
       <Link
         href="/accountability"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-8"
       >
         <ArrowLeft className="w-4 h-4" />
         Volver a Accountability
@@ -319,14 +319,14 @@ export default function MemberPage() {
 
       {/* Profile header */}
       <div className="flex items-center gap-4 mb-8">
-        <Avatar className="w-16 h-16">
+        <Avatar className="w-16 h-16 ring-4 ring-primary/10 shadow-xl shadow-primary/10">
           <AvatarImage src={profile.avatar_url ?? undefined} />
           <AvatarFallback className="text-lg">
             {getInitials(profile.full_name)}
           </AvatarFallback>
         </Avatar>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold">
+          <h1 className="text-2xl font-bold tracking-tight">
             {profile.full_name ?? profile.email}
           </h1>
           {profile.role && (
@@ -343,7 +343,7 @@ export default function MemberPage() {
 
       {/* Burnout warning */}
       {burnoutRisk && (
-        <Card className="mb-6 border-red-300 dark:border-red-700 bg-red-50/50 dark:bg-red-950/10">
+        <Card className="mb-8 border-red-300 dark:border-red-700 bg-red-50/50 dark:bg-red-950/10">
           <CardContent className="p-4 flex items-center gap-3">
             <AlertTriangle className="w-5 h-5 text-red-600" />
             <div>
@@ -360,10 +360,10 @@ export default function MemberPage() {
 
       {/* 1:1 Talking Points */}
       {talkingPoints.length > 0 && (
-        <Card className="mb-6 border-violet-200 dark:border-violet-800">
+        <Card className="mb-8 border-violet-200 dark:border-violet-800">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-violet-600" />
+              <MessageSquare className="w-4 h-4 text-primary" />
               Puntos para 1:1
             </CardTitle>
           </CardHeader>
@@ -374,7 +374,7 @@ export default function MemberPage() {
                   key={i}
                   className="text-sm text-muted-foreground flex items-start gap-2"
                 >
-                  <span className="text-violet-500 mt-1">•</span>
+                  <span className="text-primary mt-1">•</span>
                   {point}
                 </li>
               ))}
@@ -384,18 +384,18 @@ export default function MemberPage() {
       )}
 
       {/* Stats grid */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
         <Card>
           <CardContent className="p-3 text-center">
-            <Clock className="w-4 h-4 mx-auto text-violet-500 mb-1" />
-            <p className="text-xl font-bold">{totalHours}h</p>
+            <Clock className="w-4 h-4 mx-auto text-primary mb-1" />
+            <p className="text-xl font-bold tabular-nums tracking-tight">{totalHours}h</p>
             <p className="text-[10px] text-muted-foreground">14 dias</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-3 text-center">
             <Shield className="w-4 h-4 mx-auto text-green-500 mb-1" />
-            <p className={cn("text-xl font-bold", proofPercent >= 80 ? "text-green-600" : proofPercent >= 50 ? "text-yellow-600" : "text-red-600")}>
+            <p className={cn("text-xl font-bold tabular-nums tracking-tight", proofPercent >= 80 ? "text-green-600" : proofPercent >= 50 ? "text-yellow-600" : "text-red-600")}>
               {proofPercent}%
             </p>
             <p className="text-[10px] text-muted-foreground">Evidencia</p>
@@ -404,7 +404,7 @@ export default function MemberPage() {
         <Card>
           <CardContent className="p-3 text-center">
             <Brain className="w-4 h-4 mx-auto text-blue-500 mb-1" />
-            <p className={cn("text-xl font-bold", focusScore >= 60 ? "text-green-600" : focusScore >= 30 ? "text-yellow-600" : "text-red-600")}>
+            <p className={cn("text-xl font-bold tabular-nums tracking-tight", focusScore >= 60 ? "text-green-600" : focusScore >= 30 ? "text-yellow-600" : "text-red-600")}>
               {focusScore}%
             </p>
             <p className="text-[10px] text-muted-foreground">Focus Score</p>
@@ -425,7 +425,7 @@ export default function MemberPage() {
                 <TrendingUp className="w-4 h-4 text-muted-foreground" />
               )}
             </div>
-            <p className="text-xl font-bold">
+            <p className="text-xl font-bold tabular-nums tracking-tight">
               {moodTrend.length > 0
                 ? moodTrend[moodTrend.length - 1].mood
                 : "-"}
@@ -435,7 +435,7 @@ export default function MemberPage() {
         </Card>
         <Card>
           <CardContent className="p-3 text-center">
-            <p className="text-xl font-bold">{avgEnergy || "-"}</p>
+            <p className="text-xl font-bold tabular-nums tracking-tight">{avgEnergy || "-"}</p>
             <p className="text-[10px] text-muted-foreground">Energia prom.</p>
           </CardContent>
         </Card>
@@ -443,7 +443,7 @@ export default function MemberPage() {
 
       {/* Trust Score Trend */}
       {scoreTrend.length > 0 && (
-        <Card className="mb-6">
+        <Card className="mb-8">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">Trust Score (14 dias)</CardTitle>
           </CardHeader>
@@ -456,7 +456,7 @@ export default function MemberPage() {
                 >
                   <div
                     className={cn(
-                      "w-full rounded-t transition-all",
+                      "w-full rounded-t transition-all duration-500",
                       s.score >= 80
                         ? "bg-green-500"
                         : s.score >= 60
@@ -487,7 +487,7 @@ export default function MemberPage() {
 
       {/* Mood Trend */}
       {moodTrend.length > 0 && (
-        <Card className="mb-6">
+        <Card className="mb-8">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">Animo (14 dias)</CardTitle>
           </CardHeader>
@@ -539,14 +539,14 @@ export default function MemberPage() {
                         {CATEGORIES[category].emoji}{" "}
                         {CATEGORIES[category].label}
                       </span>
-                      <span className="text-muted-foreground">
+                      <span className="text-muted-foreground tabular-nums tracking-tight">
                         {count}h ({percent}%)
                       </span>
                     </div>
                     <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                       <div
                         className={cn(
-                          "h-full rounded-full",
+                          "h-full rounded-full transition-all duration-500",
                           CATEGORY_COLORS[category]
                         )}
                         style={{ width: `${percent}%` }}
