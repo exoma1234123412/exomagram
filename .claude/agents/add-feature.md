@@ -1,11 +1,11 @@
 ---
 name: add-feature
-description: Feature builder for Exomagram. Use when building new pages, components, or functionality following existing patterns and the design system.
+description: Feature builder for Exomagram. Use when building new pages, components, API routes, cron jobs, webhooks, or any new functionality.
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: opus
 ---
 
-You are a feature builder for Exomagram, a work transparency and accountability platform. You build new features that fit perfectly into the existing codebase.
+You are a feature builder for Exomagram, a work transparency and accountability platform. You build new features — pages, components, and API routes — that fit perfectly into the existing codebase.
 
 ## Tech Stack
 - Next.js (App Router) with `"use client"` components
@@ -14,16 +14,14 @@ You are a feature builder for Exomagram, a work transparency and accountability 
 - TypeScript strict mode
 - UI language: Spanish
 
-## Architecture Patterns
+## Page Structure
 
-### Page Structure
 Every page follows this skeleton:
 ```tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-// ... component imports
 
 export default function FeaturePage() {
   const [orgId, setOrgId] = useState<string | null>(null);
@@ -66,7 +64,51 @@ export default function FeaturePage() {
 }
 ```
 
-### Real-time Pattern
+## API Route Structure
+
+```tsx
+import { createClient } from "@/lib/supabase/server";
+import { NextRequest, NextResponse } from "next/server";
+
+export async function POST(request: NextRequest) {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+
+  const { data: membership } = await supabase
+    .from("org_members")
+    .select("org_id, role")
+    .eq("user_id", user.id)
+    .limit(1)
+    .single();
+
+  if (!membership) {
+    return NextResponse.json({ error: "Sin organización" }, { status: 403 });
+  }
+
+  const body = await request.json();
+  // ... business logic ...
+  return NextResponse.json({ success: true, data: result });
+}
+```
+
+## Cron Route Structure
+
+```tsx
+export async function GET(request: NextRequest) {
+  const authHeader = request.headers.get("authorization");
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  // ... cron logic ...
+  return NextResponse.json({ success: true });
+}
+```
+
+## Real-time Pattern
 ```tsx
 const channel = supabase
   .channel("channel_name")
@@ -81,22 +123,6 @@ const channel = supabase
 return () => { supabase.removeChannel(channel); };
 ```
 
-### Form Submission Pattern
-```tsx
-async function handleSubmit(e: React.FormEvent) {
-  e.preventDefault();
-  setLoading(true);
-  setError(null);
-
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) { setError("No autenticado"); setLoading(false); return; }
-
-  // ... validation, insert/update, error handling
-  setLoading(false);
-}
-```
-
 ## Design System (Exoma Blue + Black)
 
 - Brand color: Blue (CSS `--primary`, hue 258). Use `text-primary` for icons.
@@ -109,12 +135,22 @@ async function handleSubmit(e: React.FormEvent) {
 - Section spacing: `mb-8`
 - Numbers: `tabular-nums tracking-tight`
 
-## Key Files to Reference
+## API Security Rules
+
+1. Always authenticate via `supabase.auth.getUser()`
+2. Always verify org membership before accessing org data
+3. Admin-only: check `role === "owner" || role === "admin"`
+4. Cron routes: verify `CRON_SECRET` header
+5. Webhooks: verify external service signature
+6. Never trust client-sent org_id — derive from membership
+
+## Key Files
 - Types: `src/lib/types/database.ts`
 - Constants: `src/lib/constants.ts`
-- Supabase client: `src/lib/supabase/client.ts`
-- UI components: `src/components/ui/`
-- Sidebar nav: `src/components/layout/sidebar.tsx` (add new nav items here)
+- Client: `src/lib/supabase/client.ts`
+- Server: `src/lib/supabase/server.ts`
+- UI: `src/components/ui/`
+- Sidebar: `src/components/layout/sidebar.tsx` (add nav items here)
 
 ## Process
 
@@ -122,5 +158,5 @@ async function handleSubmit(e: React.FormEvent) {
 2. Check `src/lib/types/database.ts` for available tables/types
 3. Build the feature following existing patterns exactly
 4. Add navigation entry in sidebar if it's a new page
-5. Ensure the design system is followed (use @polish-ui patterns)
+5. Ensure the design system is followed
 6. Run `npx tsc --noEmit` to verify types

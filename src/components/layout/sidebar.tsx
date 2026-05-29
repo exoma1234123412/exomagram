@@ -57,6 +57,7 @@ const mainNav = [
 ];
 
 const insightsNav = [
+  { href: "/efficiency", label: "Eficiencia", icon: Gauge },
   { href: "/output", label: "Output", icon: Eye },
   { href: "/audit-daily", label: "AI Audit", icon: Brain },
   { href: "/retro", label: "Retro Semanal", icon: Brain },

@@ -23,6 +23,13 @@ import { VelocityWidget } from "@/components/dashboard/velocity-widget";
 import { MoodWeather } from "@/components/dashboard/mood-weather";
 import { ProductivityScore } from "@/components/dashboard/productivity-score";
 import { WorkSessionTracker } from "@/components/accountability/work-session";
+import { SocialPressureWidget } from "@/components/accountability/social-pressure";
+import { PublicAccountabilityBoard } from "@/components/accountability/public-shame-board";
+import { LiveShameTicker } from "@/components/pressure/live-shame-ticker";
+import { UrgencyEngine } from "@/components/pressure/urgency-engine";
+import { DailyScoreboard } from "@/components/pressure/daily-scoreboard";
+import { DailyVerdict } from "@/components/pressure/daily-verdict";
+import { GhostDetector } from "@/components/pressure/ghost-detector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, ChevronLeft, ChevronRight, FileCheck, Layers, Calendar } from "lucide-react";
@@ -168,6 +175,12 @@ export default function DashboardPage() {
         )}
       </div>
 
+      {/* URGENCY ENGINE — escalating pressure based on time of day */}
+      {isToday && <UrgencyEngine />}
+
+      {/* LIVE SHAME TICKER — real-time peer completion feed */}
+      {isToday && <LiveShameTicker orgId={orgId} />}
+
       {/* Daily challenge */}
       {isToday && <DailyChallenge orgId={orgId} />}
 
@@ -186,6 +199,12 @@ export default function DashboardPage() {
       {/* Verified work session */}
       {isToday && <WorkSessionTracker orgId={orgId} />}
 
+      {/* Social pressure ranking */}
+      {isToday && <SocialPressureWidget orgId={orgId} />}
+
+      {/* Public accountability board */}
+      {isToday && <PublicAccountabilityBoard orgId={orgId} />}
+
       {/* Empty Chair - who's NOT working */}
       {isToday && <EmptyChair orgId={orgId} />}
 
@@ -203,6 +222,12 @@ export default function DashboardPage() {
 
       {/* Personal stats */}
       <PersonalStatsWidget orgId={orgId} date={date} />
+
+      {/* DAILY SCOREBOARD — ranked list of who's logging today */}
+      {isToday && <DailyScoreboard orgId={orgId} />}
+
+      {/* GHOST DETECTOR — calls out online but not logging */}
+      {isToday && <GhostDetector orgId={orgId} />}
 
       {/* Live status */}
       {isToday && <LiveStatusBar orgId={orgId} />}
@@ -225,6 +250,9 @@ export default function DashboardPage() {
       <LogEntryDialog open={logOpen} onOpenChange={setLogOpen} defaultDate={date} />
       <BulkEntryDialog open={bulkOpen} onOpenChange={setBulkOpen} />
       <DailyCloseoutDialog open={closeoutOpen} onOpenChange={setCloseoutOpen} />
+
+      {/* DAILY VERDICT — end-of-day judgment overlay */}
+      {isToday && <DailyVerdict orgId={orgId} />}
     </div>
   );
 }
