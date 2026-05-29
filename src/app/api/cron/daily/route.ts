@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 export async function GET(request: Request) {
   // Verify cron secret
   const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}` && process.env.CRON_SECRET) {
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -22,11 +22,13 @@ export async function GET(request: Request) {
 
   const results: Record<string, unknown> = { date };
 
+  const cronHeaders = { Authorization: `Bearer ${process.env.CRON_SECRET}` };
+
   // 1. Generate flags via the flags API
   try {
     const flagsRes = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL ? new URL(request.url).origin : "http://localhost:3000"}/api/flags/generate?date=${date}`,
-      { method: "POST" }
+      { method: "POST", headers: cronHeaders }
     );
     results.flags = await flagsRes.json();
   } catch (e) {
@@ -43,7 +45,7 @@ export async function GET(request: Request) {
           `${new URL(request.url).origin}/api/slack/webhook`,
           {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...cronHeaders },
             body: JSON.stringify({ webhook_url: slackWebhook, org_id: org.id, date }),
           }
         );
@@ -60,7 +62,7 @@ export async function GET(request: Request) {
     for (const org of orgs ?? []) {
       await fetch(
         `${new URL(request.url).origin}/api/ai-review?org_id=${org.id}&date=${date}`,
-        { method: "POST" }
+        { method: "POST", headers: cronHeaders }
       );
     }
     results.ai_review = "completed";
@@ -74,7 +76,7 @@ export async function GET(request: Request) {
     for (const org of orgs ?? []) {
       await fetch(
         `${new URL(request.url).origin}/api/ai-audit?org_id=${org.id}&date=${date}`,
-        { method: "POST" }
+        { method: "POST", headers: cronHeaders }
       );
     }
     results.ai_audit = "completed";
@@ -82,7 +84,21 @@ export async function GET(request: Request) {
     results.ai_audit_error = (e as Error).message;
   }
 
-  // 5. Generate weekly summary (every Sunday)
+  // 5. AI Process Day — generate insights, update profiles, predict signals
+  try {
+    const { data: orgs } = await supabase.from("organizations").select("id");
+    for (const org of orgs ?? []) {
+      await fetch(
+        `${new URL(request.url).origin}/api/ai-process-day?org_id=${org.id}&date=${date}`,
+        { method: "POST" }
+      );
+    }
+    results.ai_process_day = "completed";
+  } catch (e) {
+    results.ai_process_day_error = (e as Error).message;
+  }
+
+  // 6. Generate weekly summary (every Sunday)
   const dayOfWeek = new Date().getDay();
   if (dayOfWeek === 0) { // Sunday
     try {
@@ -93,7 +109,7 @@ export async function GET(request: Request) {
       for (const org of orgs ?? []) {
         await fetch(
           `${new URL(request.url).origin}/api/weekly-summary/generate?org_id=${org.id}&week_start=${weekStart}`,
-          { method: "POST" }
+          { method: "POST", headers: cronHeaders }
         );
       }
       results.weekly_summary = "generated";

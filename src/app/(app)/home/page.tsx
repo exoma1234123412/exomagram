@@ -146,13 +146,13 @@ export default function HomePage() {
         { data: standupData },
         { data: promisesData },
         { data: teamStatuses },
-      ] = await window.Promise.all([
+      ] = await Promise.all([
         supabase.from("profiles").select("full_name").eq("id", user.id).single(),
         supabase.from("time_entries").select("id, proof_urls").eq("user_id", user.id).eq("date", today),
         supabase.from("activity_streaks").select("current_streak").eq("user_id", user.id).eq("org_id", membership.org_id).single(),
         supabase.from("standups").select("*").eq("user_id", user.id).eq("date", today).single(),
         supabase.from("daily_promises").select("*").eq("user_id", user.id).eq("date", today).order("created_at"),
-        supabase.from("live_statuses").select("id").eq("org_id", membership.org_id).neq("status", "offline"),
+        supabase.from("live_status").select("id").eq("org_id", membership.org_id).neq("status", "offline"),
       ]);
 
       const hoursLogged = entries?.length ?? 0;

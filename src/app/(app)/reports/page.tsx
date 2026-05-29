@@ -1254,7 +1254,7 @@ export default function ReportsPage() {
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4 text-violet-500" />
+                    <BarChart3 className="w-4 h-4 text-primary" />
                     Distribucion por categoria
                   </CardTitle>
                 </CardHeader>
@@ -1391,7 +1391,7 @@ export default function ReportsPage() {
             <Card className="mb-6">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center gap-2">
-                  <Users className="w-4 h-4 text-violet-500" />
+                  <Users className="w-4 h-4 text-primary" />
                   Desglose por persona
                 </CardTitle>
               </CardHeader>

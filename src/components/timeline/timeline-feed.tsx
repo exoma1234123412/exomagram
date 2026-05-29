@@ -42,7 +42,7 @@ export function TimelineFeed({
 
     // Real-time subscription
     const channel = supabase
-      .channel("time_entries_realtime")
+      .channel(`time_entries_realtime_${orgId}`)
       .on(
         "postgres_changes",
         {

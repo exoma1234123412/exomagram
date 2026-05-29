@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { createClient as createServerSupabase } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 // POST /api/efficiency-audit?org_id=xxx&date=yyyy-mm-dd
@@ -20,21 +21,24 @@ import { NextResponse } from "next/server";
 const HOURLY_COST = 50; // USD default
 
 export async function POST(request: Request) {
+  // Auth: verify user is logged in
+  const serverClient = await createServerSupabase();
+  const { data: { user } } = await serverClient.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const orgId = searchParams.get("org_id");
   const date = searchParams.get("date") ?? new Date().toISOString().split("T")[0];
 
   if (!orgId) return NextResponse.json({ error: "org_id required" }, { status: 400 });
 
+  // Service-role client for data queries (bypasses RLS)
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
-  }
 
   const [
     { data: entries },

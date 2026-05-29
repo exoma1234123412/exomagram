@@ -41,6 +41,9 @@ export default function WarRoomPage() {
   }, [recentEntry]);
 
   useEffect(() => {
+    let entriesChannel: ReturnType<typeof supabase.channel>;
+    let statusChannel: ReturnType<typeof supabase.channel>;
+
     async function load() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -80,7 +83,7 @@ export default function WarRoomPage() {
       setStatuses(statusData ?? []);
 
       // Real-time
-      const entriesChannel = supabase
+      entriesChannel = supabase
         .channel("warroom_entries")
         .on("postgres_changes", {
           event: "INSERT",
@@ -101,7 +104,7 @@ export default function WarRoomPage() {
         })
         .subscribe();
 
-      const statusChannel = supabase
+      statusChannel = supabase
         .channel("warroom_status")
         .on("postgres_changes", {
           event: "*",
@@ -117,13 +120,13 @@ export default function WarRoomPage() {
           setStatuses(data ?? []);
         })
         .subscribe();
-
-      return () => {
-        supabase.removeChannel(entriesChannel);
-        supabase.removeChannel(statusChannel);
-      };
     }
     load();
+
+    return () => {
+      if (entriesChannel) supabase.removeChannel(entriesChannel);
+      if (statusChannel) supabase.removeChannel(statusChannel);
+    };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Stats

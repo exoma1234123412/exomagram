@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
+import { createClient as createServerSupabase } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 // POST /api/claude-audit?org_id=xxx&date=yyyy-mm-dd
@@ -9,6 +10,13 @@ import { NextResponse } from "next/server";
 // detects bullshit, inconsistencies, and gives brutally honest feedback.
 
 export async function POST(request: Request) {
+  // Auth: verify user is logged in
+  const serverClient = await createServerSupabase();
+  const { data: { user } } = await serverClient.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const orgId = searchParams.get("org_id");
   const date = searchParams.get("date") ?? new Date().toISOString().split("T")[0];
@@ -17,15 +25,11 @@ export async function POST(request: Request) {
   if (!process.env.ANTHROPIC_API_KEY) return NextResponse.json({ error: "ANTHROPIC_API_KEY not set" }, { status: 500 });
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  // Service-role client for data queries (bypasses RLS)
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
-  }
 
   // Gather all data
   const [

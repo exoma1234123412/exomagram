@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}` && process.env.CRON_SECRET) {
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -44,7 +44,10 @@ export async function GET(request: Request) {
     try {
       const res = await fetch(
         `${new URL(request.url).origin}/api/ai-autopilot?org_id=${org.id}`,
-        { method: "POST" }
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${process.env.CRON_SECRET}` },
+        }
       );
       const data = await res.json();
       results[`autopilot_${org.id}`] = {

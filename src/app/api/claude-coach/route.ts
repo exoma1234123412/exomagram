@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
+import { createClient as createServerSupabase } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 // POST /api/claude-coach?org_id=xxx&user_id=xxx
@@ -10,6 +11,13 @@ import { NextResponse } from "next/server";
 // Also used for 1:1 meeting prep.
 
 export async function POST(request: Request) {
+  // Auth: verify user is logged in
+  const serverClient = await createServerSupabase();
+  const { data: { user } } = await serverClient.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+
   const body = await request.json();
   const { org_id, user_id, type } = body;
   // type: "realtime_nudge" | "one_on_one_prep" | "end_of_day" | "weekly_summary_personal"
@@ -18,12 +26,8 @@ export async function POST(request: Request) {
   if (!process.env.ANTHROPIC_API_KEY) return NextResponse.json({ error: "No API key" }, { status: 500 });
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  // Service-role client for data queries (bypasses RLS)
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
-  }
 
   const today = new Date().toISOString().split("T")[0];
   const currentHour = new Date().getHours();

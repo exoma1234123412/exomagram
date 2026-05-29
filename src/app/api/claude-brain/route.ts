@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
+import { createClient as createServerSupabase } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 // POST /api/claude-brain
@@ -18,13 +19,33 @@ import { NextResponse } from "next/server";
 // - "evening_roast": Personalized evening roast/review for a user
 
 export async function POST(request: Request) {
+  // Auth: verify user is logged in
+  const serverClient = await createServerSupabase();
+  const { data: { user } } = await serverClient.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+
   const body = await request.json();
   const { mode, org_id, question, user_id, entry_id, date } = body;
 
   if (!org_id) return NextResponse.json({ error: "org_id required" }, { status: 400 });
+
+  // Verify user belongs to the org
+  const { data: membership } = await serverClient
+    .from("org_members")
+    .select("role")
+    .eq("user_id", user.id)
+    .eq("org_id", org_id)
+    .single();
+  if (!membership) {
+    return NextResponse.json({ error: "No perteneces a esta organización" }, { status: 403 });
+  }
+
   if (!process.env.ANTHROPIC_API_KEY) return NextResponse.json({ error: "No API key" }, { status: 500 });
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  // Service-role client for data queries (bypasses RLS)
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
   const today = date ?? new Date().toISOString().split("T")[0];
@@ -45,6 +66,8 @@ export async function POST(request: Request) {
     { data: streaks },
     { data: reactions },
     { data: weeklySummaries },
+    { data: workProfiles },
+    { data: dailyInsights },
   ] = await Promise.all([
     supabase.from("org_members").select("user_id, role, profiles(full_name, role, email)").eq("org_id", org_id),
     supabase.from("time_entries").select("*").eq("org_id", org_id).gte("date", recentStart).order("date").order("hour"),
@@ -55,8 +78,10 @@ export async function POST(request: Request) {
     supabase.from("shoutouts").select("*").eq("org_id", org_id).gte("date", recentStart),
     supabase.from("github_events").select("*").eq("org_id", org_id).gte("date", recentStart),
     supabase.from("activity_streaks").select("*").eq("org_id", org_id),
-    supabase.from("entry_reactions").select("entry_id, reaction, user_id"),
+    supabase.from("entry_reactions").select("entry_id, reaction, user_id, time_entries!inner(org_id)").eq("time_entries.org_id", org_id),
     supabase.from("weekly_summaries").select("*").eq("org_id", org_id).order("week_start"),
+    supabase.from("ai_work_profiles").select("*").eq("org_id", org_id),
+    supabase.from("ai_daily_insights").select("*").eq("org_id", org_id).order("date", { ascending: false }).limit(35),
   ]);
 
   // Build comprehensive data summary
@@ -66,8 +91,52 @@ export async function POST(request: Request) {
     memberMap.set(m.user_id, `${p?.full_name ?? "?"} (${p?.role ?? "?"})`);
   }
 
+  // LAYER 0: AI Work Profiles (persistent personality/pattern data per person)
+  let dataSummary = "══════ PERFILES DE TRABAJO (AI-generated, updated nightly) ══════\n\n";
+
+  const profileMap = new Map<string, Record<string, unknown>>();
+  for (const wp of workProfiles ?? []) {
+    profileMap.set(wp.user_id, wp.profile_data as Record<string, unknown>);
+  }
+
+  for (const [userId, name] of memberMap) {
+    const pd = profileMap.get(userId);
+    if (pd) {
+      dataSummary += `--- ${name} ---\n`;
+      dataSummary += `Personalidad: ${pd.work_personality ?? "?"}\n`;
+      dataSummary += `Cronotipo: ${pd.chronotype ?? "?"}, Consistencia: ${pd.consistency_score ?? "?"}/100\n`;
+      dataSummary += `Fortalezas: ${(pd.strengths as string[] ?? []).join(", ")}\n`;
+      dataSummary += `Debilidades: ${(pd.weaknesses as string[] ?? []).join(", ")}\n`;
+      dataSummary += `Motivadores: ${(pd.motivators as string[] ?? []).join(", ")}\n`;
+      dataSummary += `Riesgos: ${(pd.risk_factors as string[] ?? []).join(", ")}\n`;
+      dataSummary += `Horas óptimas: ${pd.optimal_work_hours ?? "?"}\n\n`;
+    }
+  }
+
+  // Recent AI insights (last 7 days of daily grades/predictions)
+  dataSummary += "══════ INSIGHTS RECIENTES (últimos 7 días de AI) ══════\n\n";
+  const insightMap = new Map<string, Array<Record<string, unknown>>>();
+  for (const di of dailyInsights ?? []) {
+    const list = insightMap.get(di.user_id) ?? [];
+    list.push({ date: di.date, ...(di.insight as Record<string, unknown>), predictive: di.predictive });
+    insightMap.set(di.user_id, list);
+  }
+
+  for (const [userId, name] of memberMap) {
+    const insights = insightMap.get(userId);
+    if (insights && insights.length > 0) {
+      dataSummary += `${name}: ${insights.map((i) => `${i.date}=${i.grade}(${i.score})`).join(", ")}\n`;
+      const latest = insights[0];
+      const pred = latest.predictive as Record<string, unknown> | undefined;
+      if (pred) {
+        dataSummary += `  Burnout: ${pred.burnout_risk ?? "?"}%, Disengagement: ${pred.disengagement_risk ?? "?"}%, Trayectoria: ${pred.trajectory ?? "?"}\n`;
+      }
+    }
+  }
+  dataSummary += "\n";
+
   // LAYER 1: Historical weekly summaries (ALL-TIME memory)
-  let dataSummary = "══════ MEMORIA HISTÓRICA (resúmenes semanales comprimidos) ══════\n\n";
+  dataSummary += "══════ MEMORIA HISTÓRICA (resúmenes semanales comprimidos) ══════\n\n";
 
   const summaryMap = new Map<string, Array<{ week: string; narrative: string; summary: Record<string, unknown> }>>();
   for (const ws of weeklySummaries ?? []) {

@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { createClient as createServerSupabase } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { CATEGORIES } from "@/lib/constants";
 import type { WorkCategory } from "@/lib/types/database";
@@ -7,6 +8,7 @@ import type { WorkCategory } from "@/lib/types/database";
 // Brutally honest AI audit of each person's day
 // Grades everyone A-F and explains why
 // This feeds directly into the trust score
+// Called from both client UI and cron/daily
 
 const EXPECTED_HOURS = 8;
 
@@ -31,21 +33,28 @@ interface PersonAudit {
 }
 
 export async function POST(request: Request) {
+  // Auth: accept either cron secret or user session
+  const authHeader = request.headers.get("authorization");
+  const isCron = authHeader === `Bearer ${process.env.CRON_SECRET}`;
+  if (!isCron) {
+    const serverClient = await createServerSupabase();
+    const { data: { user } } = await serverClient.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    }
+  }
+
   const { searchParams } = new URL(request.url);
   const orgId = searchParams.get("org_id");
   const date = searchParams.get("date") ?? new Date().toISOString().split("T")[0];
 
   if (!orgId) return NextResponse.json({ error: "org_id required" }, { status: 400 });
 
+  // Service-role client for data queries (bypasses RLS)
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
-  }
 
   // Fetch everything we need
   const [

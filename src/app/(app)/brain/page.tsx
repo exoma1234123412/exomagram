@@ -68,7 +68,10 @@ export default function BrainPage() {
   }, [messages]);
 
   async function sendMessage(mode: string, question?: string, targetUserId?: string) {
-    if (!orgId) return;
+    if (!orgId) {
+      setMessages((prev) => [...prev, { role: "assistant", content: "Error: No se pudo cargar tu organización. Recarga la página." }]);
+      return;
+    }
     if (mode === "ask" && !question?.trim()) return;
 
     const userMsg: Message = {
@@ -92,17 +95,27 @@ export default function BrainPage() {
           date: new Date().toISOString().split("T")[0],
         }),
       });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Claude Brain API error:", res.status, errorText);
+        setMessages((prev) => [...prev, { role: "assistant", content: `Error ${res.status}: ${errorText.slice(0, 200)}` }]);
+        setLoading(false);
+        return;
+      }
+
       const data = await res.json();
 
       const assistantMsg: Message = {
         role: "assistant",
-        content: typeof data.response === "string" ? data.response : JSON.stringify(data.response, null, 2),
+        content: data.error ? `Error: ${data.error}` : typeof data.response === "string" ? data.response : JSON.stringify(data.response, null, 2),
         mode,
         data: typeof data.response === "object" ? data.response : undefined,
       };
       setMessages((prev) => [...prev, assistantMsg]);
-    } catch {
-      setMessages((prev) => [...prev, { role: "assistant", content: "Error conectando con Claude." }]);
+    } catch (err) {
+      console.error("Claude Brain fetch error:", err);
+      setMessages((prev) => [...prev, { role: "assistant", content: `Error conectando: ${err instanceof Error ? err.message : "Unknown error"}` }]);
     }
     setLoading(false);
   }
