@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
+import { createClient as createServerClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 // POST /api/claude-hotseat?org_id=xxx&user_id=xxx
@@ -8,10 +9,25 @@ import { NextResponse } from "next/server";
 // uncomfortable, honest analysis possible. Like a performance review from hell.
 
 export async function POST(request: Request) {
+  // Auth: verify the requesting user is authenticated and a member of the org
+  const authSupabase = await createServerClient();
+  const { data: { user } } = await authSupabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { searchParams } = new URL(request.url);
   const orgId = searchParams.get("org_id");
   const targetUserId = searchParams.get("user_id");
   if (!orgId || !targetUserId) return NextResponse.json({ error: "org_id and user_id required" }, { status: 400 });
+
+  // Verify caller is a member of this org
+  const { data: membership } = await authSupabase
+    .from("org_members")
+    .select("role")
+    .eq("user_id", user.id)
+    .eq("org_id", orgId)
+    .single();
+  if (!membership) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
   if (!process.env.ANTHROPIC_API_KEY) return NextResponse.json({ error: "No API key" }, { status: 500 });
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });

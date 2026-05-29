@@ -256,6 +256,157 @@
   }
 }
 
+/* ===== ADDICTION / CASINO / PRESSURE ANIMATIONS ===== */
+
+/* Confetti burst for jackpot moments */
+@keyframes confetti-fall {
+  0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(120px) rotate(720deg); opacity: 0; }
+}
+
+@keyframes confetti-spread {
+  0% { transform: translate(0, 0) scale(0); opacity: 0; }
+  20% { transform: translate(var(--x), var(--y)) scale(1); opacity: 1; }
+  100% { transform: translate(var(--x), calc(var(--y) + 60px)) scale(0.5); opacity: 0; }
+}
+
+/* Slot machine reel spin */
+@keyframes slot-spin {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-100%); }
+}
+
+@keyframes slot-settle {
+  0% { transform: translateY(-5px); }
+  50% { transform: translateY(3px); }
+  100% { transform: translateY(0); }
+}
+
+/* Danger shake for warnings */
+@keyframes danger-shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+  20%, 40%, 60%, 80% { transform: translateX(3px); }
+}
+
+/* Streak fire glow — intensifies near midnight */
+@keyframes streak-fire {
+  0%, 100% {
+    text-shadow: 0 0 4px oklch(0.70 0.18 50 / 60%), 0 0 8px oklch(0.65 0.22 40 / 40%);
+    filter: brightness(1);
+  }
+  50% {
+    text-shadow: 0 0 8px oklch(0.70 0.18 50 / 80%), 0 0 16px oklch(0.65 0.22 40 / 60%), 0 0 24px oklch(0.60 0.25 30 / 30%);
+    filter: brightness(1.1);
+  }
+}
+
+/* Danger pulse — red throb for critical states */
+@keyframes danger-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 oklch(0.577 0.245 27 / 40%);
+    border-color: oklch(0.577 0.245 27 / 60%);
+  }
+  50% {
+    box-shadow: 0 0 0 6px oklch(0.577 0.245 27 / 0%);
+    border-color: oklch(0.577 0.245 27 / 100%);
+  }
+}
+
+/* Rank change flash */
+@keyframes rank-drop {
+  0% { background-color: oklch(0.577 0.245 27 / 0%); }
+  30% { background-color: oklch(0.577 0.245 27 / 20%); }
+  100% { background-color: oklch(0.577 0.245 27 / 0%); }
+}
+
+@keyframes rank-rise {
+  0% { background-color: oklch(0.55 0.15 150 / 0%); }
+  30% { background-color: oklch(0.55 0.15 150 / 20%); }
+  100% { background-color: oklch(0.55 0.15 150 / 0%); }
+}
+
+/* Jackpot glow */
+@keyframes jackpot-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px oklch(0.75 0.15 85 / 40%), 0 0 20px oklch(0.75 0.15 85 / 20%);
+  }
+  50% {
+    box-shadow: 0 0 20px oklch(0.75 0.15 85 / 70%), 0 0 40px oklch(0.75 0.15 85 / 40%), 0 0 60px oklch(0.75 0.15 85 / 20%);
+  }
+}
+
+/* Countdown urgency — speeds up as time runs out */
+@keyframes countdown-tick {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Number roll-up counter */
+@keyframes number-roll {
+  0% { transform: translateY(100%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Watching eye blink */
+@keyframes eye-blink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+
+/* Pressure bar entrance */
+@keyframes slide-up-bounce {
+  0% { transform: translateY(100%); }
+  60% { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
+}
+
+@layer utilities {
+  .animate-danger-shake {
+    animation: danger-shake 0.5s ease-in-out;
+  }
+
+  .animate-streak-fire {
+    animation: streak-fire 1.5s ease-in-out infinite;
+  }
+
+  .animate-danger-pulse {
+    animation: danger-pulse 1.5s ease-in-out infinite;
+  }
+
+  .animate-rank-drop {
+    animation: rank-drop 1s ease-out;
+  }
+
+  .animate-rank-rise {
+    animation: rank-rise 1s ease-out;
+  }
+
+  .animate-jackpot-glow {
+    animation: jackpot-glow 1.5s ease-in-out infinite;
+  }
+
+  .animate-countdown-tick {
+    animation: countdown-tick 1s ease-in-out infinite;
+  }
+
+  .animate-number-roll {
+    animation: number-roll 0.4s ease-out;
+  }
+
+  .animate-eye-blink {
+    animation: eye-blink 4s ease-in-out infinite;
+  }
+
+  .animate-slide-up-bounce {
+    animation: slide-up-bounce 0.5s ease-out;
+  }
+
+  .animate-slot-settle {
+    animation: slot-settle 0.3s ease-out;
+  }
+}
+
 /* Print styles for reports and recaps */
 @media print {
   /* Hide navigation, sidebars, floating elements */

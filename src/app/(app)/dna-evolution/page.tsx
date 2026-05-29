@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useOrg } from "@/lib/context/org-context";
-import type { TimeEntry, Profile } from "@/lib/types/database";
+import type { TimeEntry } from "@/lib/types/database";
 import type { WorkCategory } from "@/lib/types/database";
 import { CATEGORIES, CATEGORY_COLORS } from "@/lib/constants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,12 +16,8 @@ import {
   Dna,
   TrendingUp,
   TrendingDown,
-  ArrowRight,
   Activity,
-  Shield,
   Clock,
-  Smile,
-  Zap,
   Users,
 } from "lucide-react";
 
@@ -397,7 +393,7 @@ function MutationsList({ months }: { months: MonthData[] }) {
               />
             )}
             <p className="text-sm flex-1">
-              <span className="font-medium">{m.label}</span> paso de{" "}
+              <span className="font-medium">{m.label}</span> pasó de{" "}
               <span className="font-bold tabular-nums">{m.prevPercent}%</span>{" "}
               a{" "}
               <span className="font-bold tabular-nums">{m.currPercent}%</span>
@@ -437,13 +433,13 @@ function MonthlyStatsTable({ months }: { months: MonthData[] }) {
               Hrs/dia
             </th>
             <th className="text-center py-2 px-2 text-xs font-medium text-muted-foreground">
-              Top categoria
+              Top categoría
             </th>
             <th className="text-center py-2 px-2 text-xs font-medium text-muted-foreground">
               Evidencia
             </th>
             <th className="text-center py-2 px-2 text-xs font-medium text-muted-foreground hidden sm:table-cell">
-              Animo
+              Ánimo
             </th>
             <th className="text-center py-2 px-2 text-xs font-medium text-muted-foreground hidden sm:table-cell">
               Hora pico
@@ -790,11 +786,11 @@ export default function DnaEvolutionPage() {
       <div className="flex items-center gap-3 mb-2">
         <Dna className="w-6 h-6 text-primary" />
         <h1 className="text-2xl font-bold tracking-tight">
-          DNA Evolucion
+          DNA Evolución
         </h1>
       </div>
       <p className="text-muted-foreground text-sm mb-8">
-        Como han evolucionado los patrones de trabajo de cada persona mes a mes.
+        Cómo han evolucionado los patrones de trabajo de cada persona mes a mes.
       </p>
 
       {/* Member selector */}
@@ -955,7 +951,7 @@ export default function DnaEvolutionPage() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-semibold flex items-center gap-2">
                     <Clock className="w-4 h-4 text-primary" />
-                    Estadisticas Mensuales
+                    Estadísticas Mensuales
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -975,7 +971,7 @@ export default function DnaEvolutionPage() {
                   </div>
                   <p className="text-sm font-medium">Sin datos disponibles</p>
                   <p className="text-xs text-muted-foreground max-w-sm">
-                    Esta persona no tiene entradas registradas en los ultimos 6
+                    Esta persona no tiene entradas registradas en los últimos 6
                     meses.
                   </p>
                 </div>

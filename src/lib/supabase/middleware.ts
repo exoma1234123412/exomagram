@@ -29,20 +29,45 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAuthPage =
-    request.nextUrl.pathname.startsWith("/login") ||
-    request.nextUrl.pathname.startsWith("/signup");
+  const pathname = request.nextUrl.pathname;
 
-  if (!user && !isAuthPage && !request.nextUrl.pathname.startsWith("/auth") && !request.nextUrl.pathname.startsWith("/public")) {
+  const isAuthPage =
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/signup") ||
+    pathname.startsWith("/forgot-password") ||
+    pathname.startsWith("/reset-password");
+
+  const isPublicPage =
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/public");
+
+  // Not logged in → login
+  if (!user && !isAuthPage && !isPublicPage) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
+  // Logged in on auth page → home
   if (user && isAuthPage) {
     const url = request.nextUrl.clone();
-    url.pathname = "/feed";
+    url.pathname = "/home";
     return NextResponse.redirect(url);
+  }
+
+  // Logged in → check if setup completed (skip for setup page itself and API routes)
+  if (user && !pathname.startsWith("/setup") && !pathname.startsWith("/api") && !isAuthPage && !isPublicPage) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("setup_completed")
+      .eq("id", user.id)
+      .single();
+
+    if (profile && !profile.setup_completed) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/setup";
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;
