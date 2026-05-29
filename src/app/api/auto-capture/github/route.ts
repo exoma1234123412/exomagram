@@ -98,7 +98,17 @@ export async function POST(request: NextRequest) {
   );
 
   // 3. Generate suggestions
-  const suggestions = [];
+  const suggestions: {
+    user_id: string;
+    date: string;
+    hour: number;
+    category: WorkCategory;
+    title: string;
+    description: string | null;
+    source: "github";
+    source_url: string | null;
+    github_event_id: string;
+  }[] = [];
 
   for (const event of events) {
     const mapping = EVENT_MAP[event.event_type as GithubEventType];

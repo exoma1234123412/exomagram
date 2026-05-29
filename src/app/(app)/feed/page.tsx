@@ -563,7 +563,7 @@ function FeedPost({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold truncate">
-                {entry.profiles?.full_name ?? "Anónimo"}
+                {entry.profiles?.full_name ?? entry.profiles?.email ?? "Sin nombre"}
               </span>
               {hasProof && (
                 <span title="Entrada verificada con evidencia">
@@ -1099,6 +1099,26 @@ export default function FeedPage() {
               onSelect={(m) => setStoryMember(m)}
             />
           )}
+
+          {/* Shame Banner — members with 0 entries today */}
+          {(() => {
+            const ghosts = members.filter((m) => !(todayEntries.get(m.id)?.length));
+            if (ghosts.length === 0) return null;
+            return (
+              <div className="border-2 border-red-500/40 bg-red-500/5 p-3 mb-6">
+                <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-red-500/70 mb-2">
+                  SIN ACTIVIDAD HOY — {ghosts.length} {ghosts.length === 1 ? "PERSONA" : "PERSONAS"}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {ghosts.map((g) => (
+                    <span key={g.id} className="font-mono text-xs font-bold text-red-500">
+                      {g.full_name ?? g.email}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Tab Selector */}
           <div className="flex items-center gap-1 mb-6 border-b border-border/50">

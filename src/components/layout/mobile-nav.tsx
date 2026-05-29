@@ -15,7 +15,8 @@ import {
   MessageSquareWarning, Plus, ScanEye, Radio, Menu, X,
   Mail, Crosshair,
   ArrowDownUp, CandlestickChart, Hammer, Newspaper, Ghost, Timer, Ticket,
-  UserMinus, Link2, Clock3, ShieldMinus, Lock, Handshake,
+  UserMinus, Link2, Clock3, ShieldMinus, Lock, Handshake, Shield,
+  Radar, FileText,
 } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Logo } from "@/components/layout/logo";
@@ -34,6 +35,7 @@ const menuSections = [
       { href: "/standup", label: "Standup", icon: MessageSquare },
       { href: "/promises", label: "Promesas", icon: Target },
       { href: "/contract", label: "Pacto Semanal", icon: FileSignature },
+      { href: "/auto-capture", label: "Auto-Captura", icon: Radar },
       { href: "/grid", label: "Equipo", icon: Grid3X3 },
     ],
   },
@@ -80,6 +82,7 @@ const menuSections = [
   {
     label: "RENDIMIENTO",
     items: [
+      { href: "/analytics", label: "Centro Comando", icon: Activity },
       { href: "/efficiency", label: "Eficiencia", icon: Gauge },
       { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
       { href: "/dna-evolution", label: "DNA Evolución", icon: Dna },
@@ -123,6 +126,8 @@ const menuSections = [
       { href: "/audit", label: "Audit Log", icon: History },
       { href: "/capsule", label: "Time Capsule", icon: Package },
       { href: "/retention", label: "Retención", icon: ShieldAlert },
+      { href: "/insurance", label: "Seguro Trust Score", icon: Shield },
+      { href: "/reports", label: "Reportes", icon: FileText },
     ],
   },
   {

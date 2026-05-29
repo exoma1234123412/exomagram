@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard, Home, Grid3X3, User, Settings, LogOut,
+  LayoutDashboard, Home, Grid3X3, User, Settings, LogOut, Clock,
   Eye, BarChart3, Trophy, MessageSquare, Brain, Heart, History,
   Flame, Target, Sparkles, Gauge, Monitor, Gavel, TrendingUp,
   Pickaxe, Swords, Stethoscope, Waves, Siren, FileSignature,
@@ -16,9 +16,12 @@ import {
   Mail, Crosshair,
   Timer, Hammer, UserMinus, Ghost, Ticket, CandlestickChart, Newspaper,
   AlertTriangle, Link2, Clock3,
-  CircleDollarSign, ArrowDownUp, ScrollText, FileText,
+  CircleDollarSign,
+  ArrowDownUp,
+  ScrollText,
   ShieldMinus, ScanSearch, Camera, BookOpen, FileWarning,
-  Lock, Play, Handshake, Scale, Shield, Radar,
+  Lock, Play, Handshake, Scale,
+  Radar, FileText,
 } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Logo } from "@/components/layout/logo";
@@ -93,7 +96,7 @@ const sections: NavGroup[] = [
   {
     id: "data", label: "RENDIMIENTO",
     items: [
-      { href: "/analytics", label: "Centro Comando", icon: Activity },
+      { href: "/analytics", label: "Centro Comando", icon: BarChart3 },
       { href: "/efficiency", label: "Eficiencia", icon: Gauge },
       { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
       { href: "/dna-evolution", label: "DNA Evolución", icon: Dna },
@@ -134,13 +137,12 @@ const sections: NavGroup[] = [
   {
     id: "control", label: "CONTROL",
     items: [
+      { href: "/reports", label: "Reportes", icon: FileText },
       { href: "/goals", label: "Objetivos", icon: Target },
       { href: "/audit", label: "Audit Log", icon: History },
       { href: "/capsule", label: "Time Capsule", icon: Package },
       { href: "/retention", label: "Retención", icon: ShieldAlert },
       { href: "/inheritance", label: "Herencia Digital", icon: ScrollText },
-      { href: "/insurance", label: "Seguro Trust Score", icon: Shield },
-      { href: "/reports", label: "Reportes", icon: FileText },
     ],
   },
 ];

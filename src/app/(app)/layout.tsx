@@ -11,10 +11,15 @@ import { AICoachNudge } from "@/components/coach/ai-coach-nudge";
 import { FloatingAIButton } from "@/components/coach/floating-ai-button";
 import { PresenceIndicator } from "@/components/social/presence-indicator";
 import { PublicCountdown } from "@/components/social/public-countdown";
+import { RankingStrip } from "@/components/social/ranking-strip";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { GhostEffect } from "@/components/social/ghost-effect";
 import { ThroneProvider } from "@/components/social/throne-crown";
 import { DynamicTitleProvider } from "@/components/social/dynamic-title";
+import { LastPlaceCurse } from "@/components/social/last-place-curse";
+import { PerformanceWatermark } from "@/components/social/performance-watermark";
+import { ShameNotifications } from "@/components/social/shame-notifications";
+import { HerdPressure } from "@/components/social/herd-pressure";
 import { OrgProvider } from "@/lib/context/org-context";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -38,6 +43,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   {/* Top accent line */}
                   <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
                   <PublicCountdown />
+                  <HerdPressure />
+                  <RankingStrip />
                   <div className="relative z-[1]">
                     <ErrorBoundary>
                       {children}
@@ -50,6 +57,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <FloatingAIButton />
                 <PresenceIndicator />
                 <AICoachNudge />
+                <LastPlaceCurse />
+                <PerformanceWatermark />
+                <ShameNotifications />
                 <InstallPrompt />
               </div>
             </GhostEffect>
