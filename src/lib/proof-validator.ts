@@ -491,11 +491,11 @@ export function getTimingProfile(
 
   // Analyze each day
   const analyses: TimingAnalysis[] = [];
-  for (const [, dayEntries] of byDate) {
+  byDate.forEach((dayEntries) => {
     const analysis = analyzeEntryTiming(dayEntries);
     analysis.userId = userId;
     analyses.push(analysis);
-  }
+  });
 
   const totalDays = analyses.length;
   if (totalDays === 0) {

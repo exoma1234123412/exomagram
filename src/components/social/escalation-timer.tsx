@@ -94,6 +94,7 @@ export function EscalationTimer() {
  const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
  const flashTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
  const hasFiredRef = useRef(false);
+ const escalationIdRef = useRef<string | null>(null);
 
  // ── Load user profile work hours ──────────────────────────────────
  useEffect(() => {
@@ -214,6 +215,9 @@ export function EscalationTimer() {
  setRemaining(ESCALATION_MS);
  setPhase("countdown");
  hasFiredRef.current = false;
+ const escId = `escalation-${getTodayMTY()}-${Date.now()}`;
+ escalationIdRef.current = escId;
+ if (userId) trackNotificationShown(escId, "escalation", userId);
  }
  }
 
@@ -269,6 +273,7 @@ export function EscalationTimer() {
  if ((payload.new as { user_id: string }).user_id === userId) {
  if (phase ==="countdown") {
  // User logged in time — SAVED
+ if (escalationIdRef.current) trackNotificationActed(escalationIdRef.current, "logged_entry");
  if (tickRef.current) clearInterval(tickRef.current);
  tickRef.current = null;
 

@@ -41,6 +41,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn, formatHour } from "@/lib/utils";
 import { AlertTriangle, Shield, Clock, BookTemplate, CheckCircle2, ChevronDown } from "lucide-react";
 import { updateStreakOnEntry } from "@/lib/streak-utils";
+import { saveEntrySnapshot } from "@/lib/entry-history";
 import { eventLogger } from "@/lib/event-logger";
 import { useOrg } from "@/lib/hooks/use-org";
 import { EntryTemplates, ManageTemplatesDialog, type EntryTemplate } from "./entry-templates";
@@ -344,6 +345,28 @@ export function LogEntryDialog({
  .maybeSingle();
 
  const currentVersion = existingEntry?.entry_version ?? 0;
+
+ // Save local snapshot before overwriting (entry-history audit trail)
+ if (existingEntry) {
+   saveEntrySnapshot({
+     entryId: existingEntry.id,
+     userId: user.id,
+     orgId: membership.org_id,
+     date,
+     hour: parseInt(hour),
+     snapshot: {
+       category: existingEntry.category,
+       title: existingEntry.title,
+       description: existingEntry.description,
+       proof_urls: existingEntry.proof_urls,
+       mood: existingEntry.mood,
+       energy: existingEntry.energy,
+       project: existingEntry.project,
+       logged_at: existingEntry.logged_at,
+     },
+     editType: currentVersion === 0 ? "created" : "edited",
+   });
+ }
 
  const { data: upsertedEntry, error: insertError } = await supabase.from("time_entries").upsert(
  {

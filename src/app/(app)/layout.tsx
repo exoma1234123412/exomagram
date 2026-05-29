@@ -35,6 +35,12 @@ import { DataPipelineProvider } from "@/components/tracking/data-pipeline";
 import { ClaudeLiveCommentary } from "@/components/ai/claude-live-commentary";
 import { AIAutoFlags } from "@/components/ai/ai-auto-flags";
 import { AudioProvider } from "@/components/audio/audio-provider";
+import { NegativePriming } from "@/components/shame/negative-priming";
+import { FomoEngine } from "@/components/shame/fomo-engine";
+import { ForcedComparisonTicker } from "@/components/shame/forced-comparison-ticker";
+import { PredictiveGuilt } from "@/components/shame/predictive-guilt";
+import { LossFramingAlerts } from "@/components/shame/loss-framing";
+import { PanicCountdown } from "@/components/shame/panic-countdown";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
  const [logDialogOpen, setLogDialogOpen] = useState(false);
@@ -56,11 +62,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
  <GhostEffect>
  <AIMorningBriefing />
  <MorningShameRecap />
+ <NegativePriming />
+ <FomoEngine />
  <div className="flex min-h-screen bg-background">
  <Sidebar />
  <main className="flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0 min-w-0 relative">
  <PublicCountdown />
+ <ForcedComparisonTicker />
  <HerdPressure />
+ <PredictiveGuilt />
+ <LossFramingAlerts />
+ <PanicCountdown />
  <RankingStrip />
  <ShameStreakBadge />
  <div className="relative z-[1]">

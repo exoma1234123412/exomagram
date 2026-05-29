@@ -19,6 +19,7 @@ import { PublicFeed } from "@/components/feed/public-feed";
 import { ThroneBanner } from "@/components/social/throne-crown";
 import { ForcedComparison } from "@/components/social/forced-comparison";
 import { HealthCheckin } from "@/components/dashboard/health-checkin";
+import { DailyChecklist } from "@/components/dashboard/daily-checklist";
 import { TeamDebt } from "@/components/accountability/team-debt";
 import { WorstOfToday } from "@/components/social/worst-of-today";
 import { SunkCostCounter } from "@/components/psychology/sunk-cost-counter";
