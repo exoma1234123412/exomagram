@@ -651,7 +651,7 @@ export default function PowerRankingsPage() {
  {getInitials(playerOfTheWeek.profile.full_name)}
  </AvatarFallback>
  </Avatar>
- <div className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-yellow-400 flex items-center justify-center shadow-md">
+ <div className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-yellow-400 flex items-center justify-center">
  <span className="text-sm">--</span>
  </div>
  </div>

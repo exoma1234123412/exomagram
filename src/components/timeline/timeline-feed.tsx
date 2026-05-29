@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { TimeEntry, Profile } from "@/lib/types/database";
 import { TimeEntryCard } from "./time-entry-card";
@@ -21,18 +21,20 @@ export function TimelineFeed({
 }) {
  const [entries, setEntries] = useState<EntryWithProfile[]>([]);
  const [loading, setLoading] = useState(true);
- const supabase = createClient();
+ // Stable client ref — avoid recreating the Supabase instance on every render
+ const supabaseRef = useRef(createClient());
+ const supabase = supabaseRef.current;
 
  useEffect(() => {
  async function fetchEntries() {
  setLoading(true);
  const { data } = await supabase
  .from("time_entries")
- .select("*, profiles(*)")
+ .select("*, profiles!time_entries_user_id_fkey(id, full_name, avatar_url, email)")
  .eq("org_id", orgId)
  .eq("date", date)
  .order("hour", { ascending: false })
- ;
+ .limit(200);
 
  setEntries(data ?? []);
  setLoading(false);
@@ -55,11 +57,11 @@ export function TimelineFeed({
  // Refetch on any change
  const { data } = await supabase
  .from("time_entries")
- .select("*, profiles(*)")
+ .select("*, profiles!time_entries_user_id_fkey(id, full_name, avatar_url, email)")
  .eq("org_id", orgId)
  .eq("date", date)
  .order("hour", { ascending: false })
- ;
+ .limit(200);
  setEntries(data ?? []);
  }
  )

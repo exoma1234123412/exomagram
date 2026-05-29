@@ -190,7 +190,7 @@ function TimelineBlock({
 "h-10 transition-all duration-200 cursor-default relative group",
 "bg-gradient-to-br",
  gradient,
-"opacity-80 hover:opacity-100 hover:shadow-md hover:scale-y-110")}
+"opacity-80 hover:opacity-100 hover:scale-y-110")}
  >
  {entry.is_late && (
  <div className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-orange-400 ring-1 ring-white/50"/>

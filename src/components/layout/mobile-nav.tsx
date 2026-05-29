@@ -16,7 +16,7 @@ import {
  Mail, Crosshair,
  ArrowDownUp, CandlestickChart, Hammer, Newspaper, Ghost, Timer, Ticket,
  UserMinus, Link2, Clock3, ShieldMinus, Lock, Handshake, Shield,
- Radar, FileText, Bone, Database, Table2, Scale,
+ Radar, FileText, Bone, Database, Table2, Scale, ScrollText, TrendingDown, Cross, UserX,
 } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Logo } from "@/components/layout/logo";
@@ -51,7 +51,11 @@ const menuSections = [
  { href:"/archaeology", label:"Fósiles", icon: Pickaxe },
  { href:"/excuses", label:"Detector Excusas", icon: MessageSquareWarning },
  { href:"/excuse-archaeology", label:"Arqueología Excusas", icon: Bone },
+ { href:"/excuse-patterns", label:"Patrones Excusas", icon: ScanEye },
  { href:"/brutal-truth", label:"Verdad Brutal", icon: Skull },
+ { href:"/conflicts", label:"Conflictos AI", icon: ShieldAlert },
+ { href:"/ai-predictions", label:"Predicciones AI", icon: Activity },
+ { href:"/productivity-autopsy", label:"Autopsia Prod.", icon: Stethoscope },
  ],
  },
  {
@@ -64,8 +68,12 @@ const menuSections = [
  { href:"/irrevocable", label:"Apuesta Irrevocable", icon: Lock },
  { href:"/collateral", label:"Colateral", icon: Handshake },
  { href:"/shame-score", label:"Indice Verguenza", icon: Skull },
+ { href:"/intervention", label:"Intervención", icon: UserX },
  { href:"/weekly-shame", label:"Informe Semanal", icon: Newspaper },
+ { href:"/broken-promises", label:"Promesas Rotas", icon: ScrollText },
+ { href:"/trust-debt", label:"Deuda Confianza", icon: TrendingDown },
  { href:"/peer-verdict", label:"Peer Verdict", icon: Scale },
+ { href:"/graveyard", label:"Cementerio Rachas", icon: Cross },
  ],
  },
  {

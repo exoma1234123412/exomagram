@@ -147,11 +147,11 @@
 @layer base {
   * {
     scrollbar-width: thin;
-    scrollbar-color: oklch(0.80 0 0) transparent;
+    scrollbar-color: oklch(0.75 0.005 220) transparent;
   }
 
   .dark * {
-    scrollbar-color: oklch(0.30 0 0) transparent;
+    scrollbar-color: oklch(0.20 0.008 220) transparent;
   }
 }
 
@@ -226,25 +226,25 @@
 /* Focus ring */
 @layer base {
   *:focus-visible {
-    outline: 1px solid oklch(0.50 0.10 210 / 50%);
+    outline: 1px solid oklch(0.50 0.10 200 / 50%);
     outline-offset: 1px;
     border-radius: 0;
   }
 
   .dark *:focus-visible {
-    outline-color: oklch(0.65 0.12 210 / 50%);
+    outline-color: oklch(0.68 0.12 200 / 40%);
   }
 }
 
 /* Selection styling */
 @layer base {
   ::selection {
-    background-color: oklch(0.45 0.10 210 / 20%);
-    color: oklch(0.10 0.005 230);
+    background-color: oklch(0.45 0.10 200 / 20%);
+    color: oklch(0.10 0.005 220);
   }
 
   .dark ::selection {
-    background-color: oklch(0.65 0.12 210 / 25%);
+    background-color: oklch(0.68 0.12 200 / 20%);
     color: oklch(0.95 0.005 220);
   }
 }

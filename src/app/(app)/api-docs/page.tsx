@@ -602,7 +602,7 @@ export default function ApiDocsPage() {
  {/* Footer CTA */}
  <div className="mt-8 text-center">
  <Link href="/integrations">
- <Button className="gap-2 bg-primary shadow-blue-600/25">
+ <Button className="gap-2 bg-primary">
  <Key className="w-4 h-4"/>
  Generar API Key
  </Button>

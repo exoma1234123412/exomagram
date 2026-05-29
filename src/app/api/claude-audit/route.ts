@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 import { createClient as createServerSupabase } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { checkAIRateLimit } from "@/lib/ai-rate-limit";
 
 // POST /api/claude-audit?org_id=xxx&date=yyyy-mm-dd
 //
@@ -10,6 +11,9 @@ import { NextResponse } from "next/server";
 // detects bullshit, inconsistencies, and gives brutally honest feedback.
 
 export async function POST(request: Request) {
+  // AI rate limiting
+  const rateLimitResponse = await checkAIRateLimit(request);
+  if (rateLimitResponse) return rateLimitResponse;
   // Auth: verify user is logged in
   const serverClient = await createServerSupabase();
   const { data: { user } } = await serverClient.auth.getUser();

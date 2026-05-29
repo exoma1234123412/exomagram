@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { checkAIRateLimit } from "@/lib/ai-rate-limit";
 
 // POST /api/claude-excuses
 // Body: { org_id }
@@ -9,6 +10,9 @@ import { NextResponse } from "next/server";
 // looking for RECURRING excuses per person.
 
 export async function POST(request: Request) {
+  // AI rate limiting
+  const rateLimitResponse = await checkAIRateLimit(request);
+  if (rateLimitResponse) return rateLimitResponse;
   const authSupabase = await createServerClient();
   const {
     data: { user },

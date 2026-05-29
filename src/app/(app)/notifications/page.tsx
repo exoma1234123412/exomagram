@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -432,8 +433,7 @@ function NotificationList({
 // ---------------------------------------------------------------------------
 
 export default function NotificationsPage() {
- const [orgId, setOrgId] = useState<string | null>(null);
- const [userId, setUserId] = useState<string | null>(null);
+ const { userId, loading: orgLoading } = useOrg();
  const [loading, setLoading] = useState(true);
  const [notifications, setNotifications] = useState<Notification[]>([]);
  const [activeTab, setActiveTab] = useState<FilterTab>("all");
@@ -441,33 +441,6 @@ export default function NotificationsPage() {
  const [newIds, setNewIds] = useState<Set<string>>(new Set());
 
  const supabase = createClient();
-
- // -----------------------------------------------------------------------
- // Load org membership
- // -----------------------------------------------------------------------
- useEffect(() => {
- async function loadOrg() {
- const {
- data: { user },
- } = await supabase.auth.getUser();
- if (!user) return;
- setUserId(user.id);
-
- const { data: membership } = await supabase
- .from("org_members")
- .select("org_id")
- .eq("user_id", user.id)
- .limit(1)
- .single();
-
- if (membership) {
- setOrgId(membership.org_id);
- } else {
- setLoading(false);
- }
- }
- loadOrg();
- }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
  // -----------------------------------------------------------------------
  // Fetch notifications
@@ -489,7 +462,7 @@ export default function NotificationsPage() {
  // Initial load
  // -----------------------------------------------------------------------
  useEffect(() => {
- if (!userId) return;
+ if (orgLoading || !userId) return;
 
  async function init() {
  setLoading(true);
@@ -497,13 +470,13 @@ export default function NotificationsPage() {
  setLoading(false);
  }
  init();
- }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
+ }, [userId, orgLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
  // -----------------------------------------------------------------------
  // Real-time subscription
  // -----------------------------------------------------------------------
  useEffect(() => {
- if (!userId) return;
+ if (orgLoading || !userId) return;
 
  const channel = supabase
  .channel("notifications_page_rt")
@@ -542,7 +515,7 @@ export default function NotificationsPage() {
  return () => {
  supabase.removeChannel(channel);
  };
- }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
+ }, [userId, orgLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
  // -----------------------------------------------------------------------
  // Handlers
@@ -647,7 +620,7 @@ export default function NotificationsPage() {
  />
 
  {/* Loading */}
- {loading ? (
+ {loading || orgLoading ? (
  <div className="flex flex-col items-center justify-center py-24 gap-3">
  <div className="w-10 h-10 bg-primary animate-pulse"/>
  <p className="text-sm text-muted-foreground animate-pulse">

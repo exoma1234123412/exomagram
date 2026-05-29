@@ -102,13 +102,19 @@ ${context}
 EVENTO:
 ${eventPrompts[eventType] ?? `Evento desconocido: ${eventType}`}
 
+REGLA DE SHAME PÚBLICO: Todo rendimiento es PÚBLICO con nombre completo. Incluye:
+- Entradas tardías, sin evidencia, rechazadas por Claude
+- Promesas rotas, standups faltantes, ghost status
+- Comparaciones directas con el equipo
+La ÚNICA cosa privada es salud/bienestar (mood bajo, estrés, sueño).
+
 Genera una reacción EN JSON:
 {
-  "public_message": "1 oración corta y witty para el feed público. Con datos específicos si los hay. Máximo 140 caracteres.",
-  "private_message": "Mensaje privado para ${name} (o null si no es necesario). Solo si hay algo que decirle que no debe ser público — crítica, warning, tip personal. Máximo 200 caracteres.",
+  "public_message": "1 oración corta y witty para el feed público. Con nombre completo de ${name} y datos específicos. Máximo 140 caracteres. Si es algo negativo de rendimiento, exponerlo directamente.",
+  "private_message": "Mensaje privado para ${name} (o null). SOLO para temas de salud/bienestar. El rendimiento se dice en público. Máximo 200 caracteres.",
   "emoji": "1 solo emoji que capture la reacción",
-  "feed_type": "uno de: praise, milestone, challenge, observation, warning",
-  "urgency": "low/normal/high"
+  "feed_type": "uno de: praise, milestone, challenge, observation, warning, shame",
+  "urgency": "low/normal/high/critical"
 }
 
 Solo JSON válido. Sin markdown. Sin explicaciones.`;

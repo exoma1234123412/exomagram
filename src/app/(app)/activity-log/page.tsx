@@ -855,7 +855,7 @@ export default function ActivityLogPage() {
  {/* Event card */}
  <Card
  className={cn(
-"transition-all duration-300 hover:shadow-md hover:shadow-primary/5 hover:-translate-y-0.5",
+"transition-all duration-300 hover:border-primary/30 hover:-translate-y-0.5",
  getSeverityStyles(ev.severity),
  idx === 0 &&
  isLive &&

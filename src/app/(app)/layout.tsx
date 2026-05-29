@@ -14,6 +14,7 @@ import { PublicCountdown } from "@/components/social/public-countdown";
 import { RankingStrip } from "@/components/social/ranking-strip";
 import { ShameStreakBadge } from "@/components/social/shame-streak";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
+import { CommandPalette } from "@/components/layout/command-palette";
 import { GhostEffect } from "@/components/social/ghost-effect";
 import { ThroneProvider } from "@/components/social/throne-crown";
 import { DynamicTitleProvider } from "@/components/social/dynamic-title";
@@ -26,9 +27,12 @@ import { ScreenTint } from "@/components/social/screen-tint";
 import { EntryVerdict } from "@/components/social/entry-verdict";
 import { MomentumKiller } from "@/components/social/momentum-killer";
 import { ProductivityPrison } from "@/components/social/productivity-prison";
+import { AIMorningBriefing } from "@/components/ai/ai-morning-briefing";
 import { MorningShameRecap } from "@/components/social/morning-shame-recap";
 import { OrgProvider } from "@/lib/context/org-context";
 import { ActivityTrackerProvider } from "@/components/tracking/activity-tracker";
+import { ClaudeLiveCommentary } from "@/components/ai/claude-live-commentary";
+import { AIAutoFlags } from "@/components/ai/ai-auto-flags";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
  const [logDialogOpen, setLogDialogOpen] = useState(false);
@@ -46,6 +50,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
  <DynamicTitleProvider>
  <ThroneProvider>
  <GhostEffect>
+ <AIMorningBriefing />
  <MorningShameRecap />
  <div className="flex min-h-screen bg-background">
  <Sidebar />
@@ -78,6 +83,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
  <MomentumKiller />
  <ScreenTint />
  <InstallPrompt />
+ <CommandPalette />
+ <ClaudeLiveCommentary />
+ <AIAutoFlags />
  </div>
  </GhostEffect>
  </ThroneProvider>

@@ -8,6 +8,7 @@ import {
  LayoutDashboard, User, Settings, LogOut,
  Crosshair, Swords, Zap, BarChart3, Database, FileText,
  Target, Brain, Eye, Skull, FolderKanban, Scale, Cpu,
+ Activity, ShieldAlert, Search, Command, ScrollText, UserX, DollarSign,
  type LucideIcon,
 } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/notification-bell";
@@ -32,8 +33,13 @@ const navItems: NavItem[] = [
  { href:"/reflection", label:"Reflexión", icon: Brain },
  { href:"/surveillance", label:"Vigilancia", icon: Eye },
  { href:"/intel", label:"Intel", icon: Crosshair },
+ { href:"/conflicts", label:"Conflictos", icon: ShieldAlert },
+ { href:"/ai-predictions", label:"Predicciones", icon: Activity },
  { href:"/arena", label:"Arena", icon: Swords },
  { href:"/shame", label:"Presión", icon: Skull },
+ { href:"/hour-price", label:"Precio/Hora", icon: DollarSign },
+ { href:"/intervention", label:"Intervención", icon: UserX },
+ { href:"/broken-promises", label:"Promesas Rotas", icon: ScrollText },
  { href:"/peer-verdict", label:"Peer Verdict", icon: Scale },
  { href:"/xp", label:"Progreso", icon: Zap },
  { href:"/profile", label:"Perfil", icon: User },
@@ -106,7 +112,18 @@ export function Sidebar() {
  })}
  </nav>
 
- <div className="px-3 py-2 border-t border-border">
+ <div className="px-3 py-2 border-t border-border space-y-0.5">
+ <button
+ onClick={() => {
+ window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }));
+ }}
+ className="flex items-center gap-2.5 w-full px-2 py-1.5 text-[10px] font-mono tracking-wide text-muted-foreground hover:text-foreground transition-colors cursor-pointer uppercase">
+ <Search className="w-3.5 h-3.5"/>
+ <span className="flex-1 text-left">Buscar</span>
+ <kbd className="border border-border px-1 py-0.5 bg-accent/30 font-mono text-[8px] tracking-normal normal-case inline-flex items-center gap-0.5">
+ <Command className="w-2.5 h-2.5" />K
+ </kbd>
+ </button>
  <button
  onClick={handleLogout}
  className="flex items-center gap-2.5 w-full px-2 py-1.5 text-[10px] font-mono tracking-wide text-muted-foreground hover:text-foreground transition-colors cursor-pointer uppercase">

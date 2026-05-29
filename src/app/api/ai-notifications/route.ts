@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { checkAIOrgRateLimit } from "@/lib/ai-rate-limit";
 
 // POST /api/ai-notifications?org_id=xxx
 //
@@ -27,6 +28,11 @@ export async function POST(request: Request) {
   const { searchParams } = new URL(request.url);
   const orgId = searchParams.get("org_id");
   if (!orgId) return NextResponse.json({ error: "org_id required" }, { status: 400 });
+
+  // AI rate limiting (org-level only for cron routes)
+  const rateLimitResponse = checkAIOrgRateLimit(orgId);
+  if (rateLimitResponse) return rateLimitResponse;
+
   if (!process.env.ANTHROPIC_API_KEY) return NextResponse.json({ error: "No API key" }, { status: 500 });
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -51,7 +57,7 @@ export async function POST(request: Request) {
     supabase.from("daily_promises").select("user_id, title, status").eq("org_id", orgId).eq("date", today),
     supabase.from("activity_streaks").select("user_id, current_streak").eq("org_id", orgId),
     supabase.from("live_status").select("user_id, status").eq("org_id", orgId),
-    supabase.from("ai_work_profiles").select("user_id, profile_data").eq("org_id", orgId),
+    supabase.from("ai_work_profiles").select("user_id, profile_data").eq("org_id", orgId).limit(50),
     supabase.from("public_feed").select("id").eq("org_id", orgId).gte("created_at", `${today}T00:00:00`).limit(1),
   ]);
 
@@ -93,27 +99,35 @@ ${state}
 
 Genera DOS tipos de notificaciones:
 
-PRIVADAS (solo la persona las ve):
-- Usa loss aversion: "Tu score bajará X si no..."
-- Usa social comparison: "El equipo promedio lleva Xh, tú llevas Y"
-- Usa specific deadlines: "Quedan Xh para..."
-- Usa su perfil de personalidad para saber qué motiva a cada quien
-- Si van BIEN, dale un push positivo pero con reto: "Excelente 5h, ¿puedes llegar a 7?"
-- Si van MAL, sé directo pero constructivo: "0 horas a las 2pm. Esto va a tu expediente."
+═══ PUBLIC SHAME — CON NOMBRES, TODO EL EQUIPO VE ═══
+Estas situaciones se exponen PÚBLICAMENTE con nombre completo. Sin anonimizar. Sin suavizar:
+- 0 horas al mediodía: "[Nombre] lleva 0 horas a las [hora]. El equipo lleva [X] promedio."
+- Entrada rechazada por Claude: "[Nombre] no pudo describir su trabajo. Claude rechazó la entrada."
+- Promesa rota: "[Nombre] rompió su promesa: '[título]'."
+- Sin standup a las 10am: "[Nombre] no ha hecho standup. [X]/[Y] ya lo hicieron."
+- Sin closeout al final del día: "[Nombre] no cerró su día."
+- Trust Score < 50: "[Nombre] tiene Trust Score de [X]. Nivel crítico."
+- Racha rota: "[Nombre] perdió su racha de [X] días."
+- 3+ flags sin resolver: "[Nombre] acumula [X] alertas sin resolver."
+- 0 evidencia en todas las entradas: "[Nombre] registró [X]h sin una sola evidencia."
+- Ghost (online pero sin actividad): "[Nombre] dice estar online pero [X] min sin actividad."
+- Meeting tax > 50%: "[Nombre] lleva [X]h de [Y]h en reuniones."
+- Git vs horas: "[Nombre] dice [X]h deep work pero 0 commits hoy."
+- También: reconocimiento positivo, datos del equipo, milestones, retos grupales.
 
-PÚBLICAS (todo el equipo las ve en un feed):
-- Praise público: "Erik lleva 4h de deep work consecutivo" (social proof positivo)
-- Milestones: "Andres cumplió todas sus promesas hoy" (incentiva a los demás)
-- Retos al equipo: "Solo 2 de 5 han hecho standup. ¿Quién falta?"
-- NO hagas shame público de individuos. La crítica es privada, el elogio público.
-- Announcements: "Hora de deep work. Bloqueen distracciones."
+═══ PRIVADO — SOLO EL INDIVIDUO VE ═══
+Solo salud/bienestar se comunica en privado:
+- Sueño malo, estrés alto, mood bajo: coaching empático
+- Loss aversion: "Tu score bajará X si no..."
+- Retos personalizados: "Llevas 3h deep work, ¿puedes llegar a 4?"
+- Tips basados en perfil de personalidad
 
-REGLAS PSICOLÓGICAS:
-- Praise in public, criticize in private
-- Usa números concretos, no generalidades
-- Cada notificación debe tener UN call-to-action claro
-- Adapta el tono al perfil de personalidad de cada persona
-- No mandes notificaciones a quien va bien y no necesita intervención
+REGLAS:
+- NOMBRES COMPLETOS en público. Nunca "alguien" o "un miembro del equipo"
+- Salud/bienestar NUNCA se expone públicamente
+- Números concretos SIEMPRE
+- Cada notificación = 1 call-to-action claro
+- Español mexicano informal, directo, brutal
 
 JSON:
 {

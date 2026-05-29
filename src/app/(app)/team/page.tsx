@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import type {
  Profile,
  LiveStatus,
@@ -131,47 +132,18 @@ function teamMoodWeather(avgTrust: number): {
 
 export default function TeamPage() {
  const supabase = createClient();
- const [orgId, setOrgId] = useState<string | null>(null);
- const [orgName, setOrgName] = useState<string>("");
+ const { orgId, orgName: orgNameCtx, loading: orgLoading } = useOrg();
+ const orgName = orgNameCtx ?? "";
  const [members, setMembers] = useState<TeamMember[]>([]);
  const [loading, setLoading] = useState(true);
  const [searchQuery, setSearchQuery] = useState("");
  const [sortBy, setSortBy] = useState<SortKey>("status");
  const [kudosSent, setKudosSent] = useState<Set<string>>(new Set());
 
- // ── Load org ────────────────────────────────────────────────
-
- useEffect(() => {
- async function loadOrg() {
- const {
- data: { user },
- } = await supabase.auth.getUser();
- if (!user) return;
-
- const { data: membership } = await supabase
- .from("org_members")
- .select("org_id")
- .eq("user_id", user.id)
- .limit(1)
- .single();
- if (!membership) return;
-
- setOrgId(membership.org_id);
-
- const { data: org } = await supabase
- .from("organizations")
- .select("name")
- .eq("id", membership.org_id)
- .single();
- if (org) setOrgName(org.name);
- }
- loadOrg();
- }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
  // ── Load team data ──────────────────────────────────────────
 
  const loadData = useCallback(async () => {
- if (!orgId) return;
+ if (orgLoading || !orgId) return;
  const today = new Date().toISOString().split("T")[0];
 
  const [
@@ -283,10 +255,10 @@ export default function TeamPage() {
 
  setMembers(teamMembers);
  setLoading(false);
- }, [orgId, supabase]);
+ }, [orgId, orgLoading, supabase]);
 
  useEffect(() => {
- if (!orgId) return;
+ if (orgLoading || !orgId) return;
 
  loadData();
 
@@ -327,7 +299,7 @@ export default function TeamPage() {
  supabase.removeChannel(entriesChannel);
  clearInterval(interval);
  };
- }, [orgId, loadData, supabase]);
+ }, [orgId, orgLoading, loadData, supabase]);
 
  // ── Filtering & Sorting ─────────────────────────────────────
 
@@ -512,7 +484,7 @@ export default function TeamPage() {
  </div>
 
  {/* Member Grid */}
- {loading ? (
+ {loading || orgLoading ? (
  <div className="flex flex-col items-center justify-center py-24 gap-3">
  <div className="w-10 h-10 bg-primary animate-pulse"/>
  <p className="text-sm text-muted-foreground animate-pulse">

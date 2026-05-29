@@ -73,7 +73,7 @@ export default function WelcomePage() {
  <div className="flex gap-5 items-start">
  {/* Number + connector */}
  <div className="flex flex-col items-center shrink-0">
- <div className="w-10 h-10 bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-md">
+ <div className="w-10 h-10 bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg">
  {step.number}
  </div>
  {i < STEPS.length - 1 && (

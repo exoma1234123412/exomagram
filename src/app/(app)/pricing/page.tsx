@@ -251,7 +251,7 @@ export default function PricingPage() {
  >
  <span
  className={cn(
-"inline-block h-5 w-5 rounded-full bg-white shadow-md transition-transform",
+"inline-block h-5 w-5 rounded-full bg-white transition-transform",
  annual ?"translate-x-6":"translate-x-1")}
  />
  </button>
@@ -298,7 +298,7 @@ export default function PricingPage() {
  <div
  className={cn(
 "w-10 h-10 flex items-center justify-center text-white",
- tier.id ==="free"?"bg-gradient-to-br from-gray-500 to-gray-700": tier.id ==="pro"?"bg-primary shadow-blue-600/25":"bg-gradient-to-br from-indigo-500 to-purple-700 shadow-purple-600/25")}
+ tier.id ==="free"?"bg-gradient-to-br from-gray-500 to-gray-700": tier.id ==="pro"?"bg-primary":"bg-gradient-to-br from-indigo-500 to-purple-700 shadow-purple-600/25")}
  >
  {tier.icon}
  </div>
@@ -496,7 +496,7 @@ export default function PricingPage() {
  </p>
  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
  <Link
- href="/signup"className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-white font-semibold text-lg shadow-blue-600/25 hover:shadow-blue-600/40 transition-all hover:scale-105">
+ href="/signup"className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-white font-semibold text-lg hover:shadow-blue-600/40 transition-all hover:scale-105">
  <Users className="w-5 h-5"/>
  Empezar gratis
  </Link>

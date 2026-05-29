@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import type {
  Profile,
  TimeEntry,
@@ -78,34 +79,16 @@ const TOTAL_SLOTS = TIMELINE_END - TIMELINE_START + 1;
 
 export default function RecapPage() {
  const supabase = createClient();
- const [orgId, setOrgId] = useState<string | null>(null);
+ const { orgId, loading: orgLoading } = useOrg();
  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
  const [members, setMembers] = useState<MemberRecap[]>([]);
  const [totalReactions, setTotalReactions] = useState(0);
  const [loading, setLoading] = useState(true);
  const [copied, setCopied] = useState(false);
 
- // Load org
- useEffect(() => {
- async function loadOrg() {
- const {
- data: { user },
- } = await supabase.auth.getUser();
- if (!user) return;
- const { data: membership } = await supabase
- .from("org_members")
- .select("org_id")
- .eq("user_id", user.id)
- .limit(1)
- .single();
- if (membership) setOrgId(membership.org_id);
- }
- loadOrg();
- }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
  // Load data
  useEffect(() => {
- if (!orgId) return;
+ if (orgLoading || !orgId) return;
 
  async function loadRecap() {
  setLoading(true);
@@ -242,7 +225,7 @@ export default function RecapPage() {
  }
 
  loadRecap();
- }, [orgId, date]); // eslint-disable-line react-hooks/exhaustive-deps
+ }, [orgId, orgLoading, date]); // eslint-disable-line react-hooks/exhaustive-deps
 
  // ────────────────────────────────────────────────────────────────
  // Computed stats
@@ -471,7 +454,7 @@ export default function RecapPage() {
  </div>
  </div>
 
- {loading ? (
+ {loading || orgLoading ? (
  <div className="flex flex-col items-center justify-center py-24 gap-3">
  <div className="w-10 h-10 bg-primary animate-pulse"/>
  <p className="text-sm text-muted-foreground animate-pulse">
@@ -579,7 +562,7 @@ export default function RecapPage() {
  {getInitials(mvp.profile.full_name)}
  </AvatarFallback>
  </Avatar>
- <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-yellow-400 flex items-center justify-center shadow-md">
+ <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-yellow-400 flex items-center justify-center">
  <Trophy className="w-4 h-4 text-yellow-900"/>
  </div>
  </div>

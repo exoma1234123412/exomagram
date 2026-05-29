@@ -1193,7 +1193,7 @@ export default function FeedPage() {
  className={cn(
 "fixed bottom-6 right-6 z-40 flex items-center gap-2 px-5 py-3",
 "bg-primary hover:from-blue-700 hover:to-blue-800",
-"text-white font-semibold text-sm shadow-blue-600/25",
+"text-white font-semibold text-sm",
 "transition-all duration-300 hover:scale-105 active:scale-95",
  shouldPulse &&"animate-pulse")}
  >

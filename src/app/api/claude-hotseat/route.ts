@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { checkAIRateLimit } from "@/lib/ai-rate-limit";
 
 // POST /api/claude-hotseat?org_id=xxx&user_id=xxx
 // THE HOT SEAT: Deep-dive audit of ONE specific person.
@@ -9,6 +10,9 @@ import { NextResponse } from "next/server";
 // uncomfortable, honest analysis possible. Like a performance review from hell.
 
 export async function POST(request: Request) {
+  // AI rate limiting
+  const rateLimitResponse = await checkAIRateLimit(request);
+  if (rateLimitResponse) return rateLimitResponse;
   // Auth: verify the requesting user is authenticated and a member of the org
   const authSupabase = await createServerClient();
   const { data: { user } } = await authSupabase.auth.getUser();

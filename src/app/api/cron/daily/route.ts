@@ -38,12 +38,15 @@ export async function GET(request: Request) {
     results.flags_error = (e as Error).message;
   }
 
+  // Fetch orgs once and reuse across all steps
+  const { data: orgs } = await supabase.from("organizations").select("id");
+  const orgList = orgs ?? [];
+
   // 2. Send Slack digest if webhook is configured
   const slackWebhook = process.env.SLACK_WEBHOOK_URL;
   if (slackWebhook) {
     try {
-      const { data: orgs } = await supabase.from("organizations").select("id");
-      for (const org of orgs ?? []) {
+      for (const org of orgList) {
         await fetch(
           `${new URL(request.url).origin}/api/slack/webhook`,
           {
@@ -61,8 +64,7 @@ export async function GET(request: Request) {
 
   // 3. Run AI review
   try {
-    const { data: orgs } = await supabase.from("organizations").select("id");
-    for (const org of orgs ?? []) {
+    for (const org of orgList) {
       await fetch(
         `${new URL(request.url).origin}/api/ai-review?org_id=${org.id}&date=${date}`,
         { method: "POST", headers: cronHeaders }
@@ -75,8 +77,7 @@ export async function GET(request: Request) {
 
   // 4. Run AI Audit (grades everyone A-F, impacts trust score)
   try {
-    const { data: orgs } = await supabase.from("organizations").select("id");
-    for (const org of orgs ?? []) {
+    for (const org of orgList) {
       await fetch(
         `${new URL(request.url).origin}/api/ai-audit?org_id=${org.id}&date=${date}`,
         { method: "POST", headers: cronHeaders }
@@ -89,8 +90,7 @@ export async function GET(request: Request) {
 
   // 5. AI Process Day — generate insights, update profiles, predict signals
   try {
-    const { data: orgs } = await supabase.from("organizations").select("id");
-    for (const org of orgs ?? []) {
+    for (const org of orgList) {
       await fetch(
         `${new URL(request.url).origin}/api/ai-process-day?org_id=${org.id}&date=${date}`,
         { method: "POST", headers: cronHeaders }
@@ -109,8 +109,7 @@ export async function GET(request: Request) {
       const lastMonday = new Date();
       lastMonday.setDate(lastMonday.getDate() - 6);
       const weekStart = lastMonday.toISOString().split("T")[0];
-      const { data: orgs } = await supabase.from("organizations").select("id");
-      for (const org of orgs ?? []) {
+      for (const org of orgList) {
         await fetch(
           `${new URL(request.url).origin}/api/weekly-summary/generate?org_id=${org.id}&week_start=${weekStart}`,
           { method: "POST", headers: cronHeaders }

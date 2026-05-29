@@ -40,10 +40,7 @@ export function KeyboardShortcuts({ onNewEntry }: KeyboardShortcutsProps) {
  // Listen for cmd+k and cmd+n
  useEffect(() => {
  function handleKeyDown(e: KeyboardEvent) {
- if ((e.metaKey || e.ctrlKey) && e.key ==="k") {
- e.preventDefault();
- setOpen((prev) => !prev);
- }
+ // Cmd+K is handled by CommandPalette — do not intercept here
  if ((e.metaKey || e.ctrlKey) && e.key ==="n") {
  e.preventDefault();
  onNewEntry?.();

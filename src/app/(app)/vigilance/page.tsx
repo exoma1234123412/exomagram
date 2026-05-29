@@ -610,7 +610,7 @@ function PersonCard({
  {/* ---- Row 1: Avatar + name + status ---- */}
  <div className="flex items-start gap-3">
  <div className="relative">
- <Avatar className="w-12 h-12 ring-2 ring-background shadow-md">
+ <Avatar className="w-12 h-12 ring-2 ring-background">
  <AvatarImage src={card.profile.avatar_url ?? undefined} />
  <AvatarFallback className="text-sm font-bold bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
  {getInitials(card.profile.full_name)}

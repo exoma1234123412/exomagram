@@ -1005,7 +1005,7 @@ export function LogEntryDialog({
  }}
  recentEntries={recentEntries}
  onApproved={handleActualSubmit}
- onNegativeSubmit={handleActualSubmit}
+ onNegativeSubmit={handleNegativeSubmit}
  onCancel={() => setValidating(false)}
  />
  )}

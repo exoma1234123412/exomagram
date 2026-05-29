@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrg } from "@/lib/context/org-context";
 import type { TimeEntry, Profile } from "@/lib/types/database";
 import type { WorkCategory } from "@/lib/types/database";
 import { CATEGORIES, REACTIONS, EXPECTED_DAILY_HOURS } from "@/lib/constants";
@@ -410,9 +411,9 @@ function StorySelector({
 export default function StoriesPage() {
  const supabase = createClient();
  const router = useRouter();
+ const { orgId, loading: orgLoading } = useOrg();
 
  // State
- const [orgId, setOrgId] = useState<string | null>(null);
  const [stories, setStories] = useState<UserStory[]>([]);
  const [loading, setLoading] = useState(true);
  const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
@@ -430,34 +431,11 @@ export default function StoriesPage() {
  const elapsedBeforePauseRef = useRef<number>(0);
 
  // ──────────────────────────────────────────────────────────────
- // Load org
- // ──────────────────────────────────────────────────────────────
-
- useEffect(() => {
- async function loadOrg() {
- const {
- data: { user },
- } = await supabase.auth.getUser();
- if (!user) return;
-
- const { data: membership } = await supabase
- .from("org_members")
- .select("org_id")
- .eq("user_id", user.id)
- .limit(1)
- .single();
-
- if (membership) setOrgId(membership.org_id);
- }
- loadOrg();
- }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
- // ──────────────────────────────────────────────────────────────
  // Load data
  // ──────────────────────────────────────────────────────────────
 
  useEffect(() => {
- if (!orgId) return;
+ if (orgLoading || !orgId) return;
 
  async function loadStories() {
  setLoading(true);
@@ -563,7 +541,7 @@ export default function StoriesPage() {
  }
 
  loadStories();
- }, [orgId]); // eslint-disable-line react-hooks/exhaustive-deps
+ }, [orgId, orgLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
  // ──────────────────────────────────────────────────────────────
  // Current story / slide helpers
@@ -827,7 +805,7 @@ export default function StoriesPage() {
  // Loading state
  // ──────────────────────────────────────────────────────────────
 
- if (loading || !orgId) {
+ if (loading || orgLoading || !orgId) {
  return (
  <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
  <div className="flex flex-col items-center gap-3">
