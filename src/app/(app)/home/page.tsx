@@ -46,7 +46,7 @@ import {
 // ─── GREETING LOGIC ─────────────────────────────────────────
 function getGreeting(name: string): { text: string; icon: typeof Sun } {
  const hour = new Date().getHours();
- const first = name.split("")[0] || name;
+ const first = name.split(" ")[0] || name;
  if (hour < 12) return { text:`Buenos dias, ${first}`, icon: Sunrise };
  if (hour < 19) return { text:`Buenas tardes, ${first}`, icon: Sun };
  return { text:`Buenas noches, ${first}`, icon: Moon };
@@ -182,22 +182,22 @@ function ProgressRing({
 
 // ─── TYPE EMOJI FOR NOTIFICATIONS ──────────────────────────
 const TYPE_EMOJI: Record<string, string> = {
- entry_logged:"--",
- shoutout_received:"--",
- reaction_received:"👍",
- flag_raised:"!!",
- standup_reminder:"--",
- closeout_reminder:"--",
- verification_request:"--",
- goal_completed:"--",
- streak_milestone:"--",
+ entry_logged:"LOG",
+ shoutout_received:"REC",
+ reaction_received:"+1",
+ flag_raised:"ALT",
+ standup_reminder:"STD",
+ closeout_reminder:"CLO",
+ verification_request:"VER",
+ goal_completed:"OBJ",
+ streak_milestone:"STK",
 };
 
 const REACTION_EMOJI: Record<ReactionType, string> = {
- verified:"OK",
+ verified:"+1",
  suspicious:"??",
- impressive:"--",
- helped_me:"--",
+ impressive:"++",
+ helped_me:">>",
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -380,7 +380,7 @@ export default function HomePage() {
  const tp = (allProfiles ?? []).find((p) => p.id === maxUser);
  if (tp) {
  topPerformer = {
- name: (tp.full_name as string)?.split("")[0] ??"?",
+ name: (tp.full_name as string)?.split(" ")[0] ??"?",
  hours: maxHours,
  };
  }
@@ -495,8 +495,8 @@ export default function HomePage() {
  return (
  <div className="flex items-center justify-center h-screen">
  <div className="flex flex-col items-center gap-3">
- <div className="w-10 h-10 bg-primary animate-pulse"/>
- <p className="text-sm text-muted-foreground animate-pulse">
+ <div className="w-8 h-8 border border-primary animate-pulse"/>
+ <p className="text-xs font-mono text-muted-foreground tracking-widest uppercase animate-pulse">
  Cargando...
  </p>
  </div>
@@ -538,12 +538,12 @@ export default function HomePage() {
  ═══════════════════════════════════════════════════════ */}
  <div className="mb-8">
  <div className="flex items-center gap-3 mb-1">
- <GreetingIcon className="w-6 h-6 text-primary"/>
- <h1 className="text-2xl font-bold tracking-tight">
+ <GreetingIcon className="w-5 h-5 text-primary"/>
+ <h1 className="text-xl font-mono font-bold tracking-tight uppercase">
  {greeting.text}
  </h1>
  </div>
- <p className="text-muted-foreground text-sm capitalize">
+ <p className="text-muted-foreground text-xs font-mono capitalize">
  {displayDate}
  </p>
  </div>
@@ -553,7 +553,7 @@ export default function HomePage() {
  ═══════════════════════════════════════════════════════ */}
  <Card className="mb-8 overflow-hidden transition-all duration-300 hover:border-primary/30">
  <CardContent className="p-6">
- <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-5">
+ <p className="text-[9px] font-mono font-bold text-muted-foreground uppercase tracking-[0.18em] mb-5">
  Tu dia de un vistazo
  </p>
 
@@ -567,7 +567,7 @@ export default function HomePage() {
  strokeWidth={10}
  />
  <div className="absolute inset-0 flex flex-col items-center justify-center rotate-0">
- <span className="text-3xl font-bold tabular-nums tracking-tight">
+ <span className="text-3xl font-mono font-black tabular-nums tracking-tight">
  {state.hoursLogged}
  </span>
  <span className="text-xs text-muted-foreground">
